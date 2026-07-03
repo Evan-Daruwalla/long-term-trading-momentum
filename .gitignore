@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.env
+alpaca_keys.env
+var/
+*.db
+*.db-journal
+
+# Claude Code / ruflo tooling & runtime state (personal, not project source)
+.claude/
+.mcp.json
+.claude-flow/
+.swarm/
+
+# graphify knowledge-graph build artifacts
+graphify-out/

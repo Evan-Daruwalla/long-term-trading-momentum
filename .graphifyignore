@@ -1,0 +1,23 @@
+# Graphify scope: index the trading_bot/ core package + scripts/ ops code.
+# Exclude docs, tests, research one-offs, and data/state dirs.
+# gitignore syntax; merged with .gitignore and can only ever exclude MORE.
+
+# Non-code / data / build artifacts
+docs/
+var/
+cache/
+history/
+graphify-out/
+
+# Research one-offs and standalone experiments (the bulk of the noise;
+# this dir also holds all the test_*.py backtest experiments)
+scripts/momentum/research/
+
+# Test files anywhere (e.g. trading_bot/strategies/test_strategies.py)
+test_*.py
+*_test.py
+
+# Tooling / agent state (not source)
+.claude/
+.claude-flow/
+.swarm/
