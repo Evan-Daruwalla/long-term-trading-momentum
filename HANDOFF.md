@@ -8,37 +8,48 @@ rigor + a track record**, not "make money now." Every strategy gets a proper
 in-sample / held-out evaluation before it's trusted; the workflow itself is
 the asset.
 
-## Current state — Phase 2d, 5 systematic + 3 LLM-experiment + 1 benchmark
+## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
 
-**Last updated: 2026-06-13**
+**Last updated: 2026-07-07** — full snapshot: `docs/state_2026-07-07.md`.
 
-> **2026-06-13 — major data fix + sleeve re-inception (record Appendix AA).**
-> A systemic cache-gap bug (~815 tickers incl. AAPL/GOOGL missing 2019-2025
-> data) had phantom-ranked stale-momentum names into the sleeves (~half of every
-> momentum book). Backfilled the missing data (2.25M rows), re-baselined the
-> frozen tests, and **re-inceptioned the 6 contaminated sleeves fresh at $100k on
-> clean data as-of 2026-06-12**. Their old 2026-05-01 → 06-12 record was phantom-
-> contaminated (archived, invalid). Backtest numbers below are STALE pending
-> re-validation on the backfilled cache.
+> **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
+> Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
+> unattended `cohort-0706-deploy` scheduled task; 3 of them are mirrored to
+> Evan's real Alpaca PAPER accounts (99 orders submitted, 0 rejections); and the
+> monthly `monthy-llm-rebalance` scheduled task was re-enabled (first live fire
+> 2026-08-01). This sits alongside — not replacing — the continuous May family.
 
-### Running sleeves (9 total in DB)
+The DB now holds **17 sleeves in three families** (full roster + rationale in
+`CLAUDE.md`):
 
-| Sleeve | Type | Top-N | Inception | NAV | Return | Notes |
-|---|---|---:|---|---:|---:|---|
-| mom_roa_6535_paper | systematic | 50 | 2026-05-01 | $106,579 | +6.58% | backdated, clean data |
-| residual_roa_6535_paper | systematic | 50 | 2026-05-01 | $106,134 | +6.13% | backdated |
-| sector_top4_paper | systematic | 4 | 2026-05-01 | $103,803 | +3.80% | ETFs, untouched |
-| spy_benchmark_paper | benchmark | — | 2026-05-01 | $102,928 | +2.93% | untouched |
-| mom_v1_paper | systematic | 100 | 2026-05-01 | $102,358 | +2.36% | backdated |
-| mom_v2_paper | systematic | 50 | 2026-05-01 | $101,394 | +1.39% | backdated |
-| mom_roa_top1_paper | LLM control | 1 | 2026-06-12 | $99,950 | — | AAOI (new clean #1) |
-| llm_overlay_mom_roa_top1_paper | LLM treatment | 1 | 2026-06-12 | $100,000 | — | cash (AAOI VETOed) |
-| llm_overlay_sector_top4_paper | LLM treatment | 4 | 2026-06-05 | $99,962 | — | seeded 06-12, VETO XLE |
+**1. Continuous May systematic + benchmark** (inception 2026-05-01; the 6
+contaminated sleeves were re-inceptioned on clean data 2026-06-13):
 
-The 4 systematic sleeves were **backdated to 2026-05-01 on clean data** (06-13),
-aligned with the ETF sleeves. The **LLM stock pair stays at 2026-06-12** — its
-treatment decisions can't be honestly backdated (would inject hindsight). Clean
-live returns above are 05-01→06-12; mom_roa leads, residual 2nd, both beat SPY.
+| Sleeve | NAV (2026-07-07) |
+|---|---:|
+| residual_roa_6535_paper | $104,964 |
+| spy_benchmark_paper | $103,755 |
+| sector_top4_full_paper (continuous systematic twin) | $102,271 |
+| mom_roa_6535_paper | $96,982 |
+| mom_v2_paper | $95,200 |
+| mom_v1_paper | $95,124 |
+
+**2. 07-06 cohort — 5 systematic `_0701` + benchmark** (inception 2026-07-06;
+★ = mirrored to Alpaca PAPER): `mom_roa_6535_0701_paper`★ $100,355 ·
+`mom_v2_0701_paper` $100,212 · `residual_roa_6535_0701_paper`★ $100,207 (48/50,
+2 untradable) · `mom_v1_0701_paper` $100,141 · `spy_benchmark_0701_paper`★
+$99,525.
+
+**3. 07-06 cohort — 6 LLM-experiment** (inception 2026-07-06): stock arm
+`mom_roa_top1_paper` (control, holds **BE**) / `llm_overlay_mom_roa_top1_paper`
+(veto→**cash**, BE vetoed) / `llm_cascade_top1_paper` (cascade→**WDC**); sector
+arm `sector_top4_paper` (control XLK/XLE/XLI/XLB) /
+`llm_overlay_sector_top4_paper` (XLK/XLI/XLB, XLE→cash) /
+`llm_cascade_sector4_paper` (XLK/XLI/XLB/**XLV**).
+
+> ⚠️ **Do not confuse** `sector_top4_paper` (07-06 LLM-experiment control) with
+> `sector_top4_full_paper` (continuous systematic twin, unbroken since 05-01).
+> They hold identical picks going forward; they differ only in pre-07-01 P&L.
 
 ### Systematic sleeve specs
 
@@ -215,15 +226,22 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 
 ## Monthly operations (first trading day of each month)
 
-1. Run `rebalance.bat` (after market close; it refreshes prices, rebalances
-   all 5 systematic sleeves, MTMs everything incl. SPY benchmark).
-2. For LLM stock overlay: if control sleeve changes its underlying name,
-   run the 3-prompt eval first, log a BUY/VETO decision via
-   `llm_overlay_ops.py decide`, then re-run `rebalance.bat`.
-3. For sector overlay (when seeded): run `sector_overlay_ops.py candidate`,
-   then 4 macro-prompt decisions via `decide`, then `rebalance.bat`.
-4. Review dashboard Overview after rebalance — check NAV continuity, cash
-   recon, stale-data warnings.
+**Now automated** via the `monthy-llm-rebalance` Claude scheduled task (cron
+`0 18 * * *`, 6:03pm local; self-gates on `rebalance_log.md` so only the first
+trading day of the month does real work). It runs `rebalance.bat` (all 10 paper
+lines carry `--broker-realistic`), does the LLM overlay decisions per
+`docs/overlay_decision_runbook.md`, MTMs everything, and fires
+`alpaca_sync --all --execute`. First live fire under this schedule: 2026-08-01.
+If monthly rebalances stop running, confirm the task is enabled (memory
+`monthly_rebalance_trigger_timing_bug.md`).
+
+Manual fallback (same steps) if you ever need to run it by hand:
+1. `rebalance.bat` after market close (refresh → rebalance → MTM → Alpaca mirror).
+2. LLM stock overlay: if the control changes its underlying name, run the eval,
+   log a BUY/VETO via `llm_overlay_ops.py decide`, then re-run.
+3. Sector overlay: `sector_overlay_ops.py candidate` → 4 macro decisions via
+   `decide` → rebalance.
+4. Review dashboard Overview — NAV continuity, cash recon, stale-data warnings.
 
 ## Documentation
 - `docs/record_2026-05-27.md` — **renamed 2026-06-30 to
@@ -235,7 +253,8 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
   double-clickable view of the record (generated; regenerate with
   `.venv\Scripts\python.exe -m scripts.render_record_html`, or run
   `scripts\watch_record_html.bat` to auto-render on every save)
-- `docs/state_2026-05-28.md` — current project state snapshot
+- `docs/state_2026-07-07.md` — **current** project state snapshot (older
+  `state_*.md` files kept, marked superseded at their tops)
 - `docs/paper_trading_ops.md` — ops guide (daily/monthly procedures)
 - `docs/research_2026-06-09_algo_candidates.md` — June algo-research report
 - `memory/` — per-verdict memory files (sleeves_verdict, data_audit, etc.)

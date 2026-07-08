@@ -3473,3 +3473,124 @@ first:
   must first delete pre-07-06 nav rows for these 11 sleeves.** The partial 07-02 closes now in
   `price_cache` are correct values (harmless; future refresh fills the gap). State otherwise
   unchanged from AT: 11 sleeves $100k/flat/incep-07-06, task still disabled, code fixes in place.
+
+# Appendix AV - 07-06 cohort deploy executed; all 11 sleeves live, Alpaca mirrored, monthly task re-enabled (2026-07-07, ~13:20 local)
+
+Ran as the scheduled `cohort-0706-deploy` one-time task, unattended, ~4am-plus gate satisfied.
+
+**Precondition (Step 1):** `daily_price_refresh` ran clean (only routine delisted-ticker noise).
+`price_cache` count for `2026-07-06` = **5,206 closes** (vs recent-day baseline ~5,200-5,255) →
+PASS, well clear of the 5,000 abort floor. Proceeded.
+
+**Cleanup (Step 2):** deleted 11 stray pre-inception `paper_nav` rows (dated `2026-07-03`, written by
+the holiday-weekend 5:15pm MTM per Appendix AU's warning) — one per cohort sleeve. Confirmed 0
+remain before `2026-07-06`.
+
+**Systematic 0701 deploy (Step 3), all `--broker-realistic`:**
+- `mom_v1_0701_paper` — top-100, 100/100 bought, cash $145.00
+- `mom_v2_0701_paper` — top-50, 50/50 bought, cash $112.31
+- `mom_roa_6535_0701_paper` — top-50, 50/50 bought, cash $110.37
+- `residual_roa_6535_0701_paper` — top-50, **48/50** bought (FMBM, EMYB skipped — untradable/
+  inactive on Alpaca, normal broker-realistic behavior, not a bug), cash $120.97
+- `spy_benchmark_0701_paper` — seeded 133.106 SPY @ $751.28 on 2026-07-06, MTM'd to $99,506.17
+  (-0.49%, tracks SPY's actual 07-06→07-07 move)
+
+**LLM-experiment decisions (Step 4), live-web research dated 2026-07-07 (all rationale + source URLs
+logged in the decision tables):**
+- **Stock control candidate BE (Bloom Energy), score 4, VETO.** 128x forward P/E / ~19x NTM revenue
+  vs peer median ~6x; price $263.81 already above the $181.79 consensus analyst target; -23.7% off
+  52w high, below 50-DMA; Q2 earnings 7/28 sets a high bar into an already-stretched valuation —
+  textbook "momentum blow-off now rolling over."
+- **Stock cascade walked to #2 WDC (Western Digital), score 6, BUY** (BE VETO'd, cascade needs the
+  first BUY). Distinguished from BE by durability: HDD capacity sold out through 2026 with firm
+  multi-year customer contracts into 2027-2028 (real revenue visibility, not pure momentum), 30x fwd
+  P/E vs 16x tech-sector average (elevated but not extreme). Cascade sleeve holds WDC; stock control
+  still holds BE (unaffected by the veto by design); stock overlay treatment sits in CASH.
+- **Sector candidates (top-4 by 12-1 momentum): XLK HOLD(6), XLE VETO(3), XLI HOLD(8), XLB HOLD(5).**
+  XLE repeats the 2026-06-12 fragile-geopolitical-rally VETO pattern (below 50-DMA, RSI 38, negative
+  1m/3m, EIA sees 2026 demand -1.1mb/d against rising non-OPEC+ supply). XLI cleanest setup (above
+  50-DMA, RSI 55, +10.1% 3m, reshoring/infra/data-center capex tailwind, broad holdings). XLB the
+  recurring marginal-hold (barely above 50-DMA, weak RSI 41, but copper/AI-infra demand intact).
+  Sector overlay treatment: 3 of 4 slots filled (XLK/XLI/XLB), XLE slot in cash.
+- **Sector cascade needed a 4th HOLD** (only 3 of the top-4 HOLD'd) — walked to rank #5 **XLV
+  (Health Care), score 7, HOLD**: strong rotation-into-healthcare trend (9.6% above 50-DMA, at its
+  52w high, GLP-1/oncology earnings strength offsetting an overbought RSI 72.2, which is the noted
+  near-term risk). Cascade sector sleeve holds XLK/XLI/XLB/XLV, all 4 slots filled — no
+  momentum-fill leakage needed.
+- Rebalanced in order: `llm_overlay_ops rebalance --mode control` (BE), `--mode overlay` (VETO→cash),
+  `llm_cascade_ops rebalance-stock` (WDC), `paper_rebalance --strategy sector_top4_paper --top-n 4`
+  (control, all 4 incl. vetoed XLE), `sector_overlay_ops rebalance` (treatment, 3 of 4),
+  `llm_cascade_ops rebalance-sector` (4 of 4).
+
+**MTM (Step 5):** all 11 sleeves MTM'd clean — cash reconciles to entry-vs-invested, position counts
+match target (100/50/50/48/1/1/0/1/4/3/4), no drift.
+
+**Alpaca PAPER mirror (Step 6):** `alpaca_sync --all --execute` against the 3 fresh accounts —
+`residual_roa_6535_0701_paper` 48/48 submitted (0 rejected), `mom_roa_6535_0701_paper` 50/50
+submitted (0 rejected), `spy_benchmark_0701_paper` 1/1 submitted (0 rejected). 99 DAY orders total,
+queued to the next market open, 0 rejections.
+
+**Monthly task (Step 7):** `monthy-llm-rebalance` re-enabled, cron changed `30 17 * * *` →
+`0 18 * * *` (6:03pm local w/ dispatch jitter) per the deploy task's instruction. Its July log gate
+still no-ops the rest of the month; first live fire will be 2026-08-01.
+
+State: all 11 07-06-cohort sleeves are now live and invested (or intentionally in cash per a logged
+VETO), 3 mirrored to real Alpaca PAPER accounts, recurring monthly automation restored for August.
+
+# Appendix AW - Session ops: RuFlo statusline disabled (stray-file source), shadow-file recurrence, deploy scheduled from chat (2026-07-05..07-07)
+
+Housekeeping done across an interactive session that spanned the deploy (the deploy itself is AV;
+this is the surrounding manual work).
+
+**Stray root-level files diagnosed.** Empty untracked files named `12` (07-03 08:13) and `20%`
+(07-05 20:01) kept appearing in the repo root — the same *class* as the CLAUDE.md cmd.exe
+shadow-file gotcha, but a new source. Ruled OUT the `.bat`/scheduled-task path (no reboot/logon near
+the timestamps; no bare numeric redirect in any `.bat`; no `shell=True`/`os.system` in the Python).
+Traced `20%` to the **RuFlo V3 statusline** (`.claude/helpers/statusline.cjs`), which prints raw
+`"20% ctx"` (unescaped `%`) on nearly every turn via a `cmd /c` invocation — leaking `%`-fragments as
+redirect targets. **FIX: removed the `statusLine` block from `.claude/settings.json`** (decorative
+RuFlo progress metrics unrelated to trading; every re-render was a chance to drop junk). The
+docs-cadence hook and ruflo MCP hooks were left untouched.
+
+**HONEST OPEN ITEM (not fixed):** format-spec-named files (`4`, `10.2f}`, `12.2f}`) **recurred
+2026-07-07 ~18:29**, i.e. AFTER the statusline disable — so the statusline was the `20%` source but
+NOT the source of these. They look like Python format specs (`{:>10.2f}` etc.) leaking as shell
+redirect targets from an evening scheduled run (a `scratch_positions.csv`, 49 KB, dropped at the same
+18:29 timestamp). Source not yet found; the files are empty and harmless but clutter `git status`.
+Flagged for a future session. Also noted: an untracked `PRD_ROADMAP.md` (25 KB) appeared at 23:11 —
+author/intent unconfirmed, left untouched.
+
+**Other session work:** fixed a "run un" typo in both `daily-trade-check` / `daily-trade-check-2`
+scheduled-task SKILL.md files; committed the day's `daily_report.md`/`.html` (commit 673a72b); and
+**scheduled the `cohort-0706-deploy` one-time task** (fireAt 2026-07-07 04:05 local) from chat, with a
+fully self-contained prompt + a Step-1 abort-gate requiring >=5,000 closes for 2026-07-06 before
+deploying — which is what then ran as AV. NB: the session's injected context date was stale by ~2 days
+(showed 07-05 while the real clock was 07-07), caught via the system clock during this doc sync;
+absolute-timestamp scheduling made the deploy fire correctly regardless.
+
+# Appendix AX - CLAUDE.md rewritten; ruflo fully removed; PRD-handoff system built (2026-07-08, ~afternoon)
+
+**WHAT:** Cross-project handoff-hardening session (run from D:\ClaudeCode root). In this repo:
+(1) `CLAUDE.md` rewritten — added purpose/stack/commands, hard rules (read-only DB default, never
+run trading ops, 5:00-6:30pm window, alpaca_keys.env, HTML twins, newest-last daily_report), and a
+definition of done; REMOVED the stale sleeve roster (it had drifted from the 07-06 re-inception —
+HANDOFF.md is now the single roster source) and the dead ruflo section. Old file kept at
+`CLAUDE.md.bak_2026-07-08`. (2) Ruflo/claude-flow fully removed: hooks stripped from
+`.claude/settings.json` (docs-cadence hook preserved; backup at
+`.claude/settings.json.bak_pre_ruflo_cleanup_2026-07-08`), `.claude-flow/` (30K) and `.swarm/`
+(1.8M) deleted, duplicate `.claude/skills/skill-builder` deleted. Globally: ruflo hooks stripped
+from `~/.claude/settings.json`, `~/.claude/agents` and `~/.claude/helpers` renamed to
+`*.bak_claude_flow_2026-07-08` (reversible). This completes what Appendix AW started (statusline
+disable) — the MCP server itself was already gone (`.mcp.json.bak_pre_ruflo_removal`).
+
+**WHY:** Evan is preparing to hand day-to-day execution to cheaper models (Opus/Sonnet); CLAUDE.md
+must be self-sufficient, and the dead ruflo section actively instructed models to use MCP tools
+that no longer exist. The ~100-agent claude-flow roster in `~/.claude/agents` was loading into
+every session on every project — pure token drag.
+
+**HOW:** Audit first (verified .mcp.json absent, agents/commands dirs empty, hook-handler.cjs
+falling back to the user-level copy), Evan approved scope via four decisions (full ruflo cleanup;
+dups-only skill deletion), then backups before every destructive step. New user-level skills
+`/prd-next` and `/record-entry` operationalize the PRD_ROADMAP execution loop; a model-handoff
+protocol section was added to the global `~/.claude/CLAUDE.md`. No trading code, data, or
+scheduled tasks were touched; frozen tests not run (no Python changed).
