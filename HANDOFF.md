@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
 
-**Last updated: 2026-07-07** — full snapshot: `docs/state_2026-07-07.md`.
+**Last updated: 2026-07-08** — full snapshot: `docs/state_2026-07-07.md`.
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -19,8 +19,13 @@ the asset.
 > monthly `monthy-llm-rebalance` scheduled task was re-enabled (first live fire
 > 2026-08-01). This sits alongside — not replacing — the continuous May family.
 
-The DB now holds **17 sleeves in three families** (full roster + rationale in
-`CLAUDE.md`):
+> **2026-07-08**: Alpaca mirror sizing now carries a 1% cash buffer
+> (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY —
+> frozen-test run for that commit still owed, see AY item 3).
+
+The DB now holds **17 sleeves in three families** (this file is the roster
+source — `CLAUDE.md` holds the durable invariants, not the roster, since
+2026-07-08):
 
 **1. Continuous May systematic + benchmark** (inception 2026-05-01; the 6
 contaminated sleeves were re-inceptioned on clean data 2026-06-13):

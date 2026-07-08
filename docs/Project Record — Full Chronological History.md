@@ -95,6 +95,19 @@ lives in the dated entry, not the digest.
 - [AJ — June-30 lock prep: KLAC split, SATS→ECHO, AAOI verify, overlay evals](#appendix-aj---june-30-lock-prep-klac-split-sats-echo-aaoi-verify-overlay-evals-2026-06-29) (06-29)
 - [AK — LLM-cascade sleeves (always-invested 3rd overlay pair) + dashboard fixes](#appendix-ak---llm-cascade-sleeves-always-invested-3rd-overlay-pair--dashboard-fixes-2026-06-30) (06-30)
 - [AL — Alpaca paper integration begins + 7/1 clean-start cohort](#appendix-al---alpaca-paper-integration-begins--71-clean-start-cohort-2026-06-30) (06-30)
+- [AM — Graphify root expansion + AlpacaError bridge trace + appendix-date audit](#appendix-am---graphify-root-expansion--alpacaerror-bridge-trace--appendix-date-audit-2026-06-30) (06-30)
+- [AN — Record file renamed; HTML render tied to it](#appendix-an---record-file-renamed-html-render-tied-to-it-2026-06-30) (06-30)
+- [AO — Rename notes added at every record_2026-05-27 mention](#appendix-ao---rename-notes-added-at-every-record_2026-05-27-mention-2026-06-30) (06-30)
+- [AP — Fixed the monthly-rebalance trigger timing bug](#appendix-ap---fixed-the-monthly-rebalance-trigger-timing-bug-2026-07-01) (07-01)
+- [AQ — daily_report.md gets the same standalone-HTML render](#appendix-aq---daily_reportmd-gets-the-same-standalone-html-render-2026-07-01) (07-01)
+- [AR — Rewrote monthy-llm-rebalance's prompt: full context + instructions](#appendix-ar---rewrote-monthy-llm-rebalances-prompt-full-context--instructions-2026-07-01) (07-01)
+- [AS — cmd.exe batch-parsing bug found + fixed; July rebalance completes](#appendix-as---cmdexe-batch-parsing-bug-in-rebalancebatdailybat-found--fixed-july-rebalance-completes-2026-07-01) (07-01)
+- [AT — Alpaca non-fractionable gap fixed; all 11 07-01 sleeves reset to 07-06](#appendix-at---alpaca-non-fractionable-gap-fixed-whole-share-fallback--db-reflect-all-11-07-01-sleeves-reset-to-07-06-2026-07-02) (07-02)
+- [AU — Attempted a 07-02 early deploy; HELD to 07-06 for incomplete close data](#appendix-au---attempted-a-07-02-early-deploy-held-to-07-06-for-incomplete-close-data-2026-07-02) (07-02)
+- [AV — 07-06 cohort deploy executed; 11 sleeves live, Alpaca mirrored, monthly task re-enabled](#appendix-av---07-06-cohort-deploy-executed-all-11-sleeves-live-alpaca-mirrored-monthly-task-re-enabled-2026-07-07-1320-local) (07-07)
+- [AW — Session ops: RuFlo statusline disabled, shadow-file recurrence, deploy scheduled from chat](#appendix-aw---session-ops-ruflo-statusline-disabled-stray-file-source-shadow-file-recurrence-deploy-scheduled-from-chat-2026-07-0507-07) (07-05→07)
+- [AX — CLAUDE.md rewritten; ruflo fully removed; PRD-handoff system built](#appendix-ax---claudemd-rewritten-ruflo-fully-removed-prd-handoff-system-built-2026-07-08-afternoon) (07-08)
+- [AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed](#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local) (07-08)
 
 ---
 
@@ -3594,3 +3607,39 @@ dups-only skill deletion), then backups before every destructive step. New user-
 `/prd-next` and `/record-entry` operationalize the PRD_ROADMAP execution loop; a model-handoff
 protocol section was added to the global `~/.claude/CLAUDE.md`. No trading code, data, or
 scheduled tasks were touched; frozen tests not run (no Python changed).
+
+# Appendix AY - Handoff sync: TOC backlog repaired (AM-AX), cash-buffer cadence miss logged, doc pointers fixed (2026-07-08, ~17:15 local)
+
+First run of the merged `/project-memory` skill's handoff workflow (the skill that replaced
+`/handoff`, `/memory-bootstrap`, `/prd-next`, `/record-entry`, and `/codebase-memory` — this
+corrects Appendix AX, which named `/prd-next`/`/record-entry` as the new skills; they were merged
+into `/project-memory` later the same day, originals parked in
+`~/.claude/skills.bak_merged_into_project-memory_2026-07-08/`).
+
+**WHAT this sync found and fixed:**
+
+1. **Record TOC was stale by 12 entries.** The front-matter Table of Contents had no lines for
+   Appendices AM through AX — the per-appendix TOC line had been silently skipped since
+   2026-06-30. All 12 lines added (additive front-matter maintenance; no entry content touched).
+   The new skill makes the TOC line an explicit step of every record entry, so this class of
+   drift should be extinct going forward.
+2. **Cadence miss: commit `3807f23` (2026-07-08 12:47, "Add 1% cash buffer to Alpaca mirror
+   sizing", `trading_bot/execution/alpaca_sync.py`, +6/−1, authored by an Opus 4.8 session) landed
+   with NO record entry.** Logged here instead of by its own session. Per the CLAUDE.md rule,
+   ANY Python change owes a frozen-test run; the record shows no evidence one was run at that
+   commit.
+3. **HONEST OPEN ITEM (deferred, not skipped):** this handoff executed at ~17:12 local — inside
+   the 5:00–6:30pm daily-MTM window — so the frozen tests were NOT run now (DB-heavy work is
+   barred in the window). Next session outside the window: run
+   `.venv\Scripts\python.exe -m pytest trading_bot/strategies/test_strategies.py`, confirm
+   d=±0.0000pp, and log the actual output here. Until then the cash-buffer commit's frozen-test
+   status is UNVERIFIED.
+4. **Stale doc pointers fixed** (in-place edits to living snapshots, sanctioned): `HANDOFF.md`
+   and `docs/state_2026-07-07.md` both said "full roster + rationale in `CLAUDE.md`" — stale
+   since Appendix AX moved the roster out of CLAUDE.md to end the duplication drift. Both now
+   point at HANDOFF as the roster source; CLAUDE.md holds the durable invariants.
+
+**Uncommitted at time of writing** (committing is Evan's call): the AX CLAUDE.md rewrite,
+today's `daily_report.md`/`.html` changes, and untracked `CLAUDE.md.bak_2026-07-08` /
+`.mcp.json.bak_pre_ruflo_removal` / `scratch_positions.csv` (the last still author-unconfirmed,
+see AW).
