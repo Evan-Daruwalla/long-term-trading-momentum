@@ -42,6 +42,10 @@ from trading_bot.execution.alpaca_client import AlpacaError
 log = logging.getLogger(__name__)
 
 MIN_ORDER_USD = 1.0  # skip dust diffs below this notional
+CASH_BUFFER = 0.01  # deploy 99% of equity; leaves headroom so market-fill
+                    # slippage above the sizing price can't push cash negative
+                    # (margin debit). Mirrors the DB sim, which also holds a
+                    # small positive cash residual after whole/fractional rounding.
 
 
 def _latest_closes(tickers: set[str]) -> dict[str, float]:
@@ -85,13 +89,14 @@ def plan_orders(account: Account) -> tuple[list[tuple], list[tuple], dict]:
     try:
         acct = client.get_account()
         equity = float(acct["equity"])
+        deployable = equity * (1 - CASH_BUFFER)  # keep a small cash cushion
         cur = {p["symbol"]: float(p["qty"]) for p in client.list_positions()}
         weights = target_weights(account.sleeve)
         px = _latest_closes(set(weights) | set(cur))
         desired: dict[str, float] = {}
         for t, w in weights.items():
             if px.get(t):
-                desired[t] = round(w * equity / px[t], 4)
+                desired[t] = round(w * deployable / px[t], 4)
         fractionability.refresh(set(desired), client)  # fill/refresh the cache
     finally:
         client.close()
