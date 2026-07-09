@@ -153,7 +153,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">BC — M2.2 coverage gate wired into daily.bat, ahead of MTM</a> (07-09)<br />
 - <a href="#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local">BD — M2.3 anomaly detector wired into daily.bat</a> (07-09)<br />
 - <a href="#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local">BE — M2.4 cache-gap auditor; M2 complete</a> (07-09)<br />
-- <a href="#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">BF — M3.1 pre-inception NAV guard in paper_mtm + regression test</a> (07-09)</p>
+- <a href="#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">BF — M3.1 pre-inception NAV guard in paper_mtm + regression test</a> (07-09)<br />
+- <a href="#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local">BG — M3.2 post-run verifier (verify_run.py)</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5295,6 +5296,41 @@ fires and behavior is byte-identical to before.</p>
 <p>d=±0.0000pp (4/4). The change runs live in tonight's <code>TradingDailyMTM</code> 5:15pm task; the guard never<br />
 fires for live sleeves at today's date, so that run is a no-op for behavior. M3.1 done; next open<br />
 task is M3.2 (post-run verifier, <code>verify_run.py</code>).</p>
+<h1 id="appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local">Appendix BG - M3.2 post-run verifier (verify_run.py) (2026-07-09, ~14:05 local)</h1>
+<p><strong>PRD milestone M3, task 2.</strong> A read-only self-check so an unattended daily/monthly run can't quietly<br />
+leave the books inconsistent.</p>
+<p><strong>WHAT.</strong> New <code>scripts/momentum/verify_run.py</code> (read-only, <code>file:...?mode=ro</code>). Per sleeve:<br />
+(a) <strong>NAV continuity</strong> — one <code>paper_nav</code> row for every trading day since inception, no gaps (dupes<br />
+are impossible, <code>paper_nav</code> PK is <code>(strategy, nav_date)</code>); intentional holiday flat rows are counted<br />
+and reported, not failed; (b) <strong>cash reconciliation</strong> — recompute <code>cash + Sum(qty x close@nav_date)</code><br />
+the same way <code>paper_mtm</code> does (carry-forward last close, entry_price if none) and compare to the<br />
+stored <code>total_nav</code> within <code>$0.05</code>; (c) <strong>position count vs target</strong> — MONTHLY only, targets hardcoded<br />
+from HANDOFF's 2026-07-09 cohort spec, FAIL only if count EXCEEDS target (overlay/cascade sleeves are<br />
+variable veto-&gt;cash and reported, not asserted); (d) <strong>no pre-inception rows</strong>. <code>--mode daily</code> runs<br />
+a/b/d; <code>--mode monthly</code> adds c + an Alpaca submit/reject reminder line. Dated PASS/FAIL block appended<br />
+to a <code>verify_report.log</code> <strong>co-located with the DB</strong> (<code>--db</code> copy -&gt; next to the copy, so test runs<br />
+never pollute the live ops log); nonzero exit on any FAIL. <code>--db</code> flag added up front (sanctioned by<br />
+M5.3).</p>
+<p><strong>HOW / verification (done-check).</strong></p>
+<ul>
+<li><code>--mode daily</code> against the LIVE DB (read-only): <strong>RESULT: PASS (17/17 sleeves OK)</strong>. Cash recon<br />
+  delta <code>$0.00</code> on every sleeve; continuity clean (46/46 trading days +2 holiday flat rows for the<br />
+  May family; 3/3 for the 07-06 cohort); position counts sane (<code>residual_roa_6535_0701</code> 48/50 = the<br />
+  2 untradable; <code>llm_overlay_mom_roa_top1</code> 0/var and <code>llm_overlay_sector_top4</code> 3/var = veto-&gt;cash).</li>
+<li><code>--mode monthly</code> against live: also PASS 17/17 + the reminder line prints.</li>
+<li><strong>Broken-copy FAIL test</strong>: <code>VACUUM INTO</code> snapshot, deleted one <code>mom_v1_paper</code> nav row (2026-06-01),<br />
+  ran <code>--db copy --mode daily</code> -&gt; <code>[FAIL] mom_v1_paper ... continuity: 1 missing trading day
+  (2026-06-01)</code>, <code>RESULT: FAIL (16/17)</code>, exit 1. Copy deleted; live DB untouched.</li>
+</ul>
+<p>Frozen tests (new Python file; read-only, no strategy code touched):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). M3.2 done. <code>verify_run</code> is not yet wired into the batch flow — that is M3.3<br />
+(daily.bat <code>--mode daily</code> after MTM; monthly_auto.bat <code>--mode monthly</code>).</p>
 </div>
 </body>
 </html>

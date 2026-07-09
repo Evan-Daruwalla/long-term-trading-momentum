@@ -115,6 +115,7 @@ lives in the dated entry, not the digest.
 - [BD — M2.3 anomaly detector wired into daily.bat](#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local) (07-09)
 - [BE — M2.4 cache-gap auditor; M2 complete](#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local) (07-09)
 - [BF — M3.1 pre-inception NAV guard in paper_mtm + regression test](#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local) (07-09)
+- [BG — M3.2 post-run verifier (verify_run.py)](#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local) (07-09)
 
 ---
 
@@ -4742,3 +4743,46 @@ Frozen tests (paper_mtm.py changed):
 d=±0.0000pp (4/4). The change runs live in tonight's `TradingDailyMTM` 5:15pm task; the guard never
 fires for live sleeves at today's date, so that run is a no-op for behavior. M3.1 done; next open
 task is M3.2 (post-run verifier, `verify_run.py`).
+
+
+# Appendix BG - M3.2 post-run verifier (verify_run.py) (2026-07-09, ~14:05 local)
+
+**PRD milestone M3, task 2.** A read-only self-check so an unattended daily/monthly run can't quietly
+leave the books inconsistent.
+
+**WHAT.** New `scripts/momentum/verify_run.py` (read-only, `file:...?mode=ro`). Per sleeve:
+(a) **NAV continuity** — one `paper_nav` row for every trading day since inception, no gaps (dupes
+are impossible, `paper_nav` PK is `(strategy, nav_date)`); intentional holiday flat rows are counted
+and reported, not failed; (b) **cash reconciliation** — recompute `cash + Sum(qty x close@nav_date)`
+the same way `paper_mtm` does (carry-forward last close, entry_price if none) and compare to the
+stored `total_nav` within `$0.05`; (c) **position count vs target** — MONTHLY only, targets hardcoded
+from HANDOFF's 2026-07-09 cohort spec, FAIL only if count EXCEEDS target (overlay/cascade sleeves are
+variable veto->cash and reported, not asserted); (d) **no pre-inception rows**. `--mode daily` runs
+a/b/d; `--mode monthly` adds c + an Alpaca submit/reject reminder line. Dated PASS/FAIL block appended
+to a `verify_report.log` **co-located with the DB** (`--db` copy -> next to the copy, so test runs
+never pollute the live ops log); nonzero exit on any FAIL. `--db` flag added up front (sanctioned by
+M5.3).
+
+**HOW / verification (done-check).**
+
+- `--mode daily` against the LIVE DB (read-only): **RESULT: PASS (17/17 sleeves OK)**. Cash recon
+  delta `$0.00` on every sleeve; continuity clean (46/46 trading days +2 holiday flat rows for the
+  May family; 3/3 for the 07-06 cohort); position counts sane (`residual_roa_6535_0701` 48/50 = the
+  2 untradable; `llm_overlay_mom_roa_top1` 0/var and `llm_overlay_sector_top4` 3/var = veto->cash).
+- `--mode monthly` against live: also PASS 17/17 + the reminder line prints.
+- **Broken-copy FAIL test**: `VACUUM INTO` snapshot, deleted one `mom_v1_paper` nav row (2026-06-01),
+  ran `--db copy --mode daily` -> `[FAIL] mom_v1_paper ... continuity: 1 missing trading day
+  (2026-06-01)`, `RESULT: FAIL (16/17)`, exit 1. Copy deleted; live DB untouched.
+
+Frozen tests (new Python file; read-only, no strategy code touched):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). M3.2 done. `verify_run` is not yet wired into the batch flow — that is M3.3
+(daily.bat `--mode daily` after MTM; monthly_auto.bat `--mode monthly`).
