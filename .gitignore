@@ -17,3 +17,11 @@ var/
 
 # graphify knowledge-graph build artifacts
 graphify-out/
+
+# Stray backups & scratch junk (local only; keep out of status).
+# *.bak_* covers dated safety backups like *.bak_2026-07-08 and
+# .mcp.json.bak_pre_ruflo_removal — the files stay on disk, just untracked.
+*.bak_*
+scratch_*.csv
+# format-spec junk files leaked by scheduled runs (record Appendix AW), e.g. "10.2f}"
+*}
