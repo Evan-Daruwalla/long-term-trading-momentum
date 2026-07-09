@@ -10,7 +10,8 @@ the asset.
 
 ## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
 
-**Last updated: 2026-07-08** — full snapshot: `docs/state_2026-07-07.md`.
+**Last updated: 2026-07-08** — this file is the only live snapshot (state-doc
+tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -258,8 +259,10 @@ Manual fallback (same steps) if you ever need to run it by hand:
   double-clickable view of the record (generated; regenerate with
   `.venv\Scripts\python.exe -m scripts.render_record_html`, or run
   `scripts\watch_record_html.bat` to auto-render on every save)
-- `docs/state_2026-07-07.md` — **current** project state snapshot (older
-  `state_*.md` files kept, marked superseded at their tops)
+- State-doc tier RETIRED 2026-07-08 (Evan's decision): point-in-time snapshots
+  live inside the record (all prior `state_*.md` archived verbatim in Appendix
+  AZ; the source files were deleted 2026-07-08). Never create new
+  `docs/state_*.md` files.
 - `docs/paper_trading_ops.md` — ops guide (daily/monthly procedures)
 - `docs/research_2026-06-09_algo_candidates.md` — June algo-research report
 - `memory/` — per-verdict memory files (sleeves_verdict, data_audit, etc.)

@@ -146,7 +146,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-av---07-06-cohort-deploy-executed-all-11-sleeves-live-alpaca-mirrored-monthly-task-re-enabled-2026-07-07-1320-local">AV — 07-06 cohort deploy executed; 11 sleeves live, Alpaca mirrored, monthly task re-enabled</a> (07-07)<br />
 - <a href="#appendix-aw---session-ops-ruflo-statusline-disabled-stray-file-source-shadow-file-recurrence-deploy-scheduled-from-chat-2026-07-0507-07">AW — Session ops: RuFlo statusline disabled, shadow-file recurrence, deploy scheduled from chat</a> (07-05→07)<br />
 - <a href="#appendix-ax---claudemd-rewritten-ruflo-fully-removed-prd-handoff-system-built-2026-07-08-afternoon">AX — CLAUDE.md rewritten; ruflo fully removed; PRD-handoff system built</a> (07-08)<br />
-- <a href="#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local">AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed</a> (07-08)</p>
+- <a href="#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local">AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed</a> (07-08)<br />
+- <a href="#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local">AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim</a> (07-08)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -3867,6 +3868,1205 @@ into <code>/project-memory</code> later the same day, originals parked in<br />
 today's <code>daily_report.md</code>/<code>.html</code> changes, and untracked <code>CLAUDE.md.bak_2026-07-08</code> /<br />
 <code>.mcp.json.bak_pre_ruflo_removal</code> / <code>scratch_positions.csv</code> (the last still author-unconfirmed,<br />
 see AW).</p>
+<h1 id="appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local">Appendix AZ - State-doc tier retired: every state_<date>.md archived verbatim below (2026-07-08, ~17:30 local)</h1>
+<p>Evan's decision, 2026-07-08: the dated state-snapshot tier is retired project-system-wide. Snapshots now live inside this record; <code>HANDOFF.md</code> remains the always-current view. Reason: the three-way HANDOFF/state/record sync burden caused real drift (see AY item 4 — the same stale pointer lived in two files). The five state files are archived below <strong>verbatim except that every heading is demoted two levels</strong> (fence-aware) so this record's appendix structure stays intact. The source files are banner-marked MIGRATED and await Evan's deletion approval.</p>
+<h2 id="az1--state_2026-05-27md-verbatim-archive-headings-demoted-two-levels">AZ.1 — state_2026-05-27.md (verbatim archive; headings demoted two levels)</h2>
+<h3 id="project-state--2026-05-27-superseded-2026-05-28">Project State — 2026-05-27  [SUPERSEDED 2026-05-28]</h3>
+<p><strong>⚠️ STALE.</strong> Replaced by <code>docs/state_2026-05-28.md</code> after the data audit<br />
+revealed in-sample numbers below were contaminated. See that file for the<br />
+current state. This doc is kept for historical reference only.</p>
+<p>Consolidation snapshot after closing the momentum + multi-factor research arc.<br />
+Purpose: capture what's validated, what's been ruled out, and what's needed<br />
+for paper-trading deployment, so future work doesn't re-tread the same paths.</p>
+<h4 id="working-strategy">Working strategy</h4>
+<p><strong>momentum_v2</strong> — frozen 2026-05-26, regression-tested<br />
+(<code>trading_bot/strategies/momentum_v2.py</code>, <code>test_strategies.py</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factor</td>
+<td>12-1 momentum (Jegadeesh-Titman)</td>
+</tr>
+<tr>
+<td>Universe</td>
+<td>All US stocks ≥ $5, ≥ 252 days history</td>
+</tr>
+<tr>
+<td>top_n</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Rebalance</td>
+<td>Monthly</td>
+</tr>
+<tr>
+<td>Weighting</td>
+<td>Equal-weight (2% each)</td>
+</tr>
+<tr>
+<td>Half-spread</td>
+<td>5 bps</td>
+</tr>
+<tr>
+<td>Starting capital</td>
+<td>$100K</td>
+</tr>
+</tbody>
+</table>
+<p>Validated returns:<br />
+- In-sample 2015-01 → 2023-12 (9 yr): +455.6% total, +21.0%/yr, Sharpe +0.23<br />
+- Held-out 2024-01 → 2026-05 (2.4 yr): +72.8% total, +26.5%/yr, Sharpe +0.87</p>
+<p>Both windows beat SPY meaningfully (+9 pp/yr in-sample, +5 pp/yr held-out).</p>
+<h4 id="whats-been-ruled-out-dont-retest-without-new-data">What's been ruled out (don't retest without new data)</h4>
+<table>
+<thead>
+<tr>
+<th>Experiment</th>
+<th>Result</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Form 4 insider-copy</td>
+<td>Closed 2026-05-22</td>
+<td>Walk-forward + held-out both null</td>
+</tr>
+<tr>
+<td>Naive composite (mom+lowvol)</td>
+<td>Failed</td>
+<td>Killed mom premium</td>
+</tr>
+<tr>
+<td>Volume-gated sleeves ($1M ADV)</td>
+<td>Failed</td>
+<td>Removed mom's small-cap tail</td>
+</tr>
+<tr>
+<td>Stdev-floor sleeves</td>
+<td>Failed</td>
+<td>No diversification benefit</td>
+</tr>
+<tr>
+<td>yfinance-quality sleeve</td>
+<td>Lookahead-biased</td>
+<td>+32 pp/yr drop when fixed</td>
+</tr>
+<tr>
+<td>XBRL quality v1 (3-comp) sleeve</td>
+<td>Failed combination</td>
+<td>Drags combined return</td>
+</tr>
+<tr>
+<td>XBRL quality v2 (8-comp) sleeve</td>
+<td>Failed combination</td>
+<td>Same pattern</td>
+</tr>
+<tr>
+<td>XBRL quality v2 STANDALONE</td>
+<td>Not deployable</td>
+<td>Underperforms SPY in-sample</td>
+</tr>
+<tr>
+<td>Mono-factor sweep (24 configs)</td>
+<td>None beat mom_v2</td>
+<td>Top-50 monthly is optimum</td>
+</tr>
+<tr>
+<td>mom_quality_screen filter</td>
+<td>Failed in-sample</td>
+<td>-13.8 pp/yr</td>
+</tr>
+<tr>
+<td>Restricted top500/top1000</td>
+<td>Survivorship-biased</td>
+<td>Held-out win is artifact</td>
+</tr>
+<tr>
+<td>Weekly / quarterly rebalance</td>
+<td>2024-26 overfit</td>
+<td>Caught by robustness test</td>
+</tr>
+</tbody>
+</table>
+<p>Pattern across all multi-factor failures: any sleeve added to momentum is<br />
+either too correlated (loses synchronously in 2018/2022) or has lower Sharpe<br />
+than momentum (drags the combined ratio). Diversification math doesn't work<br />
+out without an uncorrelated factor that's also high-Sharpe.</p>
+<p>Pattern across all universe-restriction failures: momentum's premium lives<br />
+in the small-cap / high-vol tail. Removing it removes the alpha.</p>
+<h4 id="infrastructure-inventory">Infrastructure inventory</h4>
+<p><strong>Data tables</strong> (sqlite at <code>var/trading.db</code>):<br />
+- <code>price_cache</code>: 35.7M rows, ~4,200 tickers, daily OHLC+adj<br />
+- <code>xbrl_facts</code>: 4.8M rows, 4,182 tickers, 16 us-gaap concepts, PIT (filed_date)<br />
+- <code>sectors_cache</code>: 1,493 tickers (top-1500 by cap)<br />
+- <code>fundamentals_cache</code>: 46,824 rows (yfinance snapshot — has lookahead, use for sizing only)<br />
+- <code>signals</code>: 2.3M Form 4 rows (legacy, mom_v2 doesn't use)</p>
+<p><strong>Factors</strong> (<code>trading_bot/factors/</code>):<br />
+- <code>momentum.py</code> — production<br />
+- <code>quality_xbrl_v2.py</code> — works standalone but underperforms, kept for research<br />
+- <code>low_vol.py</code>, <code>quality.py</code>, <code>quality_xbrl.py</code>, <code>composite.py</code>,<br />
+<code>mom_quality_screen.py</code> — preserved for reference, all confirmed dead<br />
+- <code>universe.py</code> — eligible-ticker builder (price ≥ $5, history ≥ 252d)</p>
+<p><strong>Backtest engine</strong> (<code>trading_bot/execution/</code>):<br />
+- <code>factor_backtest.py</code> — generic factor backtest with monthly rebalance<br />
+- <code>backtest.py</code>, <code>portfolio.py</code>, <code>monitor.py</code>, <code>broker.py</code> — Form 4 era,<br />
+  reusable for paper-trade execution<br />
+- <code>runner.py</code> — Form 4 signal executor. <strong>Will need momentum adapter.</strong></p>
+<p><strong>Strategies</strong> (<code>trading_bot/strategies/</code>):<br />
+- <code>momentum_v1.py</code>, <code>momentum_v2.py</code> — frozen with version strings<br />
+- <code>test_strategies.py</code> — regression tests pinning v1/v2 exact output<br />
+  (5 bps return tolerance, exact trade count)</p>
+<p><strong>Scripts</strong> (<code>scripts/momentum/</code>):<br />
+- Warm scripts: <code>warm_xbrl.py</code>, <code>warm_sectors.py</code>, <code>warm_fundamentals.py</code>,<br />
+<code>warm_volumes.py</code><br />
+- Tests: <code>robustness_test.py</code>, <code>mono_factor_sweep.py</code>,<br />
+<code>test_quality_standalone.py</code>, <code>test_restricted_universes.py</code>,<br />
+<code>test_quality_screen.py</code><br />
+- Chains: <code>run_sleeves.py</code>, <code>run_momentum.py</code></p>
+<h4 id="paper-trading-deployment--whats-missing">Paper-trading deployment — what's missing</h4>
+<p>User turns 18 in [future date]. Cannot use Alpaca/IBKR until then. Until then,<br />
+deployment = local simulator that:<br />
+1. Reads today's date<br />
+2. Pulls fresh prices for the universe (yfinance with caching)<br />
+3. Computes mom_v2 ranks as of today<br />
+4. Compares top-50 to current paper portfolio<br />
+5. Generates buy/sell trade list<br />
+6. Logs to a paper-portfolio table; tracks P&amp;L mark-to-market daily</p>
+<p><strong>What exists</strong>: backtest engine, portfolio tracking (positions table),<br />
+broker simulator, sector exposure tracking, monitor for exits.</p>
+<p><strong>What needs building</strong>:<br />
+1. <strong>Momentum-adapter for runner.py</strong> — currently runner reads <code>scorer.tradeable</code><br />
+   (Form 4 signals). Need a momentum-specific entry point that calls<br />
+<code>momentum.rank_universe(today's_universe, today)</code> and returns top-50 tickers.<br />
+2. <strong>Daily price refresh job</strong> — cron/scheduled task to warm prices for the<br />
+   eligible universe before market open each day. (Today this is manual.)<br />
+3. <strong>Rebalance scheduler</strong> — on first trading day of each month, trigger<br />
+   the momentum runner. (Today no scheduler exists.)<br />
+4. <strong>Paper-portfolio table</strong> — <code>positions</code> table already exists but is mixed<br />
+   with Form 4 era data. Either filter by strategy_id or fresh table.<br />
+5. <strong>Daily mark-to-market</strong> — extend existing portfolio tracking to record<br />
+   daily NAV for the paper portfolio (needed for actual Sharpe measurement).<br />
+6. <strong>Slippage realism check</strong> — backtest uses 5 bps half-spread. Track real<br />
+   fill prices vs expected for monthly rebalances; widen if necessary.</p>
+<p>Estimated work for all 6 items: 4-8 hours focused. The hard problems are<br />
+solved (factor, ranking, universe, validation); what's left is operational<br />
+plumbing.</p>
+<h4 id="open-research-questions">Open research questions</h4>
+<ol>
+<li>
+<p><strong>Can momentum + an uncorrelated factor work?</strong> The 7 failures all used<br />
+   factors correlated with momentum (price-based) or with low Sharpe<br />
+   (XBRL quality). Genuinely uncorrelated candidates: short-term reversal<br />
+   (anti-correlated by construction at 1-week horizon), idiosyncratic vol,<br />
+   accruals.</p>
+</li>
+<li>
+<p><strong>Is mom_v2 robust to the next regime?</strong> All validation is 2015-2026,<br />
+   a single super-cycle. Could fail badly in 1970s-style stagflation or<br />
+   2000-style dot-com bust. Hard to test without earlier data<br />
+   (price_cache starts 2010ish).</p>
+</li>
+<li>
+<p><strong>Does survivorship bias inflate the price_cache itself?</strong> We have<br />
+   ~4,200 tickers in price_cache. The actual 2015 universe contained<br />
+   thousands of names that are now delisted. Some delisted tickers might<br />
+   be in our cache (Form 4 ingest had a delisting tracker), but coverage<br />
+   is incomplete. mom_v2's in-sample +21%/yr might be 2-4 pp inflated.</p>
+</li>
+<li>
+<p><strong>What's the actual paper-trade slippage on monthly rebalances?</strong><br />
+   Backtest assumes 5 bps. Real fills depend on order timing, market depth,<br />
+   correlated rebalancers. Will know after 2-3 months of paper trading.</p>
+</li>
+</ol>
+<h4 id="next-factor--option-3-candidates">Next factor — option 3 candidates</h4>
+<p>User wants a "completely different factor family" — anti-correlated with<br />
+momentum or fundamentally distinct in driver. Top candidates given our data:</p>
+<h5 id="a-accruals-sloan-1996--recommended">A. Accruals (Sloan 1996) — RECOMMENDED</h5>
+<ul>
+<li><strong>Signal</strong>: <code>accruals = (NetIncome - CashFlowFromOps) / Assets</code></li>
+<li><strong>Direction</strong>: SHORT high accruals, LONG low accruals (or just LONG low)</li>
+<li><strong>Theory</strong>: High accruals = earnings inflated by non-cash items, mean-revert</li>
+<li><strong>Data needed</strong>: NetIncomeLoss, NetCashProvidedByUsedInOperatingActivities,<br />
+  Assets — <strong>all 3 already in xbrl_facts</strong> (4,157 / 4,174 / 4,182 tickers)</li>
+<li><strong>Build cost</strong>: ~1 hour. Add <code>trading_bot/factors/accruals.py</code>, ranking,<br />
+  backtest.</li>
+<li><strong>Why it might combine with mom</strong>: Accruals is FUNDAMENTAL (no price input),<br />
+  measured annually, low turnover (~20%/yr). Different driver entirely.<br />
+  Academic evidence shows it's largely uncorrelated with momentum.</li>
+</ul>
+<h5 id="b-short-term-reversal-1-week">B. Short-term reversal (1-week)</h5>
+<ul>
+<li><strong>Signal</strong>: -1 × return over past 5 days</li>
+<li><strong>Direction</strong>: LONG worst recent losers, SHORT best recent winners</li>
+<li><strong>Theory</strong>: Microstructure/liquidity overreaction; mean-revert within 1-4 weeks</li>
+<li><strong>Data</strong>: price_cache only — already have it</li>
+<li><strong>Build cost</strong>: ~30 min</li>
+<li><strong>Why it might combine with mom</strong>: Anti-correlated by construction<br />
+  (mom buys winners, reversal buys losers). Big caveat: this is a strategy<br />
+  for low-frequency traders with high turnover; with 5 bps TC and weekly<br />
+  rebal it may not survive costs.</li>
+</ul>
+<h5 id="c-idiosyncratic-volatility">C. Idiosyncratic volatility</h5>
+<ul>
+<li><strong>Signal</strong>: residual stdev after regressing daily returns on SPY</li>
+<li><strong>Direction</strong>: LONG low ivol, SHORT high ivol (ivol anomaly)</li>
+<li><strong>Theory</strong>: high-ivol stocks attract lottery-seeking retail, get overpriced</li>
+<li><strong>Data</strong>: price_cache + SPY — have it</li>
+<li><strong>Build cost</strong>: ~1 hour (regression per ticker per period)</li>
+<li><strong>Why it might combine</strong>: theoretical anti-correlation with mom (mom-winners<br />
+  often have high ivol)</li>
+</ul>
+<h5 id="d-pead-post-earnings-drift">D. PEAD (post-earnings drift)</h5>
+<ul>
+<li><strong>Signal</strong>: stock return in 3-day window around earnings announcement,<br />
+  then drift over next 60 days</li>
+<li><strong>Data needed</strong>: earnings announcement dates, surprise direction</li>
+<li><strong>Data we have</strong>: XBRL filing dates approximate this. Real PEAD data<br />
+  (analyst estimates) we don't have.</li>
+<li><strong>Build cost</strong>: ~3-4 hours, with significant risk that filing-date proxy<br />
+  doesn't capture the actual earnings event</li>
+<li><strong>Not recommended</strong> unless we get real earnings calendar data</li>
+</ul>
+<h5 id="recommendation-build-a-accruals-first">Recommendation: build A (accruals) first</h5>
+<ul>
+<li>All data already in xbrl_facts</li>
+<li>Build cost ~1 hour</li>
+<li>Different driver from momentum (fundamental, low-turnover)</li>
+<li>Closest match to "find a high-Sharpe uncorrelated factor" — the missing<br />
+  piece in every multi-factor failure so far</li>
+<li>If accruals also doesn't combine, the lesson is "no fundamentally-defined<br />
+  factor combines with mom on this universe at this scale," and we stop<br />
+  looking down that road.</li>
+</ul>
+<h4 id="recommended-sequence">Recommended sequence</h4>
+<ol>
+<li><strong>Now</strong>: review this doc; confirm or push back on direction</li>
+<li><strong>Soon (~1 hr)</strong>: build <code>factors/accruals.py</code>, smoke-test standalone</li>
+<li><strong>Soon (~30 min)</strong>: test accruals + mom sleeves (last try at combination)</li>
+<li><strong>Then</strong>: depending on result, either deploy mom_v2 paper-trade OR continue<br />
+   factor research</li>
+<li><strong>Background</strong>: when paper-trading priority rises, build the 6 plumbing<br />
+   items above</li>
+</ol>
+<h2 id="az2--state_2026-05-28md-verbatim-archive-headings-demoted-two-levels">AZ.2 — state_2026-05-28.md (verbatim archive; headings demoted two levels)</h2>
+<h3 id="project-state---2026-05-28">Project State - 2026-05-28</h3>
+<blockquote>
+<p><strong>SUPERSEDED 2026-06-12</strong> by <code>docs/state_2026-06-12.md</code> (9 sleeves, sector<br />
+overlay seeded). This file's "Quick read" (TWO sleeves) is stale; kept for<br />
+history. The audit/data-quality sections below remain valid reference.</p>
+</blockquote>
+<p>Snapshot of current reality after today's data audit. Replaces<br />
+state_2026-05-27.md (which was written before the audit and is now stale on<br />
+in-sample numbers, sleeve verdicts, and deployment status).</p>
+<h4 id="quick-read">Quick read</h4>
+<p><strong>Strategies running in paper trade</strong>: TWO sleeves in parallel<br />
+- <code>mom_v1_paper</code> (top-100 momentum, more diversified) - NAV $98,454.88 (-1.55%)<br />
+- <code>mom_v2_paper</code> (top-50 momentum, more concentrated) - NAV $96,977.34 (-3.02%)</p>
+<p>Both inceptioned 2026-05-01. After 27 days, v1 leading by 1.5pp - consistent<br />
+with the in-sample story that diversification helps in choppy regimes.</p>
+<p><strong>Active development</strong>: NONE. Data audit complete. Vol-target / stops /<br />
+trend filter all tested on clean data and rejected.</p>
+<h4 id="what-changed-in-the-past-24-hours-audit">What changed in the past 24 hours (audit)</h4>
+<h5 id="data-quality-discoveries">Data quality discoveries</h5>
+<ol>
+<li><strong>Friday spike artifacts</strong> (2010-2018): every Friday, ~150 tickers showed<br />
+   bogus closes 5,000-10,000x real values. Affected ITC ($30 -&gt; $14,200),<br />
+   TNB ($1.75 -&gt; $13,000), FOOD ($0.32 -&gt; $13,935), and others.</li>
+<li><strong>Unadjusted reverse splits</strong>: 673 tickers (WKHS, ARSC, SRNE...) with<br />
+   continuously inflated historical closes. yfinance split DB broken<br />
+   regardless of <code>auto_adjust=True/False</code>.</li>
+<li><strong>Impact</strong>: mom_v2's "+21% CAGR in-sample" validation was largely<br />
+   fictitious. Real number is +2.72%/yr.</li>
+</ol>
+<h5 id="fixes-applied">Fixes applied</h5>
+<ol>
+<li><strong>Spike cleanup</strong>: 2,017 rows nulled in <code>price_cache</code>.<br />
+   Script: <code>scripts/data_audit/find_price_spikes.py</code>. DB backup at<br />
+<code>var/trades.db.bak_pre_spike_cleanup</code> (4.6 GB).</li>
+<li><strong>Universe consistency filter</strong>: new <code>MAX_HIST_RATIO=100</code> in<br />
+<code>factors/universe.py</code>. Rejects tickers whose historical close is<blockquote>
+<p>100x current stable price.</p>
+</blockquote>
+</li>
+<li><strong>Frozen spec re-baselined</strong>: <code>test_strategies.py</code> updated with<br />
+   clean-data expected values. Old in-sample values were artifacts.</li>
+<li><strong>Dashboard updated</strong>: paper-trade tab now has strategy selector,<br />
+   shows both v1 and v2.</li>
+</ol>
+<h4 id="current-performance-clean-data-2026-05-28">Current performance (CLEAN DATA, 2026-05-28)</h4>
+<h5 id="mom_v2-top-50-frozen-baseline">mom_v2 (top-50, frozen baseline)</h5>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th style="text-align: right;">Total</th>
+<th style="text-align: right;">CAGR</th>
+<th style="text-align: right;">Max DD</th>
+<th style="text-align: right;">Mean Sharpe</th>
+<th style="text-align: right;">Calmar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>in_sample 2015-2023</td>
+<td style="text-align: right;">+27.3%</td>
+<td style="text-align: right;">+2.72%</td>
+<td style="text-align: right;">-55.26%</td>
+<td style="text-align: right;">+0.167</td>
+<td style="text-align: right;">0.049</td>
+</tr>
+<tr>
+<td>holdout 2024-2026.5</td>
+<td style="text-align: right;">+80.4%</td>
+<td style="text-align: right;">+28.81%</td>
+<td style="text-align: right;">-33.86%</td>
+<td style="text-align: right;">+0.903</td>
+<td style="text-align: right;">0.851</td>
+</tr>
+</tbody>
+</table>
+<h5 id="mom_v1-top-100-original-baseline-now-the-in-sample-champ">mom_v1 (top-100, original baseline, NOW THE IN-SAMPLE CHAMP)</h5>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th style="text-align: right;">Total</th>
+<th style="text-align: right;">CAGR</th>
+<th style="text-align: right;">Max DD</th>
+<th style="text-align: right;">Mean Sharpe</th>
+<th style="text-align: right;">Calmar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>in_sample 2015-2023</td>
+<td style="text-align: right;">+51.4%</td>
+<td style="text-align: right;">+4.72%</td>
+<td style="text-align: right;">-48.90%</td>
+<td style="text-align: right;">+0.210</td>
+<td style="text-align: right;">0.096</td>
+</tr>
+<tr>
+<td>holdout 2024-2026.5</td>
+<td style="text-align: right;">+59.2%</td>
+<td style="text-align: right;">+22.08%</td>
+<td style="text-align: right;">-34.29%</td>
+<td style="text-align: right;">+0.813</td>
+<td style="text-align: right;">0.644</td>
+</tr>
+</tbody>
+</table>
+<h5 id="regime-split-why-we-run-both">Regime split (why we run both)</h5>
+<ul>
+<li><strong>In-sample</strong> (includes 2021-23 momentum crash): v1 wins all metrics.<br />
+  Diversification helps when there is a crash to survive.</li>
+<li><strong>Held-out</strong> (calm 2024-2026): v2 wins all metrics. Concentration<br />
+  captures upside when there is no crash to worry about.</li>
+<li><strong>Going forward</strong>: paper trade decides. Run both, let live data resolve.</li>
+</ul>
+<h4 id="universe-and-filters">Universe and filters</h4>
+<p><code>tradeable_universe(as_of)</code> rejects tickers unless:<br />
+- has cached close on <code>as_of</code><br />
+- has &gt;= 252 prior trading days of cached closes (12 months for momentum)<br />
+- close &gt;= $5 on <code>as_of</code> AND on the 252-day-back reference date<br />
+- close / current_stable_price &lt;= 100 (DATA QUALITY, new 2026-05-28)</p>
+<p>Universe size: ~2700-3000 tickers depending on date.</p>
+<h4 id="transaction-cost-reality-check">Transaction cost reality check</h4>
+<p>Default <code>HALF_SPREAD_BPS = 5.0</code> (10bp round-trip). For the small-mid-cap<br />
+universe this is optimistic. TC sensitivity sweep (2026-05-28):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">half_bps</th>
+<th style="text-align: right;">round-trip</th>
+<th style="text-align: right;">In-sample CAGR</th>
+<th style="text-align: right;">Held-out CAGR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">5 (current default)</td>
+<td style="text-align: right;">10bp</td>
+<td style="text-align: right;">+2.72%</td>
+<td style="text-align: right;">+28.81%</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">20bp</td>
+<td style="text-align: right;">+2.32%</td>
+<td style="text-align: right;">+28.33%</td>
+</tr>
+<tr>
+<td style="text-align: right;">15 (realistic)</td>
+<td style="text-align: right;">30bp</td>
+<td style="text-align: right;">+1.92%</td>
+<td style="text-align: right;">+27.85%</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">40bp</td>
+<td style="text-align: right;">+1.52%</td>
+<td style="text-align: right;">+27.37%</td>
+</tr>
+<tr>
+<td style="text-align: right;">30 (worst case)</td>
+<td style="text-align: right;">60bp</td>
+<td style="text-align: right;">+0.73%</td>
+<td style="text-align: right;">+26.42%</td>
+</tr>
+</tbody>
+</table>
+<p>Held-out result is <strong>robust</strong> - survives any plausible TC. In-sample is<br />
+fragile but already marginal at any TC level.</p>
+<h4 id="failed-experiments-14-total-all-closed">Failed experiments (14 total, all closed)</h4>
+<p>All rejected on CLEAN data unless noted. Detailed in<br />
+<code>memory/sleeves_verdict.md</code>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Experiment</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Naive percentile composite</td>
+<td>Killed in-sample</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Volume-gated sleeves</td>
+<td>$1M ADV filter killed mom's premium</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Stdev-floor sleeves</td>
+<td>No diversification benefit</td>
+</tr>
+<tr>
+<td>4</td>
+<td>yfinance-quality sleeve</td>
+<td>Lookahead bias</td>
+</tr>
+<tr>
+<td>5</td>
+<td>XBRL quality v1 sleeve</td>
+<td>Drags combined return</td>
+</tr>
+<tr>
+<td>6</td>
+<td>XBRL quality v2 sleeve</td>
+<td>Same pattern</td>
+</tr>
+<tr>
+<td>7</td>
+<td>mom_quality_screen filter</td>
+<td>Killed in-sample</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Accruals (Sloan) standalone</td>
+<td>Underperforms baseline</td>
+</tr>
+<tr>
+<td>9</td>
+<td>mom-then-accruals (combo)</td>
+<td>Did not beat mom_v2</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Short-term reversal</td>
+<td>Negative expected return</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Restricted top500/1000 universe</td>
+<td>Survivorship-biased</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Intra-rebal stop-loss</td>
+<td>-4 to -6pp in-sample CAGR</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Stop-loss + same-name reentry</td>
+<td>Strictly worse than plain stops</td>
+</tr>
+<tr>
+<td>14</td>
+<td>SPY 200-DMA trend filter</td>
+<td>-6/-21pp CAGR in/out</td>
+</tr>
+<tr>
+<td>--</td>
+<td>Vol-target 12-25%</td>
+<td>Marginal; not worth complexity</td>
+</tr>
+<tr>
+<td>--</td>
+<td>Weekly/quarterly rebal</td>
+<td>2024-26 overfit (per momentum_v2_verdict)</td>
+</tr>
+</tbody>
+</table>
+<p>Pattern: no overlay or factor combination meaningfully improves mom_v2<br />
+on clean data. The strategy IS the volatility.</p>
+<h4 id="infrastructure">Infrastructure</h4>
+<h5 id="code-structure-unchanged">Code structure (unchanged)</h5>
+<ul>
+<li><code>trading_bot/factors/momentum.py</code> - 12-1 momentum (production)</li>
+<li><code>trading_bot/factors/universe.py</code> - filtered universe (now with MAX_HIST_RATIO)</li>
+<li><code>trading_bot/execution/factor_backtest.py</code> - generic factor backtest engine<br />
+  (with optional stop_loss_pct, reentry_buffer, position_scale_fn)</li>
+<li><code>trading_bot/strategies/momentum_v1.py</code>, <code>momentum_v2.py</code> - frozen specs</li>
+<li><code>trading_bot/strategies/test_strategies.py</code> - regression tests (re-baselined)</li>
+</ul>
+<h5 id="paper-trade-infrastructure">Paper-trade infrastructure</h5>
+<ul>
+<li><code>scripts/momentum/paper_rebalance.py --strategy NAME --top-n N</code></li>
+<li><code>scripts/momentum/paper_mtm.py --strategy NAME</code></li>
+<li><code>scripts/momentum/daily_price_refresh.py</code> - bulk yfinance refresh</li>
+<li><code>scripts/momentum/daily.bat</code> - MTMs all sleeves</li>
+<li><code>scripts/momentum/rebalance.bat</code> - rebalances + MTMs all sleeves</li>
+<li>SLEEVES (2026-06-09): 5 systematic — mom_v1, mom_v2, mom_roa_6535,<br />
+<strong>residual_roa_6535</strong> (new winner, inception 2026-06-09, residual-momentum×ROA,<br />
+  lower-DD sibling of mom_roa_6535), sector_top4 — + 3 LLM-experiment sleeves.</li>
+<li>BENCHMARK SLEEVE (2026-06-10): <code>spy_benchmark_paper</code> — a real $100k<br />
+  buy-and-hold SPY position (inception 2026-05-01, qty 138.763611 @ 720.65,<br />
+  never rebalanced), MTM'd daily like any sleeve via daily.bat/rebalance.bat.<br />
+  This is the S&amp;P 500 "control": 9 paper sleeves total in the DB now (8 strategy</li>
+<li>1 benchmark). Seed: scripts/momentum/seed_spy_benchmark.py. 06-09 NAV<br />
+  $102,275.72 (+2.276%).</li>
+<li>universe.NON_STOCK_TICKERS (added 2026-06-09): excludes ETFs/indices (sector<br />
+  SPDRs, SPY/RSP/QQQ, leveraged SSO/UPRO/QLD/TQQQ, vol SVXY/VIXY, "^" indices)<br />
+  from the STOCK tradeable_universe so warmed non-stock tickers can't leak into<br />
+  momentum/ROA picks. Frozen tests pass at 0.0000pp.</li>
+</ul>
+<h5 id="dashboard">Dashboard</h5>
+<ul>
+<li><code>trading_bot/dashboard/web.py</code> - Streamlit dashboard</li>
+<li>Tabs: Live experiment (paper trade), Backtest archive</li>
+<li>Paper-trade tab views (2026-06-10): <strong>📊 Overview (default)</strong> — one dense<br />
+  screen: status strip (freshness/SPY today/SPY since inception/next rebal),<br />
+  sleeve table (Day%/Total%/α/MaxDD/cash/pos, incl. hidden LLM control + the<br />
+  shaded S&amp;P control as a real row), compact NAV chart, top movers among held<br />
+  names, LLM-experiment status (latest veto + stop distance + treatment-control<br />
+  gap), sector-concentration warnings — plus 🔬 Single sleeve and 📈 NAV charts.</li>
+<li>S&amp;P 500 (SPY) control benchmark: as of 2026-06-10 it is a REAL sleeve<br />
+  (<code>spy_benchmark_paper</code>, see Paper-trade infrastructure above), not a yfinance<br />
+  fetch. Its NAV curve is drawn on every chart (overlay %/$, single-sleeve) and<br />
+  shown shaded ("control") in the headlines. <code>fetch_spy_series</code> /<br />
+<code>spy_return_pct</code> now read that sleeve's paper_nav (fallback: price_cache SPY<br />
+  closes) — NO network, which fixes the old "broken"/blank S&amp;P line. Price-only<br />
+  SPY to match the dividend-unadjusted sleeves. Plotly legend toggles lines.</li>
+<li>Chart conventions (2026-06-10): %-chart hovers show 3 decimals (nearest<br />
+  0.001%); NAV charts add traces in descending latest-value order so the<br />
+<code>x unified</code> hover box reads highest→lowest (Plotly orders unified-hover<br />
+  entries by trace index — no per-day value-sort exists without custom JS, so<br />
+  the order tracks current standings).</li>
+</ul>
+<h5 id="audit-artifacts">Audit artifacts</h5>
+<ul>
+<li><code>scripts/data_audit/find_price_spikes.py</code> - spike detector + applier</li>
+<li><code>scripts/data_audit/find_stale_history.py</code> - stale-history detector (not applied)</li>
+<li><code>scripts/data_audit/verify_cleanup.py</code> - re-runs baseline post-cleanup</li>
+<li><code>scripts/data_audit/tc_sensitivity.py</code> - TC sweep</li>
+<li><code>scripts/data_audit/v1_vs_v2_clean.py</code> - head-to-head</li>
+<li><code>var/data_audit/*.json</code> - all sweep results</li>
+</ul>
+<h4 id="pending--deferred">Pending / deferred</h4>
+<ol>
+<li><strong>Slippage realism check</strong> - deferred until ~20 real fills (post-Aug 2026)</li>
+<li><strong>Refetch all data with auto_adjust=True</strong> - multi-hour, may not help<br />
+   (yfinance split DB broken at source for affected tickers)</li>
+<li><strong>Paid PIT data source</strong> - the only way to get truly survivorship-bias-free<br />
+   universe. Probably $$$$.</li>
+<li><strong>3-6 months of paper-trade data</strong> - the next meaningful OOS evidence</li>
+</ol>
+<h4 id="recommended-sequence-no-urgency">Recommended sequence (no urgency)</h4>
+<ol>
+<li><strong>Run daily.bat after each trading day's close</strong> - keeps both sleeves marked</li>
+<li><strong>Run rebalance.bat on 1st trading day of each month</strong> - rebalances both</li>
+<li><strong>Check the dashboard occasionally</strong> - compare v1 vs v2 NAV curves</li>
+<li><strong>In ~3 months</strong>: review forward NAV; either v1 or v2 will pull ahead, or<br />
+   they will tie (keep both)</li>
+<li><strong>In ~6-12 months</strong>: enough OOS data to make a real strategy choice</li>
+</ol>
+<h4 id="trust-budget">Trust budget</h4>
+<ul>
+<li>Anything backtested <strong>post-2026-05-28</strong> on the current DB: trustworthy</li>
+<li>Anything <strong>pre-2026-05-28</strong>: contaminated unless re-tested</li>
+<li>The 2024-2026.5 held-out: clean from the start (no spike-tickers held)</li>
+<li>The 2015-2023 in-sample: was largely fake, now corrected but marginal</li>
+</ul>
+<p>The strategy validation now rests on:<br />
+- 2.4 years of clean held-out data<br />
+- Forward paper-trade data starting 2026-05-01 (currently 27 days)</p>
+<p>That is the entire trust budget. Plan accordingly.</p>
+<h2 id="az3--state_2026-06-12md-verbatim-archive-headings-demoted-two-levels">AZ.3 — state_2026-06-12.md (verbatim archive; headings demoted two levels)</h2>
+<h3 id="project-state---2026-06-12">Project State - 2026-06-12</h3>
+<blockquote>
+<p><strong>SUPERSEDED 2026-06-13</strong> by <code>docs/state_2026-06-13.md</code>. The standings below<br />
+are the PRE-BACKFILL, phantom-contaminated numbers (the momentum sleeves were<br />
+~half-built on stale-data phantoms — found + fixed 2026-06-13, record Appendix<br />
+AA). Kept for history; do not treat its sleeve returns as valid.</p>
+</blockquote>
+<p>Current always-current snapshot. Supersedes <code>state_2026-05-28.md</code> (whose "Quick<br />
+read" was stale at TWO sleeves). For the full onboarding picture see <code>HANDOFF.md</code><br />
+(rewritten 2026-06-12); for the chronological log see <code>docs/record_2026-05-27.md</code><br />
+(Appendix Z is this session) — <strong>renamed 2026-06-30 to<br />
+<code>docs/Project Record — Full Chronological History.md</code></strong>, same file, content<br />
+unchanged.</p>
+<h4 id="quick-read_1">Quick read</h4>
+<p><strong>9 paper sleeves in <code>var/trades.db</code></strong>, all MTM'd daily (auto via <code>TradingDailyMTM</code><br />
+5:15pm) and shown on the dashboard (http://localhost:8501/). Standings at the<br />
+2026-06-12 close:</p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>Type</th>
+<th style="text-align: right;">NAV</th>
+<th style="text-align: right;">Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$110,284</td>
+<td style="text-align: right;"><strong>+10.28%</strong></td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$107,013</td>
+<td style="text-align: right;">+7.01%</td>
+</tr>
+<tr>
+<td>sector_top4_paper</td>
+<td>systematic top-4 SPDR</td>
+<td style="text-align: right;">$103,803</td>
+<td style="text-align: right;">+3.80%</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td>benchmark (buy-hold SPY)</td>
+<td style="text-align: right;">$102,928</td>
+<td style="text-align: right;">+2.93%</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td>systematic top-100</td>
+<td style="text-align: right;">$102,199</td>
+<td style="text-align: right;">+2.20%</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$100,343</td>
+<td style="text-align: right;">+0.34%</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper</td>
+<td>LLM macro-veto (treatment)</td>
+<td style="text-align: right;">$99,963</td>
+<td style="text-align: right;">−0.04%</td>
+</tr>
+<tr>
+<td>mom_roa_top1_paper</td>
+<td>LLM control (holds FN)</td>
+<td style="text-align: right;">$84,851</td>
+<td style="text-align: right;">−15.15%</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper</td>
+<td>LLM treatment (in cash)</td>
+<td style="text-align: right;">$80,766</td>
+<td style="text-align: right;">−19.23%</td>
+</tr>
+</tbody>
+</table>
+<p>Inception 2026-05-01 for all except the LLM stock pair (05-29) and the LLM sector<br />
+overlay (seeded 2026-06-12). 4 of 5 systematic sleeves beat the SPY control;<br />
+residual_roa leads comfortably (validates its lower-DD backtest thesis vs<br />
+mom_roa). LLM stock pair still deep underwater on the single FN trade (n=1 noise).</p>
+<p><strong>Active development</strong>: none open. This session seeded the sector overlay and<br />
+added a held-position split-seam verifier (below).</p>
+<h4 id="what-changed-since-2026-05-28">What changed since 2026-05-28</h4>
+<ul>
+<li><strong>+4 sleeves</strong> beyond the original v1/v2: mom_roa_6535, residual_roa_6535<br />
+  (deployed/backdated 06-09), sector_top4, spy_benchmark (06-10), plus the 3<br />
+  LLM-experiment sleeves (stock pair 05-31, sector overlay built 06-05 /<br />
+<strong>seeded 06-12</strong>).</li>
+<li><strong>Sector macro-overlay is now live</strong> (<code>llm_overlay_sector_top4_paper</code>). First<br />
+  decision (2026-06-12, live-web macro): VETO XLE (fragile Hormuz supply-shock<br />
+  trade, diverging technicals, USD headwind) → its 25% slot is cash; HOLD<br />
+  XLK/XLI/XLB. Control = <code>sector_top4_paper</code>. Kill switch: 12mo / ≥30 decisions.</li>
+<li><strong>KLAC 10:1 split self-healed</strong> on the 06-12 refresh (whole series now on the<br />
+  post-split basis; leader's mark consistent — see record Z.1). Loose end closed.</li>
+<li><strong>New audit tool</strong>: <code>scripts/data_audit/check_held_split_seams.py</code> — post-refresh<br />
+  check that every held position's latest mark is on a sane basis (day-over-day<br />
+  seam + latest/entry band). Run after a price refresh; exits 1 on a suspect mark.</li>
+</ul>
+<h4 id="infrastructure-unchanged-from-handoffmd">Infrastructure (unchanged from HANDOFF.md)</h4>
+<ul>
+<li>DB <code>var/trades.db</code> (~5 GB); audit backup <code>var/trades.db.bak_pre_spike_cleanup</code><br />
+  (never delete). price_cache: split-adjusted, dividend-UNadjusted (auto_adjust=False).</li>
+<li><code>daily.bat</code> (auto 5:15pm): refresh + MTM all 9 + both overlays' check-invalidation.</li>
+<li><code>rebalance.bat</code> (manual, 1st trading day): refresh + rebalance 5 systematic +<br />
+  both overlays + MTM all. <strong>Overlay rebalance refuses until LLM decisions logged</strong><br />
+  — that monthly decision is the only human-in-the-loop step (automation of it is<br />
+  an open question; the <code>claude</code> CLI and ANTHROPIC_API_KEY are both absent on this<br />
+  box, so a fully-unattended job needs a credential provisioned first — record Z.4).</li>
+<li>Scheduled tasks: <code>TradingDashboard</code> (logon), <code>TradingDailyMTM</code> (5:15pm).</li>
+<li>Frozen regression tests <code>trading_bot/strategies/test_strategies.py</code> — d=±0.0000pp.</li>
+</ul>
+<h4 id="trust-budget-unchanged">Trust budget (unchanged)</h4>
+<p>In-sample (pre-2026-05-28) is contamination-affected and marginal. Real validation<br />
+rests on the 2.4-year clean held-out + forward paper-trade since 2026-05-01 (now<br />
+~6 weeks). Forward data is the only new evidence that counts.</p>
+<h4 id="open-loose-ends">Open loose ends</h4>
+<ol>
+<li>Slippage realism check — deferred until ~20 real fills (post-Aug 2026).</li>
+<li>Monthly rebalance decision automation — pending user choice on depth (record Z.4).</li>
+<li>Next rebalance: 1st trading day of July 2026 (<code>rebalance.bat</code>, manual).</li>
+</ol>
+<h2 id="az4--state_2026-06-13md-verbatim-archive-headings-demoted-two-levels">AZ.4 — state_2026-06-13.md (verbatim archive; headings demoted two levels)</h2>
+<h3 id="project-state---2026-06-13">Project State - 2026-06-13</h3>
+<blockquote>
+<p><strong>SUPERSEDED 2026-07-07 — see <code>state_2026-07-07.md</code></strong> (07-06 cohort deployed,<br />
+Alpaca mirror live, monthly task re-enabled). Kept for history.</p>
+</blockquote>
+<p>Current snapshot. Supersedes <code>state_2026-06-12.md</code> (which captured the<br />
+pre-backfill, phantom-contaminated standings). Major change since: a systemic<br />
+history-gap data bug was found and fixed (backfill + frozen re-baseline), and the<br />
+6 contaminated sleeves were re-inceptioned on clean data. Full detail: record<br />
+Appendix AA. Onboarding: <code>HANDOFF.md</code>.</p>
+<h4 id="headline-the-momentum-sleeves-were-half-built-on-phantom-data-now-fixed">Headline: the momentum sleeves were ~half-built on phantom data (now fixed)</h4>
+<p>~815 tickers (incl. AAPL, GOOGL, FN, CIEN) had only 2010-2018 + a 2026 burst<br />
+cached — a multi-year hole — so their 12-1 momentum was measured against a stale<br />
+pre-gap (2018) bar and phantom-ranked into the sleeves (mom_roa_6535 was 56%<br />
+phantom, mom_v2 48%, mom_v1 39%; residual_roa only 6%). FIXED 2026-06-13:<br />
+backfilled the missing 2019-present daily closes from yfinance (2.25M rows,<br />
+auto_adjust=False), re-cleaned spikes (614 rows), re-baselined the frozen tests,<br />
+and re-inceptioned the 6 contaminated sleeves fresh at $100k on clean data.</p>
+<h4 id="sleeves-9-total">Sleeves (9 total)</h4>
+<p><strong>Systematic sleeves — BACKDATED to 2026-05-01 on clean data (06-13), aligned with<br />
+the ETF sleeves. Clean live returns 05-01→06-12:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>Type</th>
+<th style="text-align: right;">NAV</th>
+<th style="text-align: right;">Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$106,579</td>
+<td style="text-align: right;"><strong>+6.58%</strong></td>
+</tr>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$106,134</td>
+<td style="text-align: right;">+6.13%</td>
+</tr>
+<tr>
+<td>sector_top4_paper</td>
+<td>systematic top-4 SPDR</td>
+<td style="text-align: right;">$103,803</td>
+<td style="text-align: right;">+3.80%</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td>benchmark</td>
+<td style="text-align: right;">$102,928</td>
+<td style="text-align: right;">+2.93%</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td>systematic top-100</td>
+<td style="text-align: right;">$102,358</td>
+<td style="text-align: right;">+2.36%</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td>systematic top-50</td>
+<td style="text-align: right;">$101,394</td>
+<td style="text-align: right;">+1.39%</td>
+</tr>
+</tbody>
+</table>
+<p>On clean live data mom_roa leads, residual 2nd; both beat SPY; mom_v1/v2 trail it.<br />
+(residual's contaminated +10.28% over this window was partly phantom-selection<br />
+inflation — clean is +6.13%; record AC.1.)</p>
+<p><strong>LLM stock pair — kept at 2026-06-12 re-inception (NOT backdated: backdating the<br />
+treatment's decisions would inject hindsight and break the experiment):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>Inception</th>
+<th>Holds</th>
+<th style="text-align: right;">NAV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mom_roa_top1_paper</td>
+<td>2026-06-12</td>
+<td>AAOI (new clean #1)</td>
+<td style="text-align: right;">$99,950</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper</td>
+<td>2026-06-12</td>
+<td>cash (AAOI vetoed)</td>
+<td style="text-align: right;">$100,000</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper</td>
+<td>2026-06-05 (seeded 06-12)</td>
+<td>XLK/XLI/XLB, XLE→cash</td>
+<td style="text-align: right;">$99,962</td>
+</tr>
+</tbody>
+</table>
+<h4 id="trust-budget--important">TRUST BUDGET — important</h4>
+<ul>
+<li><strong>Forward paper-trade</strong>: trustworthy from 2026-06-12 for the 6 re-inceptioned<br />
+  sleeves (clean data); from 2026-05-01 for the 3 ETF sleeves. The contaminated<br />
+  2026-05-01 → 06-12 record of the 6 is archived (var/reinception_archive_2026-06-13.json)<br />
+  but INVALID.</li>
+<li><strong>Backtest numbers</strong>: RE-VALIDATED 2026-06-13 on the backfilled cache<br />
+  (docs/revalidation_2026-06-13.md). residual_roa_6535 confirmed best risk-adjusted<br />
+  (held-out Sharpe 1.21 / Calmar 1.60 / −20% DD, in-sample champion +9.47%);<br />
+  mom_roa_6535 in-sample halved (9.86→4.89, was phantom-inflated) but still #1<br />
+  held-out raw CAGR (35.59%). Caveat: absolute CAGRs are survivor-biased upper<br />
+  bounds (only currently-listed names in the cache). No sleeve invalidated.</li>
+<li><strong>Frozen tests</strong>: re-baselined 2026-06-13 to the post-backfill values<br />
+  (v1 14.5547/70 &amp; 1.8792/156; v2 14.4062/38 &amp; 10.2194/87), green at ±0.0000pp.</li>
+</ul>
+<h4 id="infrastructure-unchanged-unless-noted">Infrastructure (unchanged unless noted)</h4>
+<ul>
+<li>DB <code>var/trades.db</code> (~5 GB, now ~37M price rows after backfill). price_cache:<br />
+  split-adjusted, dividend-UNadjusted (auto_adjust=False).</li>
+<li>daily.bat (auto 5:15pm): refresh + MTM all 9 + both overlays' check-invalidation.</li>
+<li>rebalance.bat (manual, 1st trading day): systematic + overlay rebalances + MTM.<br />
+  Overlay decisions: docs/overlay_decision_runbook.md + scripts/momentum/overlay_prep.bat.</li>
+<li>New data_audit tools: backfill_history_gaps.py, archive_contaminated_sleeves.py,<br />
+  reinception_wipe.py, check_held_split_seams.py.</li>
+</ul>
+<h4 id="open-loose-ends_1">Open loose ends</h4>
+<ol>
+<li>~~Re-validate backtests~~ <strong>DONE</strong> (docs/revalidation_2026-06-13.md).</li>
+<li>~~Backdate sleeves to 05-01~~ <strong>DONE</strong> (record AC.1; systematic only — LLM pair<br />
+   can't be honestly backdated).</li>
+<li>~~Slippage realism~~ <strong>DONE</strong> (record AC.2): edge robust to 40bps half-spread.<br />
+   ~~SUB-GAP: ADV not warmed~~ <strong>DONE</strong> (record AD): the "0/134" was stale volume<br />
+   (daily_price_refresh writes closes but not volumes), not a missing cache;<br />
+   MIN_DOLLAR_VOL=0 so the live universe was never affected. Warmed held-name<br />
+   volume → held names are liquid (median 60d ADV $100.6M; thin tail of 5 names<br />
+   &lt;$1M/day, harmless at $100k/sleeve scale). FIXED — final form (record AI,<br />
+   supersedes AE): daily_price_refresh now persists Volume alongside Close from<br />
+   the same yfinance download, so the whole universe's volume is fresh DAILY at<br />
+   zero extra cost. The redundant monthly warm_held_volumes step was removed from<br />
+   rebalance.bat (script kept as a manual backstop). Volume-staleness root cause<br />
+   eliminated.</li>
+<li><strong>Survivorship bias</strong> — dominant un-fixable data limitation (backfill filled<br />
+   only currently-listed names). Needs paid PIT/delisted data. User said skip.<br />
+   Trust the live forward record over backtest levels.</li>
+<li>Overlay automation — Option A built (runbook + overlay_prep). Option B<br />
+   (unattended cron, overlay_auto_decide.py + monthly_auto.bat) SCAFFOLDED but<br />
+   UNTESTED — needs <code>pip install anthropic</code> + ANTHROPIC_API_KEY (runbook "Option B<br />
+   activation"). Safe-fail verified.</li>
+<li>Real slippage tracker — activates at ~20 real broker fills (post-Aug 2026).</li>
+<li>Next rebalance: 1st trading day of July 2026 (07-01). overlay_prep already run<br />
+   + all 5 overlay decisions logged for 07-01 (record AJ.4): stock #1 = BE (VETO);<br />
+   sectors XLK HOLD, XLE VETO, XLI HOLD, XLB HOLD.</li>
+<li><strong>June-30 lock prep DONE (record AJ):</strong> KLAC 10:1 position fix (residual_roa<br />
+   -&gt; +11.77%, now leader), SATS-&gt;ECHO 1:1 rename, AAOI verified (cache matches<br />
+   yfinance $150.10; web/yfinance conflict UNRESOLVED — eyeball 06-30 close),<br />
+   overlay evals logged. <strong>OPEN before 07-01 rebalance (NOT lock-critical):</strong> KLAC<br />
+   price_cache pre/post-split SEAM (May $1726 vs June $278) — divide pre-~05-30<br />
+   KLAC closes by 10 or the 07-01 momentum rank sees ~-84% garbage for KLAC.</li>
+<li><strong>Zero-volume untradeable names in the sleeves (MIN_DOLLAR_VOL=0 root cause):</strong><br />
+   06-30 the dash showed 7 "stale" holdings = 6 thin micro-caps lagging a day<br />
+   (warmed, self-healing via daily.bat). Verifying the worst, <strong>QDMI</strong> (residual)<br />
+   is an unidentifiable zero-volume instrument with flat round-number stepping<br />
+   quotes ($69.92-&gt;$26-&gt;$8, no volume) marked -89% ($1998-&gt;$228). Left at $8 for<br />
+   the lock (user choice a; unverifiable, self-clears at 07-01 when momentum drops<br />
+   it). QDMI/BKFG/CNTA/WBHC are all zero-volume — they enter because the dollar-<br />
+   volume filter is OFF. RECOMMENDATION (post-lock, re-baselines frozen tests):<br />
+   set a small MIN_DOLLAR_VOL floor so untradeable names can't be selected.</li>
+<li><strong>LLM-cascade 3rd overlay pair (record AK, built 06-30):</strong> two new $100k<br />
+    sleeves <code>llm_cascade_top1_paper</code> + <code>llm_cascade_sector4_paper</code> (inception<br />
+    07-01) that, on a VETO, cascade to the next-best instead of going to cash —<br />
+    always invested. Run ALONGSIDE the cash overlays (clean veto-vs-cash signal<br />
+    preserved). Share the cash overlays' decision logs; wired into rebalance.bat<ul>
+<li>daily.bat; dashboard auto-shows them. <strong>OPEN before they diverge on 07-01:</strong><br />
+overlay_prep only prints #1 / top-4 — needs a deeper-candidates view + the<br />
+extra evals (stock #2+ since BE is vetoed; sector #5 since only 3 HOLDs), else<br />
+the cascade falls back to = the control on 07-01. <strong>RESOLVED 06-30 (record<br />
+AK.3-AK.6):</strong> overlay_prep got the deeper view; deeper evals logged (cascade<br />
+stock=WDC, sector=XLK/XLI/XLB/XLV); the llm_overlay_log UNIQUE(date) schema bug<br />
+that was silently overwriting multi-name decisions was fixed to<br />
+UNIQUE(date,ticker); and all 6 LLM-experiment sleeves were aligned to fresh<br />
+$100k/07-01 (archived, reversible).</li>
+</ul>
+</li>
+<li><strong>TWO sector_top4 controls now (record AK.6, 06-30):</strong> the 07-01 alignment reset<br />
+    desynced sector_top4 from the systematic comparison, so it's kept as BOTH:<br />
+<code>sector_top4_paper</code> = the 07-01 reset (LLM-experiment control, head-to-head with<br />
+    the sector overlays/cascade); <code>sector_top4_full_paper</code> = NEW, restored from<br />
+    var/align_llm_07_01_archive.json with the full 05-01 history (NAV $102,423.84 /<br />
+    +2.42%, holds XLI/XLE/XLB/XLK) — the systematic-comparison control. Both rebalance<br />
+    identically going forward (differ only in pre-07-01 P&amp;L). The sector overlay<br />
+    CONTROL_STRATEGY still points at sector_top4_paper, so the experiment is unchanged.</li>
+<li><strong>S&amp;P 500 07-01 baseline (record AK.7, 06-30):</strong> <code>spy_benchmark_0701_paper</code> —<br />
+    a $100k buy-and-hold SPY control aligned with the 07-01 LLM cohort (parallel to<br />
+    the 05-01 <code>spy_benchmark_paper</code>). Created as a $100k cash stub now; auto-buys SPY<br />
+    on the 07-01 rebalance (idempotent seed_spy_benchmark.py --sleeve/--inception,<br />
+    wired into rebalance.bat; MTM in daily.bat). Renders as a dotted "S&amp;P 500 (07-01)"<br />
+    benchmark line. NB sleeve count is now ~10 — the Overview unified-hover box was<br />
+    enlarged (height 430, font 11) to fit.</li>
+<li><strong>Alpaca paper integration STARTED (record AL, 06-30):</strong> Evan opened an Alpaca<br />
+    PAPER account (ACTIVE $100k) and wants automated mirroring of the sleeves.<br />
+<code>trading_bot/execution/alpaca_client.py</code> = thin httpx client (paper-default,<br />
+    live-guarded, env keys APCA_API_<em>, X-Request-IDs -&gt; var/alpaca_request_ids.log);<br />
+    smoke test returns 200. </em><em>HELD:</em>* Alpaca caps ~3 paper accounts/login (Evan wanted<br />
+    10, 1/sleeve) — Evan is testing his real cap, then we map sleeves-&gt;accounts and<br />
+    wire automated paper order routing. Claude never creates accounts / enters keys /<br />
+    fires LIVE orders.</li>
+<li><strong>7/1 clean-start cohort (record AL):</strong> the 4 May systematic sleeves now have<br />
+    07-01 duplicates (mom_v1_0701 / mom_v2_0701 / mom_roa_6535_0701 /<br />
+    residual_roa_6535_0701, fresh $100k, deploy on the 07-01 rebalance). With<br />
+    sector_top4_paper (07-01), spy_benchmark_0701, and the 6 LLM sleeves, the whole<br />
+    07-01 cohort starts clean on one date — the set that will map to Alpaca paper.<br />
+    paper_rebalance._strategy_config strips <code>_0701</code> to reuse base configs. PENDING: a<br />
+    dedicated dashboard "7/1 cohort" panel (deferred until Alpaca cohort is finalized).</li>
+<li><strong>Alpaca routing BUILT (record AL.1):</strong> cap=3, 3 accounts created + verified. Mapping<br />
+    ACCT1 residual_roa_6535_0701 / ACCT2 mom_roa_6535_0701 / ACCT3 spy_benchmark_0701.<br />
+    Keys in <code>alpaca_keys.env</code> (gitignored). <code>alpaca_accounts.py</code> (loader+verify) +<br />
+<code>alpaca_sync.py</code> (weight-mirror, fractional, dry-run default / --execute, paper-<br />
+    guarded). rebalance.bat ends with <code>alpaca_sync --all --execute</code>, so the mirror fires<br />
+    on each MANUAL monthly rebalance — first real mirror = 07-01. Preview anytime:<br />
+<code>python -m trading_bot.execution.alpaca_sync --all</code>. NB rebalance.bat is not<br />
+    scheduled (only daily.bat/MTM is) — Evan runs it on the 1st.</li>
+</ol>
+<h2 id="az5--state_2026-07-07md-verbatim-archive-headings-demoted-two-levels">AZ.5 — state_2026-07-07.md (verbatim archive; headings demoted two levels)</h2>
+<h3 id="project-state---2026-07-07">Project State - 2026-07-07</h3>
+<p>Current snapshot. Supersedes <code>state_2026-06-13.md</code>. Major change since: the<br />
+07-01/07-06 clean-start cohort was reset and <strong>deployed</strong> — 11 new sleeves went<br />
+live on 2026-07-06 close, 3 mirrored to real Alpaca PAPER accounts, and the<br />
+monthly rebalance is now a re-enabled scheduled task. Full detail: record<br />
+Appendices AL–AV. Onboarding: <code>HANDOFF.md</code>.</p>
+<h4 id="headline-the-07-06-cohort-is-live-17-sleeves-total-in-the-db">Headline: the 07-06 cohort is live (17 sleeves total in the DB)</h4>
+<p>The project now runs three parallel families (full roster + rationale in<br />
+<code>HANDOFF.md</code>; <code>CLAUDE.md</code> holds durable invariants only, since 2026-07-08):</p>
+<ol>
+<li><strong>6 continuous May systematic + benchmark</strong> (inception 2026-05-01, the<br />
+   6 contaminated sleeves re-inceptioned 2026-06-13 on clean data):<br />
+<code>mom_v1_paper</code>, <code>mom_v2_paper</code>, <code>mom_roa_6535_paper</code>,<br />
+<code>residual_roa_6535_paper</code>, <code>sector_top4_full_paper</code> (continuous systematic<br />
+   twin), <code>spy_benchmark_paper</code>.</li>
+<li><strong>11-sleeve 07-06 clean-start cohort</strong> (inception 2026-07-06, DEPLOYED<br />
+   2026-07-07 via the <code>cohort-0706-deploy</code> scheduled task — record AV): the<br />
+   5 systematic <code>_0701</code> duplicates + <code>spy_benchmark_0701_paper</code>, plus the 6<br />
+   LLM-experiment sleeves (stock control/overlay/cascade + sector<br />
+   control/overlay/cascade). The 3 marked below mirror to Alpaca PAPER.</li>
+</ol>
+<h4 id="sleeves-17-total-all-navd-2026-07-07">Sleeves (17 total, all NAV'd 2026-07-07)</h4>
+<p><strong>Continuous May family:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th style="text-align: right;">NAV</th>
+<th>Inception</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td style="text-align: right;">$104,964</td>
+<td>2026-05-01 (re-incep 06-13)</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td style="text-align: right;">$103,755</td>
+<td>2026-05-01</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td style="text-align: right;">$102,271</td>
+<td>2026-05-29</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td style="text-align: right;">$96,982</td>
+<td>2026-05-01 (re-incep 06-13)</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td style="text-align: right;">$95,200</td>
+<td>2026-05-01 (re-incep 06-13)</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td style="text-align: right;">$95,124</td>
+<td>2026-05-01 (re-incep 06-13)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>07-06 cohort (deployed 2026-07-07; ★ = mirrored to Alpaca PAPER):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>Holds</th>
+<th style="text-align: right;">NAV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mom_roa_top1_paper (stock control)</td>
+<td>BE (Bloom Energy)</td>
+<td style="text-align: right;">$102,130</td>
+</tr>
+<tr>
+<td>llm_cascade_top1_paper (stock cascade)</td>
+<td>WDC (BE vetoed → #2)</td>
+<td style="text-align: right;">$100,805</td>
+</tr>
+<tr>
+<td>mom_roa_6535_0701_paper ★</td>
+<td>top-50</td>
+<td style="text-align: right;">$100,355</td>
+</tr>
+<tr>
+<td>sector_top4_paper (sector control)</td>
+<td>XLK/XLE/XLI/XLB</td>
+<td style="text-align: right;">$100,396</td>
+</tr>
+<tr>
+<td>mom_v2_0701_paper</td>
+<td>top-50</td>
+<td style="text-align: right;">$100,212</td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper ★</td>
+<td>top-48 (2 untradable)</td>
+<td style="text-align: right;">$100,207</td>
+</tr>
+<tr>
+<td>mom_v1_0701_paper</td>
+<td>top-100</td>
+<td style="text-align: right;">$100,141</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper (sector veto)</td>
+<td>XLK/XLI/XLB, XLE→cash</td>
+<td style="text-align: right;">$100,112</td>
+</tr>
+<tr>
+<td>llm_cascade_sector4_paper (sector cascade)</td>
+<td>XLK/XLI/XLB/XLV</td>
+<td style="text-align: right;">$100,060</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper (stock veto)</td>
+<td><strong>cash</strong> (BE vetoed)</td>
+<td style="text-align: right;">$100,000</td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper ★</td>
+<td>133.106 SPY</td>
+<td style="text-align: right;">$99,525</td>
+</tr>
+</tbody>
+</table>
+<h4 id="07-06-deploy--llm-decisions-logged-2026-07-07-record-av">07-06 deploy — LLM decisions logged 2026-07-07 (record AV)</h4>
+<ul>
+<li><strong>Stock control BE (Bloom Energy), score 4, VETO</strong> (128x fwd P/E, price above<br />
+  consensus target, rolling over). Overlay treatment → cash.</li>
+<li><strong>Stock cascade → WDC (Western Digital), score 6, BUY</strong> (HDD sold out through<br />
+  2026 = real revenue visibility, not pure momentum).</li>
+<li><strong>Sectors: XLK HOLD(6), XLE VETO(3, fragile geopolitical oil rally), XLI<br />
+  HOLD(8, cleanest), XLB HOLD(5, marginal).</strong> Sector cascade needed a 4th HOLD →<br />
+<strong>XLV (Health Care), score 7, HOLD</strong>.</li>
+</ul>
+<h4 id="alpaca-paper-mirror-record-av">Alpaca PAPER mirror (record AV)</h4>
+<p><code>alpaca_sync --all --execute</code> submitted <strong>99 DAY orders, 0 rejections</strong> across<br />
+Evan's 3 fresh accounts (residual_roa_6535_0701 48/48, mom_roa_6535_0701 50/50,<br />
+spy_benchmark_0701 1/1), queued to the next open. Whole-share/broker-realistic<br />
+logic (record AT) means untradable/non-fractionable names are floored to whole<br />
+shares or dropped in BOTH the DB sim and the Alpaca mirror — so the two agree.<br />
+Claude never creates accounts / enters keys / fires LIVE orders.</p>
+<h4 id="monthly-automation-record-av-memory-monthly-rebalance-trigger-timing-bug">Monthly automation (record AV, memory [[monthly-rebalance-trigger-timing-bug]])</h4>
+<p><code>monthy-llm-rebalance</code> scheduled task is <strong>RE-ENABLED</strong>, cron <code>0 18 * * *</code><br />
+(6:03pm local). Its <code>rebalance_log.md</code> gate no-ops the rest of July; first live<br />
+fire is 2026-08-01. The <code>cohort-0706-deploy</code> one-time task auto-disabled after<br />
+its successful 2026-07-07 run.</p>
+<h4 id="trust-budget-unchanged-from-06-13-unless-noted">Trust budget (unchanged from 06-13 unless noted)</h4>
+<ul>
+<li><strong>Forward paper-trade</strong> is the only true OOS test. Continuous May family:<br />
+  trustworthy from 2026-06-13 (6 re-inceptioned) / 2026-05-01 (benchmarks). New<br />
+  cohort: trustworthy from 2026-07-06.</li>
+<li><strong>Backtests</strong>: last re-validated 2026-06-13 (<code>docs/revalidation_2026-06-13.md</code>).<br />
+  residual_roa_6535 = best risk-adjusted; absolute CAGRs are survivor-biased<br />
+  upper bounds.</li>
+<li><strong>Frozen tests</strong>: at ±0.0000pp (post-backfill baseline). The broker-realistic<br />
+<code>fractionability</code> path defaults unknown tickers → tradable+fractionable, so<br />
+  backtests/frozen specs are UNAFFECTED (verified).</li>
+</ul>
+<h4 id="infrastructure-unchanged-unless-noted_1">Infrastructure (unchanged unless noted)</h4>
+<ul>
+<li>DB <code>var/trades.db</code> (~5 GB). price_cache split-adjusted, dividend-UNadjusted<br />
+  (auto_adjust=False). 2026-07-06 close coverage = 5,206 tickers (full).</li>
+<li><code>daily.bat</code> (auto 5:15pm <code>TradingDailyMTM</code>): refresh + MTM all sleeves.</li>
+<li><code>rebalance.bat</code> (all 10 paper lines now carry <code>--broker-realistic</code>) — but the<br />
+  monthly run is now driven by the <code>monthy-llm-rebalance</code> scheduled task, not a<br />
+  manual invocation.</li>
+<li>New code (record AT): <code>trading_bot/execution/fractionability.py</code><br />
+  (<code>alpaca_asset_meta</code> cache), <code>alpaca_client.get_asset</code>, broker-realistic<br />
+  paths in <code>alpaca_sync</code> + <code>paper_rebalance</code>.</li>
+<li>RuFlo V3 statusline DISABLED in <code>.claude/settings.json</code> (was spawning stray<br />
+<code>%</code>-named files in the repo root — record AW).</li>
+</ul>
+<h4 id="open-loose-ends_2">Open loose ends</h4>
+<ol>
+<li><strong>Stray shadow-named files in repo root RECUR</strong> (record AW): <code>20%</code> traced to<br />
+   the RuFlo statusline (disabled). But format-spec-named files (<code>4</code>, <code>10.2f}</code>,<br />
+<code>12.2f}</code>) reappeared 2026-07-07 ~18:29 from a DIFFERENT source — a scheduled<br />
+   run leaking an unescaped shell/format-spec redirect target. Source NOT yet<br />
+   found; harmless empty files but they clutter <code>git status</code>. Also <code>scratch_positions.csv</code><br />
+   (49 KB) dropped at 18:29 by an evening scheduled task.</li>
+<li><strong><code>PRD_ROADMAP.md</code></strong> (25 KB, untracked, created 2026-07-07 23:11) — appeared<br />
+   in the repo root; author/intent unconfirmed. Do not touch without asking Evan.</li>
+<li>First Alpaca fills settle at next market open (07-08) — verify the 99 orders<br />
+   filled and reconcile against the 3 sleeves' DB positions.</li>
+<li>Real slippage tracker activates at ~20 real broker fills (post-Aug 2026).</li>
+<li>Survivorship bias — dominant un-fixable data limitation; trust live forward<br />
+   record over backtest levels.</li>
+<li>Dedicated dashboard "cohort" panel still deferred.</li>
+</ol>
 </div>
 </body>
 </html>

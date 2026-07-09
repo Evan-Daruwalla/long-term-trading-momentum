@@ -9,8 +9,7 @@ the proven sleeves convert to live trading backed by a defensible history.
 ## Start of session (read in this order)
 
 1. `HANDOFF.md` — current sleeve roster, NAVs, experiment status, automation.
-2. Latest `docs/state_<date>.md` — current snapshot.
-3. `PRD_ROADMAP.md` — the standing ops/infra plan (Fable 5, 2026-07-07); work
+2. `PRD_ROADMAP.md` — the standing ops/infra plan (Fable 5, 2026-07-07); work
    its next open task unless Evan directs otherwise.
 
 The append-only record (`docs/Project Record — Full Chronological History.md`)
@@ -69,22 +68,22 @@ Work is not finished until ALL of these hold. Run them; don't assume.
 2. Frozen tests print d=±0.0000pp — actual output stated in the report.
 3. Record entry appended (absolute date + approx time, WHAT/WHY/HOW), HTML twin
    regenerated.
-4. HANDOFF.md / state doc updated if reality shifted (new sleeve, automation
-   change, audit finding).
+4. HANDOFF.md updated if reality shifted (new sleeve, automation change,
+   audit finding).
 5. Local commit when a task authorizes it. Never push without Evan's instruction.
 
-## Documentation cadence (set 2026-05-28)
+## Documentation cadence (set 2026-05-28; state-doc tier retired 2026-07-08)
 
-Update the record and `docs/state_*.md` **every 3 prompts** of real work
-(a hook reminds you).
+Update the record **every 3 prompts** of real work (a hook reminds you).
 
 - **Record** (`docs/Project Record — Full Chronological History.md` — renamed
   2026-06-30 from `docs/record_2026-05-27.md`, same file): chronological log.
   Entries are timestamped (date + approximate time). Append as the next
-  `# Appendix <XX> - Title (date)`, never edit prior appendices.
-- **State** (`docs/state_<date>.md`): always-current snapshot. Create a NEW
-  dated file when reality shifts significantly; mark the old one superseded at
-  the top.
+  `# Appendix <XX> - Title (date)` + the matching front-matter TOC line, never
+  edit prior appendices. When reality shifts significantly (audit, re-baseline,
+  deployment change), the entry carries a full snapshot section — do NOT create
+  `docs/state_<date>.md` files; that tier was retired 2026-07-08 (existing ones
+  archived in Appendix AZ) and `HANDOFF.md` is the only live snapshot.
 
 If the cadence slips, catch up at the next prompt and note in the record that
 the cadence was missed by N prompts so future-me can audit.
