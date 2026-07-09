@@ -22,6 +22,15 @@ if errorlevel 1 (
 )
 
 echo.
+echo === Coverage gate: require full price publication before MTM ===
+.venv\Scripts\python.exe -m scripts.momentum.check_coverage
+if errorlevel 1 (
+    echo COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
+    echo Investigate before trusting today's NAVs. See check_coverage output above.
+    exit /b 1
+)
+
+echo.
 echo === Daily MTM: spy_benchmark_paper (S^&P 500 control, buy-and-hold SPY) ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy spy_benchmark_paper
 

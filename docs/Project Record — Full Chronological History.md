@@ -111,6 +111,7 @@ lives in the dated entry, not the digest.
 - [AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim](#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local) (07-08)
 - [BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)](#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local) (07-08)
 - [BB — M2.1 coverage gate script; caught live 07-08 shortfall](#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local) (07-09)
+- [BC — M2.2 coverage gate wired into daily.bat, ahead of MTM](#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local) (07-09)
 
 ---
 
@@ -4520,3 +4521,63 @@ Frozen tests after the change (`python -m trading_bot.strategies.test_strategies
 
 d=±0.0000pp on all four pinned configs — expected, the script is read-only and touches no
 strategy/factor/sim code. M2.1 done; next open task is M2.2 (wire the gate into `daily.bat`).
+
+
+# Appendix BC - M2.2 coverage gate wired into daily.bat, ahead of MTM (2026-07-09, ~13:30 local)
+
+**PRD milestone M2, task 2.** Wire the M2.1 coverage gate into the daily flow so an
+incomplete-publication day fails loudly instead of MTM-ing on partial data.
+
+**WHAT.** Inserted a gate block in `scripts/momentum/daily.bat` immediately after the price-refresh
+step and before the first MTM:
+
+```
+echo === Coverage gate: require full price publication before MTM ===
+.venv\Scripts\python.exe -m scripts.momentum.check_coverage
+if errorlevel 1 (
+    echo COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
+    echo Investigate before trusting today's NAVs. See check_coverage output above.
+    exit /b 1
+)
+```
+
+On failure it echoes a `COVERAGE FAIL` line, skips **everything** downstream (all MTM *and* the
+overlay `check-invalidation` ops), and `exit /b 1`.
+
+**WHY the placement.** The scheduled task runs `cmd /c ...\daily.bat > var\last_daily_run.log 2>&1`
+(verified via `Get-ScheduledTask TradingDailyMTM`), so daily.bat's whole stdout is already
+redirected to `last_daily_run.log`. The `COVERAGE FAIL` echo therefore lands in that log with no
+explicit `>>` append — and an explicit append was deliberately *avoided*, because the parent `cmd`
+holds that file open for the run and a child `>>` to the same path can collide. `exit /b 1`
+propagates as the batch's exit code, so the `cmd /c` returns 1 and the task history shows failure.
+Putting the gate before the overlay ops is also a safety win: on a bad-data day it prevents
+`llm_overlay_ops`/`sector_overlay_ops check-invalidation` from firing a stop-loss **sell** off a
+missing/partial price.
+
+**HOW / verification.**
+
+- `.bat` confirmed **pure ASCII** (byte scan, no >127 bytes) — the cmd.exe parse-corruption trap
+  (Appendix AS) avoided. Echo text carries no parens, so no `^(`/`^)` escaping needed inside the
+  `if` block.
+- Gate control flow tested in **isolation** (a standalone harness replicating the exact block,
+  calling the real `check_coverage`), both branches:
+  - `--date 2026-07-07` -> `COVERAGE PASS` (5206 >= 5000), harness `exit 0`, "would proceed to MTM".
+  - `--floor 999999` -> `COVERAGE FAIL` line printed, MTM skipped, `exit /b 1`.
+- **Did NOT run the full production `daily.bat`.** It executes the trade-capable
+  `*_ops check-invalidation` steps (they call `paper_trader.sell` on a stop breach with no
+  `--dry-run`), which the PRD forbids me from running; and 2026-07-09 is an in-progress trading day
+  with no settled closes (the latest cached day, 2026-07-08, is itself the incomplete one from
+  Appendix BB). Full end-to-end validation will happen when `TradingDailyMTM` fires at 5:15pm, or
+  when Evan runs it. The isolated harness exercises the identical cmd.exe control flow.
+
+Frozen tests (no Python changed this task; run anyway per the standing order):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). M2.2 done; next open task is M2.3 (anomaly detector, `check_anomalies.py`).

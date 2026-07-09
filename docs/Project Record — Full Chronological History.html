@@ -149,7 +149,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local">AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed</a> (07-08)<br />
 - <a href="#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local">AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim</a> (07-08)<br />
 - <a href="#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local">BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)</a> (07-08)<br />
-- <a href="#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local">BB — M2.1 coverage gate script; caught live 07-08 shortfall</a> (07-09)</p>
+- <a href="#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local">BB — M2.1 coverage gate script; caught live 07-08 shortfall</a> (07-09)<br />
+- <a href="#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">BC — M2.2 coverage gate wired into daily.bat, ahead of MTM</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5118,6 +5119,54 @@ silently mismarks NAVs/ranks. M2.2 will wire this in front of MTM in <code>daily
 </code></pre>
 <p>d=±0.0000pp on all four pinned configs — expected, the script is read-only and touches no<br />
 strategy/factor/sim code. M2.1 done; next open task is M2.2 (wire the gate into <code>daily.bat</code>).</p>
+<h1 id="appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">Appendix BC - M2.2 coverage gate wired into daily.bat, ahead of MTM (2026-07-09, ~13:30 local)</h1>
+<p><strong>PRD milestone M2, task 2.</strong> Wire the M2.1 coverage gate into the daily flow so an<br />
+incomplete-publication day fails loudly instead of MTM-ing on partial data.</p>
+<p><strong>WHAT.</strong> Inserted a gate block in <code>scripts/momentum/daily.bat</code> immediately after the price-refresh<br />
+step and before the first MTM:</p>
+<pre><code>echo === Coverage gate: require full price publication before MTM ===
+.venv\Scripts\python.exe -m scripts.momentum.check_coverage
+if errorlevel 1 (
+    echo COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
+    echo Investigate before trusting today's NAVs. See check_coverage output above.
+    exit /b 1
+)
+</code></pre>
+<p>On failure it echoes a <code>COVERAGE FAIL</code> line, skips <strong>everything</strong> downstream (all MTM <em>and</em> the<br />
+overlay <code>check-invalidation</code> ops), and <code>exit /b 1</code>.</p>
+<p><strong>WHY the placement.</strong> The scheduled task runs <code>cmd /c ...\daily.bat &gt; var\last_daily_run.log 2&gt;&amp;1</code><br />
+(verified via <code>Get-ScheduledTask TradingDailyMTM</code>), so daily.bat's whole stdout is already<br />
+redirected to <code>last_daily_run.log</code>. The <code>COVERAGE FAIL</code> echo therefore lands in that log with no<br />
+explicit <code>&gt;&gt;</code> append — and an explicit append was deliberately <em>avoided</em>, because the parent <code>cmd</code><br />
+holds that file open for the run and a child <code>&gt;&gt;</code> to the same path can collide. <code>exit /b 1</code><br />
+propagates as the batch's exit code, so the <code>cmd /c</code> returns 1 and the task history shows failure.<br />
+Putting the gate before the overlay ops is also a safety win: on a bad-data day it prevents<br />
+<code>llm_overlay_ops</code>/<code>sector_overlay_ops check-invalidation</code> from firing a stop-loss <strong>sell</strong> off a<br />
+missing/partial price.</p>
+<p><strong>HOW / verification.</strong></p>
+<ul>
+<li><code>.bat</code> confirmed <strong>pure ASCII</strong> (byte scan, no &gt;127 bytes) — the cmd.exe parse-corruption trap<br />
+  (Appendix AS) avoided. Echo text carries no parens, so no <code>^(</code>/<code>^)</code> escaping needed inside the<br />
+<code>if</code> block.</li>
+<li>Gate control flow tested in <strong>isolation</strong> (a standalone harness replicating the exact block,<br />
+  calling the real <code>check_coverage</code>), both branches:</li>
+<li><code>--date 2026-07-07</code> -&gt; <code>COVERAGE PASS</code> (5206 &gt;= 5000), harness <code>exit 0</code>, "would proceed to MTM".</li>
+<li><code>--floor 999999</code> -&gt; <code>COVERAGE FAIL</code> line printed, MTM skipped, <code>exit /b 1</code>.</li>
+<li><strong>Did NOT run the full production <code>daily.bat</code>.</strong> It executes the trade-capable<br />
+<code>*_ops check-invalidation</code> steps (they call <code>paper_trader.sell</code> on a stop breach with no<br />
+<code>--dry-run</code>), which the PRD forbids me from running; and 2026-07-09 is an in-progress trading day<br />
+  with no settled closes (the latest cached day, 2026-07-08, is itself the incomplete one from<br />
+  Appendix BB). Full end-to-end validation will happen when <code>TradingDailyMTM</code> fires at 5:15pm, or<br />
+  when Evan runs it. The isolated harness exercises the identical cmd.exe control flow.</li>
+</ul>
+<p>Frozen tests (no Python changed this task; run anyway per the standing order):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). M2.2 done; next open task is M2.3 (anomaly detector, <code>check_anomalies.py</code>).</p>
 </div>
 </body>
 </html>
