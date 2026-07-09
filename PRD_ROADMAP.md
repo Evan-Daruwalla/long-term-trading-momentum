@@ -140,8 +140,9 @@ record.
   rewrite data files with PowerShell.
 - **Commits**: this document authorizes a local commit after each completed task. Never push
   without Evan's instruction.
-- **Docs cadence**: record entry (absolute dates, append-only) per task; HANDOFF/state per
-  milestone; regenerate HTML twins by script only.
+- **Docs cadence**: record entry (absolute dates, append-only) per task; HANDOFF per milestone;
+  regenerate HTML twins by script only. (State-doc tier retired 2026-07-08 — record Appendix AZ;
+  never create `docs/state_*.md`; M1.3's state doc predates this and is archived there.)
 
 ## 5. MILESTONES
 

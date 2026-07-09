@@ -21,8 +21,8 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > 2026-08-01). This sits alongside — not replacing — the continuous May family.
 
 > **2026-07-08**: Alpaca mirror sizing now carries a 1% cash buffer
-> (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY —
-> frozen-test run for that commit still owed, see AY item 3).
+> (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY).
+> Frozen tests re-run 2026-07-08 ~20:35, d=±0.0000pp on all 4 configs (Appendix BA).
 
 The DB now holds **17 sleeves in three families** (this file is the roster
 source — `CLAUDE.md` holds the durable invariants, not the roster, since

@@ -109,6 +109,7 @@ lives in the dated entry, not the digest.
 - [AX — CLAUDE.md rewritten; ruflo fully removed; PRD-handoff system built](#appendix-ax---claudemd-rewritten-ruflo-fully-removed-prd-handoff-system-built-2026-07-08-afternoon) (07-08)
 - [AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed](#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local) (07-08)
 - [AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim](#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local) (07-08)
+- [BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)](#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local) (07-08)
 
 ---
 
@@ -4455,3 +4456,24 @@ its successful 2026-07-07 run.
 5. Survivorship bias — dominant un-fixable data limitation; trust live forward
    record over backtest levels.
 6. Dedicated dashboard "cohort" panel still deferred.
+
+# Appendix BA - Owed frozen-test run cleared (cash-buffer commit 3807f23) (2026-07-08, ~20:35 local)
+
+Resolves the open item flagged in Appendix AY item 3. The 2026-07-08 12:47 commit `3807f23`
+("Add 1% cash buffer to Alpaca mirror sizing", `trading_bot/execution/alpaca_sync.py`, an Opus
+session) had landed with no evidence of a frozen-test run, and AY deferred it because the handoff
+executed inside the 5:00-6:30pm MTM window. Run now at ~20:35 local (outside the window), via the
+invocation the test file documents (`python -m trading_bot.strategies.test_strategies` — pytest is
+not installed in this venv, only the optional-alternate note in the file's docstring mentions it):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792%  (exp +1.8792%,  d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+All four pinned configs at d=±0.0000pp — as expected, since the cash-buffer change is confined to
+the Alpaca mirror-sizing path (`alpaca_sync.py`) and never touches the strategy/factor/sim code the
+frozen tests exercise. AY item 3 is closed.
