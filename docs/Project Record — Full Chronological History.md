@@ -110,6 +110,7 @@ lives in the dated entry, not the digest.
 - [AY — Handoff sync: TOC backlog repaired, cash-buffer cadence miss logged, doc pointers fixed](#appendix-ay---handoff-sync-toc-backlog-repaired-am-ax-cash-buffer-cadence-miss-logged-doc-pointers-fixed-2026-07-08-1715-local) (07-08)
 - [AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim](#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local) (07-08)
 - [BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)](#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local) (07-08)
+- [BB — M2.1 coverage gate script; caught live 07-08 shortfall](#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local) (07-09)
 
 ---
 
@@ -4477,3 +4478,45 @@ not installed in this venv, only the optional-alternate note in the file's docst
 All four pinned configs at d=±0.0000pp — as expected, since the cash-buffer change is confined to
 the Alpaca mirror-sizing path (`alpaca_sync.py`) and never touches the strategy/factor/sim code the
 frozen tests exercise. AY item 3 is closed.
+
+
+# Appendix BB - M2.1 coverage gate (check_coverage.py); caught live 07-08 incomplete-publication shortfall (2026-07-09, ~13:20 local)
+
+**PRD milestone M2, task 1** (Data-quality guardrails / coverage gate). First execution task under
+`PRD_ROADMAP.md` after the M1 documentation catch-up. Ops/infra only, read-only against the DB.
+
+**WHAT.** New `scripts/momentum/check_coverage.py` (read-only, `file:...?mode=ro`): reports the
+non-NULL `close` count for the latest cached trading date (or `--date`), compares it to a floor,
+and exits 0 (PASS) / 1 (FAIL). Floor = `max(5000, 90% * baseline)` where baseline is the **median**
+close count over the prior 10 *trading* days. Market-closed days leave only a couple hundred stray
+closes (e.g. Juneteenth 2026-06-19 = 204, the observed-July-4th holiday 2026-07-03 = 213), so dates
+below `MIN_TRADING_DAY_COUNT=1000` are excluded from the baseline — median alone would already be
+robust to one or two, this makes it explicit. `--floor N` overrides the computed floor.
+
+**WHY.** Mirrors, in code, the manual "coverage >= 5,000 closes" gate the 07-06 deploy enforced by
+hand (Appendix AV). The failure class is incomplete yfinance publication (Appendix AU): a day's
+closes arrive for only ~4,400 of ~5,200 tickers and never settle, and MTM on that partial data
+silently mismarks NAVs/ranks. M2.2 will wire this in front of MTM in `daily.bat`.
+
+**HOW / verification (done-check from the PRD).**
+
+- `--date 2026-07-07` (last complete day): `5206` closes >= floor `5000` -> **PASS, exit 0**.
+- `--floor 999999`: **FAIL, exit 1**.
+- Default (latest cached date) -> **FAIL, exit 1**, and this is a *real* catch, not a contrived one:
+  the latest cached day **2026-07-08 has only 4,379 closes vs a 5,247 baseline** (~16% short) —
+  a live incomplete-publication event of exactly the Appendix AU class. Reported, not touched: per
+  the standing rule, data that looks wrong is surfaced, and backfilling/refreshing is Evan's call.
+  (Consequence to be aware of: any MTM already written for 2026-07-08 used partial data.)
+
+Frozen tests after the change (`python -m trading_bot.strategies.test_strategies`):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp on all four pinned configs — expected, the script is read-only and touches no
+strategy/factor/sim code. M2.1 done; next open task is M2.2 (wire the gate into `daily.bat`).
