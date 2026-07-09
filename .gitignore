@@ -10,7 +10,9 @@ var/
 *.db-journal
 
 # Claude Code / ruflo tooling & runtime state (personal, not project source)
-.claude/
+.claude/*
+# ...except codebase-memory: project-source technical memory, tracked on purpose
+!.claude/codebase-memory/
 .mcp.json
 .claude-flow/
 .swarm/
