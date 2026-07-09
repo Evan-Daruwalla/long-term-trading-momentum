@@ -69,6 +69,37 @@ def compute_nav(strategy_name: str, as_of: date) -> dict:
     }
 
 
+def inception_date(strategy_name: str) -> date:
+    """Earliest date a NAV row is legitimate for this sleeve.
+
+    = min( date(paper_portfolio.initialized_at), earliest paper_positions.entry_date ).
+    Neither source alone is correct: initialized_at is a wall-clock stamp that runs
+    LATER than the true start for BACKDATED sleeves (mom_roa_6535_paper was re-inited
+    2026-06-13 but its history goes back to 2026-05-01), while earliest entry_date runs
+    later than inception for the 07-06 cohort (positions fill at the NEXT open 2026-07-07,
+    but inception / first NAV is 2026-07-06). Their min is correct for every current
+    sleeve and errs EARLY, so the guard can only skip genuinely pre-inception dates,
+    never a legitimate one. Defensive: on any parse issue returns date.min, so a bad
+    row can never make the daily MTM wrongly skip a live sleeve.
+    """
+    with connect() as conn:
+        prow = conn.execute(
+            "SELECT initialized_at FROM paper_portfolio WHERE strategy_name=?",
+            (strategy_name,)).fetchone()
+        erow = conn.execute(
+            "SELECT MIN(entry_date) AS d FROM paper_positions WHERE strategy_name=?",
+            (strategy_name,)).fetchone()
+    candidates: list[date] = []
+    for raw in (prow["initialized_at"] if prow else None,
+                erow["d"] if erow else None):
+        if raw:
+            try:
+                candidates.append(date.fromisoformat(str(raw)[:10]))
+            except ValueError:
+                pass
+    return min(candidates) if candidates else date.min
+
+
 def write_nav(strategy_name: str, as_of: date, nav: dict) -> None:
     init_db()
     with connect() as conn:
@@ -94,6 +125,14 @@ def main() -> int:
     # write a flat row — rare and harmless vs. risking a skipped real day.
     if as_of.weekday() >= 5:
         log.info("MTM %s is a weekend — skipping (no trading day).", as_of)
+        return 0
+    # Pre-inception guard: never write a NAV row dated before the sleeve's
+    # inception. This is the holiday-weekend $100k-pollution class (record
+    # Appendices AU/AV) that previously needed manual row deletion.
+    inc = inception_date(args.strategy)
+    if as_of < inc:
+        log.warning("SKIP pre-inception: %s as_of=%s is before inception=%s — "
+                    "no NAV row written.", args.strategy, as_of, inc)
         return 0
     nav = compute_nav(args.strategy, as_of)
     write_nav(args.strategy, as_of, nav)

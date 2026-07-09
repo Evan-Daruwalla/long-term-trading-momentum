@@ -152,7 +152,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local">BB — M2.1 coverage gate script; caught live 07-08 shortfall</a> (07-09)<br />
 - <a href="#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">BC — M2.2 coverage gate wired into daily.bat, ahead of MTM</a> (07-09)<br />
 - <a href="#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local">BD — M2.3 anomaly detector wired into daily.bat</a> (07-09)<br />
-- <a href="#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local">BE — M2.4 cache-gap auditor; M2 complete</a> (07-09)</p>
+- <a href="#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local">BE — M2.4 cache-gap auditor; M2 complete</a> (07-09)<br />
+- <a href="#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">BF — M3.1 pre-inception NAV guard in paper_mtm + regression test</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5243,6 +5244,57 @@ in one command per the M2 success criteria.</p>
 (coverage / spikes / gaps) are detectable same-day before the 2026-08-01 unattended rebalance.<br />
 Next: M3 (unattended-automation safety) — pre-inception NAV guard, post-run verifier, verifier<br />
 wiring, and Evan-facing failure surfacing.</p>
+<h1 id="appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">Appendix BF - M3.1 pre-inception NAV guard in paper_mtm.py + fixture regression test (2026-07-09, ~13:50 local)</h1>
+<p><strong>PRD milestone M3, task 1 — first write-path change of the plan.</strong> Make it impossible for the daily<br />
+MTM to write a NAV row dated before a sleeve's inception (the holiday-weekend $100k-pollution class,<br />
+Appendices AU/AV, that previously needed manual row deletion).</p>
+<p><strong>WHAT.</strong> Added <code>inception_date(strategy)</code> to <code>scripts/momentum/paper_mtm.py</code> and a guard in <code>main()</code><br />
+(after the weekend skip, before <code>compute_nav</code>): if <code>as_of &lt; inception_date(strategy)</code>, log<br />
+<code>SKIP pre-inception</code> and write nothing.</p>
+<p><strong>WHY this inception formula</strong> — <code>inception = min( date(paper_portfolio.initialized_at),
+earliest paper_positions.entry_date )</code>. Verified empirically against all 17 sleeves that <strong>neither<br />
+source alone is correct</strong>:</p>
+<ul>
+<li><code>initialized_at</code> is a wall-clock stamp that runs LATER than the true start for the <strong>backdated</strong><br />
+  May sleeves (e.g. <code>mom_roa_6535_paper</code> re-inited 2026-06-13 but its NAV/entry history goes back to<br />
+  2026-05-01).</li>
+<li>earliest <code>entry_date</code> runs later than inception for the <strong>07-06 cohort</strong>, whose positions fill at<br />
+  the NEXT open 2026-07-07 while inception / first NAV is 2026-07-06.</li>
+</ul>
+<p>Their <code>min</code> is right for every current sleeve and errs EARLY, so the guard can only skip genuinely<br />
+pre-inception dates — never a legitimate one. Defensive: on any parse failure <code>inception_date</code><br />
+returns <code>date.min</code>, so a malformed row can never make tonight's live MTM wrongly skip a live sleeve.<br />
+For today's MTM (<code>as_of=2026-07-09</code>) every sleeve's inception is &lt;= 2026-07-07, so the guard never<br />
+fires and behavior is byte-identical to before.</p>
+<p><strong>HOW / verification.</strong></p>
+<ul>
+<li>New committed regression test <code>scripts/momentum/test_inception_guard.py</code> (fixture DB, no live DB /<br />
+  no price_cache needed — write cases use a cash-only sleeve). All 6 checks pass:</li>
+</ul>
+<pre><code>  [OK  ] backdated inception = 2026-05-01
+  [OK  ] cohort inception = 2026-07-06, not first-fill 07-07
+  [OK  ] cash-only inception = 2026-07-06
+  [OK  ] MTM 2026-07-03 (pre-inception) writes NO nav row
+  [OK  ] MTM 2026-07-06 (inception day) writes a nav row
+  [OK  ] MTM 2026-07-09 (live date) writes a nav row
+</code></pre>
+<ul>
+<li><strong>Copy test on real data</strong> (PRD "test on a DB copy, never live-first"): <code>VACUUM INTO</code> snapshot of<br />
+  the live 5 GB DB (4.76 GB, consistent), ran the REAL <code>paper_mtm</code> against it. A fake<br />
+<code>GUARD_TEST_FUTURE</code> sleeve (inception 2099-01-01) was SKIPPED for 2026-07-09 with no row; the live<br />
+<code>mom_v1_paper</code> (173 positions, inception 2026-05-01) wrote its 2026-07-09 NAV row normally — guard<br />
+  does not interfere. Snapshot deleted after. The live DB was never written.</li>
+</ul>
+<p>Frozen tests (paper_mtm.py changed):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). The change runs live in tonight's <code>TradingDailyMTM</code> 5:15pm task; the guard never<br />
+fires for live sleeves at today's date, so that run is a no-op for behavior. M3.1 done; next open<br />
+task is M3.2 (post-run verifier, <code>verify_run.py</code>).</p>
 </div>
 </body>
 </html>

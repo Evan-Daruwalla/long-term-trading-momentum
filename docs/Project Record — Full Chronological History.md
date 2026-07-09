@@ -114,6 +114,7 @@ lives in the dated entry, not the digest.
 - [BC — M2.2 coverage gate wired into daily.bat, ahead of MTM](#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local) (07-09)
 - [BD — M2.3 anomaly detector wired into daily.bat](#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local) (07-09)
 - [BE — M2.4 cache-gap auditor; M2 complete](#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local) (07-09)
+- [BF — M3.1 pre-inception NAV guard in paper_mtm + regression test](#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local) (07-09)
 
 ---
 
@@ -4680,3 +4681,64 @@ d=±0.0000pp (4/4).
 (coverage / spikes / gaps) are detectable same-day before the 2026-08-01 unattended rebalance.
 Next: M3 (unattended-automation safety) — pre-inception NAV guard, post-run verifier, verifier
 wiring, and Evan-facing failure surfacing.
+
+
+# Appendix BF - M3.1 pre-inception NAV guard in paper_mtm.py + fixture regression test (2026-07-09, ~13:50 local)
+
+**PRD milestone M3, task 1 — first write-path change of the plan.** Make it impossible for the daily
+MTM to write a NAV row dated before a sleeve's inception (the holiday-weekend $100k-pollution class,
+Appendices AU/AV, that previously needed manual row deletion).
+
+**WHAT.** Added `inception_date(strategy)` to `scripts/momentum/paper_mtm.py` and a guard in `main()`
+(after the weekend skip, before `compute_nav`): if `as_of < inception_date(strategy)`, log
+`SKIP pre-inception` and write nothing.
+
+**WHY this inception formula** — `inception = min( date(paper_portfolio.initialized_at),
+earliest paper_positions.entry_date )`. Verified empirically against all 17 sleeves that **neither
+source alone is correct**:
+
+- `initialized_at` is a wall-clock stamp that runs LATER than the true start for the **backdated**
+  May sleeves (e.g. `mom_roa_6535_paper` re-inited 2026-06-13 but its NAV/entry history goes back to
+  2026-05-01).
+- earliest `entry_date` runs later than inception for the **07-06 cohort**, whose positions fill at
+  the NEXT open 2026-07-07 while inception / first NAV is 2026-07-06.
+
+Their `min` is right for every current sleeve and errs EARLY, so the guard can only skip genuinely
+pre-inception dates — never a legitimate one. Defensive: on any parse failure `inception_date`
+returns `date.min`, so a malformed row can never make tonight's live MTM wrongly skip a live sleeve.
+For today's MTM (`as_of=2026-07-09`) every sleeve's inception is <= 2026-07-07, so the guard never
+fires and behavior is byte-identical to before.
+
+**HOW / verification.**
+
+- New committed regression test `scripts/momentum/test_inception_guard.py` (fixture DB, no live DB /
+  no price_cache needed — write cases use a cash-only sleeve). All 6 checks pass:
+
+```
+  [OK  ] backdated inception = 2026-05-01
+  [OK  ] cohort inception = 2026-07-06, not first-fill 07-07
+  [OK  ] cash-only inception = 2026-07-06
+  [OK  ] MTM 2026-07-03 (pre-inception) writes NO nav row
+  [OK  ] MTM 2026-07-06 (inception day) writes a nav row
+  [OK  ] MTM 2026-07-09 (live date) writes a nav row
+```
+
+- **Copy test on real data** (PRD "test on a DB copy, never live-first"): `VACUUM INTO` snapshot of
+  the live 5 GB DB (4.76 GB, consistent), ran the REAL `paper_mtm` against it. A fake
+  `GUARD_TEST_FUTURE` sleeve (inception 2099-01-01) was SKIPPED for 2026-07-09 with no row; the live
+  `mom_v1_paper` (173 positions, inception 2026-05-01) wrote its 2026-07-09 NAV row normally — guard
+  does not interfere. Snapshot deleted after. The live DB was never written.
+
+Frozen tests (paper_mtm.py changed):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). The change runs live in tonight's `TradingDailyMTM` 5:15pm task; the guard never
+fires for live sleeves at today's date, so that run is a no-op for behavior. M3.1 done; next open
+task is M3.2 (post-run verifier, `verify_run.py`).
