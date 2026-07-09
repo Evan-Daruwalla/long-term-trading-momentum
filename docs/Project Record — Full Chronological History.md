@@ -113,6 +113,7 @@ lives in the dated entry, not the digest.
 - [BB — M2.1 coverage gate script; caught live 07-08 shortfall](#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local) (07-09)
 - [BC — M2.2 coverage gate wired into daily.bat, ahead of MTM](#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local) (07-09)
 - [BD — M2.3 anomaly detector wired into daily.bat](#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local) (07-09)
+- [BE — M2.4 cache-gap auditor; M2 complete](#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local) (07-09)
 
 ---
 
@@ -4631,3 +4632,51 @@ last M2 task.
 **Standing finding for Evan (unchanged, restated):** 2026-07-08 was marked-to-market on incomplete
 data (4,379 closes; 158 held names, >=4 with no mark). Per the standing order this is REPORTED, not
 fixed — whether to re-refresh 07-08 and re-MTM is Evan's call.
+
+
+# Appendix BE - M2.4 cache-gap auditor (check_cache_gaps.py); full run 1/5207 flagged, M2 complete (2026-07-09, ~13:40 local)
+
+**PRD milestone M2, task 4 — completes M2 (Data-quality guardrails).** The re-runnable detector for
+the Appendix AA failure class (2026-06-13: ~815 tickers with a multi-year history hole that
+phantom-ranked stale names into half of every momentum sleeve).
+
+**WHAT.** New read-only `scripts/momentum/check_cache_gaps.py`. Builds the real trading-day calendar
+for a lookback window (`--months`, default 13 — the 12-1 momentum need), takes every ticker with a
+close on the last 3 calendar days as "rankable", and for each finds the longest run of consecutive
+calendar trading days with no close **inside its own first..last range**. Flags runs > `--max-gap`
+(default 5). Bulk-loads the window's closes once (~1.3M rows) and indexes against the calendar, so a
+full ~5,200-ticker run is ~10s. Appends a dated report to `var/cache_gap_report.log`; writes nothing
+to the DB.
+
+**HOW / verification — full run (done-check: "full run completes; findings documented").**
+
+```
+window=2025-05-28..2026-07-08  trading_days=279  rankable=5207  max_gap>5
+flagged: 1 of 5207 rankable tickers have an internal hole > 5 consecutive trading days.
+  BDPT     worst_gap=  8d  2026-03-27..2026-04-08  window_coverage=78%
+```
+
+**1 of 5,207** rankable tickers flagged — the 2026-06-13 backfill is holding; no 815-class
+recurrence. The single flagged name, **BDPT** (8 trading-day hole late Mar-early Apr 2026), is
+**not held by any sleeve** (verified against open `paper_positions`), so it has zero live impact —
+a likely halt/data outage in one nanocap, reported not fixed per the standing order. Re-run monthly
+in one command per the M2 success criteria.
+
+Frozen tests (new Python file):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4).
+
+**M2 milestone snapshot.** All four data-quality guardrails now exist, all read-only:
+`check_coverage.py` (BB, wired into daily.bat BC), `check_anomalies.py` (BD, wired BD),
+`check_cache_gaps.py` (this entry, standalone monthly). The three deadline failure classes
+(coverage / spikes / gaps) are detectable same-day before the 2026-08-01 unattended rebalance.
+Next: M3 (unattended-automation safety) — pre-inception NAV guard, post-run verifier, verifier
+wiring, and Evan-facing failure surfacing.
