@@ -95,6 +95,11 @@ echo === Daily MTM: LLM-cascade sleeves (always-invested 3rd pair, no stops) ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_sector4_paper
 
 echo.
+echo === Anomaly scan: KLAC-class single-day moves + missing held marks ^(non-blocking^) ===
+.venv\Scripts\python.exe -m scripts.momentum.check_anomalies
+REM Report-only by design: a giant move can be legitimate news, so never halt.
+
+echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===
 REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/tests/research).
 "C:\Users\evan.EVANFREDY\.local\bin\graphify.exe" update

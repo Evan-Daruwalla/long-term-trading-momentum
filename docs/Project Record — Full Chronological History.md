@@ -112,6 +112,7 @@ lives in the dated entry, not the digest.
 - [BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)](#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local) (07-08)
 - [BB — M2.1 coverage gate script; caught live 07-08 shortfall](#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local) (07-09)
 - [BC — M2.2 coverage gate wired into daily.bat, ahead of MTM](#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local) (07-09)
+- [BD — M2.3 anomaly detector wired into daily.bat](#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local) (07-09)
 
 ---
 
@@ -4581,3 +4582,52 @@ Frozen tests (no Python changed this task; run anyway per the standing order):
 ```
 
 d=±0.0000pp (4/4). M2.2 done; next open task is M2.3 (anomaly detector, `check_anomalies.py`).
+
+
+# Appendix BD - M2.3 anomaly detector (check_anomalies.py) wired into daily.bat (2026-07-09, ~13:35 local)
+
+**PRD milestone M2, task 3.** Detect the split-misapplication failure class (record Appendix X /
+KLAC 2026-06-12) the same day it happens, and surface missing marks on held names.
+
+**WHAT.** New read-only `scripts/momentum/check_anomalies.py`. For the latest trading day vs the
+prior one it flags: (1) held names (open in any sleeve) with `|1-day move|` > `--held-threshold`
+(default 300%); (2) any ticker with `|1-day move|` > `--cache-threshold` (default 1000%, the KLAC
+tell) **and** prior close >= `--min-price` (default \$1); (3) held names with no close on the
+target date. Console + a dated section appended to `var/anomaly_report.log`. **Non-blocking**:
+always exits 0, because a huge move can be legitimate news — halting MTM on it would be wrong.
+Wired into `daily.bat` after the last MTM, before the graphify step, with no errorlevel check.
+
+**WHY the `--min-price` floor.** First live run without it flagged `WBBA \$0.0007->\$0.01 (+1244%)`
+— a sub-penny nanocap whose tiny absolute move is a huge ratio. That is noise, not the tell (KLAC
+was ~\$800 when it misfired). The floor applies only to the cache-wide rule; held names are exempt
+(we want to know about anything we own regardless of price, and the universe filters keep sub-penny
+names out of holdings anyway).
+
+**HOW / verification.**
+
+- `--date 2026-07-07` (both days complete): **"0 anomalies for 2026-07-07"** — the clean dated
+  entry the done-check asks for, written to `var/anomaly_report.log`.
+- Default (latest = the incomplete 2026-07-08 from Appendix BB): correctly flags **4 held names with
+  no close** — `AFJK` (mom_v1/mom_roa_6535 x2 cohorts), `EACO`, `FMBM`, `KFII`
+  (residual_roa_6535) — among the ~800 tickers missing on that partial-publication day. Exit 0
+  (non-blocking). This is independent confirmation that 2026-07-08's incompleteness reached actual
+  holdings, not just the cache tail.
+- `daily.bat` re-confirmed **pure ASCII**; the anomaly echo's parens are escaped `^(`/`^)` inside
+  the block.
+
+Frozen tests (new Python file):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). M2.3 done; next open task is M2.4 (cache-gap audit, `check_cache_gaps.py`) — the
+last M2 task.
+
+**Standing finding for Evan (unchanged, restated):** 2026-07-08 was marked-to-market on incomplete
+data (4,379 closes; 158 held names, >=4 with no mark). Per the standing order this is REPORTED, not
+fixed — whether to re-refresh 07-08 and re-MTM is Evan's call.

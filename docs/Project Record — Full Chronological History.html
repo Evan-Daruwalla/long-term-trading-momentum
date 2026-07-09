@@ -150,7 +150,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-az---state-doc-tier-retired-every-state_md-archived-verbatim-below-2026-07-08-1730-local">AZ — State-doc tier retired: every state_&lt;date&gt;.md archived verbatim</a> (07-08)<br />
 - <a href="#appendix-ba---owed-frozen-test-run-cleared-cash-buffer-commit-3807f23-2026-07-08-2035-local">BA — Owed frozen-test run cleared (cash-buffer commit 3807f23)</a> (07-08)<br />
 - <a href="#appendix-bb---m21-coverage-gate-check_coveragepy-caught-live-07-08-incomplete-publication-shortfall-2026-07-09-1320-local">BB — M2.1 coverage gate script; caught live 07-08 shortfall</a> (07-09)<br />
-- <a href="#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">BC — M2.2 coverage gate wired into daily.bat, ahead of MTM</a> (07-09)</p>
+- <a href="#appendix-bc---m22-coverage-gate-wired-into-dailybat-ahead-of-mtm-2026-07-09-1330-local">BC — M2.2 coverage gate wired into daily.bat, ahead of MTM</a> (07-09)<br />
+- <a href="#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local">BD — M2.3 anomaly detector wired into daily.bat</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5167,6 +5168,45 @@ missing/partial price.</p>
   All regression tests passed.
 </code></pre>
 <p>d=±0.0000pp (4/4). M2.2 done; next open task is M2.3 (anomaly detector, <code>check_anomalies.py</code>).</p>
+<h1 id="appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local">Appendix BD - M2.3 anomaly detector (check_anomalies.py) wired into daily.bat (2026-07-09, ~13:35 local)</h1>
+<p><strong>PRD milestone M2, task 3.</strong> Detect the split-misapplication failure class (record Appendix X /<br />
+KLAC 2026-06-12) the same day it happens, and surface missing marks on held names.</p>
+<p><strong>WHAT.</strong> New read-only <code>scripts/momentum/check_anomalies.py</code>. For the latest trading day vs the<br />
+prior one it flags: (1) held names (open in any sleeve) with <code>|1-day move|</code> &gt; <code>--held-threshold</code><br />
+(default 300%); (2) any ticker with <code>|1-day move|</code> &gt; <code>--cache-threshold</code> (default 1000%, the KLAC<br />
+tell) <strong>and</strong> prior close &gt;= <code>--min-price</code> (default \$1); (3) held names with no close on the<br />
+target date. Console + a dated section appended to <code>var/anomaly_report.log</code>. <strong>Non-blocking</strong>:<br />
+always exits 0, because a huge move can be legitimate news — halting MTM on it would be wrong.<br />
+Wired into <code>daily.bat</code> after the last MTM, before the graphify step, with no errorlevel check.</p>
+<p><strong>WHY the <code>--min-price</code> floor.</strong> First live run without it flagged <code>WBBA \$0.0007-&gt;\$0.01 (+1244%)</code><br />
+— a sub-penny nanocap whose tiny absolute move is a huge ratio. That is noise, not the tell (KLAC<br />
+was ~\$800 when it misfired). The floor applies only to the cache-wide rule; held names are exempt<br />
+(we want to know about anything we own regardless of price, and the universe filters keep sub-penny<br />
+names out of holdings anyway).</p>
+<p><strong>HOW / verification.</strong></p>
+<ul>
+<li><code>--date 2026-07-07</code> (both days complete): <strong>"0 anomalies for 2026-07-07"</strong> — the clean dated<br />
+  entry the done-check asks for, written to <code>var/anomaly_report.log</code>.</li>
+<li>Default (latest = the incomplete 2026-07-08 from Appendix BB): correctly flags <strong>4 held names with<br />
+  no close</strong> — <code>AFJK</code> (mom_v1/mom_roa_6535 x2 cohorts), <code>EACO</code>, <code>FMBM</code>, <code>KFII</code><br />
+  (residual_roa_6535) — among the ~800 tickers missing on that partial-publication day. Exit 0<br />
+  (non-blocking). This is independent confirmation that 2026-07-08's incompleteness reached actual<br />
+  holdings, not just the cache tail.</li>
+<li><code>daily.bat</code> re-confirmed <strong>pure ASCII</strong>; the anomaly echo's parens are escaped <code>^(</code>/<code>^)</code> inside<br />
+  the block.</li>
+</ul>
+<p>Frozen tests (new Python file):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). M2.3 done; next open task is M2.4 (cache-gap audit, <code>check_cache_gaps.py</code>) — the<br />
+last M2 task.</p>
+<p><strong>Standing finding for Evan (unchanged, restated):</strong> 2026-07-08 was marked-to-market on incomplete<br />
+data (4,379 closes; 158 held names, &gt;=4 with no mark). Per the standing order this is REPORTED, not<br />
+fixed — whether to re-refresh 07-08 and re-MTM is Evan's call.</p>
 </div>
 </body>
 </html>
