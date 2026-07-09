@@ -10,8 +10,17 @@ the asset.
 
 ## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
 
-**Last updated: 2026-07-08** — this file is the only live snapshot (state-doc
+**Last updated: 2026-07-09** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
+
+> **2026-07-09 — PRD milestone M2 (data-quality guardrails) complete** (record
+> Appendices BB–BE). Three read-only guardrail scripts now exist: a coverage
+> gate + anomaly detector wired into `daily.bat`, and a standalone cache-gap
+> auditor. **Live finding, unresolved (Evan's call):** the coverage gate caught
+> that **2026-07-08 was MTM'd on incomplete data** — only 4,379 of a ~5,250
+> baseline closes published; ≥4 held names (AFJK/EACO/FMBM/KFII) had no mark
+> that day. Reported, not fixed: re-refreshing + re-MTM-ing 07-08 is Evan's
+> decision. Next PRD milestone: M3 (unattended-automation safety).
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -151,6 +160,9 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/llm_overlay_ops.py candidate\|decide\|rebalance` | LLM stock overlay |
 | `scripts/momentum/sector_overlay_ops.py candidate\|decide\|rebalance` | LLM sector overlay |
 | `scripts/momentum/seed_spy_benchmark.py` | One-off SPY sleeve seeder (idempotent) |
+| `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
+| `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
+| `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
 
 ### Batch files
 | File | When to run |
