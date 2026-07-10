@@ -32,6 +32,7 @@ from datetime import date
 
 from trading_bot.db import connect, init_db
 from trading_bot.execution import market_data, paper_trader
+from scripts.momentum.check_coverage import coverage_status
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -116,6 +117,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--as-of", default=date.today().isoformat())
     ap.add_argument("--strategy", default=paper_trader.DEFAULT_STRATEGY)
+    ap.add_argument("--force", action="store_true",
+                    help="MTM even if the day's coverage is below the floor "
+                         "(bypass the coverage gate). Use only when you know the "
+                         "held names are all present.")
     args = ap.parse_args()
 
     as_of = date.fromisoformat(args.as_of)
@@ -134,6 +139,19 @@ def main() -> int:
         log.warning("SKIP pre-inception: %s as_of=%s is before inception=%s — "
                     "no NAV row written.", args.strategy, as_of, inc)
         return 0
+    # Coverage gate: refuse to mark a day whose universe publication is below the
+    # floor, unless --force. This closes the raw-`paper_mtm` bypass of the daily
+    # flow's gate (record Appendix BP: a concurrent session backfilled 07-09 at
+    # 4,726 < floor via raw paper_mtm). mtm_catchup does its own per-day gating
+    # and calls compute_nav/write_nav directly, so it is unaffected by this.
+    if not args.force:
+        with connect() as conn:
+            cov = coverage_status(conn, as_of.isoformat())
+        if not cov["ok"]:
+            log.error("COVERAGE FAIL: %s has %d closes < floor %d — refusing to MTM "
+                      "%s (pass --force to override; see record Appendix BP).",
+                      as_of, cov["count"], cov["floor"], args.strategy)
+            return 2
     nav = compute_nav(args.strategy, as_of)
     write_nav(args.strategy, as_of, nav)
 

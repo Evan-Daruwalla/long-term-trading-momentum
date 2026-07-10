@@ -125,6 +125,7 @@ lives in the dated entry, not the digest.
 - [BN — M3.5 catch-up marking: self-healing daily MTM (option A)](#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local) (07-09)
 - [BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted](#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local) (07-10)
 - [BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)](#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local) (07-10)
+- [BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed](#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local) (07-10)
 
 ---
 
@@ -5177,3 +5178,33 @@ were confirmed correct (fresh recompute matches to the cent, Appendix BO) and `v
    recompute), but a direct `paper_mtm` run has NO coverage gate — only `daily.bat`/`mtm_catchup` do.
    Options to close the bypass (Evan's call): fold the coverage check into `paper_mtm` itself
    (with a `--force` escape hatch), and/or make raw `paper_mtm` the discouraged path vs `mtm_catchup`.
+
+
+# Appendix BQ - Coverage gate moved into paper_mtm.py itself; raw-MTM bypass closed (2026-07-10, ~15:15 local)
+
+Closes the gate bypass exposed in Appendix BP: a raw `paper_mtm --as-of <date> --strategy X` call had
+NO coverage check (only `daily.bat`/`mtm_catchup` did), so a concurrent session marked 2026-07-09 at
+4,726 closes (< the 5,000 floor). Correct only by luck (held names present); the guardrail had a side
+door.
+
+**WHAT.** `scripts/momentum/paper_mtm.py` `main()` now runs the shared `coverage_status()` for `--as-of`
+after the weekend + pre-inception guards and BEFORE `compute_nav`/`write_nav`: if the day is below the
+floor and `--force` is not given, it logs `COVERAGE FAIL ... refusing to MTM` and returns exit 2
+without writing. New `--force` flag bypasses it for the rare intentional case (held names known
+present). `mtm_catchup` is **unaffected** — it calls `compute_nav`/`write_nav` directly (not `main()`)
+and does its own per-day gating; verified it still runs (07-10 pending, marked=0, exit 2).
+
+**HOW / verification.**
+- `--as-of 2026-07-10` (pending, 4,352 < floor), no `--force` -> `COVERAGE FAIL`, **exit 2, 0 rows
+  written** for the sleeve (refuses before writing).
+- `--as-of 2026-07-09` (settled, 5,204), no `--force` -> proceeds, re-marks the same value
+  ($104,310.00, idempotent) -> exit 0.
+- `--force` path exercised by `test_inception_guard.py` (its fixture has no price data; the test uses
+  `--force` and its 6 checks still pass).
+- Frozen tests d=±0.0000pp (4/4).
+
+**Design note.** The coverage floor logic lives once in `check_coverage.coverage_status()` and is now
+consumed by four callers — the daily gate, `mtm_catchup`, `verify_run`'s pending-day boundary, and
+(this entry) `paper_mtm` itself. Any NAV-writing path a human or another session is likely to reach
+now refuses sub-floor data by default. The remaining coordination item (only one owner should mark
+NAVs) is a process convention, not enforceable in code.

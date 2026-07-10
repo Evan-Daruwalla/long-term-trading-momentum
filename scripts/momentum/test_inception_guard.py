@@ -70,9 +70,11 @@ def main() -> int:
     failures: list[str] = []
 
     def run_mtm(strategy, as_of):
-        # paper_mtm.main() parses sys.argv, so drive it through argv.
+        # paper_mtm.main() parses sys.argv, so drive it through argv. --force
+        # bypasses the coverage gate (the fixture has no price data); this test
+        # exercises the inception guard, not coverage.
         saved = sys.argv
-        sys.argv = ["paper_mtm", "--strategy", strategy, "--as-of", as_of]
+        sys.argv = ["paper_mtm", "--strategy", strategy, "--as-of", as_of, "--force"]
         try:
             return paper_mtm.main()
         finally:
