@@ -161,7 +161,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local">BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py</a> (07-09)<br />
 - <a href="#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local">BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete</a> (07-09)<br />
 - <a href="#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local">BM — M5 backup hygiene: rotating backups + weekly task + restore drill</a> (07-09)<br />
-- <a href="#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local">BN — M3.5 catch-up marking: self-healing daily MTM (option A)</a> (07-09)</p>
+- <a href="#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local">BN — M3.5 catch-up marking: self-healing daily MTM (option A)</a> (07-09)<br />
+- <a href="#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted</a> (07-10)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5595,6 +5596,33 @@ daily run once 07-09 settles overnight (no manual backfill needed); the daily-ta
 problem is resolved. Days marked-on-incomplete-data BEFORE this change (e.g. the slightly-stale 07-08)<br />
 are left as-is — catch-up only fills missing days, and rewriting existing NAV history is not something<br />
 it does.</p>
+<h1 id="appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">Appendix BO - 07-09 NAV gap backfilled (settled + catch-up); a provenance anomaly noted (2026-07-10, ~14:45 local)</h1>
+<p><strong>Operational event</strong> — the 2026-07-09 NAV gap (Appendix BH) is now closed, and the M3.5 catch-up<br />
+path ran for real against live for the first time.</p>
+<p><strong>What happened.</strong> 2026-07-09 finally settled: a 2026-07-10 14:44 refresh brought it to <strong>5,204<br />
+closes</strong> (&gt;= 5,000 floor) — it had been stuck at 4,381 (17:17) / 4,724 (22:30) / 4,726 (07-10 00:05)<br />
+before that. <code>check_coverage --date 2026-07-09</code> -&gt; PASS. Ran the authorized <code>mtm_catchup</code> against live:<br />
+it <strong>marked 2 sleeves</strong> for 07-09 (<code>llm_overlay_mom_roa_top1_paper</code>, <code>llm_overlay_sector_top4_paper</code>),<br />
+left 2026-07-10 PENDING (4,352 &lt; floor), exit 2. <code>verify_run --mode daily</code> -&gt; <strong>PASS 17/17</strong><br />
+(settled&lt;=2026-07-09). All 17 sleeves now have a 2026-07-09 <code>paper_nav</code> row.</p>
+<p><strong>Data-integrity check (the important part).</strong> Recomputed each sleeve's 07-09 NAV from the now-settled<br />
+data and compared to the stored row: <strong>0/17 stale — all match to the cent.</strong> So every 07-09 mark is<br />
+correct.</p>
+<p><strong>Provenance anomaly — REPORTED, unresolved (Evan's input needed).</strong> Catch-up marked only 2 of the 17,<br />
+which means <strong>15 sleeves already had a correct 07-09 row before this run</strong> — everything except the two<br />
+cash-veto overlay treatments. That is unexpected: at 2026-07-09 18:04 <code>verify_run</code> showed all 17<br />
+missing 07-09; <code>TradingDailyMTM</code> ran 2026-07-09 17:15 and FAILED at the coverage gate (LastResult<br />
+0x1, no MTM); every live <code>mtm_catchup</code> I ran before the backfill was <code>--dry-run</code> (no writes); and the<br />
+only live python now is the Streamlit dashboard (read-only on <code>paper_nav</code>; its subprocess calls launch<br />
+backtests/sims, not live MTM). So some other process marked those 15 between 07-09 18:04 and 07-10<br />
+14:45. Most plausible: a manual <code>start_all.bat</code>/<code>paper_mtm</code> run by Evan, or the parallel session, once<br />
+07-09's held names were present (the ~500 late tickers are illiquid names the sleeves don't hold, so a<br />
+mark taken at 4,700-ish coverage would still price every held position correctly — consistent with the<br />
+exact match). <strong>No corruption</strong>: <code>paper_nav</code> is <code>INSERT OR REPLACE</code> on <code>(strategy, nav_date)</code> (SQLite<br />
+serializes writers; PK forbids dupes), verify's cash recon is exact, and the values are verified<br />
+correct. Flagging so Evan can confirm what ran; nothing needs fixing on the data itself.</p>
+<p>The live <code>daily_price_refresh</code> also pulled 2026-07-10 to 4,352 closes (partial, market just closed) —<br />
+it stays PENDING and will be marked by catch-up on a later run once it settles, exactly as designed.</p>
 </div>
 </body>
 </html>

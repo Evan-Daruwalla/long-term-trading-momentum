@@ -33,16 +33,22 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 >
 > **M3.5 catch-up marking DEPLOYED (record Appendix BN) — the daily pipeline now
 > self-heals.** The coverage gate first fired in production 2026-07-09 17:17
-> (4,381 < 5,000 floor), correctly skipping the 07-09 mark. Rather than fail every
-> evening, `daily.bat` now runs `scripts/momentum/mtm_catchup.py` after refresh:
-> it marks every SETTLED missing trading day (today included) for all sleeves, and
-> leaves still-pending days for the next run. So **the 2026-07-09 gap self-heals
-> automatically at the next daily run once 07-09 settles overnight** — no manual
-> backfill needed. `verify_run` now treats a below-floor "today" as PENDING (not a
-> gap), and the daily task exits 0 on a normal pending day (fails only on a real
-> settled-history gap). To heal 07-09 sooner by hand: refresh, then
-> `mtm_catchup` once `check_coverage --date 2026-07-09` passes. Next PRD work: only
-> M6 (slippage), gated on the 2026-08-01+ Alpaca fills.
+> (4,381 < 5,000 floor), correctly skipping the 07-09 mark. `daily.bat` now runs
+> `scripts/momentum/mtm_catchup.py` after refresh: it marks every SETTLED missing
+> trading day (today included) for all sleeves and leaves still-pending days for
+> the next run. `verify_run` treats a below-floor "today" as PENDING (not a gap),
+> and the daily task exits 0 on a normal pending day (fails only on a real
+> settled-history gap).
+>
+> **2026-07-09 gap RESOLVED (record Appendix BO).** 07-09 settled to 5,204 closes
+> on 2026-07-10 14:44; catch-up backfilled it and `verify_run` -> PASS 17/17, all
+> 07-09 NAVs verified correct (recompute matches to the cent). **Provenance note:**
+> 15 of the 17 07-09 rows were already present before the authorized catch-up
+> (which marked only 2) — written by an unidentified process (not the failed
+> scheduled task, not the read-only dashboard); values are correct so no data fix
+> is needed, but confirm whether a manual `start_all.bat`/MTM or the parallel
+> session ran. Next PRD work: only M6 (slippage), gated on the 2026-08-01+ Alpaca
+> fills.
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the

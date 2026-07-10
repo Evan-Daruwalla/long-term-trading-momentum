@@ -123,6 +123,7 @@ lives in the dated entry, not the digest.
 - [BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete](#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local) (07-09)
 - [BM — M5 backup hygiene: rotating backups + weekly task + restore drill](#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local) (07-09)
 - [BN — M3.5 catch-up marking: self-healing daily MTM (option A)](#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local) (07-09)
+- [BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted](#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local) (07-10)
 
 ---
 
@@ -5108,3 +5109,37 @@ daily run once 07-09 settles overnight (no manual backfill needed); the daily-ta
 problem is resolved. Days marked-on-incomplete-data BEFORE this change (e.g. the slightly-stale 07-08)
 are left as-is — catch-up only fills missing days, and rewriting existing NAV history is not something
 it does.
+
+
+# Appendix BO - 07-09 NAV gap backfilled (settled + catch-up); a provenance anomaly noted (2026-07-10, ~14:45 local)
+
+**Operational event** — the 2026-07-09 NAV gap (Appendix BH) is now closed, and the M3.5 catch-up
+path ran for real against live for the first time.
+
+**What happened.** 2026-07-09 finally settled: a 2026-07-10 14:44 refresh brought it to **5,204
+closes** (>= 5,000 floor) — it had been stuck at 4,381 (17:17) / 4,724 (22:30) / 4,726 (07-10 00:05)
+before that. `check_coverage --date 2026-07-09` -> PASS. Ran the authorized `mtm_catchup` against live:
+it **marked 2 sleeves** for 07-09 (`llm_overlay_mom_roa_top1_paper`, `llm_overlay_sector_top4_paper`),
+left 2026-07-10 PENDING (4,352 < floor), exit 2. `verify_run --mode daily` -> **PASS 17/17**
+(settled<=2026-07-09). All 17 sleeves now have a 2026-07-09 `paper_nav` row.
+
+**Data-integrity check (the important part).** Recomputed each sleeve's 07-09 NAV from the now-settled
+data and compared to the stored row: **0/17 stale — all match to the cent.** So every 07-09 mark is
+correct.
+
+**Provenance anomaly — REPORTED, unresolved (Evan's input needed).** Catch-up marked only 2 of the 17,
+which means **15 sleeves already had a correct 07-09 row before this run** — everything except the two
+cash-veto overlay treatments. That is unexpected: at 2026-07-09 18:04 `verify_run` showed all 17
+missing 07-09; `TradingDailyMTM` ran 2026-07-09 17:15 and FAILED at the coverage gate (LastResult
+0x1, no MTM); every live `mtm_catchup` I ran before the backfill was `--dry-run` (no writes); and the
+only live python now is the Streamlit dashboard (read-only on `paper_nav`; its subprocess calls launch
+backtests/sims, not live MTM). So some other process marked those 15 between 07-09 18:04 and 07-10
+14:45. Most plausible: a manual `start_all.bat`/`paper_mtm` run by Evan, or the parallel session, once
+07-09's held names were present (the ~500 late tickers are illiquid names the sleeves don't hold, so a
+mark taken at 4,700-ish coverage would still price every held position correctly — consistent with the
+exact match). **No corruption**: `paper_nav` is `INSERT OR REPLACE` on `(strategy, nav_date)` (SQLite
+serializes writers; PK forbids dupes), verify's cash recon is exact, and the values are verified
+correct. Flagging so Evan can confirm what ran; nothing needs fixing on the data itself.
+
+The live `daily_price_refresh` also pulled 2026-07-10 to 4,352 closes (partial, market just closed) —
+it stays PENDING and will be marked by catch-up on a later run once it settles, exactly as designed.
