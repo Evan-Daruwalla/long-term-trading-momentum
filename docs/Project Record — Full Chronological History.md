@@ -119,6 +119,7 @@ lives in the dated entry, not the digest.
 - [BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred](#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local) (07-09)
 - [BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete](#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local) (07-09)
 - [BJ — M4.1 experiment kill-switch tracker (experiment_report.py)](#appendix-bj---m41-experiment-kill-switch-tracker-experiment_reportpy-2026-07-09-2315-local) (07-09)
+- [BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py](#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local) (07-09)
 
 ---
 
@@ -4933,3 +4934,38 @@ divergence for all three pairs).
 4,724 closes at 23:07, below the 5,000 floor; it will backfill once it settles. The M3.5 catch-up/
 schedule fix remains a flagged decision for Evan; this M4 work is the ratified PRD continuation and
 does not depend on it.
+
+
+# Appendix BK - M4.2 control-vs-treatment NAV divergence in experiment_report.py (2026-07-09, ~23:25 local)
+
+**PRD milestone M4, task 2.** Extended `experiment_report.py` with control-vs-treatment NAV
+divergence for all three pairs (each experiment's control vs its cash-veto and cascade treatments),
+from `paper_nav` READ-ONLY. All six sleeves share the 2026-07-06 cohort inception and a \$100k start,
+so %-from-inception is directly comparable; the report shows each sleeve's %-from-inception and the
+gap vs its control in \$ and pp.
+
+**HOW / verification (done-check: output matches the dashboard's NAV numbers).** The report's NAVs
+are read straight from `paper_nav.total_nav` (same source the dashboard uses); spot-checked against a
+direct query and they match to the cent (e.g. control `mom_roa_top1_paper` \$96,346.83 -> report
+\$96,347). Latest common mark is 2026-07-08 (2026-07-09 was gate-skipped, Appendix BH). Honest
+interim divergence (tiny n, forward OOS only):
+
+- **stock**: control `mom_roa_top1_paper` **-3.65%** (holds BE, which fell); cash-veto **+0.00%**
+  (vetoed BE to cash, dodging the drop; **+3.65pp** vs control); cascade **+4.25%** (walked to WDC;
+  **+7.90pp** vs control). Both stock treatments ahead so far — the veto/cascade avoided BE's decline.
+- **sector**: control `sector_top4_paper` **+0.22%**; cash-veto **-0.50%** (**-0.73pp**); cascade
+  **-0.88%** (**-1.10pp**). Both sector treatments slightly behind control — consistent with the
+  standing prior that the macro overlay is the weakest LLM edge.
+
+Frozen tests (Python changed):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). M4.2 done; next open task is M4.3 (small dashboard hook — surface the n/30-picks
+and months/12 kill-switch counters in the LLM panel if not already shown), which completes M4.

@@ -16,6 +16,10 @@ kill-switch: decisions=8/30  rebalance-dates=5  months=1.3/12  (first 2026-05-29
     2026-07-07 WDC        6 BUY        +8.6%    532.10->578.05
   mean forward return: approve(BUY)=-9.4% (n=3)  veto=-9.5% (n=5)
   [reading: a working stock BUY signal wants approve>veto; a working veto wants veto names to UNDERperform. n is tiny - noise, not proof.]
+  control-vs-treatment NAV divergence (paper_nav, %-from-inception):
+    control    mom_roa_top1_paper                 nav@2026-07-08=$    96,347 (-3.65%)
+    cash-veto  llm_overlay_mom_roa_top1_paper     nav@2026-07-08=$   100,000 (+0.00%)   gap vs control: $+3,653 / +3.65pp
+    cascade    llm_cascade_top1_paper             nav@2026-07-08=$   104,249 (+4.25%)   gap vs control: $+7,902 / +7.90pp
 
 ## sector overlay  (log: sector_overlay_log)
 sleeves: control=sector_top4_paper | cash-veto=llm_overlay_sector_top4_paper | cascade=llm_cascade_sector4_paper
@@ -39,4 +43,8 @@ kill-switch: decisions=15/30  rebalance-dates=3  months=0.9/12  (first 2026-06-1
     2026-07-07 XLV        7 HOLD       -1.4%    164.44->162.17
   mean forward return: approve(HOLD)=-0.3% (n=11)  veto=-0.4% (n=4)
   [reading: a working stock BUY signal wants approve>veto; a working veto wants veto names to UNDERperform. n is tiny - noise, not proof.]
+  control-vs-treatment NAV divergence (paper_nav, %-from-inception):
+    control    sector_top4_paper                  nav@2026-07-08=$   100,223 (+0.22%)
+    cash-veto  llm_overlay_sector_top4_paper      nav@2026-07-08=$    99,496 (-0.50%)   gap vs control: $-728 / -0.73pp
+    cascade    llm_cascade_sector4_paper          nav@2026-07-08=$    99,119 (-0.88%)   gap vs control: $-1,104 / -1.10pp
 

@@ -120,7 +120,40 @@ def report_experiment(conn: sqlite3.Connection, exp: dict, today: str) -> list[s
                  f"(n={len(appr_rets)})  veto={_mean(veto_rets):+.1f}% (n={len(veto_rets)})")
     lines.append("  [reading: a working stock BUY signal wants approve>veto; a working veto "
                  "wants veto names to UNDERperform. n is tiny - noise, not proof.]")
+    lines.extend(divergence_lines(conn, exp))
     return lines
+
+
+def divergence_lines(conn: sqlite3.Connection, exp: dict) -> list[str]:
+    """Control-vs-treatment NAV divergence (M4.2), %-from-inception + gap vs
+    control in $ and pp. All three sleeves share the 2026-07-06 cohort inception
+    and a $100k start, so %-from-inception is directly comparable."""
+    out = ["  control-vs-treatment NAV divergence (paper_nav, %-from-inception):"]
+    sleeves = [("control", exp["control"]), ("cash-veto", exp["cash"]),
+               ("cascade", exp["cascade"])]
+    data: dict[str, tuple[str, float, float]] = {}
+    for label, s in sleeves:
+        nav = conn.execute(
+            "SELECT nav_date, total_nav FROM paper_nav WHERE strategy_name=? "
+            "ORDER BY nav_date DESC LIMIT 1", (s,)).fetchone()
+        start = conn.execute(
+            "SELECT starting_cash FROM paper_portfolio WHERE strategy_name=?", (s,)).fetchone()
+        if nav and start and start["starting_cash"]:
+            pct = (nav["total_nav"] / start["starting_cash"] - 1.0) * 100.0
+            data[label] = (nav["nav_date"], nav["total_nav"], pct)
+    if "control" not in data:
+        out.append("    (no control NAV yet)")
+        return out
+    _cd, cnav, cpct = data["control"]
+    for label, s in sleeves:
+        if label not in data:
+            out.append(f"    {label:10s} {s:34s} (no NAV yet)")
+            continue
+        d, nav, pct = data[label]
+        gap = "" if label == "control" else (
+            f"   gap vs control: ${nav - cnav:+,.0f} / {pct - cpct:+.2f}pp")
+        out.append(f"    {label:10s} {s:34s} nav@{d}=${nav:>10,.0f} ({pct:+.2f}%){gap}")
+    return out
 
 
 def main() -> int:
