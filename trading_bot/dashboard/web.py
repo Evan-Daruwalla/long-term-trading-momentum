@@ -2109,6 +2109,13 @@ def _render_overview(all_names: list[str]) -> None:
                 gap = trt["pct"] - ctl["pct"]
                 st.caption(f"treatment {trt['pct']:+.2f}% vs control "
                            f"{ctl['pct']:+.2f}% → LLM effect **{gap:+.2f}pp**")
+            ks = conn.execute(
+                "SELECT COUNT(*), MIN(decision_date) FROM llm_overlay_log").fetchone()
+            if ks and ks[1]:
+                import datetime as _dt
+                _mo = (_dt.date.today() - _dt.date.fromisoformat(ks[1])).days / 30.44
+                st.caption(f"kill-switch: {ks[0]}/30 picks · {_mo:.1f}/12 months "
+                           f"(since {ks[1]})")
         n_sec = conn.execute("SELECT COUNT(*) FROM sector_overlay_log").fetchone()[0]
         sec_trt = next((s for s in sleeves
                         if s["name"] == "llm_overlay_sector_top4_paper"), None)
@@ -2117,6 +2124,13 @@ def _render_overview(all_names: list[str]) -> None:
                       "round" if (sec_trt["n_open"] == 0 and n_sec == 0)
                       else f"{n_sec} decisions logged, {sec_trt['n_open']} held")
             st.markdown(f"**Sector veto** — {status}")
+            ks_sec = conn.execute(
+                "SELECT MIN(decision_date) FROM sector_overlay_log").fetchone()
+            if ks_sec and ks_sec[0]:
+                import datetime as _dt
+                _mo = (_dt.date.today() - _dt.date.fromisoformat(ks_sec[0])).days / 30.44
+                st.caption(f"kill-switch: {n_sec}/30 picks · {_mo:.1f}/12 months "
+                           f"(since {ks_sec[0]})")
         conn.close()
 
         st.markdown("##### Concentration (top sector)")

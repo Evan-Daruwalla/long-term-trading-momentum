@@ -158,7 +158,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local">BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred</a> (07-09)<br />
 - <a href="#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local">BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete</a> (07-09)<br />
 - <a href="#appendix-bj---m41-experiment-kill-switch-tracker-experiment_reportpy-2026-07-09-2315-local">BJ — M4.1 experiment kill-switch tracker (experiment_report.py)</a> (07-09)<br />
-- <a href="#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local">BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py</a> (07-09)</p>
+- <a href="#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local">BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py</a> (07-09)<br />
+- <a href="#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local">BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5481,6 +5482,36 @@ interim divergence (tiny n, forward OOS only):</p>
 </code></pre>
 <p>d=±0.0000pp (4/4). M4.2 done; next open task is M4.3 (small dashboard hook — surface the n/30-picks<br />
 and months/12 kill-switch counters in the LLM panel if not already shown), which completes M4.</p>
+<h1 id="appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local">Appendix BL - M4.3 kill-switch counters in the dashboard LLM panel; M4 complete (2026-07-09, ~23:35 local)</h1>
+<p><strong>PRD milestone M4, task 3 — completes M4.</strong> Surface the kill-switch counters in the dashboard so the<br />
+n/30-picks and months/12 clocks are visible without running the CLI report.</p>
+<p><strong>WHAT.</strong> <code>trading_bot/dashboard/web.py</code>, LLM-experiments panel (the <code>##### LLM experiments</code> block,<br />
+~line 2087). Added one <code>st.caption</code> per experiment showing <code>kill-switch: &lt;n&gt;/30 picks · &lt;months&gt;/12
+months (since &lt;first-decision&gt;)</code>, read from the same <code>llm_overlay_log</code> / <code>sector_overlay_log</code> tables<br />
+the panel already queries. Matches the existing panel convention exactly (same local sqlite<br />
+connection, same <code>st.caption</code>, the <code>·</code> middot already used two lines above). Surgical — nothing else<br />
+on the page changed.</p>
+<p><strong>HOW / verification.</strong><br />
+- <code>web.py</code> compiles (<code>py_compile</code>).<br />
+- The exact panel snippets (COUNT + MIN(decision_date), then the month math) run against the live DB<br />
+  and produce the intended captions: <strong>stock <code>8/30 picks · 1.3/12 months (since 2026-05-29)</code></strong>,<br />
+<strong>sector <code>15/30 picks · 0.9/12 months (since 2026-06-12)</code></strong> — matching the M4.1 report.<br />
+- <strong>Live browser render NOT performed:</strong> the Chrome extension is not connected in this session, so I<br />
+  could not load http://localhost:8501 to eyeball it (honest gap, not a code issue). The running<br />
+  dashboard (<code>TradingDashboard</code>, up since 12:09) will render the new captions on its next rerun; the<br />
+  change is inside an already-working <code>if</code>-block and only adds validated <code>st.caption</code> calls, so the<br />
+  render risk is minimal. Flagging so Evan can glance at the panel when convenient.</p>
+<p>Frozen tests (dashboard Python changed; unrelated to strategies but run per the standing order):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). <strong>M4 (experiment-integrity reporting) complete</strong>: kill-switch tracker (BJ),<br />
+control-vs-treatment divergence (BK), dashboard counters (this entry). Remaining PRD: M5 (backup<br />
+hygiene), M6 (slippage — gated on August fills). Open ops item still carried: backfill the 07-09 NAV<br />
+gap once coverage clears (Appendix BH); M3.5 catch-up/schedule fix remains Evan's decision.</p>
 </div>
 </body>
 </html>

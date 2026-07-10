@@ -120,6 +120,7 @@ lives in the dated entry, not the digest.
 - [BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete](#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local) (07-09)
 - [BJ — M4.1 experiment kill-switch tracker (experiment_report.py)](#appendix-bj---m41-experiment-kill-switch-tracker-experiment_reportpy-2026-07-09-2315-local) (07-09)
 - [BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py](#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local) (07-09)
+- [BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete](#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local) (07-09)
 
 ---
 
@@ -4969,3 +4970,42 @@ Frozen tests (Python changed):
 
 d=±0.0000pp (4/4). M4.2 done; next open task is M4.3 (small dashboard hook — surface the n/30-picks
 and months/12 kill-switch counters in the LLM panel if not already shown), which completes M4.
+
+
+# Appendix BL - M4.3 kill-switch counters in the dashboard LLM panel; M4 complete (2026-07-09, ~23:35 local)
+
+**PRD milestone M4, task 3 — completes M4.** Surface the kill-switch counters in the dashboard so the
+n/30-picks and months/12 clocks are visible without running the CLI report.
+
+**WHAT.** `trading_bot/dashboard/web.py`, LLM-experiments panel (the `##### LLM experiments` block,
+~line 2087). Added one `st.caption` per experiment showing `kill-switch: <n>/30 picks · <months>/12
+months (since <first-decision>)`, read from the same `llm_overlay_log` / `sector_overlay_log` tables
+the panel already queries. Matches the existing panel convention exactly (same local sqlite
+connection, same `st.caption`, the `·` middot already used two lines above). Surgical — nothing else
+on the page changed.
+
+**HOW / verification.**
+- `web.py` compiles (`py_compile`).
+- The exact panel snippets (COUNT + MIN(decision_date), then the month math) run against the live DB
+  and produce the intended captions: **stock `8/30 picks · 1.3/12 months (since 2026-05-29)`**,
+  **sector `15/30 picks · 0.9/12 months (since 2026-06-12)`** — matching the M4.1 report.
+- **Live browser render NOT performed:** the Chrome extension is not connected in this session, so I
+  could not load http://localhost:8501 to eyeball it (honest gap, not a code issue). The running
+  dashboard (`TradingDashboard`, up since 12:09) will render the new captions on its next rerun; the
+  change is inside an already-working `if`-block and only adds validated `st.caption` calls, so the
+  render risk is minimal. Flagging so Evan can glance at the panel when convenient.
+
+Frozen tests (dashboard Python changed; unrelated to strategies but run per the standing order):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). **M4 (experiment-integrity reporting) complete**: kill-switch tracker (BJ),
+control-vs-treatment divergence (BK), dashboard counters (this entry). Remaining PRD: M5 (backup
+hygiene), M6 (slippage — gated on August fills). Open ops item still carried: backfill the 07-09 NAV
+gap once coverage clears (Appendix BH); M3.5 catch-up/schedule fix remains Evan's decision.
