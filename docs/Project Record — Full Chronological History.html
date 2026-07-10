@@ -154,7 +154,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bd---m23-anomaly-detector-check_anomaliespy-wired-into-dailybat-2026-07-09-1335-local">BD — M2.3 anomaly detector wired into daily.bat</a> (07-09)<br />
 - <a href="#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local">BE — M2.4 cache-gap auditor; M2 complete</a> (07-09)<br />
 - <a href="#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">BF — M3.1 pre-inception NAV guard in paper_mtm + regression test</a> (07-09)<br />
-- <a href="#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local">BG — M3.2 post-run verifier (verify_run.py)</a> (07-09)</p>
+- <a href="#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local">BG — M3.2 post-run verifier (verify_run.py)</a> (07-09)<br />
+- <a href="#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local">BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5331,6 +5332,45 @@ M5.3).</p>
 </code></pre>
 <p>d=±0.0000pp (4/4). M3.2 done. <code>verify_run</code> is not yet wired into the batch flow — that is M3.3<br />
 (daily.bat <code>--mode daily</code> after MTM; monthly_auto.bat <code>--mode monthly</code>).</p>
+<h1 id="appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local">Appendix BH - First live coverage-gate catch: 07-09 MTM skipped, backfill deferred (2026-07-09, ~22:35 local)</h1>
+<p><strong>Operational event, not a code change</strong> — the first production fire of the M2.2 coverage gate, on<br />
+the day it was deployed (2026-07-09, gate wired ~13:30). Recorded because it is the first time an<br />
+automated guardrail changed the run's outcome, and it leaves a real open item.</p>
+<p><strong>What happened (all from <code>var/last_daily_run.log</code> + read-only DB queries; nothing fabricated).</strong></p>
+<ul>
+<li>The 17:15 <code>TradingDailyMTM</code> task ran <code>daily.bat</code>. The price refresh produced only <strong>4,381</strong> closes<br />
+  for 2026-07-09 (baseline median ~5,245). At 17:17 <code>check_coverage</code> FAILED (<code>4381 &lt; 5000</code> floor),<br />
+  the gate did <code>exit /b 1</code>, and <strong>all MTM + overlay ops were skipped</strong>. The task exited nonzero.<br />
+<strong>No <code>paper_nav</code> row exists for 2026-07-09.</strong> This is exactly the designed behavior — the gate<br />
+  refused to mark the books on incomplete data.</li>
+<li><strong>This is transient late-publication, not a data bug or systematic drop.</strong> Proof: 2026-07-08 was<br />
+  itself incomplete at <strong>4,379</strong> closes when first checked ~13:20 today, and by this evening had<br />
+<strong>settled to 5,207</strong>. <code>daily_price_refresh</code> fetches a ~30-day <em>range</em> (its docstring: "tolerant of<br />
+  missed days"), so late-arriving tickers self-heal on later runs; the same-day MTM is what catches<br />
+  the universe mid-publication.</li>
+</ul>
+<p><strong>Backfill attempt (2026-07-09 ~22:30) — DEFERRED, correctly.</strong> Evan authorized a coverage-gated<br />
+07-09 backfill. Re-ran <code>daily_price_refresh</code> (raised 07-09 from 4,381 to <strong>4,724</strong>), re-ran<br />
+<code>check_coverage --date 2026-07-09</code> → <strong>still FAIL (4,724 &lt; 5,000)</strong>. Per the standing order and the<br />
+gate's own policy, <strong>no MTM was written</strong> — 07-09 has not finished publishing even at 22:31.<br />
+<code>paper_mtm</code> was NOT run. The 07-09 NAV gap therefore remains and <code>verify_run --mode daily</code> flags it<br />
+(17/17 sleeves, "1 missing trading day 2026-07-09"). The backfill will complete once 07-09 clears<br />
+the floor (07-08 shows full settling happens within a day).</p>
+<p><strong>Guardrail chain worked end-to-end on its first live incident:</strong> M2.2 caught the shortfall and<br />
+skipped the mark; M3.2 <code>verify_run</code> flags the resulting gap; M3.1's inception guard will protect the<br />
+eventual backfill MTM.</p>
+<p><strong>Root cause + open items for Evan (REPORT ONLY — no schedule/strategy change made):</strong></p>
+<ol>
+<li><strong>Root cause is timing.</strong> The 17:15 MTM runs before yfinance finishes same-day universe<br />
+   publication. It will recur on any slow-publication day, leaving a one-day gap each time.</li>
+<li><strong>Backfill 07-09</strong> once <code>check_coverage --date 2026-07-09</code> passes (likely tomorrow): <code>paper_mtm
+   --as-of 2026-07-09</code> per sleeve (idempotent REPLACE; inception guard protects it), then<br />
+<code>verify_run --mode daily</code> should return PASS.</li>
+<li><strong>Deeper fix, Evan's decision</strong> (out of M3 guardrail scope): (A) move <code>TradingDailyMTM</code> later<br />
+   (~8-9pm ET) so same-day data is complete — simplest; or (B) add a self-healing catch-up step that<br />
+   re-MTMs the prior 1-2 trading days once their coverage passes. Not implemented pending Evan's call.</li>
+</ol>
+<p>No commit of code for this entry; the refresh only updated <code>var/trades.db</code> price data (gitignored).</p>
 </div>
 </body>
 </html>

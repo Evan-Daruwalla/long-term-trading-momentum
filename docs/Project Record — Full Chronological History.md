@@ -116,6 +116,7 @@ lives in the dated entry, not the digest.
 - [BE — M2.4 cache-gap auditor; M2 complete](#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local) (07-09)
 - [BF — M3.1 pre-inception NAV guard in paper_mtm + regression test](#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local) (07-09)
 - [BG — M3.2 post-run verifier (verify_run.py)](#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local) (07-09)
+- [BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred](#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local) (07-09)
 
 ---
 
@@ -4786,3 +4787,48 @@ Frozen tests (new Python file; read-only, no strategy code touched):
 
 d=±0.0000pp (4/4). M3.2 done. `verify_run` is not yet wired into the batch flow — that is M3.3
 (daily.bat `--mode daily` after MTM; monthly_auto.bat `--mode monthly`).
+
+
+# Appendix BH - First live coverage-gate catch: 07-09 MTM skipped, backfill deferred (2026-07-09, ~22:35 local)
+
+**Operational event, not a code change** — the first production fire of the M2.2 coverage gate, on
+the day it was deployed (2026-07-09, gate wired ~13:30). Recorded because it is the first time an
+automated guardrail changed the run's outcome, and it leaves a real open item.
+
+**What happened (all from `var/last_daily_run.log` + read-only DB queries; nothing fabricated).**
+
+- The 17:15 `TradingDailyMTM` task ran `daily.bat`. The price refresh produced only **4,381** closes
+  for 2026-07-09 (baseline median ~5,245). At 17:17 `check_coverage` FAILED (`4381 < 5000` floor),
+  the gate did `exit /b 1`, and **all MTM + overlay ops were skipped**. The task exited nonzero.
+  **No `paper_nav` row exists for 2026-07-09.** This is exactly the designed behavior — the gate
+  refused to mark the books on incomplete data.
+- **This is transient late-publication, not a data bug or systematic drop.** Proof: 2026-07-08 was
+  itself incomplete at **4,379** closes when first checked ~13:20 today, and by this evening had
+  **settled to 5,207**. `daily_price_refresh` fetches a ~30-day *range* (its docstring: "tolerant of
+  missed days"), so late-arriving tickers self-heal on later runs; the same-day MTM is what catches
+  the universe mid-publication.
+
+**Backfill attempt (2026-07-09 ~22:30) — DEFERRED, correctly.** Evan authorized a coverage-gated
+07-09 backfill. Re-ran `daily_price_refresh` (raised 07-09 from 4,381 to **4,724**), re-ran
+`check_coverage --date 2026-07-09` → **still FAIL (4,724 < 5,000)**. Per the standing order and the
+gate's own policy, **no MTM was written** — 07-09 has not finished publishing even at 22:31.
+`paper_mtm` was NOT run. The 07-09 NAV gap therefore remains and `verify_run --mode daily` flags it
+(17/17 sleeves, "1 missing trading day 2026-07-09"). The backfill will complete once 07-09 clears
+the floor (07-08 shows full settling happens within a day).
+
+**Guardrail chain worked end-to-end on its first live incident:** M2.2 caught the shortfall and
+skipped the mark; M3.2 `verify_run` flags the resulting gap; M3.1's inception guard will protect the
+eventual backfill MTM.
+
+**Root cause + open items for Evan (REPORT ONLY — no schedule/strategy change made):**
+
+1. **Root cause is timing.** The 17:15 MTM runs before yfinance finishes same-day universe
+   publication. It will recur on any slow-publication day, leaving a one-day gap each time.
+2. **Backfill 07-09** once `check_coverage --date 2026-07-09` passes (likely tomorrow): `paper_mtm
+   --as-of 2026-07-09` per sleeve (idempotent REPLACE; inception guard protects it), then
+   `verify_run --mode daily` should return PASS.
+3. **Deeper fix, Evan's decision** (out of M3 guardrail scope): (A) move `TradingDailyMTM` later
+   (~8-9pm ET) so same-day data is complete — simplest; or (B) add a self-healing catch-up step that
+   re-MTMs the prior 1-2 trading days once their coverage passes. Not implemented pending Evan's call.
+
+No commit of code for this entry; the refresh only updated `var/trades.db` price data (gitignored).
