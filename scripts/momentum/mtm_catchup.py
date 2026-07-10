@@ -95,7 +95,6 @@ def main() -> int:
         log.error("No real trading days in the price_cache window.")
         return 1
     latest = calendar[-1]
-    cov = {d: coverage_status(conn, d) for d in calendar}
 
     sleeves = [r["strategy_name"] for r in conn.execute(
         "SELECT strategy_name FROM paper_portfolio ORDER BY strategy_name")]
@@ -106,12 +105,21 @@ def main() -> int:
         navs = {r["nav_date"] for r in conn.execute(
             "SELECT nav_date FROM paper_nav WHERE strategy_name=?", (s,))}
         meta[s] = (inc, lr, navs)
+
+    # Only the days that are actually missing for >=1 eligible sleeve need a
+    # coverage check (each is a GROUP BY over the 37M-row price_cache, ~7s), plus
+    # `latest` for the exit code. Checking every calendar day would be ~10x slower
+    # for no benefit.
+    missing_days = [d for d in calendar
+                    if any(d >= inc.isoformat() and d >= lr.isoformat() and d not in navs
+                           for (inc, lr, navs) in meta.values())]
+    cov = {d: coverage_status(conn, d) for d in sorted(set(missing_days) | {latest})}
     conn.close()  # planning done; the write loop uses paper_mtm's own connection
 
     marked = 0
     skipped_reb = 0
-    pending = [d for d in calendar if not cov[d]["ok"]]
-    for d in calendar:  # oldest first
+    pending = [d for d in missing_days if not cov[d]["ok"]]
+    for d in missing_days:  # oldest first (calendar order preserved)
         st = cov[d]
         if not st["ok"]:
             log.info("PENDING %s: coverage %d < floor %d — leaving unmarked (heals later).",
