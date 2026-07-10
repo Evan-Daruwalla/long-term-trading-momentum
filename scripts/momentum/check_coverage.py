@@ -65,6 +65,46 @@ def coverage_by_date(conn: sqlite3.Connection, limit: int) -> list[tuple[str, in
     return [(r["key_date"], r["n"]) for r in rows]
 
 
+def coverage_status(conn: sqlite3.Connection, target_date: str | None = None,
+                    floor_override: int | None = None) -> dict:
+    """Compute coverage for one date. Shared by the daily gate (this module's
+    main) and mtm_catchup so both use IDENTICAL floor logic — if they diverged, a
+    day could pass one and fail the other. Returns
+    {date, count, baseline, floor, ok, n_baseline, floor_src}; `ok=None` and
+    `date=None` when price_cache has no closes at all.
+    """
+    if target_date is not None:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM price_cache "
+            "WHERE kind='close' AND price IS NOT NULL AND key_date=?",
+            (target_date,)).fetchone()
+        count = row["n"]
+        prior = conn.execute(
+            "SELECT key_date, COUNT(*) AS n FROM price_cache "
+            "WHERE kind='close' AND price IS NOT NULL AND key_date < ? "
+            "GROUP BY key_date ORDER BY key_date DESC LIMIT ?",
+            (target_date, BASELINE_WINDOW * 3)).fetchall()
+        baseline_days = [r["n"] for r in prior if r["n"] >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
+    else:
+        recent = coverage_by_date(conn, (BASELINE_WINDOW + 1) * 3)
+        if not recent:
+            return {"date": None, "count": 0, "baseline": 0, "floor": 0,
+                    "ok": None, "n_baseline": 0, "floor_src": "no closes"}
+        target_date, count = recent[0]
+        baseline_days = [n for (_d, n) in recent[1:] if n >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
+
+    baseline = int(statistics.median(baseline_days)) if baseline_days else 0
+    if floor_override is not None:
+        floor = floor_override
+        floor_src = f"--floor {floor_override}"
+    else:
+        rel = int(BASELINE_FRACTION * baseline)
+        floor = max(HARD_FLOOR, rel)
+        floor_src = f"max({HARD_FLOOR}, {int(BASELINE_FRACTION*100)}%*{baseline}={rel})"
+    return {"date": target_date, "count": count, "baseline": baseline, "floor": floor,
+            "ok": count >= floor, "n_baseline": len(baseline_days), "floor_src": floor_src}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=None,
@@ -73,51 +113,20 @@ def main() -> int:
                     help="Override the computed floor with a fixed close count.")
     args = ap.parse_args()
 
-    conn = _ro_connect()
-
-    if args.date:
-        row = conn.execute(
-            "SELECT COUNT(*) AS n FROM price_cache "
-            "WHERE kind='close' AND price IS NOT NULL AND key_date=?",
-            (args.date,),
-        ).fetchone()
-        target_date, count = args.date, row["n"]
-        # Baseline = the 10 trading days strictly before target_date.
-        prior = conn.execute(
-            "SELECT key_date, COUNT(*) AS n FROM price_cache "
-            "WHERE kind='close' AND price IS NOT NULL AND key_date < ? "
-            "GROUP BY key_date ORDER BY key_date DESC LIMIT ?",
-            (args.date, BASELINE_WINDOW * 3),
-        ).fetchall()
-        baseline_days = [r["n"] for r in prior if r["n"] >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
-    else:
-        # Pull extra rows so we can drop holiday noise and still fill the window.
-        recent = coverage_by_date(conn, (BASELINE_WINDOW + 1) * 3)
-        if not recent:
-            log.error("COVERAGE FAIL: price_cache has no 'close' rows at all.")
-            return 1
-        target_date, count = recent[0]
-        baseline_days = [n for (_d, n) in recent[1:] if n >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
-
-    baseline = int(statistics.median(baseline_days)) if baseline_days else 0
-
-    if args.floor is not None:
-        floor = args.floor
-        floor_src = f"--floor {args.floor}"
-    else:
-        rel = int(BASELINE_FRACTION * baseline)
-        floor = max(HARD_FLOOR, rel)
-        floor_src = f"max({HARD_FLOOR}, {int(BASELINE_FRACTION*100)}%*{baseline}={rel})"
+    st = coverage_status(_ro_connect(), args.date, args.floor)
+    if st["ok"] is None:
+        log.error("COVERAGE FAIL: price_cache has no 'close' rows at all.")
+        return 1
 
     log.info("Coverage check: date=%s  closes=%d  baseline(median of %d)=%d  floor=%d [%s]",
-             target_date, count, len(baseline_days), baseline, floor, floor_src)
-
-    if count >= floor:
-        log.info("COVERAGE PASS: %d closes on %s (>= floor %d).", count, target_date, floor)
+             st["date"], st["count"], st["n_baseline"], st["baseline"], st["floor"], st["floor_src"])
+    if st["ok"]:
+        log.info("COVERAGE PASS: %d closes on %s (>= floor %d).",
+                 st["count"], st["date"], st["floor"])
         return 0
     log.error("COVERAGE FAIL: only %d closes on %s (< floor %d). "
               "Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.",
-              count, target_date, floor)
+              st["count"], st["date"], st["floor"])
     return 1
 
 

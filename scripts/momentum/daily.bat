@@ -1,102 +1,50 @@
 @echo off
-REM Daily paper-trade maintenance - run after market close each trading day.
-REM Order: refresh prices first, then mark-to-market all 3 sleeves.
+REM Daily paper-trade maintenance (M3.5 catch-up flow, 2026-07-09).
 REM
-REM If price refresh fails, MTM will use stale prices (and warn in logs).
+REM Flow: refresh -> [if TODAY settled: enforce overlay stops] -> catch-up MTM
+REM (marks every settled missing trading day, today included, for ALL sleeves) ->
+REM anomaly scan -> graphify -> verify -> ops stamp.
 REM
-REM Sleeves marked daily:
-REM   mom_v1_paper        (top-100, momentum-only)
-REM   mom_v2_paper        (top-50,  momentum-only)
-REM   mom_roa_6535_paper  (top-50,  mom 65% + ROA 35%)
-REM   sector_top4_paper   (top-4 of 11 SPDR sector ETFs)
-REM   mom_roa_top1_paper  (top-1 mom_roa, LLM-experiment CONTROL)
-REM   llm_overlay_mom_roa_top1_paper   (top-1 mom_roa + LLM veto/stop, TREATMENT)
-REM   llm_overlay_sector_top4_paper    (sector_top4 + macro LLM veto, TREATMENT)
+REM TODAY-PENDING is NORMAL: same-day yfinance data is usually incomplete at the
+REM 17:15 run, so today is left unmarked and gets marked by the NEXT run's catch-up
+REM once it settles (record Appendix BH/BI + the M3.5 amendment). The task fails
+REM (nonzero exit) ONLY on a real settled-history gap (verify) or a catch-up error.
+REM Stop-enforcement is skipped on a pending day so no stop fires off partial prices.
+REM Branching uses goto (not parenthesized blocks) so %OPS_COV% expands correctly.
 
 cd /d D:\ClaudeCode\Trading
 
 echo === Daily price refresh ===
 .venv\Scripts\python.exe -m scripts.momentum.daily_price_refresh
-if errorlevel 1 (
-    echo WARNING: Price refresh failed. MTM may use stale prices.
-)
+if errorlevel 1 echo WARNING: Price refresh failed. Marks may use stale prices.
 
 echo.
-echo === Coverage gate: require full price publication before MTM ===
+echo === Coverage check for TODAY (gates same-day stop-enforcement) ===
 .venv\Scripts\python.exe -m scripts.momentum.check_coverage
-if errorlevel 1 (
-    echo COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
-    echo Investigate before trusting today's NAVs. See check_coverage output above.
-    .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage FAIL --note "MTM skipped, closes below floor"
-    exit /b 1
-)
+if errorlevel 1 goto today_pending
 
+set OPS_COV=PASS
 echo.
-echo === Daily MTM: spy_benchmark_paper (S^&P 500 control, buy-and-hold SPY) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy spy_benchmark_paper
-
-echo.
-echo === Daily MTM: spy_benchmark_0701_paper (S^&P 500 control, 07-01 cohort) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy spy_benchmark_0701_paper
-
-echo.
-echo === Daily MTM: mom_v1_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v1_paper
-
-echo.
-echo === Daily MTM: mom_v2_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v2_paper
-
-echo.
-echo === Daily MTM: mom_roa_6535_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_6535_paper
-
-echo.
-echo === Daily MTM: residual_roa_6535_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_paper
-
-echo.
-echo === Daily MTM: 7/1 cohort duplicates (mom_v1/v2/roa/residual, fresh 07-01) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v1_0701_paper
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v2_0701_paper
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_6535_0701_paper
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_0701_paper
-
-echo.
-echo === Daily MTM: sector_top4_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy sector_top4_paper
-
-echo.
-echo === Daily MTM: sector_top4_full_paper (full 05-01 history; systematic control) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy sector_top4_full_paper
-
-echo.
-echo === LLM-overlay: enforce invalidation stop ===
+echo === Enforce overlay invalidation stops (today settled) ===
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops check-invalidation
-
-echo.
-echo === Daily MTM: mom_roa_top1_paper (LLM control) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_top1_paper
-
-echo.
-echo === Daily MTM: llm_overlay_mom_roa_top1_paper (LLM treatment) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_mom_roa_top1_paper
-
-echo.
-echo === Sector-overlay: enforce per-sector invalidation stops ===
 .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops check-invalidation
+goto do_catchup
 
-echo.
-echo === Daily MTM: llm_overlay_sector_top4_paper (sector treatment) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_sector_top4_paper
+:today_pending
+set OPS_COV=PENDING
+echo TODAY PENDING - incomplete same-day publication. Skipping stop-enforcement.
+echo Today will be marked by catch-up on the next run once it settles.
 
+:do_catchup
 echo.
-echo === Daily MTM: LLM-cascade sleeves (always-invested 3rd pair, no stops) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_top1_paper
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_sector4_paper
+echo === Catch-up MTM: mark every settled missing trading day (incl today), all sleeves ===
+.venv\Scripts\python.exe -m scripts.momentum.mtm_catchup
+if errorlevel 2 goto catchup_ok
+if errorlevel 1 goto catchup_error
 
+:catchup_ok
 echo.
-echo === Anomaly scan: KLAC-class single-day moves + missing held marks ^(non-blocking^) ===
+echo === Anomaly scan: KLAC-class single-day moves + missing held marks (non-blocking) ===
 .venv\Scripts\python.exe -m scripts.momentum.check_anomalies
 REM Report-only by design: a giant move can be legitimate news, so never halt.
 
@@ -104,19 +52,23 @@ echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===
 REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/tests/research).
 "C:\Users\evan.EVANFREDY\.local\bin\graphify.exe" update
-if errorlevel 1 (
-    echo WARNING: Graphify update failed. Code graph may be stale.
-)
+if errorlevel 1 echo WARNING: Graphify update failed. Code graph may be stale.
 
 echo.
-echo === Post-run verification ^(daily^) ===
+echo === Post-run verification (daily) ===
 .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
-if errorlevel 1 (
-    .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage PASS --verify FAIL
-    echo VERIFY FAIL - daily run left an inconsistency. See var\verify_report.log.
-    exit /b 1
-)
-.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage PASS --verify PASS
-
+if errorlevel 1 goto verify_fail
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage %OPS_COV% --verify PASS
 echo.
 echo Done.
+exit /b 0
+
+:catchup_error
+echo ERROR: mtm_catchup failed. See output above.
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage %OPS_COV% --verify n/a --note "mtm_catchup error"
+exit /b 1
+
+:verify_fail
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage %OPS_COV% --verify FAIL
+echo VERIFY FAIL - daily run left a settled-history gap. See var\verify_report.log.
+exit /b 1

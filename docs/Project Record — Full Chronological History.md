@@ -122,6 +122,7 @@ lives in the dated entry, not the digest.
 - [BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py](#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local) (07-09)
 - [BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete](#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local) (07-09)
 - [BM — M5 backup hygiene: rotating backups + weekly task + restore drill](#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local) (07-09)
+- [BN — M3.5 catch-up marking: self-healing daily MTM (option A)](#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local) (07-09)
 
 ---
 
@@ -5053,3 +5054,57 @@ d=±0.0000pp (4/4). **M5 complete.** Only `backup_trades_db.py` is committed; th
 **M6 (slippage) is GATED on the 2026-08-01+ Alpaca fills** — cannot start until those exist, so this
 is the end of the currently-actionable roadmap. Open items unchanged: backfill the 07-09 NAV gap once
 coverage clears (BH); the M3.5 catch-up/schedule fix is a pending Evan decision.
+
+
+# Appendix BN - M3.5 catch-up marking: self-healing daily MTM (option A, Evan-authorized) (2026-07-09, ~23:55 local)
+
+**PRD amendment M3.5 (option A), authorized by Evan 2026-07-09.** Fixes the structural consequence of
+the M2.2 coverage gate: same-day yfinance data is incomplete at the 17:15 run, so the gate skipped all
+marking and left a NAV gap that would COMPOUND daily (07-09 unmarked, 07-10 next, ...) and fail the
+daily task every evening. Catch-up marking closes the loop: mark each day from SETTLED data, when the
+data is real, automatically.
+
+**Four pieces (all tested; write-path developed against a DB copy first per the standing rule).**
+
+1. **`check_coverage.py` refactor** — extracted `coverage_status(conn, date)` so the daily gate AND
+   catch-up use IDENTICAL floor logic (`max(5000, 90%*10-day median)`); if they diverged a day could
+   pass one and fail the other. Behavior-preserving: `--date 2026-07-07` PASS, default 07-09 FAIL,
+   `--floor 999999` FAIL — unchanged.
+2. **`mtm_catchup.py` (new, write-path)** — after refresh, marks every real trading day <= today that
+   is (a) missing a paper_nav row, (b) settled to the coverage floor, (c) on/after the sleeve's
+   inception, and (d) on/after the sleeve's last rebalance — guard (d) means a past day is never
+   back-marked with positions that have since changed. Days below the floor are left PENDING (heal
+   next run). Marks via `paper_mtm.compute_nav`/`write_nav`; **never overwrites an existing NAV** (the
+   `d in navs` skip), so it only fills genuine gaps. Exit 0 = today settled+marked, 2 = today pending
+   (normal), 1 = error. `--db` flag for copy-testing.
+3. **`verify_run.py` tweak** — continuity now checks only up to the last SETTLED trading day; a
+   below-floor "today" is PENDING, not a gap. This removes the daily false-FAIL while still catching
+   real settled-history holes. Live: `settled<=2026-07-08 (pending>2026-07-08)` -> **PASS 17/17**.
+4. **`daily.bat` rewrite (goto flow, pure ASCII)** — refresh -> [if today settled: enforce overlay
+   stops] -> `mtm_catchup` -> anomaly -> graphify -> verify -> ops stamp. Stops run only on a settled
+   today (so no stop fires off partial prices) and BEFORE catch-up (so today's NAV reflects any
+   stop-sale). **Task now exits 0 on a normal pending day** (today heals next run); it fails nonzero
+   only on a real verify gap or a catch-up error.
+
+**Verification.**
+- Copy test (VACUUM-INTO snapshot): deleted all 17 settled 2026-07-08 NAV rows, ran catch-up ->
+  **re-marked 17/17**, left 07-09 PENDING, 0 blocked by the rebalance guard. Re-marked NAVs matched
+  the originals except 6 sleeves differing by ~\$0.02-0.14 — expected and MORE correct: the originals
+  were marked this morning on then-incomplete 07-08 data (carry-forward), the re-mark uses now-settled
+  closes. (In production catch-up never overwrites, so this is a test artifact only.)
+- Live dry-run: **no-op** (all settled days already marked; 07-09 pending) -> marked=0, exit 2 — the
+  production path is safe right now.
+- `daily.bat` goto flow stub-tested across today-settled / today-pending / catch-up-error /
+  verify-fail — all branch correctly; the common pending case exits 0.
+- Frozen tests d=±0.0000pp (4/4).
+
+**Known minor edge (documented, not fixed):** if TODAY is settled at 17:15 (rare — data usually
+lags) AND a stop fires AND a prior day is being healed the same run, that prior day is marked with
+post-sale positions. The common case (today pending -> stops skipped -> no sale) is unaffected. A
+`--prior-only`/`--today-only` split would make it exact; deferred as not worth the complexity now.
+
+**Effect on the open items:** the **2026-07-09 NAV gap now self-heals automatically** at the next
+daily run once 07-09 settles overnight (no manual backfill needed); the daily-task-fails-every-day
+problem is resolved. Days marked-on-incomplete-data BEFORE this change (e.g. the slightly-stale 07-08)
+are left as-is — catch-up only fills missing days, and rewriting existing NAV history is not something
+it does.

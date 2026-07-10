@@ -34,6 +34,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from trading_bot.config import DB_PATH
+from scripts.momentum.check_coverage import coverage_status
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -97,7 +98,7 @@ def _last_close(conn: sqlite3.Connection, ticker: str, d: str):
 
 
 def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
-                  monthly: bool) -> tuple[list[str], str]:
+                  monthly: bool, last_settled: str) -> tuple[list[str], str]:
     """Return (fail_reasons, info_line)."""
     fails: list[str] = []
     inc = inception(conn, strategy)
@@ -108,8 +109,10 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
         (strategy,)).fetchall()]
     nav_set = set(navs)
 
-    # (a) continuity
-    window = [d for d in calendar if d >= inc.isoformat()]
+    # (a) continuity — only up to the last SETTLED trading day. Days after it are
+    # PENDING (data still publishing at the 17:15 run) and heal via mtm_catchup
+    # (M3.5); flagging them as gaps would fail the daily task every evening.
+    window = [d for d in calendar if inc.isoformat() <= d <= last_settled]
     missing = [d for d in window if d not in nav_set]
     holiday_rows = sum(1 for d in navs if d not in cal_set and d >= inc.isoformat())
     if missing:
@@ -176,14 +179,25 @@ def main() -> int:
     earliest = min((inception(conn, s) for s in sleeves), default=date.today())
     calendar = trading_calendar(conn, earliest.isoformat())
 
+    # Last trading day whose coverage has settled to the floor; anything after it
+    # is PENDING publication (not a gap). Scan newest-first, stop at first settled.
+    last_settled = calendar[-1] if calendar else date.today().isoformat()
+    for d in reversed(calendar):
+        if coverage_status(conn, d)["ok"]:
+            last_settled = d
+            break
+
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     cal_span = f"{calendar[0]}..{calendar[-1]}" if calendar else "none"
+    pending_note = "" if (not calendar or last_settled == calendar[-1]) else \
+        f"  (pending>{last_settled})"
     header = (f"=== {stamp} | verify_run mode={args.mode}  db={db_path.name}  "
-              f"sleeves={len(sleeves)}  calendar={cal_span} ===")
+              f"sleeves={len(sleeves)}  calendar={cal_span}  settled<={last_settled}"
+              f"{pending_note} ===")
     out = [header]
     n_fail = 0
     for s in sleeves:
-        fails, info = verify_sleeve(conn, s, calendar, monthly)
+        fails, info = verify_sleeve(conn, s, calendar, monthly, last_settled)
         if fails:
             n_fail += 1
             out.append(f"[FAIL] {s:32s} {info}")
