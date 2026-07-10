@@ -124,6 +124,7 @@ lives in the dated entry, not the digest.
 - [BM — M5 backup hygiene: rotating backups + weekly task + restore drill](#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local) (07-09)
 - [BN — M3.5 catch-up marking: self-healing daily MTM (option A)](#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local) (07-09)
 - [BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted](#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local) (07-10)
+- [BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)](#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local) (07-10)
 
 ---
 
@@ -5143,3 +5144,36 @@ correct. Flagging so Evan can confirm what ran; nothing needs fixing on the data
 
 The live `daily_price_refresh` also pulled 2026-07-10 to 4,352 closes (partial, market just closed) —
 it stays PENDING and will be marked by catch-up on a later run once it settles, exactly as designed.
+
+
+# Appendix BP - 07-09 provenance RESOLVED: a concurrent session backfilled it (gate-bypass risk noted) (2026-07-10, ~15:10 local)
+
+Resolves the provenance question left open in Appendix BO (why 15 of the 17 07-09 `paper_nav` rows
+existed before the authorized catch-up ran).
+
+**Answer, from the session transcripts.** A **separate, concurrent Claude session** — `33e12a94`,
+running in `D:\ClaudeCode` (parent dir) on an interactive task whose opening prompt was *"...You are
+my senior engineering lead. Review and upgrade the CLAUDE.md..."* — ran a bash loop
+`for s in <sleeves>: paper_mtm --as-of 2026-07-09 --strategy "$s"` at ~2026-07-10 14:41, ~4 minutes
+before this session's catch-up backfill (14:45). It read `paper_mtm.py`'s `--as-of` backfill
+docstring first, then looped it over ~15 sleeves. This session's `mtm_catchup` then marked only the 2
+it had missed (`llm_overlay_mom_roa_top1_paper`, `llm_overlay_sector_top4_paper`). Ruled out along the
+way: `TradingDailyMTM` (failed 07-09 17:15 at the coverage gate, 0 MTM in `last_daily_run.log`), the
+Streamlit dashboard (read-only on `paper_nav`), and the `daily-trade-check` scheduled agents (raw-grep
+of their transcripts shows no NAV-write; they read the NAV table per their SKILL).
+
+**No harm — verified.** `paper_nav` is `INSERT OR REPLACE` on `(strategy, nav_date)` and SQLite
+serializes writers, so the two concurrent backfills could not corrupt or duplicate; all 17 07-09 NAVs
+were confirmed correct (fresh recompute matches to the cent, Appendix BO) and `verify_run` PASSes.
+
+**Two real risks this exposed (REPORT for Evan — no change made):**
+1. **Concurrent uncoordinated NAV writers.** Two sessions wrote 07-09 to the live 5 GB DB within
+   minutes of each other. It was benign here, but the project's rule against concurrent DB writers
+   (e.g. `factor_backtest`) applies in spirit — official NAV marking should have a single owner
+   (the `daily.bat` catch-up).
+2. **Raw `paper_mtm --as-of` bypasses the coverage gate.** The other session marked at ~14:41 when
+   07-09 was still 4,726 closes (below the 5,000 floor). It happened to be correct (the ~500
+   still-missing tickers were non-held names; EACO/FMBM were carried forward, matching the settled
+   recompute), but a direct `paper_mtm` run has NO coverage gate — only `daily.bat`/`mtm_catchup` do.
+   Options to close the bypass (Evan's call): fold the coverage check into `paper_mtm` itself
+   (with a `--force` escape hatch), and/or make raw `paper_mtm` the discouraged path vs `mtm_catchup`.

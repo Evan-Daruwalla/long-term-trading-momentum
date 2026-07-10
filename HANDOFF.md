@@ -40,15 +40,18 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > and the daily task exits 0 on a normal pending day (fails only on a real
 > settled-history gap).
 >
-> **2026-07-09 gap RESOLVED (record Appendix BO).** 07-09 settled to 5,204 closes
-> on 2026-07-10 14:44; catch-up backfilled it and `verify_run` -> PASS 17/17, all
-> 07-09 NAVs verified correct (recompute matches to the cent). **Provenance note:**
-> 15 of the 17 07-09 rows were already present before the authorized catch-up
-> (which marked only 2) — written by an unidentified process (not the failed
-> scheduled task, not the read-only dashboard); values are correct so no data fix
-> is needed, but confirm whether a manual `start_all.bat`/MTM or the parallel
-> session ran. Next PRD work: only M6 (slippage), gated on the 2026-08-01+ Alpaca
-> fills.
+> **2026-07-09 gap RESOLVED (record Appendices BO/BP).** 07-09 settled to 5,204
+> closes on 2026-07-10 14:44; catch-up backfilled it and `verify_run` -> PASS
+> 17/17, all 07-09 NAVs verified correct (recompute matches to the cent).
+> **Provenance RESOLVED:** 15 of the 17 rows were pre-marked by a *concurrent*
+> Claude session (`33e12a94`, a "review the CLAUDE.md" task in `D:\ClaudeCode`)
+> that looped `paper_mtm --as-of 2026-07-09 --strategy $s` at 14:41 — ~4 min
+> before this session's catch-up marked the other 2. No corruption (idempotent
+> REPLACE + serialized writers). **Two risks flagged (Appendix BP):** (1)
+> concurrent uncoordinated NAV writers — official marking should have one owner
+> (the `daily.bat` catch-up); (2) raw `paper_mtm --as-of` bypasses the coverage
+> gate (it marked at 4,726 < floor; correct only by luck of held-names-present).
+> Next PRD work: only M6 (slippage), gated on the 2026-08-01+ Alpaca fills.
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the

@@ -162,7 +162,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local">BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete</a> (07-09)<br />
 - <a href="#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local">BM — M5 backup hygiene: rotating backups + weekly task + restore drill</a> (07-09)<br />
 - <a href="#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local">BN — M3.5 catch-up marking: self-healing daily MTM (option A)</a> (07-09)<br />
-- <a href="#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted</a> (07-10)</p>
+- <a href="#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted</a> (07-10)<br />
+- <a href="#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local">BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)</a> (07-10)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5623,6 +5624,33 @@ serializes writers; PK forbids dupes), verify's cash recon is exact, and the val
 correct. Flagging so Evan can confirm what ran; nothing needs fixing on the data itself.</p>
 <p>The live <code>daily_price_refresh</code> also pulled 2026-07-10 to 4,352 closes (partial, market just closed) —<br />
 it stays PENDING and will be marked by catch-up on a later run once it settles, exactly as designed.</p>
+<h1 id="appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local">Appendix BP - 07-09 provenance RESOLVED: a concurrent session backfilled it (gate-bypass risk noted) (2026-07-10, ~15:10 local)</h1>
+<p>Resolves the provenance question left open in Appendix BO (why 15 of the 17 07-09 <code>paper_nav</code> rows<br />
+existed before the authorized catch-up ran).</p>
+<p><strong>Answer, from the session transcripts.</strong> A <strong>separate, concurrent Claude session</strong> — <code>33e12a94</code>,<br />
+running in <code>D:\ClaudeCode</code> (parent dir) on an interactive task whose opening prompt was <em>"...You are<br />
+my senior engineering lead. Review and upgrade the CLAUDE.md..."</em> — ran a bash loop<br />
+<code>for s in &lt;sleeves&gt;: paper_mtm --as-of 2026-07-09 --strategy "$s"</code> at ~2026-07-10 14:41, ~4 minutes<br />
+before this session's catch-up backfill (14:45). It read <code>paper_mtm.py</code>'s <code>--as-of</code> backfill<br />
+docstring first, then looped it over ~15 sleeves. This session's <code>mtm_catchup</code> then marked only the 2<br />
+it had missed (<code>llm_overlay_mom_roa_top1_paper</code>, <code>llm_overlay_sector_top4_paper</code>). Ruled out along the<br />
+way: <code>TradingDailyMTM</code> (failed 07-09 17:15 at the coverage gate, 0 MTM in <code>last_daily_run.log</code>), the<br />
+Streamlit dashboard (read-only on <code>paper_nav</code>), and the <code>daily-trade-check</code> scheduled agents (raw-grep<br />
+of their transcripts shows no NAV-write; they read the NAV table per their SKILL).</p>
+<p><strong>No harm — verified.</strong> <code>paper_nav</code> is <code>INSERT OR REPLACE</code> on <code>(strategy, nav_date)</code> and SQLite<br />
+serializes writers, so the two concurrent backfills could not corrupt or duplicate; all 17 07-09 NAVs<br />
+were confirmed correct (fresh recompute matches to the cent, Appendix BO) and <code>verify_run</code> PASSes.</p>
+<p><strong>Two real risks this exposed (REPORT for Evan — no change made):</strong><br />
+1. <strong>Concurrent uncoordinated NAV writers.</strong> Two sessions wrote 07-09 to the live 5 GB DB within<br />
+   minutes of each other. It was benign here, but the project's rule against concurrent DB writers<br />
+   (e.g. <code>factor_backtest</code>) applies in spirit — official NAV marking should have a single owner<br />
+   (the <code>daily.bat</code> catch-up).<br />
+2. <strong>Raw <code>paper_mtm --as-of</code> bypasses the coverage gate.</strong> The other session marked at ~14:41 when<br />
+   07-09 was still 4,726 closes (below the 5,000 floor). It happened to be correct (the ~500<br />
+   still-missing tickers were non-held names; EACO/FMBM were carried forward, matching the settled<br />
+   recompute), but a direct <code>paper_mtm</code> run has NO coverage gate — only <code>daily.bat</code>/<code>mtm_catchup</code> do.<br />
+   Options to close the bypass (Evan's call): fold the coverage check into <code>paper_mtm</code> itself<br />
+   (with a <code>--force</code> escape hatch), and/or make raw <code>paper_mtm</code> the discouraged path vs <code>mtm_catchup</code>.</p>
 </div>
 </body>
 </html>
