@@ -13,14 +13,25 @@ the asset.
 **Last updated: 2026-07-09** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
-> **2026-07-09 — PRD milestone M2 (data-quality guardrails) complete** (record
-> Appendices BB–BE). Three read-only guardrail scripts now exist: a coverage
-> gate + anomaly detector wired into `daily.bat`, and a standalone cache-gap
-> auditor. **Live finding, unresolved (Evan's call):** the coverage gate caught
-> that **2026-07-08 was MTM'd on incomplete data** — only 4,379 of a ~5,250
-> baseline closes published; ≥4 held names (AFJK/EACO/FMBM/KFII) had no mark
-> that day. Reported, not fixed: re-refreshing + re-MTM-ing 07-08 is Evan's
-> decision. Next PRD milestone: M3 (unattended-automation safety).
+> **2026-07-09 — PRD milestones M2 + M3 both complete** (record Appendices
+> BB–BI); the two before-2026-08-01 deadline milestones are in place. M2
+> (data-quality guardrails): read-only `check_coverage` + `check_anomalies`
+> wired into `daily.bat`, standalone `check_cache_gaps`. M3 (unattended-automation
+> safety): pre-inception NAV guard in `paper_mtm.py` (+regression test),
+> read-only `verify_run` wired into `daily.bat`/`monthly_auto.bat`, ops-status
+> stamp to `var/ops_status.log` (NOT `daily_report.md` — that's Evan's journal).
+>
+> **LIVE OPEN ITEM — backfill the 2026-07-09 NAV gap (data-gated).** The coverage
+> gate fired in production for the first time at 17:17 on 2026-07-09 and correctly
+> skipped MTM (only 4,381 closes vs 5,000 floor). No 07-09 `paper_nav` row exists.
+> This is transient late-publication (07-08 was the same and self-healed
+> 4,379→5,207). Backfill was authorized but DEFERRED: a 22:30 re-refresh raised
+> 07-09 to 4,724, still < floor, so no MTM was written. **Backfill once
+> `check_coverage --date 2026-07-09` passes** (likely 07-10): `paper_mtm --as-of
+> 2026-07-09` per sleeve, then `verify_run --mode daily` returns PASS. Until then
+> `verify_run` (and the daily task) will FAIL loudly on the gap — by design.
+> Root-cause fix (move the 17:15 task later, or add a self-healing catch-up) is a
+> pending Evan decision. Next PRD work: M4/M5 (August), M6 (gated on August fills).
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -163,6 +174,8 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
+| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity, cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat`/`monthly_auto.bat` (M3.2/M3.3) |
+| `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 
 ### Batch files
 | File | When to run |
