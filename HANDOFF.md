@@ -13,13 +13,19 @@ the asset.
 **Last updated: 2026-07-09** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
-> **2026-07-09 — PRD milestones M2 + M3 both complete** (record Appendices
-> BB–BI); the two before-2026-08-01 deadline milestones are in place. M2
-> (data-quality guardrails): read-only `check_coverage` + `check_anomalies`
-> wired into `daily.bat`, standalone `check_cache_gaps`. M3 (unattended-automation
-> safety): pre-inception NAV guard in `paper_mtm.py` (+regression test),
-> read-only `verify_run` wired into `daily.bat`/`monthly_auto.bat`, ops-status
-> stamp to `var/ops_status.log` (NOT `daily_report.md` — that's Evan's journal).
+> **2026-07-09 — PRD milestones M2 + M3 + M4 complete** (record Appendices
+> BB–BL); the two before-2026-08-01 deadline milestones (M2/M3) plus M4 are in
+> place. M2 (data-quality guardrails): read-only `check_coverage` +
+> `check_anomalies` wired into `daily.bat`, standalone `check_cache_gaps`. M3
+> (unattended-automation safety): pre-inception NAV guard in `paper_mtm.py`
+> (+regression test), read-only `verify_run` wired into
+> `daily.bat`/`monthly_auto.bat`, ops-status stamp to `var/ops_status.log` (NOT
+> `daily_report.md` — that's Evan's journal). M4 (experiment-integrity reporting):
+> `experiment_report.py` (kill-switch tracker + control-vs-treatment NAV
+> divergence, `--md`), plus n/30-picks & months/12 counters in the dashboard LLM
+> panel. Interim experiment read: stock treatments AHEAD of control (cash +3.65pp
+> dodging BE, cascade +7.90pp via WDC); sector treatments slightly behind
+> (−0.73/−1.10pp). Tiny n — forward OOS only, not proof.
 >
 > **LIVE OPEN ITEM — backfill the 2026-07-09 NAV gap (data-gated).** The coverage
 > gate fired in production for the first time at 17:17 on 2026-07-09 and correctly
@@ -31,7 +37,8 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > 2026-07-09` per sleeve, then `verify_run --mode daily` returns PASS. Until then
 > `verify_run` (and the daily task) will FAIL loudly on the gap — by design.
 > Root-cause fix (move the 17:15 task later, or add a self-healing catch-up) is a
-> pending Evan decision. Next PRD work: M4/M5 (August), M6 (gated on August fills).
+> pending Evan decision (proposed as amendment M3.5). Next PRD work: M5 (backup
+> hygiene), M6 (slippage — gated on the 2026-08-01+ Alpaca fills).
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -176,6 +183,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
 | `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity, cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat`/`monthly_auto.bat` (M3.2/M3.3) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
+| `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
 
 ### Batch files
 | File | When to run |
