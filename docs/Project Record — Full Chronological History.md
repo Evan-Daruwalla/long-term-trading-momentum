@@ -121,6 +121,7 @@ lives in the dated entry, not the digest.
 - [BJ — M4.1 experiment kill-switch tracker (experiment_report.py)](#appendix-bj---m41-experiment-kill-switch-tracker-experiment_reportpy-2026-07-09-2315-local) (07-09)
 - [BK — M4.2 control-vs-treatment NAV divergence in experiment_report.py](#appendix-bk---m42-control-vs-treatment-nav-divergence-in-experiment_reportpy-2026-07-09-2325-local) (07-09)
 - [BL — M4.3 kill-switch counters in dashboard LLM panel; M4 complete](#appendix-bl---m43-kill-switch-counters-in-the-dashboard-llm-panel-m4-complete-2026-07-09-2335-local) (07-09)
+- [BM — M5 backup hygiene: rotating backups + weekly task + restore drill](#appendix-bm---m5-backup-hygiene-rotating-vacuum-into-backups--weekly-task--restore-drill-2026-07-09-2330-local) (07-09)
 
 ---
 
@@ -5009,3 +5010,46 @@ d=±0.0000pp (4/4). **M4 (experiment-integrity reporting) complete**: kill-switc
 control-vs-treatment divergence (BK), dashboard counters (this entry). Remaining PRD: M5 (backup
 hygiene), M6 (slippage — gated on August fills). Open ops item still carried: backfill the 07-09 NAV
 gap once coverage clears (Appendix BH); M3.5 catch-up/schedule fix remains Evan's decision.
+
+
+# Appendix BM - M5 backup hygiene: rotating VACUUM-INTO backups + weekly task + restore drill (2026-07-09, ~23:30 local)
+
+**PRD milestone M5 (backup hygiene) — all three tasks, done together (small + coupled).** Before
+this the only backup was the frozen founding copy `var/trades.db.bak_pre_spike_cleanup`; now there
+are rotating snapshots and a proven restore path.
+
+**M5.1 — rotating backup script `scripts/backup_trades_db.py`.** SQLite `VACUUM INTO` (a bare copy of
+a live WAL DB can catch a torn write) to `var/backups/trades_YYYY-MM-DD.db`; keeps the newest `--keep`
+(default 3), deletes older; aborts if free disk < 2x DB size; never touches the frozen founding
+backup (guarded + not in the glob). Verified: real run wrote a **4.76 GB** backup in ~59s; opened
+read-only and **every row count matches live** (paper_nav 321, paper_positions 704, price_cache
+37,463,451, paper_portfolio 17, both decision logs). Rotation deletion path dry-run with 4 seeded
+backups + `--keep 3` correctly planned to delete only the oldest.
+
+**M5.2 — weekly scheduled task `TradingWeeklyBackup`.** `cmd.exe /c ...python -m
+scripts.backup_trades_db > var\backup.log 2>&1`, WorkingDirectory the repo root, trigger **Sundays
+09:00** (far from the 17:15 MTM window). Registered via PowerShell `Register-ScheduledTask`. Verified:
+`Get-ScheduledTask` shows it Ready; one manual `Start-ScheduledTask` completed with **LastTaskResult
+0x0** and wrote the run to `var/backup.log`.
+
+**M5.3 — restore drill.** Copied the newest backup to a scratch path (**4.76 GB in 3.2s**), opened it,
+ran `verify_run --mode daily --db <scratch>` (**3.8s**). verify_run executed cleanly against the
+restored DB and reproduced live's exact state — RESULT: FAIL (0/17) on the **known 2026-07-09 NAV gap**
+(Appendix BH), which is the expected result and confirms the restore is FAITHFUL (it reproduces live
+including the open gap). Scratch copy removed; live DB never touched.
+
+Frozen tests (new Python file `backup_trades_db.py`):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). **M5 complete.** Only `backup_trades_db.py` is committed; the backups
+(`var/backups/`, gitignored) and the `TradingWeeklyBackup` task are local system state. Remaining PRD:
+**M6 (slippage) is GATED on the 2026-08-01+ Alpaca fills** — cannot start until those exist, so this
+is the end of the currently-actionable roadmap. Open items unchanged: backfill the 07-09 NAV gap once
+coverage clears (BH); the M3.5 catch-up/schedule fix is a pending Evan decision.
