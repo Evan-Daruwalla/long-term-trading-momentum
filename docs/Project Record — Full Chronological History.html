@@ -155,7 +155,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-be---m24-cache-gap-auditor-check_cache_gapspy-full-run-15207-flagged-m2-complete-2026-07-09-1340-local">BE — M2.4 cache-gap auditor; M2 complete</a> (07-09)<br />
 - <a href="#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local">BF — M3.1 pre-inception NAV guard in paper_mtm + regression test</a> (07-09)<br />
 - <a href="#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local">BG — M3.2 post-run verifier (verify_run.py)</a> (07-09)<br />
-- <a href="#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local">BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred</a> (07-09)</p>
+- <a href="#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local">BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred</a> (07-09)<br />
+- <a href="#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local">BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete</a> (07-09)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5371,6 +5372,52 @@ eventual backfill MTM.</p>
    re-MTMs the prior 1-2 trading days once their coverage passes. Not implemented pending Evan's call.</li>
 </ol>
 <p>No commit of code for this entry; the refresh only updated <code>var/trades.db</code> price data (gitignored).</p>
+<h1 id="appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local">Appendix BI - M3.3+M3.4 verifier wired into daily/monthly bats + ops-status stamp; M3 complete (2026-07-09, ~22:45 local)</h1>
+<p><strong>PRD milestone M3, tasks 3 + 4 — completes M3 (unattended-automation safety).</strong> Done together<br />
+because both live in the <code>daily.bat</code> tail and M3.4's stamp consumes M3.3's verify result.</p>
+<p><strong>M3.3 — wire the verifier.</strong><br />
+- <code>daily.bat</code>: after the graphify step (i.e. after MTM/anomaly), run <code>verify_run --mode daily</code>; on<br />
+  FAIL, write a FAIL ops stamp, echo a <code>VERIFY FAIL</code> line, and <code>exit /b 1</code> (loud + nonzero task exit<br />
+  per the PRD). On pass, fall through to a PASS stamp.<br />
+- <code>monthly_auto.bat</code>: after <code>call rebalance.bat</code>, run <code>verify_run --mode monthly</code>; FAIL -&gt; echo +<br />
+<code>exit /b 1</code>.<br />
+- Both files re-confirmed <strong>pure ASCII</strong>; the <code>^(daily^)</code> / <code>^(monthly^)</code> parens are escaped inside<br />
+  the echo/if context.</p>
+<p><strong>M3.4 — surface failures for Evan. DEVIATION (sanctioned by the PRD): stamp goes to<br />
+<code>var/ops_status.log</code>, not <code>daily_report.md</code>.</strong> Verified <code>daily_report.md</code> is Evan's hand-written<br />
+journal — only <code>render_daily_report_html.py</code> reads it, nothing writes it — so appending to it would<br />
+collide with his entries. The PRD's stated fallback is exactly this. New tiny helper<br />
+<code>scripts/momentum/ops_stamp.py</code> writes one newest-last dated line<br />
+(<code>[OPS &lt;date&gt;] coverage=&lt;PASS/FAIL&gt; verify=&lt;PASS/FAIL/n/a&gt; [- note]</code>); used a helper rather than<br />
+raw <code>echo</code> to avoid fragile cmd.exe date/variable/paren handling (a repeatedly-bitten hazard here,<br />
+Appendix AS). Stamps are written on the coverage-FAIL early-exit path (<code>coverage=FAIL, MTM skipped</code>)<br />
+and both daily verify branches.</p>
+<p><strong>HOW / verification.</strong><br />
+- Both bats pure ASCII (byte scan).<br />
+- <code>ops_stamp.py</code>: PASS, FAIL, and coverage-FAIL invocations each append the correct dated line to<br />
+<code>var/ops_status.log</code> (synthetic test lines then cleared so real runs seed it).<br />
+- Tail control flow tested with exit-code stubs: verify exit 0 -&gt; PASS stamp + <code>Done</code> + batch exit 0;<br />
+  verify exit 1 -&gt; FAIL stamp + <code>VERIFY FAIL</code> line + batch exit 1. Both branches correct.<br />
+- Did NOT run the full production <code>daily.bat</code> (trade-capable overlay ops; and 07-09 is mid-publication<br />
+  per Appendix BH). The isolated stub exercises the identical control flow.</p>
+<p><strong>Known interaction (intended, flagged so it is not a surprise):</strong> <code>verify_run --mode daily</code> will<br />
+FAIL — and therefore the daily task will exit nonzero — every run until the <strong>2026-07-09 NAV gap<br />
+(Appendix BH) is backfilled</strong>, because the gap is a real missing trading day the verifier is designed<br />
+to flag. This is the guardrail loudly surfacing an unresolved open item, not a false alarm; it clears<br />
+the moment 07-09 is backfilled.</p>
+<p>Frozen tests (new Python file <code>ops_stamp.py</code>):</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+</code></pre>
+<p>d=±0.0000pp (4/4). <strong>M3 (unattended-automation safety) complete</strong>: pre-inception guard (BF),<br />
+post-run verifier (BG), verifier wired into both bats (this entry), failures surfaced to<br />
+<code>var/ops_status.log</code> (this entry). Deadline milestones M2 + M3 are both in place before the<br />
+2026-08-01 unattended rebalance. Remaining PRD work: M4 (experiment-integrity reporting), M5 (backup<br />
+hygiene), M6 (slippage — gated on August fills). Open ops item carried forward: backfill the 07-09<br />
+NAV gap once coverage clears (Appendix BH).</p>
 </div>
 </body>
 </html>

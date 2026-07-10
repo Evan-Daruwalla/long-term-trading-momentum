@@ -20,3 +20,11 @@ if errorlevel 1 (
 echo.
 echo === Monthly rebalance ===
 call scripts\momentum\rebalance.bat
+
+echo.
+echo === Post-run verification ^(monthly^) ===
+.venv\Scripts\python.exe -m scripts.momentum.verify_run --mode monthly
+if errorlevel 1 (
+    echo VERIFY FAIL - monthly run left an inconsistency. See var\verify_report.log.
+    exit /b 1
+)

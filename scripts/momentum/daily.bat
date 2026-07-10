@@ -27,6 +27,7 @@ echo === Coverage gate: require full price publication before MTM ===
 if errorlevel 1 (
     echo COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
     echo Investigate before trusting today's NAVs. See check_coverage output above.
+    .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage FAIL --note "MTM skipped, closes below floor"
     exit /b 1
 )
 
@@ -106,6 +107,16 @@ REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/
 if errorlevel 1 (
     echo WARNING: Graphify update failed. Code graph may be stale.
 )
+
+echo.
+echo === Post-run verification ^(daily^) ===
+.venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
+if errorlevel 1 (
+    .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage PASS --verify FAIL
+    echo VERIFY FAIL - daily run left an inconsistency. See var\verify_report.log.
+    exit /b 1
+)
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage PASS --verify PASS
 
 echo.
 echo Done.

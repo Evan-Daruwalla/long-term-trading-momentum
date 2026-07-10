@@ -117,6 +117,7 @@ lives in the dated entry, not the digest.
 - [BF — M3.1 pre-inception NAV guard in paper_mtm + regression test](#appendix-bf---m31-pre-inception-nav-guard-in-paper_mtmpy--fixture-regression-test-2026-07-09-1350-local) (07-09)
 - [BG — M3.2 post-run verifier (verify_run.py)](#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local) (07-09)
 - [BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred](#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local) (07-09)
+- [BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete](#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local) (07-09)
 
 ---
 
@@ -4832,3 +4833,60 @@ eventual backfill MTM.
    re-MTMs the prior 1-2 trading days once their coverage passes. Not implemented pending Evan's call.
 
 No commit of code for this entry; the refresh only updated `var/trades.db` price data (gitignored).
+
+
+# Appendix BI - M3.3+M3.4 verifier wired into daily/monthly bats + ops-status stamp; M3 complete (2026-07-09, ~22:45 local)
+
+**PRD milestone M3, tasks 3 + 4 — completes M3 (unattended-automation safety).** Done together
+because both live in the `daily.bat` tail and M3.4's stamp consumes M3.3's verify result.
+
+**M3.3 — wire the verifier.**
+- `daily.bat`: after the graphify step (i.e. after MTM/anomaly), run `verify_run --mode daily`; on
+  FAIL, write a FAIL ops stamp, echo a `VERIFY FAIL` line, and `exit /b 1` (loud + nonzero task exit
+  per the PRD). On pass, fall through to a PASS stamp.
+- `monthly_auto.bat`: after `call rebalance.bat`, run `verify_run --mode monthly`; FAIL -> echo +
+  `exit /b 1`.
+- Both files re-confirmed **pure ASCII**; the `^(daily^)` / `^(monthly^)` parens are escaped inside
+  the echo/if context.
+
+**M3.4 — surface failures for Evan. DEVIATION (sanctioned by the PRD): stamp goes to
+`var/ops_status.log`, not `daily_report.md`.** Verified `daily_report.md` is Evan's hand-written
+journal — only `render_daily_report_html.py` reads it, nothing writes it — so appending to it would
+collide with his entries. The PRD's stated fallback is exactly this. New tiny helper
+`scripts/momentum/ops_stamp.py` writes one newest-last dated line
+(`[OPS <date>] coverage=<PASS/FAIL> verify=<PASS/FAIL/n/a> [- note]`); used a helper rather than
+raw `echo` to avoid fragile cmd.exe date/variable/paren handling (a repeatedly-bitten hazard here,
+Appendix AS). Stamps are written on the coverage-FAIL early-exit path (`coverage=FAIL, MTM skipped`)
+and both daily verify branches.
+
+**HOW / verification.**
+- Both bats pure ASCII (byte scan).
+- `ops_stamp.py`: PASS, FAIL, and coverage-FAIL invocations each append the correct dated line to
+  `var/ops_status.log` (synthetic test lines then cleared so real runs seed it).
+- Tail control flow tested with exit-code stubs: verify exit 0 -> PASS stamp + `Done` + batch exit 0;
+  verify exit 1 -> FAIL stamp + `VERIFY FAIL` line + batch exit 1. Both branches correct.
+- Did NOT run the full production `daily.bat` (trade-capable overlay ops; and 07-09 is mid-publication
+  per Appendix BH). The isolated stub exercises the identical control flow.
+
+**Known interaction (intended, flagged so it is not a surprise):** `verify_run --mode daily` will
+FAIL — and therefore the daily task will exit nonzero — every run until the **2026-07-09 NAV gap
+(Appendix BH) is backfilled**, because the gap is a real missing trading day the verifier is designed
+to flag. This is the guardrail loudly surfacing an unresolved open item, not a false alarm; it clears
+the moment 07-09 is backfilled.
+
+Frozen tests (new Python file `ops_stamp.py`):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). **M3 (unattended-automation safety) complete**: pre-inception guard (BF),
+post-run verifier (BG), verifier wired into both bats (this entry), failures surfaced to
+`var/ops_status.log` (this entry). Deadline milestones M2 + M3 are both in place before the
+2026-08-01 unattended rebalance. Remaining PRD work: M4 (experiment-integrity reporting), M5 (backup
+hygiene), M6 (slippage — gated on August fills). Open ops item carried forward: backfill the 07-09
+NAV gap once coverage clears (Appendix BH).
