@@ -13,9 +13,9 @@ the asset.
 **Last updated: 2026-07-09** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
-> **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete** (record Appendices
-> BB–BM); the two before-2026-08-01 deadline milestones (M2/M3) plus M4 + M5 are
-> in place. **M6 (slippage) is the only remaining task and is GATED on the
+> **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
+> (record Appendices BB–BN); the two before-2026-08-01 deadline milestones (M2/M3)
+> plus M4 + M5 are in place, and the daily pipeline is now self-healing (M3.5). **M6 (slippage) is the only remaining task and is GATED on the
 > 2026-08-01+ Alpaca PAPER fills — it cannot start until those exist.** M5 (backup
 > hygiene): `scripts/backup_trades_db.py` (rotating `VACUUM INTO` backups, keep 3,
 > disk-guard), weekly `TradingWeeklyBackup` task (Sun 9am → `var/backup.log`),
@@ -31,18 +31,18 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > dodging BE, cascade +7.90pp via WDC); sector treatments slightly behind
 > (−0.73/−1.10pp). Tiny n — forward OOS only, not proof.
 >
-> **LIVE OPEN ITEM — backfill the 2026-07-09 NAV gap (data-gated).** The coverage
-> gate fired in production for the first time at 17:17 on 2026-07-09 and correctly
-> skipped MTM (only 4,381 closes vs 5,000 floor). No 07-09 `paper_nav` row exists.
-> This is transient late-publication (07-08 was the same and self-healed
-> 4,379→5,207). Backfill was authorized but DEFERRED: a 22:30 re-refresh raised
-> 07-09 to 4,724, still < floor, so no MTM was written. **Backfill once
-> `check_coverage --date 2026-07-09` passes** (likely 07-10): `paper_mtm --as-of
-> 2026-07-09` per sleeve, then `verify_run --mode daily` returns PASS. Until then
-> `verify_run` (and the daily task) will FAIL loudly on the gap — by design.
-> Root-cause fix (move the 17:15 task later, or add a self-healing catch-up) is a
-> pending Evan decision (proposed as amendment M3.5). Next PRD work: only M6
-> (slippage), gated on the 2026-08-01+ Alpaca fills.
+> **M3.5 catch-up marking DEPLOYED (record Appendix BN) — the daily pipeline now
+> self-heals.** The coverage gate first fired in production 2026-07-09 17:17
+> (4,381 < 5,000 floor), correctly skipping the 07-09 mark. Rather than fail every
+> evening, `daily.bat` now runs `scripts/momentum/mtm_catchup.py` after refresh:
+> it marks every SETTLED missing trading day (today included) for all sleeves, and
+> leaves still-pending days for the next run. So **the 2026-07-09 gap self-heals
+> automatically at the next daily run once 07-09 settles overnight** — no manual
+> backfill needed. `verify_run` now treats a below-floor "today" as PENDING (not a
+> gap), and the daily task exits 0 on a normal pending day (fails only on a real
+> settled-history gap). To heal 07-09 sooner by hand: refresh, then
+> `mtm_catchup` once `check_coverage --date 2026-07-09` passes. Next PRD work: only
+> M6 (slippage), gated on the 2026-08-01+ Alpaca fills.
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
@@ -185,7 +185,8 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
-| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity, cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat`/`monthly_auto.bat` (M3.2/M3.3) |
+| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat`/`monthly_auto.bat` (M3.2/M3.3) |
+| `scripts/momentum/mtm_catchup.py [--dry-run]` | Self-healing MTM: marks every settled missing trading day (incl today) for all sleeves; skips pending days + never overwrites/back-marks across a rebalance. Runs in `daily.bat` after refresh (M3.5) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 | `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
 | `scripts/backup_trades_db.py [--keep N] [--dry-run]` | Rotating `VACUUM INTO` backup of `trades.db` → `var/backups/`, keep newest 3, disk-guard (M5.1) |
