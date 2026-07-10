@@ -16532,3 +16532,406 @@ Net over the three days, the raw momentum book (mom_v1/v2/mom_roa base) sits rou
 ---
 
 *Report generated: 2026-07-08 (post-close) | Coverage: `var/trades.db` (`paper_nav`, `paper_positions`, `paper_portfolio`, `llm_overlay_log`, `sector_overlay_log`, `price_cache`) queried directly post-close; 07-08 NAV present for all 17 sleeves; `price_cache` 07-08 close count 4,379 tickers (154/158 held positions priced — EACO, AFJK, FMBM, KFII missing). No trades or overlay decisions logged 07-08. | Sources: [Yahoo Finance — Stock market today, July 8, 2026](https://finance.yahoo.com/markets/stocks/live/stock-market-today-wednedsay-july-8-230111117.html) | [Yahoo Finance — July 8 midday: Dow drops 1.5% as Middle East tensions spike](https://finance.yahoo.com/markets/stocks/articles/stock-market-today-july-8-164235564.html) | [CNBC — Fed minutes June 2026: officials split on rates](https://www.cnbc.com/2026/07/08/fed-minutes-june-2026-.html) | [Quartz — Fed minutes reveal divides in Warsh's first meeting](https://qz.com/fed-minutes-warsh-fomc-rate-hike-cut-divided-070826) | [StocksToTrade — Western Digital rallies as targets soar](https://stockstotrade.com/news/western-digital-corporation-wdc-news-2026_07_08/) | [TradingKey — WDC closed up 3.57% Jul 8](https://www.tradingkey.com/news/market-movers/262018397-market-movers-wdc-20260708) | [24/7 Wall St. — TeraWulf rises 12%, AI-infrastructure bounces back](https://247wallst.com/investing/2026/07/08/terawulf-rises-12-iren-climbs-7-as-ai-infrastructure-stocks-bounce-back/) | [Stocktwits — FCEL tumbles on expanded share offering](https://stocktwits.com/news-articles/markets/equity/fcel-stock-tumbles-overnight-expanded-share-offering-stokes-dilution-fears/cZmVLcnR7NR) | [Proactive — FuelCell prices upsized $225M offering](https://www.proactiveinvestors.com/companies/news/1095139/fuelcell-energy-shares-fall-after-company-prices-upsized-225-million-stock-offering-1095139.html) | [QuiverQuant — Bloom Energy slides as investors take profits](https://www.quiverquant.com/news/Bloom+Energy+Slides+as+Investors+Take+Profits+After+Recent+AI-Power+Surge) | [Zacks — Why Bloom Energy fell more than the broader market](https://www.zacks.com/stock/news/2933481/heres-why-bloom-energy-be-fell-more-than-broader-market) | [Yahoo Finance — Why oil refiners are the real winners of $100 oil](https://finance.yahoo.com/sectors/energy/articles/why-oil-refiners-real-winners-162000659.html) | [TradingKey — Ciena earnings beat yet plunge, optical sector reset](https://www.tradingkey.com/analysis/stocks/us-stocks/261947939-ciena-cien-networking-ai-datacenter-earnings-beat-valuation-concerns-sector-selloff-order-supply-constraints-tradingkey)*
+
+## Report: 2026-07-09 (Thursday) — Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+> **NAV standings (as of 2026-07-08 close):** Best performer `residual_roa_6535_paper` +6.05% ($106,047), then `llm_cascade_top1_paper` +4.25% ($104,249, holds WDC) and `spy_benchmark_paper` +3.43% ($103,434). Worst `mom_v2_paper` -4.86% ($95,140), then `mom_v1_paper` -4.63% ($95,366) and `mom_roa_top1_paper` -3.65% ($96,347, sole BE holding). The five 07-01/07-06-cohort systematic sleeves are all within +0.5%-+1.6% of flat. LLM-experiment cohort split for a second straight day: stock arm now favors the LLM variants (cascade +4.25% > cash treatment 0.00% > BE control -3.65%); sector arm still favors the raw control (sector_top4_paper +0.22% > overlay -0.50% > cascade -0.88%).
+> **Pre-market moves (2026-07-09, before the open):** Data is thin and internally inconsistent across sources this morning — see §2 for full detail and explicit conflicts. Index futures point mixed-to-slightly-positive per two sources (Nasdaq futures +0.46-0.68%, S&P +0.05-0.24%, Dow -0.22% to +0.07%), a milder tone than Wednesday's selloff open. Oil: WTI settled 07-08 up +4.4% to $73.52/bbl, Brent +5.2-5.4% to ~$78/bbl; pre-market 07-09 WTI prints range $72.31-$73.77 depending on source/timestamp — no single reconciled number found. **Overnight escalation continued**: Iran's IRGC reportedly launched drone/missile strikes against US-linked sites in Kuwait, Qatar, and Bahrain in the hours after Wednesday's close, per two independent live-blogs (Al Jazeera, MS NOW), both dated 2026-07-09 — a further escalation beyond Wednesday's already-elevated US-Iran exchange.
+> **Macro catalyst:** US-Iran conflict remains the dominant driver for a third consecutive session — see above. Standard weekly initial jobless claims release is scheduled this morning (Thursday 8:30am ET calendar slot); no confirmed 07-09-dated figure was locatable from a primary source, so none is asserted here. No PPI today (confirmed via BLS schedule: PPI is 2026-07-15). No Fed speaker events found scheduled for 07-09 specifically.
+> **LLM overlay status:** No new decisions logged since 07-07 (checked `llm_overlay_log`/`sector_overlay_log` for 07-08/07-09 entries; none found — consistent with no rebalance cycle, not an omission). Stock-arm BE veto stays vindicated on the 3-day sample (BE -13.8% since Mon close); sector-arm XLE veto stays 0-for-3 on directional accuracy as oil keeps rising.
+> **Critical outstanding items:** BE earnings date has a source conflict — prior reports cited 2026-07-30, a new aggregator source found today cites 2026-07-28; unresolved, flagging rather than asserting either. `EACO` (residual_roa_6535 holding) still has no `price_cache` close beyond 07-07, now a confirmed multi-session gap. Monthly rebalance next fires 2026-08-01. Next-day 07-09 NAV/price data does not yet exist in `var/trades.db` (market not yet open at report time) — all NAV figures below are the 07-08 close, all "moves" are pre-market/futures only.
+
+### 1. Portfolio standings from last close (2026-07-08)
+
+All figures are `paper_nav.total_nav` as of `nav_date = '2026-07-08'` (queried directly from `var/trades.db`), vs. each sleeve's `starting_cash`. No 2026-07-09 NAV exists yet — the market has not opened.
+
+**6 systematic + benchmark (05-01/06-13 inception):**
+| Sleeve | NAV | Return | Open positions |
+|---|---|---|---|
+| `residual_roa_6535_paper` | $106,047.32 | **+6.05%** | 50 |
+| `spy_benchmark_paper` | $103,434.40 | +3.43% | 1 (SPY) |
+| `sector_top4_full_paper` | $102,081.48 | +2.08% | 4 (XLE, XLK, XLI, XLB) |
+| `mom_roa_6535_paper` | $97,299.22 | -2.70% | 50 |
+| `mom_v1_paper` | $95,366.29 | -4.63% | 100 |
+| `mom_v2_paper` | $95,139.51 | -4.86% | 50 |
+
+**5-sleeve 07-06 clean-start cohort:**
+| Sleeve | NAV | Return | Open positions |
+|---|---|---|---|
+| `residual_roa_6535_0701_paper`* | $101,570.91 | +1.57% | 48 |
+| `mom_roa_6535_0701_paper`* | $101,137.11 | +1.14% | 50 |
+| `mom_v2_0701_paper` | $100,536.00 | +0.54% | 50 |
+| `mom_v1_0701_paper` | $100,464.38 | +0.46% | 100 |
+| `spy_benchmark_0701_paper`* | $99,217.34 | -0.78% | 1 (SPY) |
+
+(* mirrors to real Alpaca PAPER account)
+
+**6 LLM-experiment sleeves (07-06 inception):**
+| Sleeve | NAV | Return | Holding |
+|---|---|---|---|
+| `llm_cascade_top1_paper` (stock cascade) | $104,249.08 | **+4.25%** | WDC |
+| `sector_top4_paper` (sector control) | $100,223.38 | +0.22% | XLE, XLK, XLI, XLB |
+| `llm_overlay_mom_roa_top1_paper` (stock treatment) | $100,000.00 | 0.00% | cash (BE vetoed) |
+| `llm_overlay_sector_top4_paper` (sector treatment) | $99,495.73 | -0.50% | XLK, XLI, XLB (no XLE) |
+| `llm_cascade_sector4_paper` (sector cascade) | $99,119.49 | -0.88% | XLK, XLI, XLB, XLV |
+| `mom_roa_top1_paper` (stock control) | $96,346.83 | **-3.65%** | BE |
+
+Verified directly against `paper_nav`/`paper_portfolio` — matches the 07-08 post-market report exactly (no 07-09 activity yet).
+
+### 2. Overnight / pre-market moves (before the open, 2026-07-09)
+
+Market has not opened; `var/trades.db` `price_cache` has no 07-09 entries for any ticker (confirmed by direct query — max cached date is 07-08). Web sources this morning were unusually inconsistent with each other on nearly every specific figure; each item below is reported with its source and flagged where sources conflict, per standing "don't fabricate" policy — no single number is asserted where sources disagree without a reconciling source.
+
+- **Index futures — sources disagree on magnitude, roughly agree on direction (small/mixed):** Investrade's morning preview reports Dow futures -120 pts (-0.22%) to 52,510, S&P 500 futures +4.25 pts (+0.05%) to 7,532, Nasdaq futures +134.50 pts (+0.46%) to 29,603 [Investrade — Morning Preview July 09 2026](https://investrade.com/morning-preview-july-09-2026/). Benzinga separately reports S&P 500 futures +0.24%, Nasdaq 100 futures +0.68%, Dow futures +0.07%, Russell 2000 +0.27% [Benzinga — S&P 500, Nasdaq 100 futures rise as US-Iran exchange strikes](https://www.benzinga.com/markets/equities/26/07/60350555/stock-market-today-sp-500-nasdaq-100-futures-rise-as-us-iran-exchange-strikes-levi-strauss-azz-ionis-pharma-in-focus). Both point to a materially calmer open than Wednesday's; neither matches exactly, so treat as directional only.
+- **Oil:** WTI *settled* 07-08 +4.4% to $73.52/bbl; Brent settled +5.2-5.4% to $78.02-$78.19/bbl [NBC News — Oil prices surge, stocks tumble as Trump says Iran ceasefire over](https://www.nbcnews.com/business/business-news/oil-prices-surge-stocks-tumble-trump-iran-ceasefire-over-hormuz-rcna353446). Pre-market 07-09 prints conflict across sources: Investrade cites WTI $73.77 (+$0.25), Brent $78.38 (+$0.36) [Investrade](https://investrade.com/morning-preview-july-09-2026/); a separate analysis piece cites WTI trading range $71.76-$75.29 with a "current price" of $72.31, forecasting continued upside after consolidation [fxdailyreport.com — WTI Crude Oil Price Analysis for July 9, 2026](https://fxdailyreport.com/wti-crude-oil-price-analysis-for-july-9-2026/). No single reconciled pre-market WTI print exists across sources — reporting the range, not a point figure.
+- **Rates/other:** 10-year Treasury yield ~4.56-4.58%, 2-year ~4.19%; Bitcoin +1.75% to $63,005; gold +0.92% to $4,115/oz; DXY +0.05% to 101.08 [Benzinga](https://www.benzinga.com/markets/equities/26/07/60350555/).
+- **Geopolitical — further overnight escalation:** US Central Command reportedly announced a new round of strikes on Iran roughly 15 minutes after Wednesday's market close [Investrade](https://investrade.com/morning-preview-july-09-2026/). Overnight into Thursday, Iran's IRGC launched one-way attack/kamikaze drones at US-linked sites in Kuwait (a Patriot missile-interceptor system), Qatar (an early-warning system), and Bahrain (fuel tanks) — described as the second consecutive day of direct US-Iran strike exchanges [MS NOW — Iran war news today, July 9, 2026](https://www.ms.now/liveblog/iran-war-news-today-july-9-2026), [Al Jazeera — Iran war live: one killed as US bombs Bushehr, Chabahar, Bandar Abbas](https://www.aljazeera.com/news/liveblog/2026/7/9/iran-war-live-one-killed-as-us-bombs-bushehr-chabahar-bandar-abbas-jask). Iran's Parliament Speaker Ghalibaf said the Strait of Hormuz would "open only under Tehran's terms" [Benzinga](https://www.benzinga.com/markets/equities/26/07/60350555/). At the NATO summit in Turkey, Trump said the US would "very probably" strike Iran again [NBC News](https://www.nbcnews.com/business/business-news/oil-prices-surge-stocks-tumble-trump-iran-ceasefire-over-hormuz-rcna353446).
+- **Semiconductor sentiment (caveat below):** Multiple sources describe a sharp Thursday rebound in chip names — the Philadelphia Semiconductor Index up 4%+, with MU, AMD, LRCX, TER, WDC, MRVL, AVGO, INTC all cited as trading higher [Yahoo Finance — Micron, SanDisk, Marvell stocks jump, leading chip sector gains](https://finance.yahoo.com/markets/stocks/article/micron-sandisk-marvell-stocks-jump-leading-chip-sector-gains-135433074.html). **Caveat: several of these sources carry specific intraday timestamps (e.g., a Finviz snapshot of TER +6.09% at 10:12am ET; a Benzinga LRCX article citing intraday Nasdaq +1.51%/S&P +0.68%) that describe regular-session trading, not pre-market conditions — this conflicts with `price_cache` showing no 07-09 data and the task's pre-market framing.** Given the standing no-fabrication rule, these specific percentages are not carried into this report as confirmed pre-market or day moves; they are noted here only as a directional signal (chip-sector sentiment turning positive after three rough sessions) pending confirmation once actual 07-09 close data is available. A same-morning catalyst potentially behind the sentiment: SK Hynix's US IPO was reported oversubscribed roughly 7x ahead of a planned 2026-07-10 debut, read by some sources as bullish for the AI-memory trade [Investrade](https://investrade.com/morning-preview-july-09-2026/); Micron was also reported to have announced a US semiconductor supply-chain investment (a GlobalWafers silicon-wafer joint venture in Texas plus a 10-year supply agreement) [TradingKey — Micron market movers](https://www.tradingkey.com/news/market-movers/262020371-market-movers-mu-20260709) — exact dates/amounts for the Micron item were not independently pinned down beyond the aggregator source, so treat as directional, not confirmed.
+- **No confirmed pre-market print located** for BE, DOCN, CIEN, or INTC specifically as of report time — not asserting a move where none was found with a clear pre-market timestamp.
+
+### 3. Catalyst and macro review
+
+**Geopolitical (dominant driver, third consecutive session):** The US-Iran conflict escalated further overnight rather than cooling — see §2 for the Kuwait/Qatar/Bahrain drone-strike reporting. This is now three straight trading sessions (07-07 tanker attacks + first US strikes, 07-08 ceasefire declared "over" + FOMC-minutes hawkishness citing Hormuz energy risk, 07-09 further drone strikes on US-linked Gulf-state infrastructure) of an unscheduled geopolitical shock directly affecting oil and, by extension, the portfolio's momentum book. No de-escalation signal was found in any source reviewed this morning.
+
+**Macro calendar:** Weekly initial jobless claims are on the standard Thursday 8:30am ET release calendar; no confirmed, source-attributed 07-09 figure was located, so none is reported here. PPI is not due today — confirmed via the BLS's own schedule page, June 2026 PPI is set for 2026-07-15, 8:30am ET [BLS — PPI news release schedule](https://www.bls.gov/schedule/news_release/ppi.htm). No Fed speaker events were found scheduled for 07-09 itself; the most recent located Fed appearances were Bowman (FSB Virtual Outreach, 07-07) and Waller (ESCB Research Network conference, Rome, 07-07) — both before today.
+
+**Semiconductor sector:** See §2 caveat — directional reports of a broad chip-sector bounce (SOX +4%+) exist but the specific percentages carry timestamps inconsistent with a pre-market report and are not carried forward as confirmed. If accurate, this would be a third consecutive session of the chip sector round-tripping (07-07 rout → 07-08 partial bounce → 07-09 reported further bounce), which matters materially given 6-9 sleeves hold each of WDC/MU/CIEN/TER/DOCN/VICR.
+
+**Energy sector:** XLE was reported by one source to be up further on 07-09, and refiners (named: MPC, COP) up on the sustained oil bid — but the source's date attribution for these specific moves was ambiguous (may describe 07-08, not 07-09) per the research pass, so not asserted as a 07-09-specific fact here [stockanalysis.com — XLE](https://stockanalysis.com/etf/xle/).
+
+### 4. LLM overlay status
+
+No new overlay decisions were logged after 2026-07-07 close (checked `llm_overlay_log` and `sector_overlay_log` directly for entries dated 07-08 or 07-09; none found — consistent with the next scheduled decision/rebalance cycle, not an omission).
+
+**Stock arm (last decisions, 07-07):** Control `mom_roa_top1_paper` continues to hold BE, unchanged since inception, now -3.65% since inception / -5.66% on 07-08 alone. Treatment `llm_overlay_mom_roa_top1_paper` remains 100% cash since the BE veto (score 4/10, re-affirmed 07-07). Cascade `llm_cascade_top1_paper` holds WDC (score 6/10, BUY, invalidation $480), now +4.25% since 07-06 inception. Over the 3-day cohort life: **cascade +4.25% > treatment 0.00% > control -3.65%** — the BE veto remains the strongest pro-overlay evidence the experiment has produced (BE down ~13.8% since the veto).
+
+**Sector arm (last decisions, 07-07):** Control `sector_top4_paper` holds XLE/XLK/XLI/XLB, +0.22% since inception. Overlay treatment VETO'd XLE (score 3/10, invalidation $56.86) on weak technicals plus a bearish EIA demand outlook explicitly flagging "near-term Hormuz-driven supply cuts are a fragile geopolitical prop that could reverse fast" — that risk has not materialized in three sessions; oil has instead kept rising on the escalating conflict. Cascade holds XLV instead of XLE (score 7/10, HOLD, invalidation $155). Over the 3-day cohort life: **control +0.22% > overlay -0.50% > cascade -0.88%** — the XLE veto is now 0-for-3 on directional accuracy, same standing as the 07-08 report.
+
+Kill-switch status unchanged on both arms: 12-month / ≥30-pick window, not yet triggered.
+
+### 5. Risk flags and upcoming events
+
+- **BE earnings date conflict:** prior reports (through 07-08) cited 2026-07-30; a new aggregator source found this morning cites 2026-07-28 [source dated ~07-09, low-confidence per research pass]. This is not resolved — flagging the discrepancy rather than asserting either date. Either way, it remains the single largest concentration risk in the portfolio (`mom_roa_top1_paper` control is 100% BE, no stop by design).
+- **No intraday circuit-breaker exists** for any sleeve — this is now the third consecutive session where a fast-moving geopolitical shock has landed between scheduled rebalance dates (13 prior reactive-stop-loss attempts rejected per `sleeves_verdict.md`; accepted, previously-reviewed design gap, not a new finding, but the underlying conflict continues to escalate rather than resolve).
+- **Data-integrity flag:** `EACO` (held only in `residual_roa_6535_paper`) still has no `price_cache` close beyond 07-07 — confirmed via direct query, continuing a now multi-session gap; thin OTC name, no halt/delisting news found, flagged not resolved. `AFJK`, `FMBM`, `KFII` similarly show no 07-08 close in `price_cache` as of this query (last available close 07-07 for all three).
+- **Monthly rebalance** next fires 2026-08-01 per the `monthy-llm-rebalance` scheduled task.
+- **Semiconductor sector volatility** (see §2/§3) is a live risk to the 6-9 sleeves holding WDC/MU/CIEN/TER/DOCN/VICR if the reported bounce reverses again — three sessions of round-tripping so far.
+- No confirmed earnings dates found today for WDC, MU, INTC, DOCN, CIEN, TER, AMD, or LRCX beyond what prior reports have already cited (WDC ~07-29, INTC 07-23, AMD 08-04, LRCX 07-29 per the research pass — not independently re-verified against a primary source this session, carried forward with that caveat).
+
+### 6. Strategic insights — structural edge or new sleeve concepts?
+
+**A. No new long-term sleeve concept is confirmed or refuted by this pre-market session — the report is explicitly data-limited today.** Unlike the 07-07 and 07-08 reports, which had confirmed post-close trade/NAV data to analyze, this report sits before the 07-09 open with no confirmed intraday or pre-market ticker-level data (§2's caveat on the semiconductor-bounce figures is the clearest illustration: directionally plausible, but the specific numbers carry timestamps this report cannot verify as pre-market). The honest posture is "watch and confirm at 07-09 post-close," not a new finding.
+
+**B. The residual-momentum diversification thesis and the LLM-overlay split verdict both carry forward unchanged from 07-08** — nothing overnight contradicts either. Residual's ~16% Energy weight remains the portfolio's only mechanism with a plausible edge against a continuing Hormuz-driven oil shock; the stock-arm LLM veto (BE) remains vindicated while the sector-arm veto (XLE) remains 0-for-3, both still far short of the 30-pick kill-switch threshold.
+
+**C. The geopolitical situation is the one variable that has gotten strictly worse, not better, across three consecutive sessions.** 07-07 tanker attacks → 07-08 ceasefire declared over + hawkish FOMC minutes citing the same conflict → 07-09 further drone strikes on US-linked Gulf infrastructure. This is now the dominant, unhedged macro risk to the momentum book (see §5/HANDOFF's known-limitations "no intraday circuit-breaker" gap) and the report continues to flag it without recommending a reactive response, consistent with the 13 prior rejected reactive-stop experiments.
+
+**D. If the reported semiconductor-sector bounce is real and confirmed at 07-09 close, it would mark a third directional reversal in three sessions for the sector carrying the heaviest portfolio weight** — worth specifically checking in the 07-09 post-market report given how many sleeves (6-9 each) hold WDC/MU/CIEN/TER/DOCN/VICR.
+
+---
+
+## Report: 2026-07-09 (Thursday) — Post-Market Close Analysis
+
+> **DAILY SUMMARY**
+> **CRITICAL: today's automated daily MTM was SKIPPED.** The coverage gate (M2.2, wired into `daily.bat` at 13:30 today, its first live day) failed at 17:17: only **4,381** `price_cache` closes published for 2026-07-09 vs. a 10-day baseline of ~5,245 and a hard floor of 5,000 — `check_coverage` correctly refused to MTM on incomplete data (see §2). **No official `paper_nav` row exists for 07-09.** This report's NAV figures below split into (a) the last **official** close, 2026-07-08, and (b) **unofficial, informally-computed** 07-09 marks I calculated directly from real `paper_positions` qty × real `price_cache` 07-09 closes + cash — same methodology as the pipeline, explicitly labeled, not the system's own output. 156/158 held tickers *did* publish 07-09 closes (only `EACO`/`FMBM`, both in `residual_roa_6535_paper`, carried forward at 07-08 price) — the gate's shortfall came from ~860 missing tickers elsewhere in the broader universe, not the portfolio's own holdings, which is why an informal reconstruction is possible at all.
+> **NAV standings (informal 07-09 marks, since-inception, best→worst):** `llm_cascade_top1_paper` **+9.50%** ($109,501, day +5.04%, holds WDC) · `residual_roa_6535_paper` +6.77% ($106,767, day +0.68%*) · `mom_v2_0701_paper` +4.67% ($104,675, day +4.12%) · `mom_roa_6535_0701_paper` +4.36% ($104,357, day +3.18%) · `spy_benchmark_paper` +4.31% ($104,310, day +0.85%) · `mom_v1_0701_paper` +3.58% ($103,576, day +3.10%) · `residual_roa_6535_0701_paper` +2.63% ($102,627, day +1.04%) · `sector_top4_full_paper` +2.51% ($102,508, day +0.42%) · `sector_top4_paper` +0.56% ($100,556, day +0.33%) · `llm_overlay_sector_top4_paper` +0.19% ($100,190, day +0.70%) · `spy_benchmark_0701_paper` +0.06% ($100,057, day +0.85%) · `mom_roa_6535_paper` +0.01% ($100,014, day +2.79%) · `llm_overlay_mom_roa_top1_paper` 0.00% ($100,000, cash, VETO) · `llm_cascade_sector4_paper` -0.21% ($99,794, day +0.68%) · `mom_v2_paper` -1.77% ($98,228, day +3.25%) · `mom_v1_paper` -1.80% ($98,199, day +2.97%) · `mom_roa_top1_paper` **-2.62%** ($97,380, day +1.07%, holds BE). *residual figure uses 07-08 carried-forward prices for EACO/FMBM (2 of 50 names).
+> **Day moves:** Broad rally — Nasdaq **+1.30%** (26,206.89), S&P 500 **+0.81%** (7,543.64), Dow **+0.27%** (52,487.41, +139.02 pts). Semiconductors led (SMH +2.5%) on Micron's surprise $250B U.S. investment plan; oil **fell** (WTI -0.2% to $73.37, Brent -0.21% to $77.86), reversing the two-day Hormuz-driven spike even as US strikes on Iran continued into a second day.
+> **Key movers (07-08→07-09 close, held names, real `price_cache` data):** Up — LASR +27.32% ($44M-$627M laser-weapon defense contract), AEHR +12.26% (silicon-photonics follow-on order), MXL +11.33%, BAND +11.28% (B.Riley PT $55→$85), AAOI +6.79%, FORM +7.03%, AMKR +7.85%, ICHR +8.59%, WDC +5.04% (Susquehanna PT raise + Micron $250B halo). Down — AFJK -51.70% (serial-extension SPAC, deadline pushed to 08-06, no single dated catalyst pinned), VATE -11.11% (thin microcap, unexplained — 2nd report in a row), ALIT -8.45% (no distinct catalyst), INSW -5.92%/APA -5.05%/PARR -4.42%/XOM -2.60% (oil giving back Tue/Wed's spike).
+> **Macro event:** Initial jobless claims 215,000 (-4,000 w/w), lowest since 05-23. Existing home sales -2.4% m/m to 4.9M annualized. Oil reversed despite continued US-Iran strikes — traders reassessing actual Hormuz supply disruption as limited.
+> **LLM overlay standings (informal, unofficial pending real MTM):** Stock arm — cascade (WDC) $109,501 (+9.50% cohort) > treatment (cash) $100,000 (0.00%) > control (BE) $97,380 (-2.62%); BE also drew a same-day short-seller attack (Hunterbrook Capital) it "categorically rejected," and still closed +1.07%. Sector arm — **first-ever daily flip**: overlay (no XLE) +0.70% and cascade (XLV) +0.68% both beat control (holds XLE) +0.33% today, as XLE was the only sector ETF to fall (-1.40%) on oil's reversal — the XLE veto's "fragile geopolitical prop" thesis scored its first win after 3 straight losses.
+> **Critical outstanding items:** **No official 07-09 NAV exists — rerun/backfill status needs Evan's attention**, this is the coverage gate's first live trigger (deployed today 13:30) and it worked as designed, but leaves a genuine data gap. BE short-seller dispute (Hunterbrook) is a new named risk on top of the existing earnings-date conflict (07-28 vs 07-30, still unresolved). EACO/FMBM still missing prices (residual_roa_6535 only). No LLM overlay/cascade decisions logged since 07-07.
+
+### 1. Market Summary — Index Closes & Sector Performance (2026-07-09)
+
+US equities rallied broadly Thursday even as the US-Iran conflict continued to escalate. The **Nasdaq Composite gained 1.30% to 26,206.89**, the **S&P 500 rose 0.81% to 7,543.64**, and the **Dow Jones Industrial Average added 139.02 points (+0.27%) to 52,487.41** [Yahoo Finance — Stock Market News for July 9, 2026](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-july-9-093800837.html), [TheStreet — Stock Market Today July 9](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-9-2026).
+
+**Semiconductors were the standout sector.** The VanEck Semiconductor ETF (SMH) climbed 2.5%, led by Micron (+~7-8% on the session) after the company announced it will invest **more than $250 billion in U.S. chipmaking through 2035** — adding $50B to its prior $200B commitment, plus up to $3B for the domestic supply-chain ecosystem, with a goal of making 40% of its DRAM in the U.S. within a decade. The company also poured first concrete at its new Clay, NY fab (to be the largest semiconductor manufacturing site in U.S. history) [CNBC — Micron stock pops on more US investment](https://www.cnbc.com/2026/07/09/micron-stock-us-chipmaking.html), [Bloomberg — Micron boosts US spending to $250 billion](https://www.bloomberg.com/news/articles/2026-07-09/micron-boosts-us-spending-to-250-billion-amid-memory-demand). Sandisk also popped +7.6% on the same memory-tightness narrative [Yahoo Finance — Stock Market News July 9](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-july-9-093800837.html).
+
+**Oil reversed lower** despite the U.S. military confirming a second straight day of strikes on Iran: Brent fell 0.21% to $77.86/bbl, WTI fell 0.2% to $73.37/bbl, both pulling back from Wednesday's highest levels since June 22. Traders reportedly reassessed the situation — vessel-tracking data suggested substantial Hormuz crude volumes had kept moving even through the ceasefire breakdown, implying actual physical supply disruption has been more limited than the price action implied [CNBC — Oil prices fall as markets weigh impact of US strikes on Iran / mediaselangor.com syndication](https://mediaselangor.com/en/2026/07/383623), [Fortune — Current price of oil as of July 9, 2026](https://fortune.com/article/price-of-oil-07-09-2026/).
+
+**Sector ETF performance (07-08 close → 07-09 close, real `price_cache` data):**
+
+| Sector ETF | 07-08 | 07-09 | Day % | Note |
+|---|---:|---:|---:|---|
+| XLK (Technology) | $181.40 | $185.35 | **+2.18%** | Semiconductor/memory rally on Micron's $250B plan |
+| SPY (S&P 500 proxy) | $745.40 | $751.71 | +0.85% | Broad rally |
+| XLI (Industrials) | $180.42 | $181.11 | +0.38% | |
+| XLB (Materials) | $50.16 | $50.26 | +0.20% | |
+| XLV (Health Care) | $162.30 | $162.17 | -0.08% | Roughly flat |
+| XLE (Energy) | $55.60 | $54.82 | **-1.40%** | Only sector ETF to fall — oil gave back its spike |
+
+**Macro — jobless claims / housing:** Initial jobless claims fell to a seasonally adjusted **215,000** for the week ended 07-04, down 4,000 from the prior week and the lowest total since May 23 — a continued cooling from early June's spike. Existing home sales unexpectedly declined 2.4% m/m in June to a seasonally adjusted annualized 4.9 million [Yahoo Finance — Stock Market News for July 9, 2026](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-july-9-093800837.html).
+
+**Macro — geopolitical:** SK Hynix's U.S. IPO priced ahead of its planned 07-10 debut (a secondary memory-supply-chain datapoint); the US-Iran conflict itself showed no de-escalation, with Trump reiterating the "ceasefire is over" framing from Wednesday and warning of a possible naval blockade, even as oil traded down on the day [TheStreet — Stock Market Today July 9: Nasdaq, S&P 500 rise despite Iran conflict flare-up](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-9-2026).
+
+### 2. NAV — Official (07-08) and Informal/Unofficial (07-09)
+
+**Why there is no official 07-09 NAV:** `daily.bat`'s `check_coverage` gate (M2.2, wired into the pipeline this morning at 13:30, its first day live) ran at 17:17 and found only **4,381** `price_cache` closes for 2026-07-09, against a 10-day median baseline of **5,245** and a hard floor of **5,000**. Per design, it printed `COVERAGE FAIL` and **skipped all MTM and overlay ops** rather than mark sleeves against an incomplete price snapshot. Verbatim from `var/last_daily_run.log`:
+```
+2026-07-09 17:17:49,856 INFO check_coverage: Coverage check: date=2026-07-09  closes=4381  baseline(median of 10)=5245  floor=5000 [max(5000, 90%*5245=4720)]
+2026-07-09 17:17:49,856 ERROR check_coverage: COVERAGE FAIL: only 4381 closes on 2026-07-09 (< floor 5000). Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.
+COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops today.
+```
+The daily price refresh log shows heavy `yfinance` "possibly delisted" errors and one rate-limit error across the run — consistent with a broad, largely-illiquid-ticker publication gap rather than anything wrong with the portfolio's own holdings: **156 of 158 held tickers across all 17 sleeves DO have a real 07-09 close** in `price_cache` (only `EACO` and `FMBM`, both in `residual_roa_6535_paper`, are missing — a pre-existing multi-session gap flagged in prior reports). This report does not fabricate an official NAV; instead, §1 of the DAILY SUMMARY reconstructs an **unofficial, informally-computed** mark for every sleeve, directly from real `paper_positions` (qty) × real `price_cache` 07-09 closes, plus real cash — the same arithmetic the pipeline itself performs, just run by hand here and explicitly labeled as unofficial. This is a genuine data gap that needs Evan's attention (does the pipeline retry, or does 07-09 simply never get an official NAV row?) — reported as an open item in §5/§6, not resolved here.
+
+**Official NAV table, `paper_nav`, 2026-07-08 (last real MTM):**
+
+| Sleeve | Inception | Total NAV (07-08) | Since-incep. (07-08) |
+|---|---|---:|---:|
+| residual_roa_6535_paper | 2026-06-13 | $106,047.32 | +6.05% |
+| llm_cascade_top1_paper | 2026-07-06 | $104,249.08 | +4.25% |
+| spy_benchmark_paper | 2026-05-01 | $103,434.40 | +3.43% |
+| sector_top4_full_paper | 2026-05-29 | $102,081.48 | +2.08% |
+| residual_roa_6535_0701_paper | 2026-07-06 | $101,570.91 | +1.57% |
+| mom_roa_6535_0701_paper | 2026-07-06 | $101,137.11 | +1.14% |
+| mom_v2_0701_paper | 2026-07-06 | $100,536.00 | +0.54% |
+| mom_v1_0701_paper | 2026-07-06 | $100,464.38 | +0.46% |
+| sector_top4_paper | 2026-07-06 | $100,223.38 | +0.22% |
+| llm_overlay_mom_roa_top1_paper | 2026-07-06 | $100,000.00 | 0.00% |
+| llm_overlay_sector_top4_paper | 2026-07-06 | $99,495.73 | -0.50% |
+| spy_benchmark_0701_paper | 2026-07-06 | $99,217.34 | -0.78% |
+| llm_cascade_sector4_paper | 2026-07-06 | $99,119.49 | -0.88% |
+| mom_roa_6535_paper | 2026-06-13 | $97,299.22 | -2.70% |
+| mom_roa_top1_paper | 2026-07-06 | $96,346.83 | -3.65% |
+| mom_v1_paper | 2026-06-13 | $95,366.29 | -4.63% |
+| mom_v2_paper | 2026-06-13 | $95,139.51 | -4.86% |
+
+**Informal/unofficial 07-09 mark (computed here, NOT in `paper_nav`):**
+
+| Sleeve | Informal total (07-09) | Day % (07-08→07-09) | Open pos. | Missing tickers |
+|---|---:|---:|---:|---|
+| llm_cascade_top1_paper | $109,501.01 | **+5.04%** | 1 | none |
+| residual_roa_6535_paper | $106,767.21 | +0.68% | 50 | EACO, FMBM (carried fwd) |
+| mom_v2_0701_paper | $104,674.76 | +4.12% | 50 | none |
+| mom_roa_6535_0701_paper | $104,356.89 | +3.18% | 50 | none |
+| spy_benchmark_paper | $104,310.00 | +0.85% | 1 | none |
+| mom_v1_0701_paper | $103,575.94 | +3.10% | 100 | none |
+| residual_roa_6535_0701_paper | $102,626.92 | +1.04% | 48 | none |
+| sector_top4_full_paper | $102,507.97 | +0.42% | 4 | none |
+| sector_top4_paper | $100,555.97 | +0.33% | 4 | none |
+| llm_overlay_sector_top4_paper | $100,189.58 | +0.70% | 3 | none |
+| spy_benchmark_0701_paper | $100,057.23 | +0.85% | 1 | none |
+| mom_roa_6535_paper | $100,014.29 | +2.79% | 50 | none |
+| llm_overlay_mom_roa_top1_paper | $100,000.00 | 0.00% | 0 (cash) | none |
+| llm_cascade_sector4_paper | $99,793.64 | +0.68% | 4 | none |
+| mom_v2_paper | $98,227.63 | +3.25% | 50 | none |
+| mom_v1_paper | $98,198.98 | +2.97% | 100 | none |
+| mom_roa_top1_paper | $97,380.11 | +1.07% | 1 | none |
+
+No positions were entered or exited 07-09 (confirmed via `paper_positions` — no rows with `entry_date`/`exit_date` = 07-09); next scheduled rebalance is 2026-08-01. All moves are pure mark-to-market on unchanged holdings.
+
+### 3. Key Position Analysis
+
+#### A. Semiconductor sector — the day's dominant theme, driven by Micron's $250B announcement
+
+The reported chip bounce flagged as unconfirmed in this morning's pre-market report is now confirmed at the close, and it was much bigger than a generic rebound — it was driven by a specific, dated catalyst: **Micron committed more than $250 billion to U.S. chipmaking through 2035**, adding $50B to its existing $200B pledge (New York/Idaho/Virginia fabs) plus up to $3B for the broader U.S. semiconductor supply chain, aiming for 40% domestic DRAM production within a decade. The company poured first concrete at its Clay, NY site the same day [CNBC — Micron stock pops on more US investment](https://www.cnbc.com/2026/07/09/micron-stock-us-chipmaking.html), [Bloomberg — Micron boosts US spending to $250 billion](https://www.bloomberg.com/news/articles/2026-07-09/micron-boosts-us-spending-to-250-billion-amid-memory-demand).
+
+| Ticker | Day % | Held in (approx sleeves) | Note |
+|---|---:|---|---|
+| WDC (Western Digital) | +5.04% | 9 (8 systematic + cascade) | **Sourced:** Susquehanna raised its price target; the Micron announcement reinforced the "memory is a bottleneck for AI infrastructure" narrative lifting the whole storage/memory complex [TradingKey — WDC market movers 07-09](https://www.tradingkey.com/news/market-movers/262020762-market-movers-wdc-20260709), [Benzinga — Western Digital stock lifts following Micron's $250B investment](https://www.benzinga.com/trading-ideas/movers/26/07/60371599/western-digital-stock-lifts-following-microns-250-billion-investment) |
+| AMKR (Amkor) | +7.85% | 4 | Semi-packaging; rode the same rally |
+| ICHR (Ichor) | +8.59% | 3 | Semi subsystems |
+| KLIC (Kulicke & Soffa) | +6.87% | 2 | Semi packaging equipment |
+| SMTC (Semtech) | +6.72% | 4 | Analog/mixed-signal semis |
+| FORM (FormFactor) | +7.03% | 4 | Chip-test equipment |
+| ACMR (ACM Research) | +8.13% | 2 | Semiconductor process equipment |
+| AAOI (Applied Optoelectronics) | +6.79% | 6 | Optical/AI-datacenter components; also filed a Form 144 (insider-sale notice) same day — a minor offsetting signal, no dated news catalyst beyond the sector rally found [Investing.com — Form 144 Applied Optoelectronics for 9 July](https://ca.investing.com/news/stock-market-news/form-144-applied-optoelectronics-for-9-july-93CH-4727940) |
+| MXL (MaxLinear) | +11.33% | 6 | Rode the same rally; no distinct 07-09 catalyst found beyond the sector move (Q2 earnings not until 07-23; note MXL fell 10.3% just two sessions earlier, 07-07 — a genuinely volatile name) |
+
+#### B. Idiosyncratic winners — defense contract and a follow-on order
+
+| Ticker | Day % | Held in | Note |
+|---|---:|---|---|
+| LASR (nLIGHT) | **+27.32%** | 4 | **Sourced:** Selected for a Joint Laser Weapon System (JLWS) OTA agreement — $44M initial award, up to $627M total program ceiling — to design/integrate/deliver high-energy laser weapon systems [Benzinga — nLIGHT stock skyrockets on laser weapon system contract win](https://www.benzinga.com/trading-ideas/movers/26/07/60366328/nlight-stock-skyrockets-on-laser-weapon-system-contract-win) |
+| AEHR (Aehr Test Systems) | +12.26% | 6 | **Sourced:** Additional follow-on production order from its lead silicon-photonics customer for a FOX-XP wafer-level burn-in system (AI optical interconnects / hyperscale datacenters); FY26 Q4 earnings call set for 07-14 [Benzinga — Aehr Test stock soars on silicon photonics production order](https://www.benzinga.com/markets/large-cap/26/07/60361323/aehr-test-stock-soars-on-silicon-photonics-production-order) |
+| BAND (Bandwidth) | +11.28% | 6 | **Sourced:** B. Riley raised its price target to $85 from $55 (Buy), stock hit a new 52-week high ($79.08 intraday); also recently launched "Bandwidth Build," an AI-agent communications-provisioning platform. Next earnings 07-29 [Marketbeat — Bandwidth reaches new 12-month high following analyst upgrade](https://www.marketbeat.com/instant-alerts/bandwidth-nasdaqband-reaches-new-12-month-high-following-analyst-upgrade-2026-07-09/) |
+
+#### C. Oil giving back the Hormuz spike — refiners/E&P reverse Wednesday's gains
+
+| Ticker | Day % | Held in | Note |
+|---|---:|---|---|
+| INSW (Intl Seaways) | -5.92% | residual | Tanker/shipping; oil-price reversal |
+| APA (APA Corp) | -5.05% | 2 (+0701) | E&P; crude pulled back |
+| PARR (Par Pacific) | -4.42% | 2 | Refiner; gave back Wednesday's crack-spread gain |
+| TEN (Tsakos Energy) | -2.48% | residual | Tanker |
+| XOM (Exxon Mobil) | -2.60% | 2 | Large-cap oil major |
+
+#### D. Losers without a confirmed catalyst (reported as unexplained, not asserted)
+
+| Ticker | Day % | Held in | Note |
+|---|---:|---|---|
+| AFJK (Aimei Health Technology) | **-51.70%** | 4 | Serial-extension blank-check SPAC pursuing a United Hydrogen combination; extended its termination date to 08-06 on 07-06 with a small trust deposit funded by a no-interest note. No single dated 07-09 catalyst found — thin float (only ~1.04M public shares subject to redemption), extreme 52-week range ($6.75-$130.37) is consistent with a speculative-premium name that can move violently without company news [TipRanks — Aimei Health extends SPAC deadline, issues new note](https://www.tipranks.com/news/company-announcements/aimei-health-extends-spac-deadline-issues-new-note) |
+| VATE (INNOVATE Corp) | -11.11% | 2 | No 07-09 catalyst found; Q1 revenue +33% to $364.8M reported back on 05-14, next earnings not until 08-05 — this is the second consecutive report with an unexplained VATE move, worth a closer look if it recurs [Seeking Alpha — INNOVATE Corp overview](https://seekingalpha.com/symbol/VATE) |
+| ALIT (Alight) | -8.45% | 1 | No distinct 07-09 catalyst found; company completed a 1-for-20 reverse split effective 06-30 (still-recent, can add volatility) and faces standing headwinds (dividend elimination, management turnover, Starboard Value activist exit) [StockTitan — Alight reverse stock split](https://www.stocktitan.net/sec-filings/ALIT/8-k-alight-inc-delaware-reports-material-event-de0bad32d287.html) |
+| STRO (Sutro Biopharma) | -5.81% | 3 | No distinct catalyst found |
+| ZVRA (Zevra Therapeutics) | -5.49% | 1 | No distinct catalyst found |
+
+#### E. Stops / invalidation levels (LLM sleeves only)
+
+| Sleeve | Ticker | Verdict | Invalidation | 07-09 close | Distance |
+|---|---|---|---|---:|---:|
+| llm_cascade_top1_paper | WDC | BUY | $480.00 | $578.05 | +20.4% cushion (widened from +14.6%) |
+| llm_overlay_sector_top4_paper / llm_cascade_sector4_paper | XLK | HOLD | $172.00 | $185.35 | +7.8% |
+| llm_overlay_sector_top4_paper / llm_cascade_sector4_paper | XLI | HOLD | $170.00 | $181.11 | +6.5% |
+| llm_overlay_sector_top4_paper / llm_cascade_sector4_paper | XLB | HOLD | $49.50 | $50.26 | +1.5% (still tightest) |
+| llm_cascade_sector4_paper | XLV | HOLD | $155.00 | $162.17 | +4.6% |
+
+Nothing near a stop. `mom_roa_top1_paper`'s BE holding (no stop by design) closed $257.02, **+1.07%**, notwithstanding a same-day short-seller attack — see §4.
+
+**Data-integrity flags:** EACO and FMBM (residual_roa_6535_paper only) still have no 07-09 `price_cache` close, extending a now multi-session gap for EACO specifically — thin OTC names, no halt/delisting news found for either, flagged not resolved.
+
+### 4. LLM Overlay Treatment vs. Control
+
+No new overlay/cascade decisions were logged 07-09 (`llm_overlay_log`/`sector_overlay_log` checked directly; latest entries remain 07-07 — consistent with no rebalance cycle). All figures below are the informal/unofficial marks from §2, clearly not the pipeline's own output.
+
+**Stock arm:** Bloom Energy (`mom_roa_top1_paper`'s sole holding) drew a new, material development today: short-seller **Hunterbrook Capital** disclosed a short position and alleged BE understated its reliance on Chinese suppliers for scandium (used in its fuel cells), questioning whether BE can secure enough scandium oxide for its long-term manufacturing targets. Bloom "categorically rejected" the claims as "false and misleading," reasserted its 25 GW/year production capability, and the stock — after trading as low as $235.64 intraday — closed at $257.02, **+1.07% on the day** [Seeking Alpha — Bloom Energy rebounds after rejecting short-seller claims](https://seekingalpha.com/news/4612638-bloom-energy-rebounds-after-rejecting-short-seller-claims), [GuruFocus — Bloom Energy rebounds 7.4% amid rejection of short-seller claims](https://www.gurufocus.com/news/8951520/bloom-energy-be-rebounds-74-amid-rejection-of-shortseller-claims). This is a new, named risk layered on top of the still-unresolved 07-28-vs-07-30 earnings-date conflict, and it is exactly the kind of idiosyncratic single-name risk the overlay's original BE veto (score 4/10) was designed to avoid — the treatment sidestepped it entirely by sitting in cash. Informal cohort standing (07-06 inception): **cascade (WDC) $109,501 (+9.50%) > treatment (cash) $100,000 (0.00%) > control (BE) $97,380 (-2.62%)** — unchanged ranking from 07-08, control still trailing both LLM-mediated variants.
+
+**Sector arm — first daily flip in the veto's favor:** Control `sector_top4_paper` (holds XLE) informally +0.33% today; overlay treatment (no XLE) +0.70%; cascade (XLV instead of XLE) +0.68%. **Both LLM variants beat the raw control for the first time since the 07-06 cohort inception**, because XLE was the only one of the four sector ETFs to fall today (-1.40%), exactly the reversal the original veto rationale flagged as possible ("a fragile geopolitical prop that could reverse fast"). The XLE veto's scoreboard moves from 0-for-3 to (informally) 1-for-4 on directional accuracy. Informal cohort standing: control $100,556 (+0.56%) > overlay $100,190 (+0.19%) > cascade $99,794 (-0.21%) — the control still leads cumulatively, but the gap narrowed today rather than widened for the first time. One day does not resolve a multi-week thesis; still far short of the 30-pick kill-switch threshold.
+
+### 5. Week / Period Summary
+
+Extending the 07-06 cohort's now-four-day life: Mon 07-06 (chip-led rally, record Dow) → Tue 07-07 (Samsung-earnings-triggered chip/memory rout, base sleeves -3.8/-4.7%) → Wed 07-08 (partial reversal, energy led) → Thu 07-09 (broad rally, Micron's $250B plan drove a much larger, confirmed chip bounce; oil gave back its spike). Informally, every 07-06-cohort sleeve is now net positive since inception except `llm_cascade_sector4_paper` (-0.21%) and the stock-arm control (-2.62%, BE-specific). The older 06-13-inception momentum book (`mom_v1`/`mom_v2`/`mom_roa_6535_paper`) had its best single session of the week (+2.79% to +3.25%) but remains net-negative-to-flat since inception, still well below its 07-06 peak. `residual_roa_6535_paper` set a fresh informal cohort high (+6.77%) despite a comparatively muted day (+0.68%, dragged slightly by the two carried-forward tickers), extending its run as the best-performing sleeve of the older cohort. Caveat: this whole section rests on the informal §2 marks pending confirmation once official 07-09/07-10 NAVs exist in `paper_nav`.
+
+### 6. Strategic Insights — Structural Edge or New Sleeve Concepts?
+
+**A. The M2.2 coverage gate just did its job for the first time, and that is itself the most important operational finding of the day.** Deployed at 13:30 today, it caught a real ~16% shortfall in the daily price publication at 17:17 and correctly refused to mark 17 sleeves against incomplete data rather than silently producing a wrong NAV. This validates the ops-infrastructure investment (M2 series: coverage gate, anomaly detector, cache-gap auditor) exactly as designed. It also leaves a genuine open question this report cannot answer: does the pipeline retry coverage tomorrow and simply never backfill an official 07-09 NAV, or does something need to be re-run manually? That is an operational decision for Evan, not something this report should attempt or assume.
+
+**B. The sector-arm LLM veto scored its first directional win today, right after the FOMC-minutes/Hormuz thesis had gone 0-for-3 against it.** The XLE veto's stated worry — that the Hormuz-driven oil premium was "fragile" and could reverse fast — is exactly what happened today (oil fell despite continued strikes, XLE was the sole losing sector ETF). This is one data point, not a trend reversal, and the control still leads the cohort cumulatively, but it is the first session where the pattern flagged in the last two reports (control winning every day) broke.
+
+**C. Micron's $250B announcement is a distinct, larger catalyst than the "generic oversold bounce" this morning's pre-market report could only describe directionally** — it explains why today's chip rally (SMH +2.5%, several held names +5-11%) was materially bigger than Wednesday's partial reversal. This reinforces the observation (flagged 07-08) that the momentum book's heaviest concentration (semiconductors/memory/AI-infrastructure) continues to swing on dated, idiosyncratic company news as much as on macro sentiment — a three-session round-trip (rout → partial bounce → confirmed rally) that has now resolved to the upside, at least for one day.
+
+**D. Bloom Energy's short-seller episode adds a new, specific tail-risk to the single largest concentration position in the book** (`mom_roa_top1_paper` is 100% BE, no stop by design). The stock absorbed the attack and closed positive, which is mild evidence the market didn't find the scandium-supply-chain allegations credible enough to sell into — but it is a fresh, named risk that didn't exist in prior reports and is worth tracking alongside the earnings-date conflict.
+
+**E. No new long-term-viable sleeve concept is confirmed or refuted by today's data.** The day's real news was operational (the coverage gate) and about existing theses gaining or losing evidence (residual's diversification, both LLM overlay arms), not about a new sleeve idea. Watch-and-accumulate posture unchanged.
+
+---
+
+*Report generated: 2026-07-09 (post-close) | Coverage: `var/trades.db` (`paper_nav`, `paper_positions`, `paper_portfolio`, `llm_overlay_log`, `sector_overlay_log`, `price_cache`) queried directly. **No official 07-09 `paper_nav` row exists — MTM was skipped by the coverage gate** (4,381 closes vs. floor 5,000, baseline 5,245; see §2 for verbatim log). All 07-09 sleeve figures in this report are informal/unofficial, computed directly from real `paper_positions` × real `price_cache` 07-09 closes + cash (156/158 held tickers priced; EACO/FMBM carried forward). No trades or overlay decisions logged 07-09. | Sources: [Yahoo Finance — Stock Market News for July 9, 2026](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-july-9-093800837.html) | [TheStreet — Stock Market Today July 9: Nasdaq, S&P 500 rise despite Iran conflict flare-up](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-9-2026) | [CNBC — Micron stock pops after announcing billions more in U.S. investment](https://www.cnbc.com/2026/07/09/micron-stock-us-chipmaking.html) | [Bloomberg — Micron boosts US spending to $250 billion amid memory demand](https://www.bloomberg.com/news/articles/2026-07-09/micron-boosts-us-spending-to-250-billion-amid-memory-demand) | [mediaselangor.com — Oil prices fall as markets weigh impact of US strikes on Iran](https://mediaselangor.com/en/2026/07/383623) | [Fortune — Current price of oil as of July 9, 2026](https://fortune.com/article/price-of-oil-07-09-2026/) | [Benzinga — nLIGHT stock skyrockets on laser weapon system contract win](https://www.benzinga.com/trading-ideas/movers/26/07/60366328/nlight-stock-skyrockets-on-laser-weapon-system-contract-win) | [Benzinga — Aehr Test stock soars on silicon photonics production order](https://www.benzinga.com/markets/large-cap/26/07/60361323/aehr-test-stock-soars-on-silicon-photonics-production-order) | [Marketbeat — Bandwidth reaches new 12-month high following analyst upgrade](https://www.marketbeat.com/instant-alerts/bandwidth-nasdaqband-reaches-new-12-month-high-following-analyst-upgrade-2026-07-09/) | [TradingKey — WDC market movers 07-09](https://www.tradingkey.com/news/market-movers/262020762-market-movers-wdc-20260709) | [Benzinga — Western Digital stock lifts following Micron's $250B investment](https://www.benzinga.com/trading-ideas/movers/26/07/60371599/western-digital-stock-lifts-following-microns-250-billion-investment) | [Seeking Alpha — Bloom Energy rebounds after rejecting short-seller claims](https://seekingalpha.com/news/4612638-bloom-energy-rebounds-after-rejecting-short-seller-claims) | [GuruFocus — Bloom Energy rebounds 7.4% amid rejection of short-seller claims](https://www.gurufocus.com/news/8951520/bloom-energy-be-rebounds-74-amid-rejection-of-shortseller-claims) | [TipRanks — Aimei Health extends SPAC deadline, issues new note](https://www.tipranks.com/news/company-announcements/aimei-health-extends-spac-deadline-issues-new-note) | [StockTitan — Alight reverse stock split](https://www.stocktitan.net/sec-filings/ALIT/8-k-alight-inc-delaware-reports-material-event-de0bad32d287.html) | [Seeking Alpha — INNOVATE Corp overview](https://seekingalpha.com/symbol/VATE) | [Investing.com — Form 144 Applied Optoelectronics for 9 July](https://ca.investing.com/news/stock-market-news/form-144-applied-optoelectronics-for-9-july-93CH-4727940)*
+
+*Report generated: 2026-07-09 (pre-market, before the open) | Coverage: `var/trades.db` (`paper_nav`, `paper_positions`, `paper_portfolio`, `llm_overlay_log`, `sector_overlay_log`, `price_cache`) queried directly; latest available `nav_date` and `price_cache` date is 07-08 — no 07-09 data exists yet since the market has not opened. `price_cache` spot-checked for EACO/AFJK/FMBM/KFII (no 07-08 close for any of the four, confirming the data gap flagged in the 07-08 report continues). | Sources: [Investrade — Morning Preview July 09, 2026](https://investrade.com/morning-preview-july-09-2026/) | [Benzinga — Stock Market Today: S&P 500, Nasdaq 100 Futures Rise as US-Iran Exchange Strikes](https://www.benzinga.com/markets/equities/26/07/60350555/stock-market-today-sp-500-nasdaq-100-futures-rise-as-us-iran-exchange-strikes-levi-strauss-azz-ionis-pharma-in-focus) | [NBC News — Oil prices surge, stocks tumble as Trump says Iran ceasefire over](https://www.nbcnews.com/business/business-news/oil-prices-surge-stocks-tumble-trump-iran-ceasefire-over-hormuz-rcna353446) | [fxdailyreport.com — WTI Crude Oil Price Analysis for July 9, 2026](https://fxdailyreport.com/wti-crude-oil-price-analysis-for-july-9-2026/) | [MS NOW — Iran war news today, July 9, 2026](https://www.ms.now/liveblog/iran-war-news-today-july-9-2026) | [Al Jazeera — Iran war live: one killed as US bombs Bushehr, Chabahar, Bandar Abbas, Jask](https://www.aljazeera.com/news/liveblog/2026/7/9/iran-war-live-one-killed-as-us-bombs-bushehr-chabahar-bandar-abbas-jask) | [Yahoo Finance — Micron, SanDisk, Marvell stocks jump, leading chip sector gains](https://finance.yahoo.com/markets/stocks/article/micron-sandisk-marvell-stocks-jump-leading-chip-sector-gains-135433074.html) | [TradingKey — Micron market movers 07-09](https://www.tradingkey.com/news/market-movers/262020371-market-movers-mu-20260709) | [BLS — PPI news release schedule](https://www.bls.gov/schedule/news_release/ppi.htm) | [stockanalysis.com — XLE](https://stockanalysis.com/etf/xle/)*
+
+---
+
+## Report: 2026-07-10 (Friday) — Delayed Same-Day Update (resumed mid-afternoon, not pre-market)
+
+> **OPERATIONAL NOTE (read first):** This task is scheduled to fire at 08:07am local and did (`lastRunAt` 08:08am CDT confirmed via the scheduler). The session was interrupted/compacted after the initial state-read and resumed at **~2:43pm CDT (~3:43pm ET)** — about 17 minutes before the 4:00pm ET close. Per standing "don't fabricate" policy, this report does **not** pretend to be pre-market: it is a same-day update compiled near the close, using real `var/trades.db` data as of query time (`price_cache` 07-10 still populating intraday — 4,352 of ~5,245 baseline tickers priced at query time) plus news published through the afternoon. Official 07-10 `paper_nav` does not exist yet (`TradingDailyMTM` fires 5:15pm local); all 07-10 figures below are **informal**, computed directly from `paper_positions` × `price_cache` (same methodology the pipeline itself falls back to, per the 07-09 post-market entry above). Flag for Evan: this is the second session-interruption-driven gap in as many days (07-09's pre-market report footer also landed out of order at the end of the file above instead of right after its own section — pre-existing, not touched here).
+
+> **DAILY SUMMARY**
+> **NAV standings (official, 2026-07-09 close, since-inception):** `llm_cascade_top1_paper` **+9.50%** ($109,501, WDC) · `residual_roa_6535_paper` +6.77% ($106,767) · `mom_v2_0701_paper` +4.67% · `mom_roa_6535_0701_paper` +4.36% · `spy_benchmark_paper` +4.31% · `mom_v1_0701_paper` +3.58% · `residual_roa_6535_0701_paper` +2.63% · `sector_top4_full_paper` +2.51% · `sector_top4_paper` +0.56% · `spy_benchmark_0701_paper` +0.06% · `mom_roa_6535_paper` +0.01% · `llm_overlay_sector_top4_paper` +0.19% ($100,190) · `llm_cascade_sector4_paper` -0.21% · `mom_v2_paper` -1.77% · `mom_v1_paper` -1.80% · `mom_roa_top1_paper` **-2.62%** ($97,380, BE) · `llm_overlay_mom_roa_top1_paper` 0.00% (cash, BE vetoed).
+> **Today's moves (informal, near-close 07-10):** Broad-market-tracking sleeves are flat-to-up (spy_benchmark +0.45% day, sector_top4_full +0.73%, sector_top4 +0.73%) while the multi-name momentum book is down (mom_v1/v2/roa_6535 0701-cohort -2.08% to -2.69% day; legacy mom_v1/v2/roa_6535 -1.56% to -2.19%), dragged by **DOCN -6.99%** (held in all 8 momentum-family sleeves) despite broad market strength. Single-name control `mom_roa_top1_paper` (BE) fell **-4.79% day** on continued short-seller pressure; `llm_cascade_top1_paper` (WDC) rose **+0.93% day** on an analyst price-target raise. `residual_roa_6535_paper` -0.41% day (EACO stale, no new close).
+> **Macro catalyst:** SK Hynix's US IPO (raised $26.5B, largest-ever US listing by a foreign company, shares +15-17% on debut) dominated Friday's tape and tested the AI-memory trade; broader indices modestly positive (Dow/S&P/Nasdaq each ~+0.2-0.3% per midday reporting). Iran: Trump again declared the ceasefire "over" (second time in three days) after US strikes ~90 targets across Iran and Iran's IRGC hit US bases in Kuwait/Bahrain overnight, but both sides say talks continue; oil eased (WTI ~$71/bbl, Brent ~$75/bbl) despite the escalation. Jobless claims (week of 07-04, released 07-09): 215,000, better than the 217,000 consensus, layoffs still low.
+> **LLM overlay status:** No new decisions logged since 07-07 (checked both logs through 07-10; none found — no rebalance cycle due). Stock arm: cascade (WDC) > cash treatment > BE control, unchanged ranking. Sector arm: control (XLE-inclusive) still ahead of both overlay variants.
+> **Critical outstanding items:** `EACO` (`residual_roa_6535_paper` holding) now has **no `price_cache` close since 07-06** (4 sessions stale at $101.01) — confirmed via direct query, escalating from the prior single/double-session gaps flagged 07-08/07-09. BE short-seller situation (Hunterbrook Capital) is now a multi-day overhang, unresolved. Monthly rebalance next fires 2026-08-01.
+
+### 1. Portfolio standings — last official close (2026-07-09)
+
+All figures `paper_nav.total_nav` at `nav_date='2026-07-09'`, queried directly from `var/trades.db`, vs. each sleeve's $100,000 starting cash. All 17 sleeves have an official 07-09 row (no MTM skip that day — contrast with 07-09's own pre-market/post-market entries above, which were written before the day's official MTM had posted).
+
+**6 systematic + benchmark (05-01/06-13 inception):**
+| Sleeve | NAV (07-09) | Return | Open positions |
+|---|---|---|---|
+| `residual_roa_6535_paper` | $106,767.21 | **+6.77%** | 50 |
+| `spy_benchmark_paper` | $104,309.997 | +4.31% | 1 (SPY) |
+| `sector_top4_full_paper` | $102,507.97 | +2.51% | 4 (XLE, XLK, XLI, XLB) |
+| `mom_roa_6535_paper` | $100,014.29 | +0.01% | 50 |
+| `mom_v1_paper` | $98,198.98 | -1.80% | 100 |
+| `mom_v2_paper` | $98,227.63 | -1.77% | 50 |
+
+**5-sleeve 07-06 clean-start cohort:**
+| Sleeve | NAV (07-09) | Return | Open positions |
+|---|---|---|---|
+| `mom_v2_0701_paper` | $104,674.76 | +4.67% | 50 |
+| `mom_roa_6535_0701_paper`* | $104,356.89 | +4.36% | 50 |
+| `mom_v1_0701_paper` | $103,575.94 | +3.58% | 100 |
+| `residual_roa_6535_0701_paper`* | $102,626.92 | +2.63% | 48 |
+| `spy_benchmark_0701_paper`* | $100,057.23 | +0.06% | 1 (SPY) |
+
+(* mirrors to real Alpaca PAPER account)
+
+**6 LLM-experiment sleeves (07-06 inception):**
+| Sleeve | NAV (07-09) | Return | Holding |
+|---|---|---|---|
+| `llm_cascade_top1_paper` (stock cascade) | $109,501.01 | **+9.50%** | WDC |
+| `sector_top4_paper` (sector control) | $100,555.97 | +0.56% | XLE, XLK, XLI, XLB |
+| `llm_overlay_sector_top4_paper` (sector treatment) | $100,189.58 | +0.19% | XLK, XLI, XLB (no XLE) |
+| `llm_overlay_mom_roa_top1_paper` (stock treatment) | $100,000.00 | 0.00% | cash (BE vetoed) |
+| `llm_cascade_sector4_paper` (sector cascade) | $99,793.64 | -0.21% | XLK, XLI, XLB, XLV |
+| `mom_roa_top1_paper` (stock control) | $97,380.11 | **-2.62%** | BE |
+
+### 2. Today's moves — informal near-close marks (2026-07-10, market not yet closed at query time)
+
+Computed directly: current open `paper_positions.qty` × `price_cache` 07-10 close (falling back to 07-09 for any ticker not yet priced) + `paper_portfolio.cash`. `price_cache` had 4,352 tickers priced for 07-10 as of the query (still incrementing — an intraday refresh, not the day's final close; official 07-10 NAV posts at 5:15pm local via `TradingDailyMTM`). Only `EACO` (in `residual_roa_6535_paper`) fell back to a stale price.
+
+| Sleeve | NAV (informal 07-10) | Day % | Since-inception % | Open pos. |
+|---|---|---|---|---|
+| `llm_cascade_top1_paper` | $110,521.12 | +0.93% | +10.52% | 1 (WDC) |
+| `residual_roa_6535_paper` | $106,326.36 | -0.41% | +6.33% | 50 (EACO stale) |
+| `spy_benchmark_paper` | $104,783.18 | +0.45% | +4.78% | 1 |
+| `sector_top4_full_paper` | $103,254.91 | +0.73% | +3.25% | 4 |
+| `residual_roa_6535_0701_paper` | $102,356.35 | -0.26% | +2.36% | 48 |
+| `mom_roa_6535_0701_paper` | $102,015.11 | -2.24% | +2.02% | 50 |
+| `mom_v2_0701_paper` | $101,855.28 | -2.69% | +1.86% | 50 |
+| `mom_v1_0701_paper` | $101,420.65 | -2.08% | +1.42% | 100 |
+| `sector_top4_paper` | $101,289.98 | +0.73% | +1.29% | 4 |
+| `llm_overlay_sector_top4_paper` | $100,859.87 | +0.67% | +0.86% | 3 |
+| `spy_benchmark_0701_paper` | $100,511.12 | +0.45% | +0.51% | 1 |
+| `llm_cascade_sector4_paper` | $100,269.93 | +0.48% | +0.27% | 4 |
+| `llm_overlay_mom_roa_top1_paper` | $100,000.00 | 0.00% | 0.00% | 0 (cash) |
+| `mom_roa_6535_paper` | $98,453.43 | -1.56% | -1.55% | 50 |
+| `mom_v1_paper` | $96,285.63 | -1.95% | -3.71% | 100 |
+| `mom_v2_paper` | $96,071.92 | -2.19% | -3.93% | 50 |
+| `mom_roa_top1_paper` | $92,713.30 | -4.79% | -7.29% | 1 (BE) |
+
+**Named single/concentrated-position movers (07-09 close → 07-10 near-close, `price_cache` direct):**
+- `BE` $257.02 → $244.69 (**-4.80%**) — `mom_roa_top1_paper`'s sole holding.
+- `WDC` $578.05 → $583.44 (**+0.93%**) — `llm_cascade_top1_paper`'s sole holding, also in all 8 momentum-family sleeves.
+- `DOCN` $140.84 → $130.99 (**-6.99%**) — held in all 8 momentum-family sleeves (`mom_v1/v2/roa_6535` × legacy + 0701 cohort, plus `residual_roa_6535` × both).
+- `XLE` +0.25%, `XLK` +0.30%, `XLI` +0.75%, `XLB` +1.66%, `XLV` -0.79% — sector sleeve holdings.
+- `MU` -0.28%, `CIEN` +0.14%, `TER` -0.44%, `VICR` -0.54% — other momentum-book names, roughly flat.
+- `SPY` $751.71 → $755.12 (+0.45%), `QQQ` $723.28 → $726.09 (+0.39%).
+
+### 3. Catalyst and macro review
+
+**SK Hynix US IPO — the day's dominant single event.** SK Hynix raised $26.5B in the largest-ever US listing by a foreign company; shares priced at $149 and traded around $170-173 midday, a 14-17% pop. Demand was reportedly >7x the shares offered (~$185B in orders). SK Hynix supplies high-bandwidth memory to Nvidia and other AI-hardware makers, positioning it as a direct Micron competitor — sources describe the semiconductor sector "splitting into winners and losers based on AI proximity," with SK Hynix/Nvidia on one side. VanEck Semiconductor ETF (SMH) reported +2.5%, Micron +4.5%, SanDisk +7.6% per midday reporting — though our own `price_cache` shows MU essentially flat (-0.28%) 07-09→07-10 near-close, a discrepancy likely explained by the two figures being measured from different reference points (midday-vs-midday move vs. our prior-close-to-near-close snapshot); not reconciled further given time constraints. [Motley Fool — Nasdaq Composite Treads Water While SK Hynix Makes a $26 Billion Splash](https://www.fool.com/investing/2026/07/10/nasdaq-treads-water-while-sk-hynix-makes-a-splash/), [CNN Business — SK Hynix IPO](https://www.cnn.com/2026/07/10/business/sk-hynix-us-listing-ai-chip-boom-intl-hnk), [US News — SK Hynix hits the U.S. stock market](https://www.usnews.com/news/business/articles/2026-07-10/sk-hynix-hits-the-u-s-stock-market-as-demand-for-memory-chips-soars-amid-ai-frenzy), [Yahoo Finance — Stock market today, Friday July 10](https://finance.yahoo.com/markets/live/stock-market-today-friday-july-10-dow-sp-nasdaq-113921604.html).
+
+**Iran conflict — ceasefire declared over for a second time in three sessions.** Trump again said the ceasefire is over after the US struck ~90 targets across Iran (Bushehr nuclear-plant perimeter and a fishing pier among them, per Iranian state media IRNA) and Iran's IRGC struck US bases in Kuwait and Bahrain overnight. Trump also said the US has agreed to continue talks with Iran despite the ceasefire's collapse. Reported cumulative US strikes: ~170 in two days. Oil eased despite the escalation — WTI ~$71/bbl, Brent ~$75/bbl per midday reporting, a pullback from Wednesday/Thursday's spike. [CNN — Live updates: Trump again declares ceasefire over](https://www.cnn.com/2026/07/10/world/live-news/iran-war-trump), [Al Jazeera — US strikes Iran for second night](https://www.aljazeera.com/news/2026/7/9/us-strikes-iran-for-second-night-is-the-peace-process-all-over-now), [NBC News — U.S. military completes latest strikes on Iran](https://www.nbcnews.com/world/iran/live-blog/live-updates-iran-attacks-gulf-us-strikes-tehran-ships-hormuz-oil-rcna353439).
+
+**Jobless claims (released 07-09, week ending 07-04):** 215,000 initial claims, down 2,000 w/w, beating the 217,000 consensus; 4-week average 218,750. Layoffs remain historically low — no signal of labor-market deterioration. [Bloomberg — US Jobless Claims Little Changed](https://www.bloomberg.com/news/articles/2026-07-09/us-jobless-claims-little-changed-last-week-as-layoffs-remain-low), [US News — Jobless claims dip to 215,000](https://www.usnews.com/news/business/articles/2026-07-09/us-jobless-claims-dip-modestly-to-215-000-last-week-as-layoffs-remain-at-historically-healthy-levels).
+
+**BE (Bloom Energy) — multi-day short-seller overhang.** A Hunterbrook Capital report (first surfaced ~07-08) alleging misleading statements about BE's scandium supply chain and production capacity continues to pressure the stock; BE fell further 07-10 (-4.80% per our data) after an initial partial rebound Wednesday/Thursday when BE "strongly denied" the claims. Sources describe a volatile, still-unresolved situation — BE traded in a wide range intraday ($253-$277 per one source) with conflicting "current price" snapshots depending on the article's timestamp. [TradingKey — Bloom Energy (BE) moved down 6.01% on Jul 10](https://www.tradingkey.com/news/market-movers/262023134-market-movers-be-20260710), [GuruFocus — Bloom Energy (BE) stock drops amid short seller report](https://www.gurufocus.com/news/8953748/bloom-energy-be-stock-drops-amid-short-seller-report), [Yahoo Finance — What's Going On With Bloom Energy Stock Thursday](https://finance.yahoo.com/markets/stocks/articles/whats-going-bloom-energy-stock-123858815.html).
+
+**WDC (Western Digital) — analyst price-target raise.** Wells Fargo raised its WDC price target to $730 from $575 on demand-outlook strength (reported same-day, 07-10), consistent with the stock's continued AI-infrastructure-driven run; 22 of 23 covering analysts rate it Buy/Strong Buy, average target $606 (likely stale vs. the fresh $730 call). [CNBC — WDC quote and news](https://www.cnbc.com/quotes/WDC).
+
+**DOCN (DigitalOcean) — profit-taking after a historic run, no new negative catalyst found.** DOCN fell -6.99% (our data) to -10% (one source's "latest session" framing) despite no company-specific bad news located. Drivers cited: (a) plain profit-taking after a 99%/30-day and 127%/90-day run, (b) broader AI/software-infrastructure de-risking after Fed commentary suggesting rates stay higher for longer, and (c) index-rebalancing mechanics — DOCN was promoted from Russell 2000 to Russell 1000 this week, and the forced Russell-2000-fund selling reportedly outpaced Russell-1000-fund buying, a "sell the news" pattern. Fundamentals unchanged: revenue growth accelerating, 25% net margin, record prelim Q2 results announced 07-07. [TipRanks — Why DigitalOcean's stock is suddenly sinking](https://www.tipranks.com/news/catalyst/why-digitaloceans-hot-cloud-stock-is-suddenly-sinking), [Quiver Quantitative — Why DigitalOcean (DOCN) stock fell today](https://www.quiverquant.com/news/Why+DigitalOcean+(DOCN)+Stock+Fell+Today), [MarketBeat — DigitalOcean shares down 7%](https://www.marketbeat.com/instant-alerts/digitalocean-nysedocn-shares-down-7-heres-why-2026-07-01/).
+
+### 4. LLM overlay status
+
+No new overlay decisions logged after 2026-07-07 (checked `llm_overlay_log`/`sector_overlay_log` directly through 07-10; none found — no rebalance cycle due; consistent with prior reports).
+
+**Stock arm:** Control `mom_roa_top1_paper` holds BE (re-entered 07-07 @ $263.94, score 8.8/10), now -2.62% since 07-09 official close and an informal -7.29% since 07-06 cohort inception — the short-seller overhang has erased essentially the entire cohort gain. Treatment `llm_overlay_mom_roa_top1_paper` remains 100% cash (BE VETO'd 07-07 @ $220.59, score 4/10, "dup-check" reasoning logged). Cascade `llm_cascade_top1_paper` holds WDC (BUY 07-07 @ $480 invalidation, score 7.4-6.0/10 across logs), now the best performer in the entire 17-sleeve roster at +10.52% informal since-inception. Over the cohort's life: **cascade (+10.52%) > cash treatment (0.00%) > BE control (-7.29%)** — the strongest pro-overlay evidence to date, now spanning a fourth trading day.
+
+**Sector arm:** Control `sector_top4_paper` (XLE/XLK/XLI/XLB) +1.29% informal since-inception. Overlay treatment (no XLE, VETO'd 07-07 @ $56.86 on weak technicals + bearish EIA oversupply outlook) +0.86%. Cascade (XLV substituted for XLE) +0.27%. Control still leads both overlay variants — the XLE veto remains behind on realized return even as oil has been volatile on the Iran conflict.
+
+Kill-switch status unchanged on both arms: 12-month / ≥30-pick window, not yet triggered.
+
+### 5. Risk flags and upcoming events
+
+- **`EACO` price-cache gap now spans 4 sessions** (last real close 07-06 @ $101.01; 07-07 through 07-10 all show either no row or a repeated stale $101.01 close) — confirmed via direct query. Thin OTC name (volume rows show 200-500 shares), no halt/delisting news found. This is the longest the gap has run since first flagged 07-08; escalating, not resolving.
+- **BE short-seller situation unresolved** — `mom_roa_top1_paper` remains 100% concentrated in BE by design (no stop), now the single largest identifiable drawdown driver in the roster (-7.29% cohort return, informal).
+- **DOCN concentration** — held across all 8 momentum-family sleeves; today's -6.99% (informal) is the largest single-name drag on the momentum book despite a flat-to-positive broad market.
+- **No intraday circuit-breaker** exists for any sleeve (accepted, previously-reviewed design gap per `sleeves_verdict.md`'s 13 rejected reactive-stop experiments).
+- **Operational**: two consecutive scheduled-task sessions (07-09 pre-market, 07-10 pre-market) have now been interrupted mid-run and resumed late/out of order, producing (a) a misplaced footer in the 07-09 pre-market section above and (b) this report itself running ~6.5 hours late and covering near-close rather than pre-market conditions. Worth a look if it recurs a third time.
+- **Monthly rebalance** next fires 2026-08-01 per the `monthy-llm-rebalance` scheduled task (confirmed still enabled, `lastRunAt` 2026-07-10 03:34 UTC — a no-op check outside the trading-day-1 window).
+
+### 6. Strategic insights — structural edge or new sleeve concepts?
+
+**A. The diversification-vs-concentration pattern from the 07-08/07-09 reports held again today, on a calmer macro tape.** With the broad market flat-to-up and no acute portfolio-specific shock, the diversified sleeves (`spy_benchmark` +4.78%, `sector_top4_full` +3.25%, `residual_roa_6535` +6.33% informal since-inception) still comfortably outperform the concentrated momentum book (0701-cohort momentum sleeves +1.4-2.0%, legacy momentum sleeves -1.5% to -3.9%, both dragged by DOCN's single-name -6.99% today). This is now consistent across a volatile session (07-07/08), a mixed session (07-09), and a calm session (07-10) — the pattern isn't just a crisis-alpha story, it holds on ordinary days too, which is a somewhat stronger claim than what the 07-08/07-09 reports could support. Still not a new finding, but the sample is thickening in the diversification thesis's favor.
+
+**B. The LLM stock-overlay's WDC cascade pick is now the best-performing sleeve in the entire 17-sleeve roster** (+10.52% informal since 07-06, vs. the next-best `residual_roa_6535_paper` at +6.33%). One name over four trading days is a small sample and today's WDC gain was driven by a single analyst price-target raise (Wells Fargo, +27% target increase) rather than fundamentals shifting — worth resisting the urge to over-read this as validating the overlay concept broadly; the kill-switch's 30-pick threshold exists precisely because single-name, few-day performance is noisy. The more informative comparison remains cascade-vs-control-vs-cash on the *same* underlying signal, which continues to favor the LLM veto (BE) and BUY (WDC) decisions.
+
+**C. No new sleeve concept is proposed from today's data.** SK Hynix's IPO is a notable one-off market-structure event (largest foreign US listing ever) rather than a repeatable signal; nothing here suggests a new systematic edge distinct from what's already being tracked (idiosyncratic-momentum diversification, LLM veto/BUY discretion). Today's honest read: the portfolio's known mechanisms behaved as expected, no surprises, no new evidence either direction on kill-switch thresholds.
+
+---
+
+*Report generated: 2026-07-10 (delayed same-day update, ~2:43pm CDT / ~3:43pm ET, ~17 min before the 4:00pm ET close) | Coverage: `var/trades.db` (`paper_nav`, `paper_positions`, `paper_portfolio`, `llm_overlay_log`, `sector_overlay_log`, `price_cache`) queried directly; 07-09 NAV official and complete for all 17 sleeves; 07-10 NAV is informal (positions × `price_cache` 07-10 near-close, 4,352/~5,245 baseline tickers priced at query time, EACO carried forward from 07-06); no official 07-10 `paper_nav` exists yet (`TradingDailyMTM` fires 5:15pm local). No trades or overlay decisions logged 07-08 through 07-10. | Sources: [Motley Fool — Nasdaq Composite Treads Water While SK Hynix Makes a $26 Billion Splash](https://www.fool.com/investing/2026/07/10/nasdaq-treads-water-while-sk-hynix-makes-a-splash/) | [CNN Business — SK Hynix US listing](https://www.cnn.com/2026/07/10/business/sk-hynix-us-listing-ai-chip-boom-intl-hnk) | [US News — SK Hynix hits the U.S. stock market](https://www.usnews.com/news/business/articles/2026-07-10/sk-hynix-hits-the-u-s-stock-market-as-demand-for-memory-chips-soars-amid-ai-frenzy) | [Yahoo Finance — Stock market today, Friday July 10](https://finance.yahoo.com/markets/live/stock-market-today-friday-july-10-dow-sp-nasdaq-113921604.html) | [CNN — Live updates: Trump again declares ceasefire over](https://www.cnn.com/2026/07/10/world/live-news/iran-war-trump) | [Al Jazeera — US strikes Iran for second night](https://www.aljazeera.com/news/2026/7/9/us-strikes-iran-for-second-night-is-the-peace-process-all-over-now) | [NBC News — U.S. military completes latest strikes on Iran](https://www.nbcnews.com/world/iran/live-blog/live-updates-iran-attacks-gulf-us-strikes-tehran-ships-hormuz-oil-rcna353439) | [Bloomberg — US Jobless Claims Little Changed](https://www.bloomberg.com/news/articles/2026-07-09/us-jobless-claims-little-changed-last-week-as-layoffs-remain-low) | [US News — Jobless claims dip to 215,000](https://www.usnews.com/news/business/articles/2026-07-09/us-jobless-claims-dip-modestly-to-215-000-last-week-as-layoffs-remain-at-historically-healthy-levels) | [TradingKey — Bloom Energy (BE) moved down 6.01% on Jul 10](https://www.tradingkey.com/news/market-movers/262023134-market-movers-be-20260710) | [GuruFocus — Bloom Energy (BE) stock drops amid short seller report](https://www.gurufocus.com/news/8953748/bloom-energy-be-stock-drops-amid-short-seller-report) | [Yahoo Finance — What's Going On With Bloom Energy Stock Thursday](https://finance.yahoo.com/markets/stocks/articles/whats-going-bloom-energy-stock-123858815.html) | [CNBC — WDC quote and news](https://www.cnbc.com/quotes/WDC) | [TipRanks — Why DigitalOcean's stock is suddenly sinking](https://www.tipranks.com/news/catalyst/why-digitaloceans-hot-cloud-stock-is-suddenly-sinking) | [Quiver Quantitative — Why DigitalOcean (DOCN) stock fell today](https://www.quiverquant.com/news/Why+DigitalOcean+(DOCN)+Stock+Fell+Today) | [MarketBeat — DigitalOcean shares down 7%](https://www.marketbeat.com/instant-alerts/digitalocean-nysedocn-shares-down-7-heres-why-2026-07-01/)*
