@@ -118,6 +118,7 @@ lives in the dated entry, not the digest.
 - [BG — M3.2 post-run verifier (verify_run.py)](#appendix-bg---m32-post-run-verifier-verify_runpy-2026-07-09-1405-local) (07-09)
 - [BH — First live coverage-gate catch: 07-09 MTM skipped, backfill deferred](#appendix-bh---first-live-coverage-gate-catch-07-09-mtm-skipped-backfill-deferred-2026-07-09-2235-local) (07-09)
 - [BI — M3.3+M3.4 verifier wired into bats + ops stamp; M3 complete](#appendix-bi---m33m34-verifier-wired-into-dailymonthly-bats--ops-status-stamp-m3-complete-2026-07-09-2245-local) (07-09)
+- [BJ — M4.1 experiment kill-switch tracker (experiment_report.py)](#appendix-bj---m41-experiment-kill-switch-tracker-experiment_reportpy-2026-07-09-2315-local) (07-09)
 
 ---
 
@@ -4890,3 +4891,45 @@ post-run verifier (BG), verifier wired into both bats (this entry), failures sur
 2026-08-01 unattended rebalance. Remaining PRD work: M4 (experiment-integrity reporting), M5 (backup
 hygiene), M6 (slippage — gated on August fills). Open ops item carried forward: backfill the 07-09
 NAV gap once coverage clears (Appendix BH).
+
+
+# Appendix BJ - M4.1 experiment kill-switch tracker (experiment_report.py) (2026-07-09, ~23:15 local)
+
+**PRD milestone M4, task 1** (experiment-integrity reporting). First M4 task; read-only.
+
+**WHAT.** New `scripts/momentum/experiment_report.py` (read-only). Per LLM-overlay experiment
+(stock -> `llm_overlay_log`; sector -> `sector_overlay_log`, each shared by control/cash-veto/cascade
+sleeves): decisions to date with scores + verdicts, **pick count vs the >=30 kill threshold**,
+**months elapsed vs the 12-month clock** (from the FIRST logged decision, not the 2026-07-01 cohort
+P&L reset — the reset restarted NAVs but kept the decision history), and a **score-vs-forward-return
+table** (decision-date close -> latest cached close, labelled UNREALIZED/INTERIM, no annualization or
+stats — an honest eyeball only). Console + `--md` -> `docs/experiment_report_<date>.md`.
+
+**HOW / verification (done-check).** Runs clean; the decision figures come straight from the same two
+tables the dashboard's LLM panel reads (8 stock decisions / 5 dates; 15 sector / 3 dates), so they
+are consistent with the dashboard by construction (a live cross-check belongs with the M4.3 dashboard
+hook). `--md` wrote `docs/experiment_report_2026-07-09.md`. Honest interim picture on today's data:
+
+- **stock**: 8 decisions, 1.3 months in. VETO names avg **-9.5%** (BE -9.8%, AAOI -27.7% — vetoes
+  dodged real drops), BUY names avg **-9.4%** (WDC +8.6% good, but FN -33.4% dragged it). n=3/5 —
+  noise, not proof.
+- **sector**: 15 decisions, 0.9 months in. HOLD **-0.3%** vs VETO **-0.4%** — essentially no signal
+  yet, matching the honest prior that a macro overlay is the weakest LLM edge.
+
+Frozen tests (new Python file, read-only):
+
+```
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+  All regression tests passed.
+```
+
+d=±0.0000pp (4/4). M4.1 done; next open task is M4.2 (extend with control-vs-treatment NAV
+divergence for all three pairs).
+
+**Context note (unchanged):** the 07-09 NAV backfill (Appendix BH) is still data-gated — 07-09 was
+4,724 closes at 23:07, below the 5,000 floor; it will backfill once it settles. The M3.5 catch-up/
+schedule fix remains a flagged decision for Evan; this M4 work is the ratified PRD continuation and
+does not depend on it.
