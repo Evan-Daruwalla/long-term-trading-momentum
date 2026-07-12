@@ -27929,6 +27929,220 @@ COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops t
 <p><strong>C. No new sleeve concept is proposed from today's data.</strong> SK Hynix's IPO is a notable one-off market-structure event (largest foreign US listing ever) rather than a repeatable signal; nothing here suggests a new systematic edge distinct from what's already being tracked (idiosyncratic-momentum diversification, LLM veto/BUY discretion). Today's honest read: the portfolio's known mechanisms behaved as expected, no surprises, no new evidence either direction on kill-switch thresholds.</p>
 <hr />
 <p><em>Report generated: 2026-07-10 (delayed same-day update, ~2:43pm CDT / ~3:43pm ET, ~17 min before the 4:00pm ET close) | Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>paper_portfolio</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>, <code>price_cache</code>) queried directly; 07-09 NAV official and complete for all 17 sleeves; 07-10 NAV is informal (positions × <code>price_cache</code> 07-10 near-close, 4,352/~5,245 baseline tickers priced at query time, EACO carried forward from 07-06); no official 07-10 <code>paper_nav</code> exists yet (<code>TradingDailyMTM</code> fires 5:15pm local). No trades or overlay decisions logged 07-08 through 07-10. | Sources: <a href="https://www.fool.com/investing/2026/07/10/nasdaq-treads-water-while-sk-hynix-makes-a-splash/">Motley Fool — Nasdaq Composite Treads Water While SK Hynix Makes a $26 Billion Splash</a> | <a href="https://www.cnn.com/2026/07/10/business/sk-hynix-us-listing-ai-chip-boom-intl-hnk">CNN Business — SK Hynix US listing</a> | <a href="https://www.usnews.com/news/business/articles/2026-07-10/sk-hynix-hits-the-u-s-stock-market-as-demand-for-memory-chips-soars-amid-ai-frenzy">US News — SK Hynix hits the U.S. stock market</a> | <a href="https://finance.yahoo.com/markets/live/stock-market-today-friday-july-10-dow-sp-nasdaq-113921604.html">Yahoo Finance — Stock market today, Friday July 10</a> | <a href="https://www.cnn.com/2026/07/10/world/live-news/iran-war-trump">CNN — Live updates: Trump again declares ceasefire over</a> | <a href="https://www.aljazeera.com/news/2026/7/9/us-strikes-iran-for-second-night-is-the-peace-process-all-over-now">Al Jazeera — US strikes Iran for second night</a> | <a href="https://www.nbcnews.com/world/iran/live-blog/live-updates-iran-attacks-gulf-us-strikes-tehran-ships-hormuz-oil-rcna353439">NBC News — U.S. military completes latest strikes on Iran</a> | <a href="https://www.bloomberg.com/news/articles/2026-07-09/us-jobless-claims-little-changed-last-week-as-layoffs-remain-low">Bloomberg — US Jobless Claims Little Changed</a> | <a href="https://www.usnews.com/news/business/articles/2026-07-09/us-jobless-claims-dip-modestly-to-215-000-last-week-as-layoffs-remain-at-historically-healthy-levels">US News — Jobless claims dip to 215,000</a> | <a href="https://www.tradingkey.com/news/market-movers/262023134-market-movers-be-20260710">TradingKey — Bloom Energy (BE) moved down 6.01% on Jul 10</a> | <a href="https://www.gurufocus.com/news/8953748/bloom-energy-be-stock-drops-amid-short-seller-report">GuruFocus — Bloom Energy (BE) stock drops amid short seller report</a> | <a href="https://finance.yahoo.com/markets/stocks/articles/whats-going-bloom-energy-stock-123858815.html">Yahoo Finance — What's Going On With Bloom Energy Stock Thursday</a> | <a href="https://www.cnbc.com/quotes/WDC">CNBC — WDC quote and news</a> | <a href="https://www.tipranks.com/news/catalyst/why-digitaloceans-hot-cloud-stock-is-suddenly-sinking">TipRanks — Why DigitalOcean's stock is suddenly sinking</a> | <a href="https://www.quiverquant.com/news/Why+DigitalOcean+(DOCN)+Stock+Fell+Today">Quiver Quantitative — Why DigitalOcean (DOCN) stock fell today</a> | <a href="https://www.marketbeat.com/instant-alerts/digitalocean-nysedocn-shares-down-7-heres-why-2026-07-01/">MarketBeat — DigitalOcean shares down 7%</a></em></p>
+<h2 id="report-2026-07-11-saturday--post-market-weekend-status-check">Report: 2026-07-11 (Saturday) — Post-Market Weekend Status Check</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong> — 2026-07-11 (Saturday, no trading session): Markets were closed all day; there is no new NAV to report. The last <strong>confirmed/official</strong> NAV remains 2026-07-09 (Thursday) for all 17 sleeves, ranked best-to-worst since inception: <strong>llm_cascade_top1_paper</strong> +9.50% (5 sessions, incepted 07-06), <strong>residual_roa_6535_paper</strong> +6.82% (since 05-01), <strong>mom_v2_0701_paper</strong> +4.67%, <strong>mom_roa_6535_0701_paper</strong> +4.36%, <strong>spy_benchmark_paper</strong> +4.31%, <strong>mom_v1_0701_paper</strong> +3.58%, <strong>residual_roa_6535_0701_paper</strong> +2.63%, <strong>sector_top4_full_paper</strong> +2.56%, <strong>sector_top4_paper</strong> +0.56%, <strong>llm_overlay_sector_top4_paper</strong> +0.19%, <strong>mom_roa_6535_paper</strong> +0.06%, <strong>spy_benchmark_0701_paper</strong> +0.06%, <strong>llm_overlay_mom_roa_top1_paper</strong> 0.00% (flat, no position), <strong>llm_cascade_sector4_paper</strong> -0.21%, <strong>mom_v2_paper</strong> -1.72%, <strong>mom_v1_paper</strong> -1.75%, <strong>mom_roa_top1_paper</strong> -2.62%. 2026-07-10 (Friday)'s official NAV is <strong>still coverage-PENDING</strong> — unchanged from Friday's report, confirmed below. <strong>Day move (07-08→07-09, last confirmed):</strong> all 17 sleeves up, +0.00% to +5.04% (llm_cascade_top1_paper led on WDC). <strong>Key movers/reason:</strong> WDC (Wells Fargo PT raise to $730 from $575, dated on/before 07-10) continues to drive the cascade/top1 book; DOCN closed -7.49% on 07-10 (profit-taking after its 07-07 preannouncement rally, not new news); BE remains under a short-seller overhang (Hunterbrook report, 07-08) but held a Susquehanna PT raise to $298. <strong>Macro event, new since Friday's report:</strong> Iran's IRGC navy declared the Strait of Hormuz "closed until further notice" after attacking a Cyprus-flagged container ship (M/V GFS Galaxy) on 2026-07-11, triggering a third round of US CENTCOM strikes — a real escalation beyond what Friday's report captured. Brent ~$75.5/WTI ~$71.2 as of 07-10 close, both up on the week (+4.7%/+3.5%) but off intraday highs. <strong>LLM overlay standings:</strong> unchanged since 07-07 (last decision date) — stock overlay holds WDC (BUY, stop $480)/no BE (VETO); sector overlay/cascade hold XLK/XLI/XLB(+XLV for cascade), both excluding XLE (VETO'd 07-07) while the systematic control sleeves (<code>sector_top4_paper</code>, <code>sector_top4_full_paper</code>) do hold XLE — a live divergence now facing a real test given the weekend Hormuz escalation. <strong>Critical outstanding items:</strong> (1) 07-10 NAV remains officially PENDING (4,394 of ~5,241 baseline closes on 07-10, unchanged since Friday's 17:37 CDT <code>daily.bat</code> run — <code>TradingDailyMTM</code> did not fire today, correctly, since it's a non-trading Saturday; catch-up will occur on the next weekday run, Monday 07-13); (2) the Hormuz closure is a fast-moving, unresolved situation into Monday's open — watch XLE (held by control sector sleeves, vetoed by LLM overlay/cascade) and any energy-sensitive names; (3) EACO (residual_roa_6535_paper, $2,073 entry value, immaterial) has had no new close since 07-02, still carried flat at $101.01 — thin/illiquid micro-cap, not a data bug.</p>
+</blockquote>
+<h3 id="1-market-summary_1">1. Market summary</h3>
+<p>No trading session occurred today (Saturday, 2026-07-11). The last completed session was <strong>Friday, 2026-07-10</strong>: Dow 30 closed 52,637.01 (+149.60, +0.29%), S&amp;P 500 +0.4%, Nasdaq Composite 26,281.61 (+74.72, +0.29%) — a "choppy week" capped by SK Hynix's US listing debut (largest foreign US IPO on record) and ongoing monitoring of US-Iran ceasefire talks. <a href="https://finance.yahoo.com/news/live/stock-market-today-friday-july-10-dow-sp-nasdaq-113921604.html">Yahoo Finance — Stock market today, Friday July 10</a></p>
+<p>Over the weekend, the security situation deteriorated further than what Friday's report captured. Iran's Revolutionary Guards navy declared the Strait of Hormuz "closed until further notice and until the end of US interference," after firing on and igniting a fire aboard a Cyprus-flagged container ship (M/V GFS Galaxy) it accused of taking an "unapproved" route. <a href="https://www.aljazeera.com/news/liveblog/2026/7/11/iran-war-live-us-demands-iran-publicly-state-strait-of-hormuz-open-for-all">Al Jazeera — IRGC navy declares Strait of Hormuz closed</a> US Central Command launched a third round of strikes on Iran in response. <a href="https://www.timesofisrael.com/liveblog-july-11-2026/">Times of Israel — US strikes Iran again, liveblog July 11</a> Iran and Oman discussed shipping-security mechanisms on Saturday without resolving disagreements over how the strait should be managed; Oman separately proposed toll-free passage. <a href="https://www.rferl.org/a/iran-war-us-hormuz-oil-blockade-gulf-israel/33640284.html">RFE/RL — US insists Iran does not control Strait of Hormuz</a></p>
+<p>Oil: Brent slipped to ~$75.5/bbl and WTI to ~$71.2/bbl on Friday but both remained up on the week (+4.7% and +3.5% respectively) as shipping through Hormuz stayed well below normal levels and a risk premium persisted. <a href="https://tradingeconomics.com/commodity/brent-crude-oil">TradingEconomics — Brent crude oil</a> Earlier in the week, WTI had spiked as high as +4.4% intraday to $73.52 and Brent +5.2% to $78.02 on the Trump administration's threat to bomb Iran and reimpose a naval blockade, before giving back some gains into Friday's close. <a href="https://www.cnbc.com/2026/07/08/oil-prices-brent-wti-iran-us-hormuz.html">CNBC — Oil prices jump more than 4%</a></p>
+<p>Looking to next week: bank earnings (Citi, Goldman Sachs, Wells Fargo, JPMorgan, Bank of America Tuesday; BlackRock and Morgan Stanley Wednesday) and semiconductor-equipment earnings (ASML, TSMC) are the next scheduled catalysts, alongside continued Fed-path uncertainty (10Y yield approaching levels that could reprice rate-cut odds; futures currently price a 61% chance of a September cut per CME FedWatch). <a href="https://www.cnbc.com/2026/07/10/stock-market-next-week-outlook-for-july-13-17-2026.html">CNBC — Stock market next week: Outlook for July 13-17</a></p>
+<h3 id="2-full-nav-table">2. Full NAV table</h3>
+<p><strong>No new official NAV exists for 07-10 or 07-11.</strong> <code>TradingDailyMTM</code> ran at 17:37 CDT on 07-10 as scheduled, but the same-day coverage gate (Appendix BQ, <code>check_coverage.coverage_status()</code>) blocked the write: only 4,394 of a ~5,241-ticker baseline had published closes (&lt; 5,000 floor), so <code>paper_mtm</code> refused to write and <code>mtm_catchup</code> logged 07-10 as still PENDING. Checked again directly against <code>price_cache</code> at the time of this report (2026-07-11, no refresh has run since — correctly, since Saturday is a non-trading day) — coverage is unchanged at 4,394/07-10, confirming nothing has settled since Friday's report. The last <strong>official, verified</strong> row for every sleeve is 2026-07-09:</p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>Inception</th>
+<th>Inception NAV</th>
+<th>07-09 NAV</th>
+<th>Since-inception</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>llm_cascade_top1_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$109,501.01</td>
+<td>+9.50%</td>
+</tr>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td>2026-05-01</td>
+<td>$99,950.07</td>
+<td>$106,767.21</td>
+<td>+6.82%</td>
+</tr>
+<tr>
+<td>mom_v2_0701_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$104,674.76</td>
+<td>+4.67%</td>
+</tr>
+<tr>
+<td>mom_roa_6535_0701_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$104,356.89</td>
+<td>+4.36%</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td>2026-05-01</td>
+<td>$100,000.00</td>
+<td>$104,310.00</td>
+<td>+4.31%</td>
+</tr>
+<tr>
+<td>mom_v1_0701_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$103,575.94</td>
+<td>+3.58%</td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$102,626.92</td>
+<td>+2.63%</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td>2026-05-01</td>
+<td>$99,950.07</td>
+<td>$102,507.97</td>
+<td>+2.56%</td>
+</tr>
+<tr>
+<td>sector_top4_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$100,555.97</td>
+<td>+0.56%</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$100,189.58</td>
+<td>+0.19%</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td>2026-05-01</td>
+<td>$99,950.07</td>
+<td>$100,014.29</td>
+<td>+0.06%</td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$100,057.23</td>
+<td>+0.06%</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$100,000.00</td>
+<td>0.00%</td>
+</tr>
+<tr>
+<td>llm_cascade_sector4_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$99,793.64</td>
+<td>-0.21%</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td>2026-05-01</td>
+<td>$99,950.07</td>
+<td>$98,227.63</td>
+<td>-1.72%</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td>2026-05-01</td>
+<td>$99,950.07</td>
+<td>$98,198.98</td>
+<td>-1.75%</td>
+</tr>
+<tr>
+<td>mom_roa_top1_paper</td>
+<td>2026-07-06</td>
+<td>$100,000.00</td>
+<td>$97,380.11</td>
+<td>-2.62%</td>
+</tr>
+</tbody>
+</table>
+<p>Last confirmed day-over-day move (07-08 → 07-09): all 17 sleeves gained, ranging +0.00% (llm_overlay_mom_roa_top1_paper, flat/no position) to +5.04% (llm_cascade_top1_paper, on WDC). <code>verify_run</code> PASSed all 17/17 sleeves as of the 07-10 run (continuity, $0.00 cash-recon delta, no pre-inception writes). Source: <code>var/trades.db</code> <code>paper_nav</code>/<code>paper_positions</code>/<code>paper_portfolio</code>, queried directly 2026-07-11.</p>
+<h3 id="3-key-position-analysis_8">3. Key position analysis</h3>
+<p><strong>Movers (last confirmed session, 07-08→07-09, and 07-10 informal per Friday's report):</strong> WDC remains the standout — Wells Fargo raised its price target to $730 from $575 (a further increase from the $700 level cited in Thursday's decisions), with Susquehanna separately at $500 (Neutral). <a href="https://finance.yahoo.com/markets/stocks/articles/western-digital-wdc-stock-gets-153104306.html">Yahoo Finance — WDC fair-value boost</a> The name is carried by <code>llm_cascade_top1_paper</code> (BUY, stop $560 per the 07-01 cascade pick) and remains the best single driver of that sleeve's +9.50% since-inception lead. DOCN closed 07-10 down 7.49%, following its 07-07 preannouncement pop (+3.5% on 07-08) — the pullback reads as profit-taking/execution-cost concern after the initial rally, not a new negative catalyst. <a href="https://www.tradingkey.com/news/market-movers/262023622-market-movers-docn-20260710">TradingKey — DOCN closed down 7.49% July 10</a> BE remains volatile: Hunterbrook Media's 07-08 short report (questioning supply chain/production targets) drove an 11% one-day drop; Susquehanna raised its PT to $298 despite the report. <a href="https://www.gurufocus.com/news/8950035/bloom-energy-be-shares-plunge-11-following-short-report">GuruFocus — BE shares plunge 11% following short report</a> BE is not currently held by any sleeve (VETO'd both 07-01 and 07-07 by the stock overlay).</p>
+<p><strong>Approaching stop/target:</strong> No new information since Friday's report — no official 07-10 price data exists to check against invalidation levels. WDC's cascade stop is $560 (07-01 pick) / $480 (07-07 stock-overlay BUY); both are well below the ~$560-585 trading range WDC occupied on 07-10, so no proximity concern as of the last confirmed prices.</p>
+<p><strong>New developments:</strong> The Iran/Hormuz escalation (Section 1) is the one genuinely new item since Friday's report closed. It bears directly on the sector-ETF sleeves: <code>sector_top4_paper</code> and <code>sector_top4_full_paper</code> (systematic control) hold XLE; the LLM sector-overlay and cascade sleeves vetoed XLE on 07-07 (rationale: below 50-DMA, RSI 38, weak 1m/3m momentum, EIA demand-forecast cut) and hold XLK/XLI/XLB (+XLV for cascade) instead. This is now a live, dated test of that veto call against a real, escalating geopolitical shock to the exact sector it excluded — worth tracking explicitly into next week rather than reading anything into it yet, since energy-equity reaction to a supply shock is not mechanically identical to the crude-price reaction.</p>
+<p><strong>EACO</strong> (residual_roa_6535_paper, $2,073 entry value at 07-01, ~2% of the sleeve): no new close since 2026-07-02, still carried flat at $101.01/share. This is the same NOCLOSE anomaly flagged by the 07-10 daily.bat anomaly scan — consistent with a thin/illiquid micro-cap that trades sporadically, not a new data-quality problem; immaterial to sleeve-level NAV.</p>
+<h3 id="4-llm-overlay-treatment-vs-control_4">4. LLM overlay treatment vs. control</h3>
+<p>No new overlay decisions have been logged since 2026-07-07 (last <code>llm_overlay_log</code>/<code>sector_overlay_log</code> entries), consistent with no rebalance trigger between 07-07 and today. Standings, unchanged from Friday's report:</p>
+<ul>
+<li><strong>Stock overlay</strong> (<code>llm_overlay_mom_roa_top1_paper</code> vs. control <code>mom_roa_top1_paper</code>): treatment holds WDC (BUY 07-01, score 7, stop $560 / re-affirmed 07-07 at stop $480), control holds BE (currently down on the short-seller report). Cascade variant (<code>llm_cascade_top1_paper</code>) also holds WDC and is the top-performing sleeve in the entire 17-sleeve roster at +9.50% since 07-06.</li>
+<li><strong>Sector overlay</strong> (<code>llm_overlay_sector_top4_paper</code> vs. control <code>sector_top4_paper</code>, plus <code>llm_cascade_sector4_paper</code>): both overlay variants vetoed XLE on 07-07 and hold XLK/XLI/XLB (cascade adds XLV); control holds the systematic top-4 including XLE. Overlay currently ahead of its direct control on a since-inception basis (+0.19% vs. +0.56% — actually behind on the raw number as of 07-09; note the control is marginally ahead here, the opposite of the stock-overlay case). Cascade sector variant is at -0.21%, the weakest LLM-experiment sleeve.</li>
+</ul>
+<p>One name (WDC) driving both winning overlay variants over a 4-5 trading-day sample remains a small, noisy base per the standing kill-switch criteria (12mo/30 picks) — this is unchanged guidance from prior reports, restated for continuity.</p>
+<h3 id="5-weekperiod-summary_2">5. Week/period summary</h3>
+<p>Comparing the last two confirmed Friday-anchored data points, 07-03 → 07-09 (4 trading sessions: 07-06, 07-07, 07-08, 07-09 — 07-03 was itself a short pre-holiday session and 07-04/07-05 were the Independence Day holiday weekend), for the 6 sleeves with NAV history back to 07-03:</p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th>07-03 NAV</th>
+<th>07-09 NAV</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td>$105,621.14</td>
+<td>$106,767.21</td>
+<td>+1.09%</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td>$103,348.37</td>
+<td>$104,310.00</td>
+<td>+0.93%</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td>$102,350.07</td>
+<td>$102,507.97</td>
+<td>+0.15%</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td>$100,461.75</td>
+<td>$100,014.29</td>
+<td>-0.45%</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td>$98,437.60</td>
+<td>$98,198.98</td>
+<td>-0.24%</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td>$97,954.71</td>
+<td>$98,227.63</td>
+<td>+0.28%</td>
+</tr>
+</tbody>
+</table>
+<p>All six legacy sleeves were essentially flat to modestly positive over the period — consistent with the calmer, "treads water" tone of the underlying index moves that week (Section 1), with no sleeve moving more than ~1.1% either direction. This is a materially quieter week than 07-07/07-08 (the acute Iran-strike volatility already documented in prior reports).</p>
+<h3 id="6-strategic-insights--structural-edge-or-new-sleeve-concepts_5">6. Strategic insights — structural edge or new sleeve concepts?</h3>
+<p>No new evidence either direction since Friday's report; today's status check surfaces one dated, trackable setup rather than a new finding:</p>
+<p><strong>A. The XLE control-vs-veto divergence is now a live, real-world test, not a hypothetical.</strong> The 07-07 sector-overlay veto of XLE was made on valuation/momentum grounds (below 50-DMA, RSI 38, EIA demand cut, negative 1m/3m) explicitly <em>despite</em> acknowledging "near-term supply cuts are a fragile geopolitical prop that could reverse fast." That prop is being tested directly by this weekend's Hormuz closure and third round of US strikes — a genuine escalation, not the on-again-off-again ceasefire noise of the prior week. If energy equities rally hard on the supply shock Monday, the systematic control sleeves (holding XLE) would benefit while the LLM-overlay sleeves (which excluded it) would not — a clean, dated comparison to watch, not a conclusion to draw yet.</p>
+<p><strong>B. The diversification-vs-concentration pattern (flagged in the 07-08 through 07-10 reports) has no new data point today</strong> — no trading occurred. The pattern's next real test is Monday 07-13.</p>
+<p><strong>C. No new sleeve concept is proposed.</strong> The weekend's dominant news (Hormuz escalation, bank/semi earnings ahead) is exogenous macro/geopolitical risk already within the scope of existing sector and momentum sleeves' natural exposure — nothing here suggests a new systematic signal distinct from what's already tracked.</p>
+<hr />
+<p><em>Report generated: 2026-07-11 (Saturday, no trading session), ~evening CDT | Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>paper_portfolio</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>, <code>price_cache</code>) queried read-only directly; confirmed official NAV through 2026-07-09 (17/17 sleeves, <code>verify_run</code> PASS); 2026-07-10 remains coverage-PENDING (4,394/~5,241 baseline closes, unchanged since the 07-10 17:37 CDT <code>daily.bat</code> run — no refresh has run since, correctly, as today is a non-trading Saturday); no new <code>llm_overlay_log</code>/<code>sector_overlay_log</code> entries since 2026-07-07; <code>var/last_daily_run.log</code> last updated 2026-07-10 17:37 CDT. | Sources: <a href="https://www.cnbc.com/2026/07/10/stock-market-next-week-outlook-for-july-13-17-2026.html">CNBC — Stock market next week: Outlook for July 13-17, 2026</a> | <a href="https://finance.yahoo.com/news/live/stock-market-today-friday-july-10-dow-sp-nasdaq-113921604.html">Yahoo Finance — Stock market today, Friday July 10</a> | <a href="https://www.aljazeera.com/news/liveblog/2026/7/11/iran-war-live-us-demands-iran-publicly-state-strait-of-hormuz-open-for-all">Al Jazeera — IRGC navy declares Strait of Hormuz closed, July 11</a> | <a href="https://www.timesofisrael.com/liveblog-july-11-2026/">Times of Israel — US strikes Iran again, liveblog July 11</a> | <a href="https://www.rferl.org/a/iran-war-us-hormuz-oil-blockade-gulf-israel/33640284.html">RFE/RL — US insists Iran does not control Strait of Hormuz</a> | <a href="https://tradingeconomics.com/commodity/brent-crude-oil">TradingEconomics — Brent crude oil</a> | <a href="https://www.cnbc.com/2026/07/08/oil-prices-brent-wti-iran-us-hormuz.html">CNBC — Oil prices jump more than 4% after Trump threatens to bomb Iran</a> | <a href="https://finance.yahoo.com/markets/stocks/articles/western-digital-wdc-stock-gets-153104306.html">Yahoo Finance — WDC fair-value boost on AI storage demand reassessment</a> | <a href="https://www.tradingkey.com/news/market-movers/262023622-market-movers-docn-20260710">TradingKey — DigitalOcean (DOCN) closed down 7.49% on July 10</a> | <a href="https://www.gurufocus.com/news/8950035/bloom-energy-be-shares-plunge-11-following-short-report">GuruFocus — Bloom Energy (BE) shares plunge 11% following short report</a></em></p>
 </div>
 </body>
 </html>
