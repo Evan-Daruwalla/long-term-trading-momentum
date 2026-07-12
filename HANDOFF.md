@@ -294,10 +294,9 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 ## Monthly operations (first trading day of each month)
 
 **Now automated** via the `monthy-llm-rebalance` Claude scheduled task (cron
-`30 17 * * *`, ~5:33pm local — verified 2026-07-11; the earlier `0 18` note
-never stuck, and 5:33pm is only ~15 min after the 5:15pm daily MTM so a
-rebalance-day two-writer overlap is possible, a 6:00pm shift is flagged for
-Evan, record BS; self-gates on `rebalance_log.md` so only the first
+`0 18 * * *`, ~6:03pm local — shifted back from a drifted `30 17`/~5:33pm on
+2026-07-11 per Evan, to clear a rebalance-day two-writer overlap with the 5:15pm
+daily MTM; record BS; self-gates on `rebalance_log.md` so only the first
 trading day of the month does real work). It runs `rebalance.bat` (all 10 paper
 lines carry `--broker-realistic`), does the LLM overlay decisions per
 `docs/overlay_decision_runbook.md`, MTMs everything (per-sleeve `paper_mtm

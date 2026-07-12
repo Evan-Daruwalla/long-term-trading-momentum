@@ -128,6 +128,7 @@ lives in the dated entry, not the digest.
 - [BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed](#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local) (07-10)
 - [BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix](#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local) (07-11)
 - [BS - Full audit + 4 fixes (monthly-rebalance path): verify wiring, gate/rebalance interaction, schedule drift](#appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local) (07-11)
+- [BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)](#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local) (07-11)
 
 ---
 
@@ -5324,3 +5325,25 @@ made "with Evan's OK".
 `memory/monthly_rebalance_trigger_timing_bug.md`, `.claude/codebase-memory/architecture.md` (F4 +
 BS cross-refs). `monthly_auto.bat` left untouched (unused Option B path; its now-redundant
 `verify_run` is harmless).
+
+
+# Appendix BT - Monthly-rebalance cron shifted 5:33pm -> 6:03pm (audit F4 applied per Evan) (2026-07-11, ~15:20 local)
+
+Closes audit finding F4 (Appendix BS). Evan approved the recommended timing shift; applied it the
+same session.
+
+**WHAT.** `monthy-llm-rebalance` cron `30 17 * * *` -> `0 18 * * *` via
+`mcp__scheduled-tasks__update_scheduled_task` (only the cron; the deliberately-typo'd task NAME was
+left untouched). Now fires ~6:03pm local ("At 06:03 PM" + ~3-min dispatch jitter), a clean ~48-min
+margin after the 5:15pm `TradingDailyMTM`, removing the rebalance-day two-writer overlap risk BS
+flagged. `enabled=true`, nextRunAt 2026-07-12 18:03 (no-op - July already stamped in
+`rebalance_log.md`); first REAL fire still 2026-08-01. Docs synced to the applied state:
+`HANDOFF.md`, `.claude/codebase-memory/architecture.md`, `MEMORY.md`, and memory
+`monthly_rebalance_trigger_timing_bug.md` (its CORRECTION block now reads APPLIED).
+
+**Observed, not touched:** a stray scheduled task `hellohello` (cron `0 8 * * *`, description
+"hello") exists on the machine and fires daily ~8:08am. Not part of the Trading system - looks like a
+throwaway test task. Left as-is (not mine to delete; flagged to Evan). Harmless cruft.
+
+**No code changed** in this entry (a scheduler-config change + doc sync); frozen tests unaffected
+(last green 4/4 d=+/-0.0000pp at Appendix BS).
