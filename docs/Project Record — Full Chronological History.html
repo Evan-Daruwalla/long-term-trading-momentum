@@ -165,7 +165,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted</a> (07-10)<br />
 - <a href="#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local">BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)</a> (07-10)<br />
 - <a href="#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local">BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed</a> (07-10)<br />
-- <a href="#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix</a> (07-11)</p>
+- <a href="#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix</a> (07-11)<br />
+- <a href="#appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local">BS - Full audit + 4 fixes (monthly-rebalance path): verify wiring, gate/rebalance interaction, schedule drift</a> (07-11)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5709,6 +5710,70 @@ to 2026-07-11 with a one-line health-check summary. No code touched, so frozen t
 <p><strong>Bottom line.</strong> The unattended system is healthy and its track record verifies clean. There is no<br />
 further roadmap work that can be started without either (a) the 2026-08-01 Alpaca fills (M6) or<br />
 (b) a new instruction from Evan outside the Ops/Infra scope guard.</p>
+<h1 id="appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local">Appendix BS - Full audit (monthly-rebalance path) + 4 fixes: verify wiring, coverage-gate/rebalance interaction, schedule drift (2026-07-11, ~15:00 local)</h1>
+<p>Evan ran <code>/audit</code> after the roadmap hit its wall (Appendix BR). Read-only sweep weighted to the<br />
+unattended 2026-08-01 monthly rebalance - the first monthly run under the M3.5/BQ regime and the<br />
+live risk. Findings pass changed nothing; fixes below applied after Evan's "do all".</p>
+<p><strong>Clean (verified, no action).</strong> DB integrity (read-only): 0 duplicate / weekend / pre-inception<br />
+<code>paper_nav</code> rows, unbroken continuity, cash recon <strong>$+0.0000</strong> across all 17 sleeves, 0 bad/dup open<br />
+positions, 0 non-positive closes. The two sub-floor MARKED days (2026-06-19, 2026-07-03) are<br />
+legitimate NYSE holidays (Juneteenth; July-4-observed) correctly tolerated by <code>verify_run</code> as<br />
+"+2hol". Secrets: <code>alpaca_keys.env</code> git-ignored + untracked, no hardcoded keys in tracked Python.<br />
+<code>check_coverage</code>/<code>verify_run</code>/<code>mtm_catchup</code>/<code>paper_mtm</code> code reviewed - sound.</p>
+<p><strong>How the live 08-01 path actually runs (the crux).</strong> <code>monthy-llm-rebalance</code> is a Claude AGENT<br />
+task (not a Windows .bat task); its SKILL.md Step 4 runs <code>cmd /c rebalance.bat</code>. So <code>monthly_auto.bat</code><br />
+- the "Option B" batch that M3.3 wired <code>verify_run --mode monthly</code> into - is NOT what fires; it is<br />
+unused (needs an Anthropic key, flagged UNTESTED). This reframed two findings.</p>
+<p><strong>Finding 1 (HIGH) - the monthly verifier never ran on the real rebalance.</strong> <code>verify_run --mode
+monthly</code> lived only in the unused <code>monthly_auto.bat</code>; <code>rebalance.bat</code> called neither it nor<br />
+<code>check_coverage</code>. So the M3.2/M3.3 success criterion "the 2026-08-01 unattended rebalance gets<br />
+verified" was unmet - specifically the monthly-only position-count-vs-target check (c) would never<br />
+fire on the event it was built for. <strong>Fix:</strong> appended <code>verify_run --mode monthly</code> (FAIL -&gt; nonzero<br />
+exit + log line) to the end of <code>rebalance.bat</code>.</p>
+<p><strong>Finding 2 (HIGH, raised from the MED I first rated) - BQ's coverage gate would make the rebalance<br />
+day unmarked, and <code>verify_run</code> recon would then FAIL the night of every rebalance.</strong> <code>rebalance.bat</code><br />
+ends with 16 <code>paper_mtm --strategy X</code> calls; after Appendix BQ, <code>paper_mtm.main()</code> refuses a<br />
+sub-floor day (exit 2, no write) without <code>--force</code>, and same-day coverage at the ~17:33 rebalance is<br />
+always partial (~4,400 &lt; 5,000). So the rebalance day goes unmarked while positions have JUST<br />
+changed. <code>verify_run</code> recon (verify_run.py:130-149) reconciles CURRENT positions against the LATEST<br />
+marked NAV - if that latest row is the PRE-rebalance day, post-rebalance positions do not reconcile<br />
+-&gt; FAIL. This interaction had never been exercised (both <code>verify_run</code> and BQ postdate the last<br />
+rebalance, 07-07). <strong>Deviation from the proposed fix:</strong> I had proposed dropping the 16 calls<br />
+("catch-up owns marking"); tracing the recon logic showed dropping them makes the failure WORSE, so<br />
+the correct fix is <strong>add <code>--force</code></strong> to all 16 (not remove). Justified: on a rebalance day the held<br />
+names are GUARANTEED present (<code>paper_rebalance</code> just filled them) and the MTM price basis == the fill<br />
+basis, so marking today on the partial cache is exactly correct - which is the precise case BQ's<br />
+<code>--force</code> escape hatch was written for.</p>
+<p><strong>Finding 3 (LOW) - <code>rebalance.bat</code> has no coverage gate, and that is correct; documented so.</strong> A<br />
+hard gate would abort every monthly run (same-day data is always partial at 17:33). It is safe<br />
+because 12-1 momentum ranks use the close ~21 trading days back (<code>SKIP_TRADING_DAYS</code>, momentum.py:27-<br />
+28), so partial same-day publication cannot misrank; fills carry-forward for any name missing a<br />
+same-day close. <strong>Fix:</strong> added a REM block to <code>rebalance.bat</code> explaining the deliberate omission +<br />
+the <code>--force</code> rationale, so a future maintainer does not "helpfully" add a gate and break the run.</p>
+<p><strong>Finding 4 (LOW) - schedule/docs drift.</strong> <code>list_scheduled_tasks</code> shows the live cron is<br />
+<code>30 17 * * *</code> (~5:33pm, jitter 183s), and the task's own SKILL.md says 5:30pm - but memory<br />
+<code>monthly_rebalance_trigger_timing_bug.md</code>, <code>MEMORY.md</code>, <code>HANDOFF.md</code>, and the architecture bin all<br />
+claimed <code>0 18 * * *</code> / 6:03pm (the 07-07 "restore to 0 18" never stuck). 5:33pm is only ~15 min<br />
+after the 5:15pm daily MTM, which on a cold/busy run can still be executing (07-10 finished ~17:37),<br />
+so on a REBALANCE day the daily MTM and the rebalance can overlap as two DB writers. <strong>Fix:</strong><br />
+corrected all four docs to the verified <code>30 17</code>. The cron change itself (recommend 6:00pm for a clean<br />
+margin, restoring the originally-intended timing) is <strong>flagged for Evan, NOT auto-applied</strong> - retiming<br />
+a live real-Alpaca-adjacent unattended task is his call, and the record shows past timing changes were<br />
+made "with Evan's OK".</p>
+<p><strong>Verification.</strong><br />
+- Frozen tests: <strong>4/4 d=+/-0.0000pp</strong> (v1 2023_Q4 -0.0000 / 2025_H1 -0.0000; v2 2023_Q4 -0.0000 /<br />
+  2025_H1 +0.0000). Only a .bat + docs changed, but run per contract.<br />
+- <code>verify_run --mode monthly</code> -&gt; <strong>PASS (17/17)</strong> on the live DB - proves the newly-wired command runs<br />
+  and the book passes the monthly-only checks.<br />
+- <code>rebalance.bat</code>: pure ASCII (0 non-ASCII bytes), 16/16 <code>paper_mtm</code> calls carry <code>--force</code>, none<br />
+  without, <code>verify_run --mode monthly</code> present.<br />
+- <strong>Boundary:</strong> <code>rebalance.bat</code> was NOT executed end-to-end - it trades (<code>paper_rebalance</code>,<br />
+<code>alpaca_sync --execute</code>), which is forbidden. Verified by component; the full run happens under the<br />
+  real 08-01 task.</p>
+<p><strong>Files changed:</strong> <code>scripts/momentum/rebalance.bat</code> (F1/F2/F3); <code>HANDOFF.md</code>, <code>MEMORY.md</code>,<br />
+<code>memory/monthly_rebalance_trigger_timing_bug.md</code>, <code>.claude/codebase-memory/architecture.md</code> (F4 +<br />
+BS cross-refs). <code>monthly_auto.bat</code> left untouched (unused Option B path; its now-redundant<br />
+<code>verify_run</code> is harmless).</p>
 </div>
 </body>
 </html>
