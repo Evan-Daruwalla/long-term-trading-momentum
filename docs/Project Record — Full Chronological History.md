@@ -126,6 +126,7 @@ lives in the dated entry, not the digest.
 - [BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted](#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local) (07-10)
 - [BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)](#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local) (07-10)
 - [BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed](#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local) (07-10)
+- [BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix](#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local) (07-11)
 
 ---
 
@@ -5208,3 +5209,42 @@ consumed by four callers — the daily gate, `mtm_catchup`, `verify_run`'s pendi
 (this entry) `paper_mtm` itself. Any NAV-writing path a human or another session is likely to reach
 now refuses sub-floor data by default. The remaining coordination item (only one owner should mark
 NAVs) is a process convention, not enforceable in code.
+
+
+# Appendix BR - PRD roadmap complete through M5 (M6 gated); 07-11 verification pass + HANDOFF freshness fix (2026-07-11, ~20:00 local)
+
+Not a new milestone - a verification checkpoint at the end of the Ops/Infra PRD. The executing
+model was told to keep working the roadmap; the roadmap is done except for the gated tail, so this
+entry records the honest stop rather than manufacturing work.
+
+**State.** M1-M5 (+ amendment M3.5) are all complete and committed (record Appendices BB-BN, plus
+the 07-09/07-10 hardening BO/BP/BQ). **M6 (slippage) is the only remaining PRD task and is GATED**
+by its own terms: it cannot start until the 2026-08-01 unattended monthly rebalance produces Alpaca
+PAPER fills. Today is 2026-07-11 - the fills do not exist. Per the PRD ("If the gate isn't met,
+report and stop at M5"), the roadmap is at its stopping point.
+
+**Verification run (all read-only).**
+- `git status` clean; latest commit `bb3bae4` (BQ codebase-memory). Nothing uncommitted.
+- `verify_run --mode daily` -> **RESULT: PASS (17/17 sleeves OK)**. Every sleeve: NAV continuity
+  intact (the 4 continuous-May sleeves show 47/47 +2 holidays; the 07-06 cohort 4/4), cash recon
+  delta $+/-0.00 (cent-perfect), 0 pre-inception rows, position counts at target. Calendar
+  2026-05-01..2026-07-10, `settled<=2026-07-09`, `07-10 PENDING` (correct - 07-10 has not settled;
+  it heals on the next scheduled run).
+- Record TOC + appendix headings both terminate cleanly at BQ; anchors match (renderer contract).
+- Friday 2026-07-10 17:15 `TradingDailyMTM` (first live run of the self-healing `daily.bat`, M3.5)
+  exited 0x0: coverage PENDING (4,394 < 5,000 floor) -> stop-enforcement skipped -> `mtm_catchup`
+  marked=0 (07-10 left pending) -> anomaly scan -> `verify_run` PASS 17/17 -> stamp
+  `[OPS 2026-07-10] coverage=PENDING verify=PASS`. The pre-M3.5 flow failed the gate on this exact
+  situation the night before (07-09, exit 1); M3.5 is proven in production.
+
+**HANDOFF freshness fix (the only file change this entry).** HANDOFF's milestone note still listed
+the raw-`paper_mtm` coverage-gate bypass as an OPEN risk (#2), but Appendix BQ closed it 2026-07-10.
+Left as-is, a fresh session would think the bypass is live and might re-fix it. Corrected: risk #2
+now reads CLOSED-by-BQ (paper_mtm.main() runs the shared gate, refuses sub-floor --as-of without
+--force); risk #1 (one-owner NAV marking) noted as still a process convention; "Last updated" bumped
+to 2026-07-11 with a one-line health-check summary. No code touched, so frozen tests were not re-run
+(last green at BQ, 4/4 d=+/-0.0000pp); this entry changes documentation only.
+
+**Bottom line.** The unattended system is healthy and its track record verifies clean. There is no
+further roadmap work that can be started without either (a) the 2026-08-01 Alpaca fills (M6) or
+(b) a new instruction from Evan outside the Ops/Infra scope guard.

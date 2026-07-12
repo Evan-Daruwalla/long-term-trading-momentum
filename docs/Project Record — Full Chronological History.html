@@ -164,7 +164,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bn---m35-catch-up-marking-self-healing-daily-mtm-option-a-evan-authorized-2026-07-09-2355-local">BN — M3.5 catch-up marking: self-healing daily MTM (option A)</a> (07-09)<br />
 - <a href="#appendix-bo---07-09-nav-gap-backfilled-settled--catch-up-a-provenance-anomaly-noted-2026-07-10-1445-local">BO — 07-09 NAV gap backfilled (settled + catch-up); provenance anomaly noted</a> (07-10)<br />
 - <a href="#appendix-bp---07-09-provenance-resolved-a-concurrent-session-backfilled-it-gate-bypass-risk-noted-2026-07-10-1510-local">BP — 07-09 provenance RESOLVED: concurrent session backfilled it (gate-bypass risk)</a> (07-10)<br />
-- <a href="#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local">BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed</a> (07-10)</p>
+- <a href="#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local">BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed</a> (07-10)<br />
+- <a href="#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix</a> (07-11)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5676,6 +5677,38 @@ consumed by four callers — the daily gate, <code>mtm_catchup</code>, <code>ver
 (this entry) <code>paper_mtm</code> itself. Any NAV-writing path a human or another session is likely to reach<br />
 now refuses sub-floor data by default. The remaining coordination item (only one owner should mark<br />
 NAVs) is a process convention, not enforceable in code.</p>
+<h1 id="appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">Appendix BR - PRD roadmap complete through M5 (M6 gated); 07-11 verification pass + HANDOFF freshness fix (2026-07-11, ~20:00 local)</h1>
+<p>Not a new milestone - a verification checkpoint at the end of the Ops/Infra PRD. The executing<br />
+model was told to keep working the roadmap; the roadmap is done except for the gated tail, so this<br />
+entry records the honest stop rather than manufacturing work.</p>
+<p><strong>State.</strong> M1-M5 (+ amendment M3.5) are all complete and committed (record Appendices BB-BN, plus<br />
+the 07-09/07-10 hardening BO/BP/BQ). <strong>M6 (slippage) is the only remaining PRD task and is GATED</strong><br />
+by its own terms: it cannot start until the 2026-08-01 unattended monthly rebalance produces Alpaca<br />
+PAPER fills. Today is 2026-07-11 - the fills do not exist. Per the PRD ("If the gate isn't met,<br />
+report and stop at M5"), the roadmap is at its stopping point.</p>
+<p><strong>Verification run (all read-only).</strong><br />
+- <code>git status</code> clean; latest commit <code>bb3bae4</code> (BQ codebase-memory). Nothing uncommitted.<br />
+- <code>verify_run --mode daily</code> -&gt; <strong>RESULT: PASS (17/17 sleeves OK)</strong>. Every sleeve: NAV continuity<br />
+  intact (the 4 continuous-May sleeves show 47/47 +2 holidays; the 07-06 cohort 4/4), cash recon<br />
+  delta $+/-0.00 (cent-perfect), 0 pre-inception rows, position counts at target. Calendar<br />
+  2026-05-01..2026-07-10, <code>settled&lt;=2026-07-09</code>, <code>07-10 PENDING</code> (correct - 07-10 has not settled;<br />
+  it heals on the next scheduled run).<br />
+- Record TOC + appendix headings both terminate cleanly at BQ; anchors match (renderer contract).<br />
+- Friday 2026-07-10 17:15 <code>TradingDailyMTM</code> (first live run of the self-healing <code>daily.bat</code>, M3.5)<br />
+  exited 0x0: coverage PENDING (4,394 &lt; 5,000 floor) -&gt; stop-enforcement skipped -&gt; <code>mtm_catchup</code><br />
+  marked=0 (07-10 left pending) -&gt; anomaly scan -&gt; <code>verify_run</code> PASS 17/17 -&gt; stamp<br />
+<code>[OPS 2026-07-10] coverage=PENDING verify=PASS</code>. The pre-M3.5 flow failed the gate on this exact<br />
+  situation the night before (07-09, exit 1); M3.5 is proven in production.</p>
+<p><strong>HANDOFF freshness fix (the only file change this entry).</strong> HANDOFF's milestone note still listed<br />
+the raw-<code>paper_mtm</code> coverage-gate bypass as an OPEN risk (#2), but Appendix BQ closed it 2026-07-10.<br />
+Left as-is, a fresh session would think the bypass is live and might re-fix it. Corrected: risk #2<br />
+now reads CLOSED-by-BQ (paper_mtm.main() runs the shared gate, refuses sub-floor --as-of without<br />
+--force); risk #1 (one-owner NAV marking) noted as still a process convention; "Last updated" bumped<br />
+to 2026-07-11 with a one-line health-check summary. No code touched, so frozen tests were not re-run<br />
+(last green at BQ, 4/4 d=+/-0.0000pp); this entry changes documentation only.</p>
+<p><strong>Bottom line.</strong> The unattended system is healthy and its track record verifies clean. There is no<br />
+further roadmap work that can be started without either (a) the 2026-08-01 Alpaca fills (M6) or<br />
+(b) a new instruction from Evan outside the Ops/Infra scope guard.</p>
 </div>
 </body>
 </html>

@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
 
-**Last updated: 2026-07-09** — this file is the only live snapshot (state-doc
+**Last updated: 2026-07-11** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
 > **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
@@ -49,9 +49,20 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > before this session's catch-up marked the other 2. No corruption (idempotent
 > REPLACE + serialized writers). **Two risks flagged (Appendix BP):** (1)
 > concurrent uncoordinated NAV writers — official marking should have one owner
-> (the `daily.bat` catch-up); (2) raw `paper_mtm --as-of` bypasses the coverage
-> gate (it marked at 4,726 < floor; correct only by luck of held-names-present).
+> (the `daily.bat` catch-up), still a process convention not code-enforced; (2)
+> raw `paper_mtm --as-of` bypassed the coverage gate (it marked at 4,726 < floor;
+> correct only by luck of held-names-present) — **CLOSED 2026-07-10 (record
+> Appendix BQ): `paper_mtm.main()` now runs the shared `coverage_status()` gate
+> and refuses a sub-floor `--as-of` day (exit 2, no write) unless `--force`.**
 > Next PRD work: only M6 (slippage), gated on the 2026-08-01+ Alpaca fills.
+>
+> **2026-07-11 health check (record Appendix BR):** roadmap is complete through
+> M5; M6 stays gated (no Alpaca fills until 2026-08-01+). Read-only `verify_run
+> --mode daily` -> PASS 17/17 (continuity, cent-perfect cash recon, 0
+> pre-inception, 07-10 correctly PENDING); working tree clean, all work committed
+> through BQ. Friday 2026-07-10 17:15 `TradingDailyMTM` was the first live run of
+> the self-healing `daily.bat` and exited 0 (coverage PENDING skip -> catch-up
+> marked=0 -> verify PASS), where the pre-M3.5 flow would have failed the gate.
 
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
