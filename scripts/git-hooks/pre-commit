@@ -1,0 +1,65 @@
+#!/bin/sh
+# Standalone, VERSION-CONTROLLED pre-commit hook for the Trading repo.
+# Added 2026-07-12. Activate with:  git config core.hooksPath scripts/git-hooks
+#
+# Does two independent jobs, in order:
+#   1. Secret gate — block a commit whose staged diff contains a secret
+#      (same behavior as the old .git/hooks/pre-commit; preserved here because
+#      git only runs ONE pre-commit, and pointing core.hooksPath at this dir
+#      would otherwise silently drop that gate).
+#   2. Record HTML-twin sync — whenever the whole-project record .md is staged,
+#      regenerate its HTML twin and stage the result, so the two can never drift.
+#
+# Fail policy differs on purpose:
+#   - secret scanner: fail OPEN on scanner error (a scanner bug must not wedge
+#     commits) but NOISILY.
+#   - html render: fail CLOSED (block the commit) — a broken/stale twin is the
+#     exact problem this hook exists to prevent.
+# Emergency bypass for either:  git commit --no-verify  (don't make it a habit).
+
+REPO=$(git rev-parse --show-toplevel)
+
+# ── 1. Secret gate ───────────────────────────────────────────────────────────
+SCANNER="D:/ClaudeCode/Skills/skills/history-leak-scan/pm-secretscan.js"
+if [ -f "$SCANNER" ]; then
+  node "$SCANNER" --staged "$REPO"
+  status=$?
+  if [ "$status" -eq 1 ]; then
+    echo "" >&2
+    echo "commit-gate: a secret was detected in the STAGED diff — commit BLOCKED." >&2
+    echo "Remove it from the diff; if it is a live credential, rotate it" >&2
+    echo "and update .claude/secrets-inventory.md before retrying." >&2
+    exit 1
+  elif [ "$status" -ne 0 ]; then
+    echo "commit-gate WARNING: scanner error (exit $status) — secret gate SKIPPED (fail-open)." >&2
+    echo "The commit proceeds UNSCANNED. Check node + $SCANNER" >&2
+  fi
+else
+  echo "commit-gate WARNING: scanner not found at $SCANNER — secret gate SKIPPED." >&2
+fi
+
+# ── 2. Record HTML-twin sync ─────────────────────────────────────────────────
+RECORD_HTML="docs/Project Record — Full Chronological History.html"
+# Detect the staged record .md by an ASCII-only substring of its name. The full
+# path contains an em-dash (U+2014); `git diff --name-only` octal-escapes
+# non-ASCII paths under the default core.quotepath, so grepping the literal
+# em-dash silently misses. quotepath=false + an ASCII pattern avoids both traps.
+# The pattern ends in ".md" so it never matches the ".html" twin's own path.
+if git -c core.quotepath=false diff --cached --name-only \
+     | grep -qF -- "Full Chronological History.md"; then
+  echo "commit-gate: record .md staged — regenerating HTML twin..." >&2
+  ( cd "$REPO" && python -m scripts.render_record_html )
+  render_status=$?
+  if [ "$render_status" -ne 0 ]; then
+    echo "" >&2
+    echo "commit-gate: HTML twin render FAILED (exit $render_status) — commit BLOCKED." >&2
+    echo "Run 'python -m scripts.render_record_html' from the repo root, fix the" >&2
+    echo "reported problem (usually a broken TOC anchor, or missing 'markdown' pkg:" >&2
+    echo "pip install markdown), then retry." >&2
+    exit 1
+  fi
+  git add "$RECORD_HTML"
+  echo "commit-gate: HTML twin regenerated and staged." >&2
+fi
+
+exit 0
