@@ -168,7 +168,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix</a> (07-11)<br />
 - <a href="#appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local">BS - Full audit + 4 fixes (monthly-rebalance path): verify wiring, gate/rebalance interaction, schedule drift</a> (07-11)<br />
 - <a href="#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local">BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)</a> (07-11)<br />
-- <a href="#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local">BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold</a> (07-14)</p>
+- <a href="#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local">BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold</a> (07-14)<br />
+- <a href="#appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local">BV - EXPLORATORY residual hi-weight extension: w80 a plateau not a spike; no deploy</a> (07-14)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5846,6 +5847,80 @@ exploratory only, never a deployment basis.</p>
 <p><strong>Files:</strong> prereg doc + 2 research scripts (new, additive; no live module touched), 2 result JSONs<br />
 (var/, untracked by design like the 06-13 revalidation), this entry. Memory<br />
 <code>sleeves_verdict.md</code> updated: the preemptive-DD-control door Attempt 13 left open is now closed.</p>
+<h1 id="appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local">Appendix BV - EXPLORATORY (post-hoc) residual hi-weight extension: w80 is a plateau, not an edge spike; the ROA leg wants ~10-20 percent, not 35 (2026-07-14, ~01:35 local)</h1>
+<p>Evan asked (option 3 of the BU options) to extend the residual weight grid past its edge to see<br />
+where the gradient tops out. <strong>This is post-hoc / data-snooping BY CONSTRUCTION</strong> (the grid w85/90/95<br />
+was chosen AFTER seeing w80 win the prereg'd sweep). Per the prereg it can ONLY inform a future<br />
+forward-test-sleeve decision (Evan's call); it can NEVER justify deployment.<br />
+<code>scripts/momentum/research/sweep_residual_hiw_ext.py</code>, residual only (mom_roa's sweep gradient was<br />
+non-monotone, nothing to extend), w80/85/90/95 x 2 windows, clean cache, 5 bps. Result JSON<br />
+<code>var/momentum/residual_hiw_ext.json</code> (gitignored). w80 rows reproduce the sweep (self-check).</p>
+<p><strong>Result - the concerning "monotone rising at the edge" shape does NOT continue; it is a broad<br />
+plateau.</strong> Residual holdout CAGR (65/35 baseline +32.07%):</p>
+<table>
+<thead>
+<tr>
+<th>w (resid/ROA)</th>
+<th>holdout CAGR</th>
+<th>vs 65/35</th>
+<th>holdout Sharpe</th>
+<th>holdout DD</th>
+<th>in-sample CAGR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>80/20</td>
+<td>+37.15%</td>
+<td>+5.08p</td>
+<td>1.342</td>
+<td>-18.1%</td>
+<td>+10.62%</td>
+</tr>
+<tr>
+<td>85/15</td>
+<td>+36.13%</td>
+<td>+4.06p</td>
+<td>1.358</td>
+<td>-18.5%</td>
+<td>+11.24%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td>+36.89%</td>
+<td>+4.82p</td>
+<td><strong>1.414</strong></td>
+<td>-18.4%</td>
+<td><strong>+11.37%</strong></td>
+</tr>
+<tr>
+<td>95/05</td>
+<td>+34.66%</td>
+<td>+2.59p</td>
+<td>1.362</td>
+<td>-18.1%</td>
+<td>+10.46%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation (honest).</strong><br />
+1. <strong>w80 is NOT a special optimum or an off-the-edge spike</strong> - it sits near the top of a NOISY<br />
+   PLATEAU spanning w80-90 (holdout ~36-37%, ~1pp adjacent wobble = noise), which itself sits atop a<br />
+   CLEAN MONOTONE ramp from the sweep (w50 +15.9 -&gt; w65 +32.1 -&gt; w80 +37.2). A pure-noise result<br />
+   would not show that ramp-then-plateau structure, so there IS a real cross-sectional signal:<br />
+<strong>residual momentum wants only ~10-20% ROA, not the 35% it inherited from mom_roa_6535.</strong><br />
+2. <strong>If anything w90 dominates w80</strong> (higher holdout Sharpe 1.414 vs 1.342, higher in-sample CAGR,<br />
+   ~equal holdout CAGR/DD). So the sweep's "80/20" headline was just the grid edge; the plateau<br />
+   CENTER (~w85-90) is the honester point. Picking any single max is snooping.<br />
+3. <strong>This still does NOT clear deployment</strong> - it is post-hoc, one ~29-month holdout regime (2024-26),<br />
+   and the whole lift could be that regime favoring low-ROA residual. That is exactly what forward<br />
+   paper evidence tests. The live sleeves and frozen params remain UNTOUCHED (standing decision from<br />
+   BU option 1: log-only).<br />
+4. <strong>Net upgrade vs BU:</strong> the residual finding is stronger as a <em>characterization</em> (a robust plateau,<br />
+   not a lone at-threshold point) but UNCHANGED as a <em>decision</em> (no deploy). If Evan ever elects the<br />
+   forward-test sleeve (BU option 2), the honest construction is ~85/15 residual/ROA, seeded as a<br />
+   NEW parallel research sleeve, never a modification of residual_roa_6535.</p>
+<p><strong>No live module touched; frozen tests unaffected (last 4/4 d=+-0.0000pp at BU). Nothing deployed.</strong></p>
 </div>
 </body>
 </html>

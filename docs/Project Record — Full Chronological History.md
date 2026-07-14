@@ -130,6 +130,7 @@ lives in the dated entry, not the digest.
 - [BS - Full audit + 4 fixes (monthly-rebalance path): verify wiring, gate/rebalance interaction, schedule drift](#appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local) (07-11)
 - [BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)](#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local) (07-11)
 - [BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold](#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local) (07-14)
+- [BV - EXPLORATORY residual hi-weight extension: w80 a plateau not a spike; no deploy](#appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local) (07-14)
 
 ---
 
@@ -5411,3 +5412,44 @@ exploratory only, never a deployment basis.
 **Files:** prereg doc + 2 research scripts (new, additive; no live module touched), 2 result JSONs
 (var/, untracked by design like the 06-13 revalidation), this entry. Memory
 `sleeves_verdict.md` updated: the preemptive-DD-control door Attempt 13 left open is now closed.
+
+
+# Appendix BV - EXPLORATORY (post-hoc) residual hi-weight extension: w80 is a plateau, not an edge spike; the ROA leg wants ~10-20 percent, not 35 (2026-07-14, ~01:35 local)
+
+Evan asked (option 3 of the BU options) to extend the residual weight grid past its edge to see
+where the gradient tops out. **This is post-hoc / data-snooping BY CONSTRUCTION** (the grid w85/90/95
+was chosen AFTER seeing w80 win the prereg'd sweep). Per the prereg it can ONLY inform a future
+forward-test-sleeve decision (Evan's call); it can NEVER justify deployment.
+`scripts/momentum/research/sweep_residual_hiw_ext.py`, residual only (mom_roa's sweep gradient was
+non-monotone, nothing to extend), w80/85/90/95 x 2 windows, clean cache, 5 bps. Result JSON
+`var/momentum/residual_hiw_ext.json` (gitignored). w80 rows reproduce the sweep (self-check).
+
+**Result - the concerning "monotone rising at the edge" shape does NOT continue; it is a broad
+plateau.** Residual holdout CAGR (65/35 baseline +32.07%):
+
+| w (resid/ROA) | holdout CAGR | vs 65/35 | holdout Sharpe | holdout DD | in-sample CAGR |
+|---|---|---|---|---|---|
+| 80/20 | +37.15% | +5.08p | 1.342 | -18.1% | +10.62% |
+| 85/15 | +36.13% | +4.06p | 1.358 | -18.5% | +11.24% |
+| 90/10 | +36.89% | +4.82p | **1.414** | -18.4% | **+11.37%** |
+| 95/05 | +34.66% | +2.59p | 1.362 | -18.1% | +10.46% |
+
+**Interpretation (honest).**
+1. **w80 is NOT a special optimum or an off-the-edge spike** - it sits near the top of a NOISY
+   PLATEAU spanning w80-90 (holdout ~36-37%, ~1pp adjacent wobble = noise), which itself sits atop a
+   CLEAN MONOTONE ramp from the sweep (w50 +15.9 -> w65 +32.1 -> w80 +37.2). A pure-noise result
+   would not show that ramp-then-plateau structure, so there IS a real cross-sectional signal:
+   **residual momentum wants only ~10-20% ROA, not the 35% it inherited from mom_roa_6535.**
+2. **If anything w90 dominates w80** (higher holdout Sharpe 1.414 vs 1.342, higher in-sample CAGR,
+   ~equal holdout CAGR/DD). So the sweep's "80/20" headline was just the grid edge; the plateau
+   CENTER (~w85-90) is the honester point. Picking any single max is snooping.
+3. **This still does NOT clear deployment** - it is post-hoc, one ~29-month holdout regime (2024-26),
+   and the whole lift could be that regime favoring low-ROA residual. That is exactly what forward
+   paper evidence tests. The live sleeves and frozen params remain UNTOUCHED (standing decision from
+   BU option 1: log-only).
+4. **Net upgrade vs BU:** the residual finding is stronger as a *characterization* (a robust plateau,
+   not a lone at-threshold point) but UNCHANGED as a *decision* (no deploy). If Evan ever elects the
+   forward-test sleeve (BU option 2), the honest construction is ~85/15 residual/ROA, seeded as a
+   NEW parallel research sleeve, never a modification of residual_roa_6535.
+
+**No live module touched; frozen tests unaffected (last 4/4 d=+-0.0000pp at BU). Nothing deployed.**
