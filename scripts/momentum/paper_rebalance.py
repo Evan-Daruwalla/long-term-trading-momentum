@@ -68,6 +68,20 @@ def _strategy_config(strategy_name: str):
         # and sector_top4_full_paper (full 05-01 systematic control) — identical config.
         return (sector_momentum.rank_universe,
                 lambda as_of: list(sector_momentum.SECTOR_UNIVERSE))
+    if base.startswith("residual_w") and base.endswith("_paper"):
+        # Residual-weight-sweep experiment family (record BW, seeded 2026-07-14):
+        # residual_w<MM><RR>_paper where MM = residual-momentum weight %, RR = ROA
+        # weight % (e.g. residual_w8020_paper = 80/20). Identical top-50 monthly
+        # config to residual_roa_6535_paper; ONLY the resid/ROA blend weight varies,
+        # to forward-test where on the weight ladder the edge lives (Appendix BV
+        # found a broad w80-90 holdout plateau in-backtest; this races it live).
+        digits = base[len("residual_w"):-len("_paper")]
+        if len(digits) == 4 and digits.isdigit():
+            w_resid, w_roa = int(digits[:2]) / 100.0, int(digits[2:]) / 100.0
+            return (zcombo.make_rank_fn([
+                        (residual_momentum.residual_momentum_score, w_resid),
+                        (roa.roa_score, w_roa)]),
+                    tradeable_universe)
     raise ValueError(f"Unknown strategy: {strategy_name}. "
                      f"Add a branch in _strategy_config().")
 

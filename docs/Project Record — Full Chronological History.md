@@ -131,6 +131,7 @@ lives in the dated entry, not the digest.
 - [BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)](#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local) (07-11)
 - [BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold](#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local) (07-14)
 - [BV - EXPLORATORY residual hi-weight extension: w80 a plateau not a spike; no deploy](#appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local) (07-14)
+- [BW - Residual weight ladder DEPLOYED (10 sleeves, 05-01 replay); BV plateau -> live forward test](#appendix-bw---residual-weight-ladder-deployed-10-forward-test-sleeves-seeded-05-01-by-replay-bv-plateau---live-2026-07-14-1830-local) (07-14)
 
 ---
 
@@ -5453,3 +5454,72 @@ plateau.** Residual holdout CAGR (65/35 baseline +32.07%):
    NEW parallel research sleeve, never a modification of residual_roa_6535.
 
 **No live module touched; frozen tests unaffected (last 4/4 d=+-0.0000pp at BU). Nothing deployed.**
+
+
+# Appendix BW - Residual weight ladder DEPLOYED: 10 forward-test sleeves seeded 05-01 by replay (BV plateau -> live) (2026-07-14, ~18:30 local)
+
+Evan asked to turn the BU/BV residual-weight finding into a live forward test: "start all of these
+residuals at the same time" (10 weights 50/50..95/05), and "we have the data from May first so why
+not seed them all at 5/1 then run a simulation to get the data to where it is today." Done - 10 new
+systematic paper sleeves, the roster's 4th family (HANDOFF now 27 sleeves).
+
+**WHAT.** `residual_w<MM><RR>_paper` for (MM/RR) in 50/50, 55/45, 60/40, 65/35, 70/30, 75/25,
+80/20, 85/15, 90/10, 95/05 - identical to `residual_roa_6535_paper` (top-50 monthly, 5 bps,
+broker-realistic, `tradeable_universe`) EXCEPT the residual-mom/ROA Z-blend weight. This races the
+BV finding (a broad w80-90 holdout PLATEAU in-backtest; residual momentum wants ~10-20% ROA, not
+35%) forward, where it can't be overfit. Systematic, NO LLM decisions, NOT Alpaca-mirrored.
+
+**HOW.** New `scripts/momentum/seed_residual_wsweep.py` - deterministic 05-01 REPLAY, the same
+method that seeded `residual_roa_6535_paper` (06-09 backdate) and the 06-13 re-inception:
+interleaved per sleeve `rebalance 05-01 -> MTM each settled day -> rebalance 06-03 -> MTM ->
+rebalance 07-01 -> MTM through 07-13` (interleaving required: `compute_nav` prices CURRENT
+positions, so each window's NAVs must be written before the next rebalance). Rebalance dates match
+the May champions'. `last_rebalanced_at` stamped 07-01 so tonight/tomorrow's `mtm_catchup` extends
+them past the pre-rebalance guard. Two surgical code edits: `paper_rebalance._strategy_config` +1
+branch (parses the weights from the sleeve name -> `zcombo` residual+ROA rank_fn); `verify_run`
+POSITION_TARGETS += the 10 names (target 50). Existing-sleeve guard in the seeder refuses to replay
+over a live sleeve.
+
+**TIMING / SAFETY.** Write-path tested on a full DB COPY first (`trades_seedtest.db`): replay ->
+`verify_run --mode monthly` PASS 27/27, recon $0.00, continuity 48/48. Evan flagged the real clock
+(6:08pm) - INSIDE the 5:00-6:30pm daily-MTM exclusion window - so the live write was HELD until
+6:30pm (tonight's 5:15pm `TradingDailyMTM` confirmed finished 17:23 PASS 17/17; the 6:03pm
+`monthy-llm-rebalance` fire no-ops on its gate). Live seed ran 18:30, 1.7 min, additive (existing
+sacred history untouched).
+
+**VERIFY (live).** `verify_run --mode monthly` -> **RESULT: PASS (27/27)**. All 10 ladder sleeves:
+continuity 49/49 (05-01..07-13), recon delta $+/-0.00, 0 pre-inception, 45-47/50 open (broker-
+realistic drops the same illiquid micro-caps as the champions). Frozen tests 4/4 d=+/-0.0000pp (run
+before the seed). 27 sleeves total.
+
+**HONESTY DEMARCATION (critical).** The 05-01->07-13 rows are DETERMINISTIC REPLAY on today's
+cache - simulation, NOT live paper trading. **Live forward data begins 2026-07-14.** The backtest
+that motivated the ladder (BU/BV) used data only through 2026-05-01, so the replayed 05-01->07-13
+segment is genuinely post-selection (a mini-holdout) - but tiny (3 rebalances, ~10 weeks) and
+therefore noise.
+
+**Replay/cache-drift caveat (quantified).** The replayed 65/35 twin (`residual_w6535_paper`) does
+NOT reproduce the live champion `residual_roa_6535_paper`, because the champion's 05-01->06-12
+history was written on the 06-13 cache while this replay uses the 07-14 cache (a month of late XBRL
+ROA restatements, split rebases, spike-nulls): identical at 05-01 ($99,950), diverges to -$2,294
+(-2.03%) at the 06-30 peak, narrows to -$887 (-0.84%) at 07-13 (the 07-01 rebalance re-syncs
+positions). So: the 10 ladder sleeves are internally consistent (same cache + method =
+apples-to-apples AMONG THEMSELVES), but the replayed segment is a RECONSTRUCTION, not the champion's
+exact stored NAVs. This also quantifies replay uncertainty at ~1-2% over 10 weeks - any ladder gap
+smaller than that over the replayed part is cache-noise.
+
+**Replay ranking (05-01->07-13, NOISE - do not read into it).** w6040 +5.80% / w5545 +5.63% /
+w5050 +5.17% / w6535 +4.29% / w8515 +4.25% / w9505 +3.68% / w7525 +2.55% / w9010 +2.44% /
+w7030 +2.37% / w8020 +2.23%. This INVERTS the backtest holdout (which favored HIGH residual
+weight): over 10 weeks across near-identical baskets the ordering is dominated by noise, which is
+exactly why the forward test exists and why no weight will be "chosen" for many months of live data.
+
+**Automation.** No daily.bat change needed - `mtm_catchup` and `verify_run` iterate all
+`paper_portfolio` sleeves, so the ladder is marked/verified automatically going forward.
+`rebalance.bat` got a LADDER section (10 `paper_rebalance` + 10 `paper_mtm --force`, pure ASCII) so
+the monthly rebalance carries them too. Dashboard picks them up from `paper_nav` with no change.
+
+**Files:** `scripts/momentum/seed_residual_wsweep.py` (new), `scripts/momentum/paper_rebalance.py`
+(+1 branch), `scripts/momentum/verify_run.py` (+10 targets), `scripts/momentum/rebalance.bat`
+(ladder section), `HANDOFF.md` (4th family, 27 sleeves), this entry. Result on the live DB;
+`trades_seedtest.db` copy can be deleted (scratch).

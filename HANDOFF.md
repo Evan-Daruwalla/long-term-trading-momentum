@@ -8,7 +8,7 @@ rigor + a track record**, not "make money now." Every strategy gets a proper
 in-sample / held-out evaluation before it's trusted; the workflow itself is
 the asset.
 
-## Current state — Phase 2d, 17 sleeves live (07-06 cohort deployed)
+## Current state — Phase 2d, 27 sleeves live (07-06 cohort + residual weight ladder)
 
 **Last updated: 2026-07-11** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
@@ -75,7 +75,7 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY).
 > Frozen tests re-run 2026-07-08 ~20:35, d=±0.0000pp on all 4 configs (Appendix BA).
 
-The DB now holds **17 sleeves in three families** (this file is the roster
+The DB now holds **27 sleeves in four families** (this file is the roster
 source — `CLAUDE.md` holds the durable invariants, not the roster, since
 2026-07-08):
 
@@ -108,6 +108,17 @@ arm `sector_top4_paper` (control XLK/XLE/XLI/XLB) /
 > `sector_top4_full_paper` (continuous systematic twin, unbroken since 05-01).
 > They hold identical picks going forward; they differ only in pre-07-01 P&L.
 
+**4. Residual weight ladder** (inception 2026-05-01, replay-seeded 2026-07-14;
+record BW): 10 systematic sleeves `residual_w<MM><RR>_paper` differing ONLY in the
+residual-mom/ROA blend (MM/RR %), top-50 monthly, same config as
+`residual_roa_6535_paper` otherwise. Forward-test of the BU/BV in-backtest
+weight-plateau finding. **NOT Alpaca-mirrored, no LLM decisions.** NAV @ 2026-07-13
+(deterministic 05-01→07-13 REPLAY — live forward data begins 2026-07-14; see BW
+honesty demarcation + the ~1–2% replay/cache-drift caveat): w6040 $105,800 ·
+w5545 $105,625 · w5050 $105,167 · w6535 $104,294 · w8515 $104,252 · w9505 $103,678
+· w7525 $102,550 · w9010 $102,441 · w7030 $102,373 · w8020 $102,234. (This 05-01→
+07-13 ranking is 10-week NOISE — inverts the backtest holdout; forward data decides.)
+
 ### Systematic sleeve specs
 
 | Sleeve | Factor | Spec file |
@@ -116,6 +127,7 @@ arm `sector_top4_paper` (control XLK/XLE/XLI/XLB) /
 | mom_v2_paper | 12-1 momentum, top-50 | `trading_bot/strategies/momentum_v2.py` |
 | mom_roa_6535_paper | 65% mom Z + 35% ROA Z, top-50 | `trading_bot/strategies/mom_roa_6535.py` |
 | residual_roa_6535_paper | 65% residual-mom Z + 35% ROA Z, top-50 | `trading_bot/strategies/residual_roa_6535.py` |
+| residual_w<MM><RR>_paper (×10) | MM% residual-mom Z + RR% ROA Z, top-50 (weight ladder) | `scripts/momentum/paper_rebalance.py` `_strategy_config` (parsed from name) |
 | sector_top4_paper | 12-1 momentum on 11 SPDR ETFs, top-4 | `trading_bot/strategies/sector_top4.py` |
 
 Regression tests: `trading_bot/strategies/test_strategies.py` — 4 pinned

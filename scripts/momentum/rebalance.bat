@@ -107,6 +107,34 @@ echo === Mark-to-market: 7/1 cohort duplicates ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_0701_paper --force
 
 echo.
+echo === RESIDUAL WEIGHT LADDER: 10 same-start sleeves, only the resid/ROA blend varies ===
+echo (record BW: forward-test of the BU/BV weight-plateau finding; seeded 2026-07-14
+echo  by 05-01 replay. Systematic, no LLM decisions, not Alpaca-mirrored.)
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5050_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5545_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w6040_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w6535_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w7030_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w7525_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w8020_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w8515_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w9010_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w9505_paper --top-n 50 --broker-realistic
+
+echo.
+echo === Mark-to-market: residual weight ladder ===
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5050_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5545_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w6040_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w6535_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w7030_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w7525_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w8020_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w8515_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w9010_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w9505_paper --force
+
+echo.
 echo === LLM-experiment CONTROL rebalance: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode control
 

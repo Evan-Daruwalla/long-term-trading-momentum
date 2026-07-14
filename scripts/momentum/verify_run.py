@@ -54,6 +54,14 @@ POSITION_TARGETS = {
     "sector_top4_paper": 4, "sector_top4_full_paper": 4,
     "spy_benchmark_paper": 1, "spy_benchmark_0701_paper": 1,
     "mom_roa_top1_paper": 1,
+    # Residual weight ladder (record BW, seeded 2026-07-14): top-50 like the
+    # champions; broker-realistic drops a few untradable names, so counts run
+    # 44-50 — FAIL only on EXCEEDS, same as every other target.
+    "residual_w5050_paper": 50, "residual_w5545_paper": 50,
+    "residual_w6040_paper": 50, "residual_w6535_paper": 50,
+    "residual_w7030_paper": 50, "residual_w7525_paper": 50,
+    "residual_w8020_paper": 50, "residual_w8515_paper": 50,
+    "residual_w9010_paper": 50, "residual_w9505_paper": 50,
 }
 
 
