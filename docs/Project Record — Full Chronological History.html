@@ -167,7 +167,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bq---coverage-gate-moved-into-paper_mtmpy-itself-raw-mtm-bypass-closed-2026-07-10-1515-local">BQ — Coverage gate moved into paper_mtm.py; raw-MTM bypass closed</a> (07-10)<br />
 - <a href="#appendix-br---prd-roadmap-complete-through-m5-m6-gated-07-11-verification-pass--handoff-freshness-fix-2026-07-11-2000-local">BR - Roadmap complete through M5 (M6 gated); 07-11 verification + HANDOFF fix</a> (07-11)<br />
 - <a href="#appendix-bs---full-audit-monthly-rebalance-path--4-fixes-verify-wiring-coverage-gaterebalance-interaction-schedule-drift-2026-07-11-1500-local">BS - Full audit + 4 fixes (monthly-rebalance path): verify wiring, gate/rebalance interaction, schedule drift</a> (07-11)<br />
-- <a href="#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local">BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)</a> (07-11)</p>
+- <a href="#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local">BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)</a> (07-11)<br />
+- <a href="#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local">BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold</a> (07-14)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5791,6 +5792,60 @@ flagged. <code>enabled=true</code>, nextRunAt 2026-07-12 18:03 (no-op - July alr
 throwaway test task. Left as-is (not mine to delete; flagged to Evan). Harmless cruft.</p>
 <p><strong>No code changed</strong> in this entry (a scheduler-config change + doc sync); frozen tests unaffected<br />
 (last green 4/4 d=+/-0.0000pp at Appendix BS).</p>
+<h1 id="appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local">Appendix BU - Pre-registered champ-tweak experiments on clean data: preemptive overlays FAIL, weight sweep finds ONE at-threshold candidate (residual 80/20) (2026-07-14, ~01:05 local)</h1>
+<p>Evan asked (2026-07-14, ~00:15) whether tweaking mom_roa_6535 / residual_roa_6535 would improve<br />
+results, then authorized the two research avenues from the options list: (2) preemptive risk<br />
+overlays and (3) a weight/top-N sweep, both against the post-backfill CLEAN cache. Design + decision<br />
+rules were LOCKED BEFORE any run in <code>docs/prereg_2026-07-14_champs_tweaks.md</code> - grids, windows<br />
+(in-sample 2015-01-01-&gt;2023-12-31; holdout 2024-01-01-&gt;2026-05-01), methodology (5 bps, monthly,<br />
+equal-weight, identical to the 06-13 revalidation), and thresholds (+5pp holdout = the measured<br />
+data-noise floor). New scripts <code>scripts/momentum/research/test_champs_preemptive_clean.py</code> and<br />
+<code>sweep_champs_weights_clean.py</code> (reusing <code>test_mom_v2_preemptive.py</code>'s overlay machinery for<br />
+apples-to-apples); 56 sequential backtests, 00:30-01:00 local (off-hours, Swing ingestion verified<br />
+isolated to swing.db); results in <code>var/momentum/champs_preemptive_clean.json</code> +<br />
+<code>champs_weight_sweep_clean.json</code>.</p>
+<p><strong>Harness self-check.</strong> The 65/35@50 sweep rows reproduce the 06-13 revalidation baselines to<br />
++0.10..+0.63pp (mom_roa IS +5.00 vs +4.89, HO +36.23 vs +35.59; residual IS +9.59 vs +9.47, HO<br />
++32.16 vs +32.07). The drift comes from a month of routine cache evolution (late XBRL filings,<br />
+split rebases) - itself a live demonstration that sub-1pp deltas are noise.</p>
+<p><strong>Experiment A - preemptive overlays: verdict NONE. The overlay family is now closed.</strong><br />
+Trend-200DMA on the champs repeats its mom_v2 failure ON CLEAN DATA and is worse than doing<br />
+nothing: mom_roa in-sample CAGR +4.89 -&gt; <strong>-3.15%</strong> with DD WORSE (-47.6 -&gt; -58.5%: whipsaw sells<br />
+lows, re-enters late), holdout CAGR <strong>-22.2pp</strong>; residual holdout <strong>-10.8pp</strong> for only +2.9pp DD.<br />
+Vol-target 16/20% is a near-no-op on holdout (d_CAGR +-1pp, d_DD &lt;=0.6pp) and mildly negative<br />
+in-sample (CAGR -0.7..-1.0pp; best in-sample DD gain +5.7pp on mom_roa voltgt16, but the rule<br />
+required HOLDOUT DD &gt;= +5pp - no config came close, max +3.0pp). With reactive stops (Attempts<br />
+12-13), VIX gates (Appendix G), vol-target L/S (Appendix R), and now trend/vol-target on both<br />
+champs with clean data all failed, <strong>the "DD control must be preemptive" hypothesis from Attempt 13<br />
+is answered: these SPY-based preemptive implementations do not work on this platform either.</strong></p>
+<p><strong>Experiment B - weight/top-N sweep: ONE formal replacement candidate, AT threshold.</strong><br />
+- <strong>Top-50 is confirmed frozen-correct for both champs</strong>: every top-N deviation (25/75/100) loses<br />
+  holdout CAGR (-1.7..-8.1pp).<br />
+- <strong>mom_roa 65/35: no change.</strong> Holdout best is w7525 (+2.66pp, sub-threshold); in-sample now<br />
+  favors LOWER momentum weight (w5545 +2.63pp) while holdout favors higher - the windows disagree,<br />
+  the peak is broad, 65/35 stays the defensible middle. Matches the honest prior.<br />
+- <strong>residual: holdout CAGR is MONOTONE in residual-momentum weight</strong> - w80 +37.15% &gt; w75 +35.71% &gt;<br />
+  w70 +34.03% &gt; w65 +32.16% &gt; w60 +24.83% &gt; w55 +21.94% &gt; w50 +15.94% (21pp spread!), and<br />
+  in-sample mildly agrees (w80 +10.62% vs baseline +9.47%). <strong>residual_roa_8020@50 beats the locked<br />
+  baseline on ALL EIGHT metric-window combos</strong> (CAGR/Sharpe/DD both windows; holdout Sharpe 1.342<br />
+  vs 1.212, holdout DD -18.1 vs -20.1) and formally clears the pre-registered rule: holdout<br />
+<strong>+5.08pp</strong> vs the required +5.00.</p>
+<p><strong>Honest caveats on the w8020 finding (stated before any decision):</strong> (1) it clears the threshold<br />
+by 0.08pp - and measured against the SAME-DAY 65/35 rerun (+32.16) instead of the locked 06-13<br />
+baseline (+32.07), the margin is +4.99pp, i.e. AT the noise floor, not above it; (2) w80 is the<br />
+EDGE of the pre-registered grid and the gradient is still rising - the "optimum" may lie outside,<br />
+classic tell of sample-fit toward the dominant signal; (3) 40 sweep runs against a ~29-month<br />
+holdout means one +5pp finding is not far from chance expectations; (4) at 80/20 the ROA leg is<br />
+nearly vestigial. Per the prereg, NOTHING deploys from this: the live sleeves and frozen params<br />
+are untouched. The defensible next step, if Evan wants one, is a NEW parallel research sleeve<br />
+(residual_roa_8020) to gather forward evidence - the exact pattern that vetted residual itself.<br />
+Extending the grid to w85/w90 after seeing w80 win would be data-snooping; if done, it is<br />
+exploratory only, never a deployment basis.</p>
+<p><strong>Frozen tests after the new scripts (chained after the sweeps, same process pool):</strong><br />
+4/4 at d=+-0.0000pp (v1 2023_Q4 -0.0000 / 2025_H1 -0.0000; v2 2023_Q4 -0.0000 / 2025_H1 +0.0000).</p>
+<p><strong>Files:</strong> prereg doc + 2 research scripts (new, additive; no live module touched), 2 result JSONs<br />
+(var/, untracked by design like the 06-13 revalidation), this entry. Memory<br />
+<code>sleeves_verdict.md</code> updated: the preemptive-DD-control door Attempt 13 left open is now closed.</p>
 </div>
 </body>
 </html>
