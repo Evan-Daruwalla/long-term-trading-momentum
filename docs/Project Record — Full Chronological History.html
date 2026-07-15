@@ -170,7 +170,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bt---monthly-rebalance-cron-shifted-533pm---603pm-audit-f4-applied-per-evan-2026-07-11-1520-local">BT - Monthly-rebalance cron shifted to 6:03pm (audit F4 applied)</a> (07-11)<br />
 - <a href="#appendix-bu---pre-registered-champ-tweak-experiments-on-clean-data-preemptive-overlays-fail-weight-sweep-finds-one-at-threshold-candidate-residual-8020-2026-07-14-0105-local">BU - Prereg'd champ tweaks: overlays FAIL on clean data; residual 80/20 at-threshold</a> (07-14)<br />
 - <a href="#appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local">BV - EXPLORATORY residual hi-weight extension: w80 a plateau not a spike; no deploy</a> (07-14)<br />
-- <a href="#appendix-bw---residual-weight-ladder-deployed-10-forward-test-sleeves-seeded-05-01-by-replay-bv-plateau---live-2026-07-14-1830-local">BW - Residual weight ladder DEPLOYED (10 sleeves, 05-01 replay); BV plateau -&gt; live forward test</a> (07-14)</p>
+- <a href="#appendix-bw---residual-weight-ladder-deployed-10-forward-test-sleeves-seeded-05-01-by-replay-bv-plateau---live-2026-07-14-1830-local">BW - Residual weight ladder DEPLOYED (10 sleeves, 05-01 replay); BV plateau -&gt; live forward test</a> (07-14)<br />
+- <a href="#appendix-bx---residual-ladder-gets-its-own-dashboard-panel-daily-report-tasks-now-self-commit--auto-push-2026-07-14-1900-local">BX - Dashboard: residual ladder own panel; daily-report tasks self-commit + auto-push</a> (07-14)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -5979,6 +5980,31 @@ the monthly rebalance carries them too. Dashboard picks them up from <code>paper
 (+1 branch), <code>scripts/momentum/verify_run.py</code> (+10 targets), <code>scripts/momentum/rebalance.bat</code><br />
 (ladder section), <code>HANDOFF.md</code> (4th family, 27 sleeves), this entry. Result on the live DB;<br />
 <code>trades_seedtest.db</code> copy can be deleted (scratch).</p>
+<h1 id="appendix-bx---residual-ladder-gets-its-own-dashboard-panel-daily-report-tasks-now-self-commit--auto-push-2026-07-14-1900-local">Appendix BX - Residual ladder gets its own dashboard panel; daily-report tasks now self-commit + auto-push (2026-07-14, ~19:00 local)</h1>
+<p>Two small post-BW follow-ups (Evan-directed).</p>
+<p><strong>Dashboard: residual ladder in its own panel.</strong> The 10 <code>residual_w*</code> sleeves inception 05-01, so<br />
+they were landing in the Overview's "Original sleeves" cohort panel and crowding it (16 lines).<br />
+<code>trading_bot/dashboard/web.py</code>: added a <code>_is_ladder(s)</code> split (<code>name.startswith("residual_w")</code>) that<br />
+pulls them out of <code>original</code> into a third <code>_render_cohort_panel(ladder, key="residual_ladder")</code> under<br />
+its own heading ("Residual weight ladder ... record BW ... 05-01-&gt;07-13 is replay, live forward from<br />
+07-14"); added 10 <code>_SLEEVE_SHORT</code> labels ("resid 50/50" .. "resid 95/05") so the legend/table read<br />
+cleanly. Surgical (reuses the existing panel renderer); no other view touched. VERIFIED live at<br />
+http://localhost:8501 after <code>restart_dashboard.bat</code>: the new panel renders all 10 traces, the<br />
+Original panel is back to its 6 May sleeves, no errors. Frozen tests 4/4 d=+/-0.0000pp.</p>
+<p><strong>Automation: the two daily-report research tasks now self-commit + auto-push.</strong> <code>daily-trade-check</code><br />
+(8:07am, Pre-Market) and <code>daily-trade-check-2</code> (5:30pm, Post-Market) previously wrote<br />
+<code>daily_report.md</code> + rendered the HTML twin but never committed, so the working tree showed dirty<br />
+<code>daily_report.*</code> every session (I had been committing them by hand, and once accidentally swept them<br />
+into an unrelated commit -&gt; split back out). Their SKILL.md prompts (in<br />
+<code>~/.claude/scheduled-tasks/</code>, outside the repo) now end with: <code>git add daily_report.md
+daily_report.html</code> (EXACTLY those two paths - never <code>-A</code>/<code>.</code>, so an unattended run can't stage<br />
+unrelated in-progress work) -&gt; <code>git commit</code> -&gt; <code>git push</code>; nothing-to-commit skips the push; a<br />
+rejected/failed push is NON-FATAL (leave it local, no force-push, no auto-merge/rebase). The<br />
+read/research-only, never-trade guardrail is restated in both. Effect: the remote stays current and<br />
+the tree stays clean without hand-holding. (These research tasks are not in HANDOFF's automation<br />
+roster - they are journal/research, not core trading automation.)</p>
+<p><strong>Files:</strong> <code>trading_bot/dashboard/web.py</code> (ladder panel + labels), this entry. SKILL.md prompts<br />
+edited live (outside the repo).</p>
 </div>
 </body>
 </html>

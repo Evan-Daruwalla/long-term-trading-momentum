@@ -1820,6 +1820,12 @@ _SLEEVE_SHORT = {
     "llm_cascade_sector4_paper": "casc_sec4",
     "spy_benchmark_paper": "S&P 500 (control)",
     "spy_benchmark_0701_paper": "S&P 500 (07-01)",
+    # Residual weight ladder (record BW): resid-mom/ROA blend sweep.
+    "residual_w5050_paper": "resid 50/50", "residual_w5545_paper": "resid 55/45",
+    "residual_w6040_paper": "resid 60/40", "residual_w6535_paper": "resid 65/35",
+    "residual_w7030_paper": "resid 70/30", "residual_w7525_paper": "resid 75/25",
+    "residual_w8020_paper": "resid 80/20", "residual_w8515_paper": "resid 85/15",
+    "residual_w9010_paper": "resid 90/10", "residual_w9505_paper": "resid 95/05",
 }
 
 
@@ -2028,13 +2034,24 @@ def _render_overview(all_names: list[str]) -> None:
         inc = s["inception"]
         return inc is not None and inc.date() >= CUTOVER
 
-    original = [s for s in sleeves if not _is_0701(s)]
+    def _is_ladder(s) -> bool:
+        # Residual weight ladder (record BW): its own panel so the 10-sleeve
+        # blend sweep doesn't crowd the original systematic cohort.
+        return s["name"].startswith("residual_w")
+
+    original = [s for s in sleeves if not _is_0701(s) and not _is_ladder(s)]
     cohort_0701 = [s for s in sleeves if _is_0701(s)]
+    ladder = [s for s in sleeves if _is_ladder(s)]
 
     st.markdown("#### Original sleeves · since 2026-05-01")
     _render_cohort_panel(original, key="original")
     st.markdown("#### 7/1 cohort · fresh $100k, inception 2026-07-01")
     _render_cohort_panel(cohort_0701, key="cohort0701")
+    if ladder:
+        st.markdown("#### Residual weight ladder · resid/ROA blend sweep, "
+                    "replay-seeded 2026-05-01 (record BW · 05-01→07-13 is replay, "
+                    "live forward from 07-14)")
+        _render_cohort_panel(ladder, key="residual_ladder")
     st.caption("Legend click = hide/show · double-click = isolate. Full-size "
                "charts + absolute $ in the **NAV charts** view.")
 
