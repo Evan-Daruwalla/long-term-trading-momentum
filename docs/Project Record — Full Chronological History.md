@@ -133,6 +133,7 @@ lives in the dated entry, not the digest.
 - [BV - EXPLORATORY residual hi-weight extension: w80 a plateau not a spike; no deploy](#appendix-bv---exploratory-post-hoc-residual-hi-weight-extension-w80-is-a-plateau-not-an-edge-spike-the-roa-leg-wants-10-20-percent-not-35-2026-07-14-0135-local) (07-14)
 - [BW - Residual weight ladder DEPLOYED (10 sleeves, 05-01 replay); BV plateau -> live forward test](#appendix-bw---residual-weight-ladder-deployed-10-forward-test-sleeves-seeded-05-01-by-replay-bv-plateau---live-2026-07-14-1830-local) (07-14)
 - [BX - Dashboard: residual ladder own panel; daily-report tasks self-commit + auto-push](#appendix-bx---residual-ladder-gets-its-own-dashboard-panel-daily-report-tasks-now-self-commit--auto-push-2026-07-14-1900-local) (07-14)
+- [BY - Coverage-lag fix: morning refresh task (TradingMorningMTM); overlay stops found dormant](#appendix-by---coverage-lag-fixed-with-a-morning-refresh-task-tradingmorningmtm-separate-finding-overlay-invalidation-stops-are-dormant-2026-07-15-1440-local) (07-15)
 
 ---
 
@@ -5555,3 +5556,62 @@ roster - they are journal/research, not core trading automation.)
 
 **Files:** `trading_bot/dashboard/web.py` (ladder panel + labels), this entry. SKILL.md prompts
 edited live (outside the repo).
+
+
+# Appendix BY - Coverage-lag fixed with a morning refresh task (TradingMorningMTM); SEPARATE FINDING: overlay invalidation stops are dormant (2026-07-15, ~14:40 local)
+
+Evan (2026-07-15 AM): "the 07-14 coverage gate still hasn't cleared as of this morning - third time
+this pattern has shown up in a week." Investigated read-only; it is a refresh-LATENCY issue, not a
+data-quality failure, and the gate is behaving correctly.
+
+**Diagnosis.**
+- 07-14 cached at **4,376** closes (vs a ~5,200 baseline, floor 5,000) - a genuine 16% shortfall,
+  below even the 90%-relative floor (4,702). 825 tickers missing vs 07-13; mostly the illiquid
+  OTC/unit/fund tail, but **MRK (Merck) - a liquid large-cap - was also missing**, i.e. real
+  incomplete publication, not "these never traded."
+- **Read-only yfinance probe (no writes):** every missing sample name - MRK 120.78, EACO, KFII,
+  UYSC, FMBM, ABCP - HAS a 2026-07-14 close at yfinance NOW. So the data is complete upstream; only
+  OUR cache is stale.
+- **Root cause:** the ONLY automatic refresh is the 5:15 PM `TradingDailyMTM`. Nothing re-fetches
+  between the 07-14 5:15 PM run (when yfinance was still incomplete -> 4,376, pending) and the 07-15
+  5:15 PM run. Earlier days (07-09/07-10) cleared faster only because manual refreshes ran mid-session
+  during our work. So "hasn't cleared this morning" = nothing had run to re-pull it yet, not a stuck
+  day. The coverage=PENDING stamps (07-10/07-13/07-14) are the NORMAL same-day-incomplete state at
+  5:15 PM; each day then settles on the next run. The pain is purely the ~24 h heal latency.
+
+**Fix (Evan approved option 1).** New Windows task **`TradingMorningMTM`** at **7:45 AM daily**,
+`StartWhenAvailable`, mirrors `TradingDailyMTM`'s principal (evan / Interactive / Limited) ->
+`scripts/momentum/morning_refresh.bat` (pure ASCII) = `daily_price_refresh` + `mtm_catchup` +
+`verify_run --mode daily`, logs `var/last_morning_run.log`. The prior day (settled at yfinance
+overnight) is re-pulled and catch-up-marked, so books are current by ~8 AM (and a Friday heals
+Saturday AM, not Monday). Fires at 7:45 so it finishes before the 8:07 AM `daily-trade-check`
+research task, which then sees the healed day.
+
+**Why a SEPARATE task, not a 2nd trigger on `TradingDailyMTM` (as literally proposed).** A task runs
+ONE action; a 2nd trigger would run the full `daily.bat`, whose overlay invalidation-stop enforcement
+(`llm_overlay_ops` / `sector_overlay_ops check-invalidation` -> `paper_trader.sell(reason=
+"invalidation")`) is coverage-gated: it SKIPS on PENDING evenings (latest cached date = today,
+incomplete) but WOULD FIRE in a morning run (latest = yesterday, settled -> coverage PASS). That
+would activate currently-dormant stops and alter the live LLM-overlay experiment as a side effect of
+a data fix. So the morning task deliberately does refresh + catch-up + verify ONLY; stop-enforcement
+stays on the evening cadence, unchanged.
+
+**SEPARATE FINDING (flagged, NOT changed here) - the overlay invalidation stops are effectively
+DORMANT.** Because `daily.bat` gates `check-invalidation` behind `check_coverage` PASS, and every
+5:15 PM run finds "today" PENDING (same-day incomplete), the stops SKIP almost every evening
+(ops_status shows PENDING on 07-10/07-13/07-14; PASS is rare). So the LLM-overlay experiment's
+invalidation stops - a designed risk control (e.g. WDC stop 480) - have essentially never been
+enforced. This is likely unintended. It is a live-experiment behavior change to fix, so it is
+Evan's deliberate call, NOT bundled into this data-latency fix. Options when addressed: (a) enforce
+stops against the last SETTLED close in the daily flow regardless of today's coverage, (b) add
+stop-enforcement to the morning task once its interaction is reviewed, or (c) accept stops as
+end-of-month-rebalance-only. Spawned as a separate task chip.
+
+**Verification.** `TradingMorningMTM` registered: State Ready, action `cmd /c morning_refresh.bat >
+var\last_morning_run.log 2>&1`, trigger Daily 07:45:00-05:00, StartWhenAvailable True, NextRun
+2026-07-16 07:45. `morning_refresh.bat` pure ASCII (0 non-ASCII bytes); its three steps
+(refresh / mtm_catchup / verify) are each proven this session. NOT run manually today (a mid-market
+refresh would write a transient partial 07-15 bar) - 07-14 heals on tonight's 5:15 PM run, and the
+morning task first fires 07-16 7:45 AM. No Python changed (new .bat only); frozen tests still 4/4
+d=+/-0.0000pp (last run this session). Task config lives in Windows Task Scheduler, not the repo;
+`morning_refresh.bat` + doc updates are committed.

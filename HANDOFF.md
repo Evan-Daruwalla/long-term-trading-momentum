@@ -236,6 +236,11 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   Dashboard: http://localhost:8501/   Logs: `var/dashboard.log`
 - **`TradingDailyMTM`** — fires `daily.bat` at 5:15 PM, `StartWhenAvailable`
   Logs: `var/last_daily_run.log`
+- **`TradingMorningMTM`** — fires `morning_refresh.bat` at 7:45 AM daily,
+  `StartWhenAvailable` (added 2026-07-15, record BY). Refresh + `mtm_catchup` +
+  verify ONLY (NO stop-enforcement) — heals the once-daily coverage LAG so a day
+  pending at the 5:15 PM run is marked by ~8 AM instead of ~24 h later. Logs:
+  `var/last_morning_run.log`
 - **`TradingWeeklyBackup`** — Sundays 9:00 AM → `backup_trades_db.py` (rotating
   `VACUUM INTO` backup). Logs: `var/backup.log` (added 2026-07-09, M5.2)
 
