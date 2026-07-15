@@ -2048,10 +2048,14 @@ def _render_overview(all_names: list[str]) -> None:
     st.markdown("#### 7/1 cohort · fresh $100k, inception 2026-07-01")
     _render_cohort_panel(cohort_0701, key="cohort0701")
     if ladder:
+        # Include the 05-01 S&P control as a shared benchmark line/row (same
+        # inception epoch as the ladder; the panel renderer draws spy_benchmark
+        # as a dotted gray line). It also remains in the Original panel.
+        _spy = next((s for s in sleeves if s["name"] == "spy_benchmark_paper"), None)
         st.markdown("#### Residual weight ladder · resid/ROA blend sweep, "
                     "replay-seeded 2026-05-01 (record BW · 05-01→07-13 is replay, "
                     "live forward from 07-14)")
-        _render_cohort_panel(ladder, key="residual_ladder")
+        _render_cohort_panel(ladder + ([_spy] if _spy else []), key="residual_ladder")
     st.caption("Legend click = hide/show · double-click = isolate. Full-size "
                "charts + absolute $ in the **NAV charts** view.")
 
