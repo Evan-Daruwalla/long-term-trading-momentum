@@ -135,6 +135,7 @@ lives in the dated entry, not the digest.
 - [BX - Dashboard: residual ladder own panel; daily-report tasks self-commit + auto-push](#appendix-bx---residual-ladder-gets-its-own-dashboard-panel-daily-report-tasks-now-self-commit--auto-push-2026-07-14-1900-local) (07-14)
 - [BY - Coverage-lag fix: morning refresh task (TradingMorningMTM); overlay stops found dormant](#appendix-by---coverage-lag-fixed-with-a-morning-refresh-task-tradingmorningmtm-separate-finding-overlay-invalidation-stops-are-dormant-2026-07-15-1440-local) (07-15)
 - [BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a)](#appendix-bz---dormant-overlay-invalidation-stops-fixed-daily-enforcement-as-of-the-last-settled-close-evan-option-a-2026-07-15-1730-local) (07-15)
+- [CA - Stock-overlay stop check hardened: match the stop to the held ticker (cascade-log mispairing bug)](#appendix-ca---stock-overlay-stop-check-hardened-match-the-stop-to-the-held-ticker-cascade-log-mispairing-bug-2026-07-15-2020-local) (07-15)
 
 ---
 
@@ -5690,3 +5691,50 @@ since the design always specified daily invalidation stops - they were just neve
 
 Not committed yet (no commit instruction at time of writing). HANDOFF.md updated (automation +
 LLM-experiment sections).
+
+# Appendix CA - Stock-overlay stop check hardened: match the stop to the held ticker (cascade-log mispairing bug) (2026-07-15, ~20:20 local)
+
+Follow-up spun off from the Appendix BZ work (flagged as a task chip, then executed with Evan's
+explicit go — live-experiment code, so it was presented before applying).
+
+## CA.1 The bug
+
+`scripts/momentum/llm_overlay_ops.py` `cmd_check_invalidation` looked up the active stop with
+`llm_overlay.latest_decision(as_of)` = `SELECT * FROM llm_overlay_log WHERE decision_date <= ?
+ORDER BY decision_date DESC, id DESC LIMIT 1` - the newest row for ANY ticker. But the
+always-invested cascade sleeve (`llm_cascade_top1_paper`) logs decisions for OTHER names into the
+SAME `llm_overlay_log` table (e.g. 2026-07-07 has both a BE VETO row and a WDC BUY row). So the
+held position's price could be checked against a DIFFERENT name's invalidation level:
+- Hold BE (stop ~220), newest row is WDC BUY (stop 480) -> BE ~220 <= 480 -> spurious invalidation
+  sell at a stop that isn't BE's.
+- Reverse pairing silently disables the real stop.
+
+The rebalance path was already hardened against exactly this via `decision_for_ticker` (see its
+docstring, added when the cascade sleeve launched); the daily stop path was missed. The SECTOR
+overlay never had the bug - `sector_overlay_ops.cmd_check_invalidation` already calls
+`sector_overlay.latest_decision_for(pos["ticker"], as_of)`. Latent at time of fix: the stock
+treatment sleeve (`llm_overlay_mom_roa_top1_paper`) is all-cash (DB-verified, Appendix BZ), so no
+position has ever been mispaired and NO history needs repair.
+
+## CA.2 The fix (2 files, no design change)
+
+1. `trading_bot/strategies/llm_overlay.py`: added `latest_decision_for(ticker, as_of)` - a mirror
+   of the trusted `sector_overlay.latest_decision_for`, querying `llm_overlay_log WHERE ticker = ?
+   AND decision_date <= ? ORDER BY decision_date DESC, id DESC LIMIT 1`.
+2. `scripts/momentum/llm_overlay_ops.py` `cmd_check_invalidation`: moved `pos = open_positions[0]`
+   above the lookup and switched to `llm_overlay.latest_decision_for(pos["ticker"], as_of)`; the
+   "no active invalidation level" log line now names the ticker. The `--settled` pricing path, the
+   sell, and all other logging are unchanged. `latest_decision` is retained (unused by the ops CLI
+   now, but part of the module's public surface).
+
+## CA.3 Verification
+
+- `llm_overlay_ops check-invalidation --settled --dry-run` -> "pricing stop as-of 2026-07-14" +
+  "no open position - nothing to check" (unchanged; treatment is in cash, so the ticker-matched
+  path isn't exercised live yet - it will be the first time the treatment holds a name).
+- Frozen regression tests - actual output: momentum_v1/2023_Q4 +14.5547% (d=-0.0000pp, 70),
+  momentum_v1/2025_H1 +1.8792% (d=-0.0000pp, 156), momentum_v2/2023_Q4 +14.4062% (d=-0.0000pp,
+  38), momentum_v2/2025_H1 +10.2194% (d=+0.0000pp, 87). All 4 OK. (The momentum sim doesn't import
+  the overlay path, so no movement was expected - run anyway per the hard rule.)
+
+Not committed (no commit instruction). HANDOFF.md stock-overlay note updated.

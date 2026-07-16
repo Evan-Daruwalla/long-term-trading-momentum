@@ -187,6 +187,10 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   Now enforced EVERY evening via `--settled` (priced as-of the last settled
   trading day). First live run of the new path: 2026-07-16 5:15pm. Evan chose
   this (option a) over morning-task enforcement / rebalance-only.
+- **Stop check hardened 2026-07-15 (record CA)**: the stop lookup now matches
+  the HELD ticker (`latest_decision_for`) instead of a cascade-contaminated
+  `LIMIT 1` row — prevents pairing a position with another name's stop. Latent
+  (all-cash), no history repair.
 - **Current state (2026-07-15, DB-verified)**: treatment has never held a
   position since the 07-01 reset (all cash — the #1 candidate BE was VETO'd
   07-01 and again 07-07); control holds the #1 name. (The pre-reset FN

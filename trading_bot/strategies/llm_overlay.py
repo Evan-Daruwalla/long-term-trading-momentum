@@ -144,6 +144,24 @@ def latest_decision(as_of: date) -> dict | None:
     return dict(row) if row else None
 
 
+def latest_decision_for(ticker: str, as_of: date) -> dict | None:
+    """Most recent decision for one ticker with decision_date <= as_of.
+    Use this (not latest_decision) whenever the caller has a specific held
+    name: the cascade sleeve logs OTHER tickers into this same table, so a
+    ticker-blind LIMIT 1 can pair a position with a different name's stop.
+    Mirror of sector_overlay.latest_decision_for."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            "SELECT * FROM llm_overlay_log WHERE ticker = ? "
+            "AND decision_date <= ? ORDER BY decision_date DESC, id DESC LIMIT 1",
+            (ticker.upper(), as_of.isoformat())).fetchone()
+    finally:
+        conn.close()
+    return dict(row) if row else None
+
+
 def decision_for(decision_date: date) -> dict | None:
     """The decision logged for an exact rebalance date, or None."""
     conn = sqlite3.connect(DB_PATH)

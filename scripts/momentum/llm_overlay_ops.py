@@ -239,12 +239,16 @@ def cmd_check_invalidation(args) -> int:
     if not open_positions:
         log.info("[overlay] no open position — nothing to check.")
         return 0
-    decision = llm_overlay.latest_decision(as_of)
+    pos = open_positions[0]
+    # Match the stop to the HELD ticker: the cascade sleeve logs other names
+    # into llm_overlay_log, so a ticker-blind latest_decision could pair this
+    # position with a different name's invalidation level (record Appendix CA).
+    decision = llm_overlay.latest_decision_for(pos["ticker"], as_of)
     if decision is None or decision["invalidation_level"] is None:
-        log.info("[overlay] no active invalidation level — nothing to check.")
+        log.info("[overlay] no active invalidation level for %s — nothing to "
+                 "check.", pos["ticker"])
         return 0
     inval = decision["invalidation_level"]
-    pos = open_positions[0]
     px = market_data.last_close_on_or_before(pos["ticker"], as_of)[0]
     if px is None:
         log.warning("[overlay] no price for %s at %s — cannot check stop.",
