@@ -9,7 +9,7 @@
 
 Standards bins (updated 2026-07-15; the committed choices, one home each):
 - dependencies.md — Python venv, yfinance (auto_adjust=False), pandas, pytest, streamlit, alpaca SDK, SQLite; pins in requirements.
-- ui.md — **N/A, no product frontend** (only the internal Streamlit dashboard).
+- ui.md — **N/A, no UI/UX** (only the internal Streamlit dashboard; no end-user flow).
 - testing.md — the frozen-test contract (d=±0.0000pp, paste real output) + verifiers + test-on-a-copy rule.
 - data.md — price_cache invariant, trades.db read-only, no concurrent factor_backtest, paper_* schema, sacred history.
 - tooling.md — module invocation, scheduled tasks (daily/morning/monthy-rebalance), timing window, HTML render, .bat gotchas.
