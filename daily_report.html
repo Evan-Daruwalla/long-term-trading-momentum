@@ -29547,6 +29547,299 @@ COVERAGE FAIL - incomplete price publication. Skipping all MTM and overlay ops t
 <p><strong>C. No new sleeve concept is proposed from today's data.</strong> Retail sales, jobless claims, TSMC's capex guidance, and the individual stock catalysts (WDC, BE, AEHR, AAOI, oil/Iran) are all within the scope of exposures already embedded in the current 27-sleeve roster. The standing open process items are: (1) whether tonight's stop-enforcement fix fires as designed on WDC (§4, the report's central open question), and (2) the still-unresolved coverage-lag pattern that has left 07-15/07-16 without confirmed closing NAVs at report time — both operational items for Evan to check after tonight's <code>daily.bat</code> run, not research findings that argue for a new strategy.</p>
 <hr />
 <p><em>Report generated: 2026-07-16 (Thursday), delayed same-day / mid-session — market was already open ~4.5 hours at compile time (system clock confirmed ~12:59 CDT / ~13:59 ET at the start of this research pass; see §0). NOT a pre-market report despite the task's default framing — that framing did not match reality today and this report says so explicitly rather than fabricating a "market not yet open" narrative. | Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>paper_portfolio</code>, <code>price_cache</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>) queried read-only directly; official <code>paper_nav</code>/<code>verify_run</code> mark remains 2026-07-14 (PASS 27/27, <code>var/verify_report.log</code>, run 2026-07-15 17:18 CDT); no <code>daily.bat</code> run has occurred since; <code>TradingMorningMTM</code> price-refresh catch-up was mid-run at report time (~13:01–13:02 CDT), not a source for any figure here; no new <code>llm_overlay_log</code>/<code>sector_overlay_log</code> entries since 2026-07-07; <code>rebalance_log.md</code> confirms last rebalance 2026-07-01, next 2026-08-01; all 07-16 intraday figures are third-party live-quote snapshots, not <code>price_cache</code>-confirmed. | Sources: <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60504724/why-is-western-digital-stock-falling-on-thursday">Benzinga — Why Is Western Digital Stock Falling on Thursday?</a> | <a href="https://www.gurufocus.com/news/8960543/western-digital-wdc-reopens-merger-talks-with-kioxia">GuruFocus — Western Digital (WDC) Reopens Merger Talks with Kioxia</a> | <a href="https://finance.yahoo.com/markets/stocks/articles/western-digital-wdc-reopens-kioxia-151411891.html">Yahoo Finance — Western Digital (WDC) Reopens Kioxia Merger Talks</a> | <a href="https://247wallst.com/investing/2026/07/16/sk-hynix-and-sandisk-sink-7-micron-falls-5-as-chinas-cxmt-readies-an-8-6b-memory-ipo/">24/7 Wall St — SK Hynix and SanDisk Sink 7%, Micron Falls 5% as China's CXMT Readies an $8.6B Memory IPO</a> | <a href="https://www.fxleaders.com/news/2026/07/16/semiconductor-stocks-flip-again-sk-hynix-loses-13/">FX Leaders — Semiconductor Stocks Flip Again, SK Hynix Loses 13%</a> | <a href="https://247wallst.com/investing/2026/07/16/live-nasdaq-composite-chip-stocks-buckle-under-capex-pressure-as-markets-hunt-leadership/">24/7 Wall St — Live Nasdaq Composite: Chip Stocks Buckle Under Capex Pressure</a> | <a href="https://finance.yahoo.com/markets/live/stock-market-today-thursday-july-16-dow-sp-500-nasdaq-103116735.html">Yahoo Finance — Stock Market Today, Thursday July 16</a> | <a href="https://www.gurufocus.com/news/8962588/bloom-energy-be-secures-17b-investment-for-ai-cloud-infrastructure">GuruFocus — Bloom Energy (BE) Secures $1.7B Investment for AI Cloud Infrastructure</a> | <a href="https://www.stocktitan.net/news/BE/industrial-development-funding-and-oaktree-announce-1-7-billion-4ccqgjrjvhtr.html">StockTitan — Industrial Development Funding and Oaktree Announce $1.7 Billion</a> | <a href="https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-falls-12-coherent-181831720.html">Yahoo Finance — Applied Optoelectronics Falls 12%, Coherent and Lumentum Slide</a> | <a href="https://www.cnn.com/2026/07/16/economy/us-retail-sales-june">CNN — US Retail Sales June 2026</a> | <a href="https://www.bloomberg.com/news/articles/2026-07-16/us-jobless-claims-decline-to-208-000-below-economist-forecasts">Bloomberg — US Jobless Claims Decline to 208,000</a> | <a href="https://www.bloomberg.com/news/articles/2026-07-15/latest-oil-market-news-and-analysis-for-july-16">Bloomberg — Latest Oil Market News and Analysis for July 16</a> | <a href="https://www.barchart.com/story/news/3272150/what-to-expect-from-seagate-technologys-q4-2026-earnings-report">Barchart — What to Expect From Seagate Technology's Q4 2026 Earnings Report</a> | <a href="https://finance.yahoo.com/news/celcuity-ceo-sets-july-17-044249843.html">Yahoo Finance — Celcuity CEO Sets July 17 PDUFA for Gedatolisib</a></em></p>
+<h2 id="report-2026-07-16-thursday--post-market-close-analysis">Report: 2026-07-16 (Thursday) — Post-Market Close Analysis</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong><br />
+<strong>NAV since inception, best → worst (official mark, 2026-07-15 close — see §0 on 07-16 status):</strong><br />
+residual_w5545 +6.62% · residual_w5050 +6.21% · residual_w6040 +6.08% · residual_roa_6535 +5.04% · spy_benchmark +4.74% · residual_w8515 +4.44% · residual_w6535 +4.15% · residual_w9505 +3.91% · residual_w9010 +2.66% · sector_top4_full +2.60% · residual_w7525 +2.45% · residual_w7030 +2.34% · residual_w8020 +2.12% · residual_roa_6535_0701 +1.02% · sector_top4 +0.78% · spy_benchmark_0701 +0.47% · llm_overlay_mom_roa_top1 +0.00% (all-cash) · llm_overlay_sector_top4 −0.36% · llm_cascade_sector4 −1.35% · mom_roa_6535_0701 −2.38% · llm_cascade_top1 −2.65% · mom_v1_0701 −3.12% · mom_v2_0701 −3.19% · mom_roa_6535 −5.60% · mom_v1 −7.91% · mom_v2 −8.39% · mom_roa_top1 −9.30%.<br />
+<strong>Day move (07-15, official):</strong> broad red day, momentum-family sleeves −1.2% to −2.7%, LLM-experiment stock arm worst (llm_cascade_top1 −8.78% on WDC), sector/residual sleeves −0.4% to −1.1%, SPY benchmarks +0.40%.<br />
+<strong>07-16 (today, unofficial price_cache estimate — official mark still pending, see §0):</strong> a much sharper day. Momentum sleeves est. −5.3% to −6.4%; <code>mom_roa_top1_paper</code> (control, 100% BE) est. <strong>−13.6%</strong>; <code>llm_cascade_top1_paper</code> (WDC) est. <strong>−9.1%</strong>, WDC's cached close ($466.81) is now BELOW its logged $480 invalidation level; <code>llm_overlay_mom_roa_top1_paper</code> (treatment, all-cash) held flat at $100,000 — the widest single-day control/treatment gap since the 07-06 reset. SPY benchmarks est. −0.5%.<br />
+<strong>Key movers:</strong> WDC −9.15% (memory-chip complex hit by ChangXin/CXMT's confirmed $8.6B Shanghai IPO listing date of 2026-07-27, a new Chinese DRAM competitor); BE −13.64% (Hunterbrook/Crossroads short-seller allegations re: China-sourced scandium supply, which BE disputes in an SEC filing — the $1.7B Oaktree/IDF funding news from 07-15 did not offset it); broad semiconductor/AI-capex selloff after TSMC raised 2026 capex guidance to $60–64B (from $52–56B), which the market read as a warning sign on AI-capex sustainability rather than good news; GOOGL/GOOG −4.4% on a Bloomberg report that Alphabet's Gemini 3.5 Pro is behind schedule; AAPL +1.76% (relative outperformer, 2nd straight up day).<br />
+<strong>Macro:</strong> retail sales +0.2% m/m (prior revised to +1.0%), jobless claims 208K (beat 216K consensus) — both released this morning, already covered in the AM report; three Fed speakers today (Logan, Schmid, Jefferson) with no market-moving quotes surfaced in this research pass; WTI ~$79.43 (~−0.2%) despite reported intensified US strikes on Iran.<br />
+<strong>LLM overlay standings:</strong> stock arm — treatment (cash) has now gone the entire 07-07→07-16 window without a position while control (BE) round-tripped from +2.1% to an estimated −21.7% from its 07-07 peak; n=8 logged decisions since 05-29, nowhere near the 30-pick/12-month kill-switch threshold. Sector arm — no stops breached; XLK's cushion to its $172 stop narrowed to ~3.2% (from ~5.6% on 07-15) as Technology led today's sector losses.<br />
+<strong>Critical outstanding items:</strong> (1) WDC in <code>llm_cascade_top1_paper</code> has <strong>no automated stop-loss mechanism</strong> — confirmed by code inspection, not inference (see §4) — so even if tonight's $466.81 cached close stands, no sell will fire automatically; this is a design gap Evan should be aware of, not a bug. (2) 2026-07-16 NAV is still officially PENDING (price_cache coverage 8,826/~9,723 tickers at query time, below the 5,000-floor auto-mark gate — actually above it, see §0 for the apparent contradiction with the 17:28 anomaly-scan reading of 4,414). (3) EACO (held in <code>residual_roa_6535_paper</code>) has shown an unchanged $101.01 close for 7+ consecutive trading days and posted NOCLOSE again today — a stale-price watch item, not a new bug.</p>
+</blockquote>
+<h3 id="0-data-status-and-methodology-note">0. Data status and methodology note</h3>
+<p>This report is compiled 2026-07-16 ~18:15 CDT (~19:15 ET), roughly 2h15m after the 4:00pm ET close — genuinely post-market this time (the same-day AM report published earlier today was mid-session, ~1pm CDT). <code>daily.bat</code> ran on schedule at 17:19–17:33 CDT (<code>var/last_daily_run.log</code>): overlay/sector-overlay stop checks ran <code>--settled</code> (priced as-of 2026-07-15, the last settled day), <code>mtm_catchup</code> found 2026-07-16 coverage at 4,414 tickers (below the 5,000-auto-mark floor) and left it <strong>PENDING</strong>, and <code>verify_run</code> passed 27/27 sleeves through 07-15 (<code>var/verify_report.log</code>). By the time this report queried <code>price_cache</code> directly (~18:05 CDT), coverage for 2026-07-16 had grown to <strong>8,826 rows</strong> (vs 9,723 for 07-15) — apparently past the 5,000 floor, but the day was already marked PENDING by the earlier run and will only get an official <code>paper_nav</code> row once a subsequent <code>mtm_catchup</code> pass (tomorrow's <code>daily.bat</code>, per the self-healing design in HANDOFF.md) re-evaluates it. <strong>This report is READ-ONLY and does not run any MTM, rebalance, or catch-up script</strong> — per its own rules — so all 07-16 figures below are computed directly from <code>price_cache</code> closes joined against each sleeve's actual open positions and cash (both read from <code>var/trades.db</code>), explicitly labeled "unofficial/estimate," never treated as the settled mark. One held ticker, EACO, has no 07-16 close (flagged by <code>check_anomalies</code> at 17:28 CDT: "NOCLOSE EACO no close on 2026-07-16 [HELD residual_roa_6535_paper]") and is excluded from that one sleeve's estimate (immaterial — EACO's cost basis is a small fraction of the 50-name book).</p>
+<h3 id="1-market-summary_3">1. Market summary</h3>
+<ul>
+<li><strong>S&amp;P 500</strong>: −0.51% to 7,533.77. <strong>Nasdaq Composite</strong>: −1.47% to 25,881.95. <strong>Dow</strong>: −0.20% (−105.67 pts) to 52,552.97. <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-16-2026">TheStreet</a>, <a href="https://finance.yahoo.com/markets/live/stock-market-today-thursday-july-16-dow-sp-500-nasdaq-chip-stocks-slide-103116735.html">Yahoo Finance</a>, both dated 2026-07-16.</li>
+<li>Driver: TSMC raised its 2026 capex guidance to <strong>$60–64B</strong> (from $52–56B) alongside a beat-and-raise Q2 report — markets read the bigger capex number as a signal that AI-infrastructure spending sustainability is being questioned, not celebrated, and tech/semis sold off broadly despite the "good" headline print. Same sources, 2026-07-16.</li>
+<li>Philadelphia Semiconductor Index (SOX) fell ~3%; SMH −2.2%, TSM −3.9%, ARM −4%, Infineon −2.8%, AVGO −2.15%, NVDA −2.81%. In Asia: SK Hynix −11% in Seoul (reversing the prior session's +8%), Samsung −8%+. <a href="https://www.cnbc.com/2026/07/16/sk-hynix-falls-amid-asia-tech-rout-tracking-us-semiconductor-losses.html">CNBC</a>, <a href="https://www.fxleaders.com/news/2026/07/16/semiconductor-stocks-flip-again-sk-hynix-loses-13/">FX Leaders</a>, 2026-07-16.</li>
+<li>Sector performance: figures found blend the 07-15/07-16 reporting window and could not be isolated to a single day with full confidence — Technology and Materials led losses, Energy and Health Care were relative outperformers (Health Care actually positive). <a href="https://kalkine.com/news/premium/us-sector-performance-analysis-technology-leads-as-defensive-sectors-continue-to-lag">Kalkine</a> (date on the article itself not confirmable from the fetched snippet — treat as approximate, corroborated directionally by this portfolio's own XLV/XLE price_cache moves in §4).</li>
+<li>Macro data (both released this morning, ahead of the earlier same-day report): retail sales +0.2% m/m (prior revised up to +1.0%); initial jobless claims 208K (beat vs. 216K consensus). <a href="https://www.investing.com/news/stock-market-news/retail-sales-jobless-claims-and-manufacturing-data-due-thursday-93CH-4794041">Investing.com</a>, <a href="https://www.cnbc.com/2026/07/16/us-treasury-yields-wall-street-inflation-employment-data.html">CNBC</a>, 2026-07-16. Three Fed speakers today — Dallas Fed's Lorie Logan (12:30pm ET), KC Fed's Jeff Schmid (1:25pm ET), Fed Governor Philip Jefferson (7:00pm ET, after this report's compile time) — no market-moving quotes surfaced in this research pass; reported as <strong>NOT FOUND</strong>, not assumed benign.</li>
+<li>Oil: WTI ~$79.43/bbl (~−0.2%) despite reports of intensified US strikes on Iran overnight — source and exact figures for this specific line could not be pinned to one confirmed outlet in this pass; flagged as lower-confidence than the equity figures above.</li>
+</ul>
+<h3 id="2-full-nav-table--all-27-sleeves-official-mark-2026-07-15-close">2. Full NAV table — all 27 sleeves (official mark, 2026-07-15 close)</h3>
+<p>Ranked by since-inception return. Inception dates below are each sleeve's true first <code>paper_nav</code> row (not the <code>paper_portfolio.initialized_at</code> timestamp, which for the 10 residual-weight-ladder sleeves reflects a 2026-07-14 backfill/replay-seed event, not economic inception — see HANDOFF.md record BW).</p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th style="text-align: right;">NAV (2026-07-15)</th>
+<th style="text-align: right;">Since-inception</th>
+<th style="text-align: right;">Day (07-14→07-15)</th>
+<th style="text-align: right;">Inception</th>
+<th style="text-align: right;">Open pos.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_w5545_paper</td>
+<td style="text-align: right;">$106,616.76</td>
+<td style="text-align: right;">+6.62%</td>
+<td style="text-align: right;">−0.80%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w5050_paper</td>
+<td style="text-align: right;">$106,213.86</td>
+<td style="text-align: right;">+6.21%</td>
+<td style="text-align: right;">−0.60%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w6040_paper</td>
+<td style="text-align: right;">$106,075.53</td>
+<td style="text-align: right;">+6.08%</td>
+<td style="text-align: right;">−0.94%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td style="text-align: right;">$105,036.33</td>
+<td style="text-align: right;">+5.04%</td>
+<td style="text-align: right;">−0.95%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td style="text-align: right;">$104,740.16</td>
+<td style="text-align: right;">+4.74%</td>
+<td style="text-align: right;">+0.40%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>residual_w8515_paper</td>
+<td style="text-align: right;">$104,435.03</td>
+<td style="text-align: right;">+4.44%</td>
+<td style="text-align: right;">−0.92%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w6535_paper</td>
+<td style="text-align: right;">$104,153.72</td>
+<td style="text-align: right;">+4.15%</td>
+<td style="text-align: right;">−1.07%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w9505_paper</td>
+<td style="text-align: right;">$103,912.05</td>
+<td style="text-align: right;">+3.91%</td>
+<td style="text-align: right;">−0.76%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w9010_paper</td>
+<td style="text-align: right;">$102,656.58</td>
+<td style="text-align: right;">+2.66%</td>
+<td style="text-align: right;">−0.90%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td style="text-align: right;">$102,604.32</td>
+<td style="text-align: right;">+2.60%</td>
+<td style="text-align: right;">−0.61%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>residual_w7525_paper</td>
+<td style="text-align: right;">$102,446.82</td>
+<td style="text-align: right;">+2.45%</td>
+<td style="text-align: right;">−1.01%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w7030_paper</td>
+<td style="text-align: right;">$102,336.93</td>
+<td style="text-align: right;">+2.34%</td>
+<td style="text-align: right;">−1.11%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w8020_paper</td>
+<td style="text-align: right;">$102,119.79</td>
+<td style="text-align: right;">+2.12%</td>
+<td style="text-align: right;">−1.04%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper</td>
+<td style="text-align: right;">$101,016.98</td>
+<td style="text-align: right;">+1.02%</td>
+<td style="text-align: right;">−1.18%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">48</td>
+</tr>
+<tr>
+<td>sector_top4_paper</td>
+<td style="text-align: right;">$100,779.84</td>
+<td style="text-align: right;">+0.78%</td>
+<td style="text-align: right;">−0.61%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper</td>
+<td style="text-align: right;">$100,469.86</td>
+<td style="text-align: right;">+0.47%</td>
+<td style="text-align: right;">+0.40%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper</td>
+<td style="text-align: right;">$100,000.00</td>
+<td style="text-align: right;">+0.00%</td>
+<td style="text-align: right;">0.00%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">0 (cash)</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper</td>
+<td style="text-align: right;">$99,636.28</td>
+<td style="text-align: right;">−0.36%</td>
+<td style="text-align: right;">−0.41%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>llm_cascade_sector4_paper</td>
+<td style="text-align: right;">$98,652.28</td>
+<td style="text-align: right;">−1.35%</td>
+<td style="text-align: right;">−0.41%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>mom_roa_6535_0701_paper</td>
+<td style="text-align: right;">$97,618.67</td>
+<td style="text-align: right;">−2.38%</td>
+<td style="text-align: right;">−2.44%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>llm_cascade_top1_paper</td>
+<td style="text-align: right;">$97,348.71</td>
+<td style="text-align: right;">−2.65%</td>
+<td style="text-align: right;">−8.78%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>mom_v1_0701_paper</td>
+<td style="text-align: right;">$96,881.09</td>
+<td style="text-align: right;">−3.12%</td>
+<td style="text-align: right;">−2.24%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>mom_v2_0701_paper</td>
+<td style="text-align: right;">$96,811.04</td>
+<td style="text-align: right;">−3.19%</td>
+<td style="text-align: right;">−2.53%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td style="text-align: right;">$94,401.30</td>
+<td style="text-align: right;">−5.60%</td>
+<td style="text-align: right;">−2.30%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td style="text-align: right;">$92,086.42</td>
+<td style="text-align: right;">−7.91%</td>
+<td style="text-align: right;">−2.24%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td style="text-align: right;">$91,607.64</td>
+<td style="text-align: right;">−8.39%</td>
+<td style="text-align: right;">−2.69%</td>
+<td style="text-align: right;">2026-05-01</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>mom_roa_top1_paper</td>
+<td style="text-align: right;">$90,703.51</td>
+<td style="text-align: right;">−9.30%</td>
+<td style="text-align: right;">−1.65%</td>
+<td style="text-align: right;">2026-07-06</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>07-16 unofficial estimate</strong> (price_cache closes × held qty + cash; NOT the official mark — see §0): every sleeve was down again, this time much harder. Momentum-family sleeves (mom_v1/v2, mom_roa_6535, both cohorts) est. −5.3% to −6.4% for the day; the residual-weight-ladder sleeves est. −1.6% to −2.3%; residual_roa_6535_paper's raw estimate came out at −4.51%, but that figure omits its EACO position entirely (no 07-16 close, see §0) — EACO's last known value (~$2,433, ~2.3% of the book, flat at $101.01 for over a week) is simply missing from the sum, which mechanically overstates the decline by roughly that same ~2.3pp; the true figure is more plausibly in the −2.0% to −2.5% range, in line with its residual-family peers, but this report does not assume a value for EACO and reports the raw (biased-negative) number in the table below rather than a fabricated fill-in; SPY benchmarks est. −0.54%; sector sleeves est. −0.1% to −0.4%. The two extremes: <code>mom_roa_top1_paper</code> (control, 100% BE) <strong>est. −13.62%</strong>, and <code>llm_cascade_top1_paper</code> (WDC) <strong>est. −9.14%</strong> — both covered in §3/§4.</p>
+<h3 id="3-key-position-analysis--movers-stop-watch-new-developments">3. Key position analysis — movers, stop watch, new developments</h3>
+<p><strong>Official (07-15) biggest movers among held tickers</strong>, all 174 currently-open positions across sleeves, ranked by 07-14→07-15 % change:<br />
+- Decliners: CELC −17.60%, AAOI −13.04%, VELO −12.35%, ANAB −10.70%, ASTC −10.38%, RFIL −10.16%, DELL −9.80%, <strong>WDC −8.78%</strong>, MU −8.02%, MRVL −7.27%, GLW −7.05%, ACMR −7.01%, CIEN −6.37%, BAND −6.33%, MRAM −6.23%.<br />
+- Gainers: AEHR +21.91%, MQ +7.69%, POWL +5.45%, DAVE +5.08%, SPHR +4.67%, AAPL +4.01%, GOOG +3.60%, SEZL +3.38%, KRYS +3.18%, GOOGL +3.17%.</p>
+<p><strong>07-16 (today, price_cache-sourced, unofficial) continuation</strong> for the same names — this was a much broader and sharper leg down for nearly every name that had been resilient or bounced yesterday:<br />
+- WDC −9.15% ($513.84→$466.81, now below its $480 invalidation level — see §4), GLW −9.19%, MRAM −10.52%, MRVL −8.71%, ACMR −8.56%, AAOI −8.11% (second straight double-digit-adjacent day), RFIL −8.10%, CIEN −7.09%, MU −5.65%, DELL −5.16%, EWTX −6.47%, POWL −4.54%, SEZL −4.30%, GOOGL −4.44%, GOOG −4.43%, SPHR −3.40%, CELC −3.52% (third straight down day, see below), AEHR −4.09% (giving back part of yesterday's +21.9% spike), VELO −7.72%, ASTC −5.16%, ANAB −2.99%.<br />
+- Relative outperformers: AAPL +1.76% (second straight up day, bucking the tech selloff), DAVE +0.99%, MQ +2.99%.</p>
+<p><strong>Ticker-specific research:</strong><br />
+- <strong>WDC</strong>: today's incremental drop (on top of yesterday's) is attributed by Benzinga (2026-07-16, 12:36pm ET) to "broad, sector-wide selloff in semiconductor and AI memory stocks driven by massive profit-taking" plus ChangXin Memory Technologies (CXMT) confirming a <strong>July 27, 2026</strong> Shanghai STAR Market IPO date seeking ~$8.6B — Asia's largest 2026 IPO and the largest-ever Chinese A-share semiconductor offering. CXMT's DRAM market share has reportedly tripled y/y to ~8% (Counterpoint Research) versus Micron's ~22%, reigniting DRAM-oversupply fears across the whole memory complex (Micron −5%, SK Hynix ADR −7%, SanDisk −7%, WDC −7% intraday per this source's own snapshot). No new Kioxia-merger-specific news dated 07-16 was found — that story remains dated 07-15; today's move reads as CXMT-driven, not a reversal of the merger-talk thesis. BofA's Wamsi Mohan (cited in the same Benzinga piece) maintains a constructive stance: tight NAND supply/demand persisting through 2027, pricing resilient through at least mid-2027. Technical levels cited: resistance $525, support $481 — i.e., Benzinga's own intraday snapshot ($460.75, −10.33%, as of 12:36pm ET) already had WDC below that support/near our $480 stop several hours before today's close; our price_cache close of $466.81 is consistent with that intraday read (small variance expected between an intraday snapshot and the final settle). <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60504724/why-is-western-digital-stock-falling-on-thursday">Benzinga</a>, <a href="https://247wallst.com/investing/2026/07/16/sk-hynix-and-sandisk-sink-7-micron-falls-5-as-chinas-cxmt-readies-an-8-6b-memory-ipo/">24/7 Wall St</a>, <a href="https://www.marketscreener.com/news/china-s-changxin-memory-technologies-sets-july-27-listing-date-sources-say-ce7f5edcdc8bf420">MarketScreener</a>, all 2026-07-16.<br />
+- <strong>BE (Bloom Energy)</strong>: fell hard today — Benzinga (2026-07-16, 1:22pm ET) put it at −12.11% to $210.39 intraday; our price_cache close shows −13.64% to $206.73 (again, intraday vs. settled-close variance, same direction/magnitude). Cause: investors "digesting short-seller allegations" from Hunterbrook Research and Crossroads Capital alleging BE understated its reliance on Chinese-sourced scandium (an input for its solid-oxide fuel cells). BE has rejected the allegations in an SEC filing, stating it has sufficient non-China-dependent scandium-oxide supply for up to 25 GW/yr of production. The article explicitly notes that Tuesday/Wednesday's ($1.7B Oaktree/Industrial Development Funding AI-cloud-infrastructure investment) news "failed to provide meaningful support" against the short-seller pressure and broader risk-off tape. BE is now ~33% off its 2026 high; next hard catalyst is Q2 earnings on 2026-07-28. <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60506579/whats-going-on-with-bloom-energy-shares-on-thursday">Benzinga</a>, <a href="https://finance.yahoo.com/markets/stocks/articles/bloom-energy-biggest-selloff-months-061829587.html">Yahoo Finance</a>, both 2026-07-16.<br />
+- <strong>AEHR Test Systems</strong>: −7.55% per Simply Wall St's same-day framing (our price_cache shows −4.09%; direction agrees, magnitude differs by source/timestamp) — this follows the huge +21.9%/+21.91% pop after AEHR's 2026-07-14 Q4 beat (revenue $18.84M vs. $18.69M consensus, record bookings $60.7M, FY27 guidance of $130–150M / +160–200% y/y). Today's pullback reads as valuation reassessment/profit-taking after the post-earnings spike ("passes only 1 of 6 valuation checks" per the source) rather than any new negative catalyst — none was found for 07-16 specifically. <a href="https://simplywall.st/stocks/us/semiconductors/nasdaq-aehr/aehr-test-systems/news/aehr-test-systems-aehr-faces-an-overvalued-view-is-the-pullb">Simply Wall St</a>, 2026-07-16; earnings context via <a href="https://www.fool.com/investing/2026/07/15/why-aehr-test-systems-stock-is-up-today/">Motley Fool</a>, 2026-07-15.<br />
+- <strong>CELC (Celcuity)</strong>: down −17.60% (07-15) then −3.52% more today, ahead of a confirmed <strong>July 17, 2026</strong> PDUFA goal date (tomorrow) for gedatolisib in HR+/HER2-/PIK3CA-wild-type advanced breast cancer (Priority Review). No news item dated specifically 2026-07-16 was found (no leak, analyst note, or FDA signal) — today's move reads as continued pre-decision de-risking, not a new catalyst. Held by <code>mom_v1_paper</code>, <code>mom_v2_paper</code>, <code>mom_v1_0701_paper</code>, and <code>mom_v2_0701_paper</code> — the largest single-name decliner in the momentum universe both yesterday and today, ahead of tomorrow's FDA decision. <a href="https://www.stocktitan.net/sec-filings/CELC/8-k-celcuity-inc-reports-material-event-a18ca0c4ce46.html">StockTitan</a>, <a href="https://finance.yahoo.com/news/celcuity-ceo-sets-july-17-044249843.html">Yahoo Finance</a>.<br />
+- <strong>GOOGL/GOOG</strong>: reversed yesterday's +3.2%/+3.6% gain with a −4.44%/−4.43% drop today on a Bloomberg report that Alphabet is behind schedule delivering Gemini 3.5 Pro, its next flagship AI model. <a href="https://finance.yahoo.com/markets/live/stock-market-today-thursday-july-16-dow-sp-500-nasdaq-chip-stocks-slide-103116735.html">Yahoo Finance</a>, 2026-07-16.<br />
+- <strong>GLW, MRAM, MRVL, ACMR, RFIL, CIEN, MU, DELL, EWTX, SEZL, POWL</strong>: no company-specific 07-16 catalyst was found beyond being swept into the broad semiconductor/memory/tech-hardware selloff described above (TSMC capex guide + CXMT IPO). Reported as such, not invented.</p>
+<p><strong>Stop watch:</strong><br />
+- <strong>WDC / $480 (llm_cascade_top1_paper)</strong>: cached 07-16 close $466.81 is below the $480 level logged on 2026-07-07 (score 6, "Multi-year HDD supply contracts... stop below 50-DMA pullback"). <strong>However, this level is a logged reference point only — the cascade sleeve has no automated stop-enforcement mechanism</strong> (confirmed by reading <code>scripts/momentum/llm_overlay_ops.py</code>: it only checks and can only exit <code>llm_overlay.OVERLAY_STRATEGY</code> — i.e., <code>llm_overlay_mom_roa_top1_paper</code> — never the cascade strategy; <code>daily.bat</code> calls the same two ops scripts, <code>llm_overlay_ops</code> and <code>sector_overlay_ops</code>, neither of which targets any <code>llm_cascade_*</code> sleeve). So even if 07-16's close settles at $466.81, no automatic sell will occur on <code>llm_cascade_top1_paper</code> tonight or any future night under the current pipeline — this is a design characteristic of the "always-invested cascade" concept (per HANDOFF.md: it "walks down the ranking past a veto instead of going to cash," with no stated stop-out behavior for an already-held name), not a bug, but worth Evan explicitly confirming is the intended behavior given the position is down ~19.9% from its 07-10 peak NAV mark.<br />
+- <strong>Sector overlay (<code>llm_overlay_sector_top4_paper</code>)</strong>: stops for its three held ETFs (XLK $172, XLI $170, XLB $49.50) enforced nightly via <code>sector_overlay_ops --settled</code>, ran clean tonight at 07-15 prices (XLB $50.50 &gt; $49.50, XLI $180.06 &gt; $170.00, XLK $181.58 &gt; $172.00 — all holding, per <code>var/last_daily_run.log</code>). Today's (07-16) price_cache closes: XLK $177.52 (cushion to stop narrowed to ~3.2%, from ~5.6% on 07-15 — Technology led today's sector losses), XLI $180.15 (cushion ~6.0%, essentially flat), XLB $50.89 (cushion ~2.8%, actually widened — Materials bounced slightly today after 07-15's dip). None breached.<br />
+- <strong>Stock overlay (<code>llm_overlay_mom_roa_top1_paper</code>)</strong>: no open position to check — confirmed all-cash since the 07-01 reset.</p>
+<h3 id="4-llm-overlay-treatment-vs-control_6">4. LLM overlay treatment vs. control</h3>
+<p><strong>Stock arm</strong> (<code>mom_roa_top1_paper</code> control vs. <code>llm_overlay_mom_roa_top1_paper</code> treatment vs. <code>llm_cascade_top1_paper</code> cascade):<br />
+- Control has held BE since 07-07 (100% weight, entry $263.94, 378.49 sh). NAV path: $100,000 (07-06) → $102,130 (07-07 peak) → $96,347 (07-08) → $97,380 (07-09) → $92,683 (07-10) → $88,474 (07-13) → $92,225 (07-14) → $90,704 (07-15, official) → <strong>est. $78,346 (07-16, unofficial, −13.6% day)</strong>. That's a ~23.3% drawdown from the 07-07 peak in seven trading days.<br />
+- Treatment (stock overlay) VETO'd BE on both 07-01 and again 07-07 (score 4, logged rationale "dup-check" on the 07-07 re-evaluation) and has held <strong>zero positions, 100% cash, flat at exactly $100,000</strong> every single day since. Versus control's est. −21.7% from $100,000 to $78,346 today, that is the single widest control/treatment divergence since this experiment's 07-06 reset — a real, if small-n (one ticker, one veto), data point in the treatment's favor. Total logged stock-arm decisions: 8, since 2026-05-29 — nowhere near the kill-switch threshold (30 picks / 12 months).<br />
+- Cascade (WDC, walks past a veto instead of cash): NAV path $100,000 (07-06) → $100,805 → $104,249 → $109,501 (07-09) → <strong>$110,360 (07-10, all-time high)</strong> → $105,243 (07-13) → $106,713 (07-14) → $97,349 (07-15, the −8.78% WDC day) → <strong>est. $88,448 (07-16, −9.1% day)</strong>. That's a ~19.9% drawdown from the 07-10 peak in four trading days — see the stop-watch note in §3 on why this position has no mechanical stop to arrest further decline.</p>
+<p><strong>Sector arm</strong> (<code>sector_top4_paper</code> control vs. <code>llm_overlay_sector_top4_paper</code> treatment vs. <code>llm_cascade_sector4_paper</code> cascade): control holds XLE/XLK/XLI/XLB; treatment vetoed XLE (rationale, 2026-07-07: "below 50-DMA... EIA demand forecast down 1.1mb/d... fragile geopolitical prop" — score 3) and sits in cash for that 25% slot, holding only XLK/XLI/XLB; cascade chained past the same XLE veto down to XLV (rank #5, "Cascade-only pick... capital rotating out of overextended tech... into healthcare," score 7) and holds all four sector slots (XLK/XLI/XLB/XLV). Since-inception (07-15 official): control +0.78%, treatment −0.36%, cascade −1.35% — control currently ahead of both LLM variants, the opposite pattern from the stock arm. Today's (07-16) XLE close was $57.02 (vs. control's veto point) — up modestly, so the vetoed slot would have been a small net positive today had the LLM overlay not stepped aside; XLV closed $161.80 (up ~2.2%, Health Care's outperformance benefiting the cascade's 4th slot). Total logged sector-arm decisions: 15, since 2026-05-29.</p>
+<h3 id="5-weekperiod-summary-07-09--07-15-official-marks--the-most-recent-full-week-available">5. Week/period summary (07-09 → 07-15, official marks — the most recent full week available)</h3>
+<p>The past week cleanly separates the roster by design, not luck:<br />
+- <strong>Raw momentum sleeves hit hardest</strong>: llm_cascade_top1 −11.10%, mom_v2_0701 −7.51%, mom_roa_top1 −6.86%, mom_v2 −6.74%, mom_v1_0701 −6.46%, mom_roa_6535_0701 −6.46%, mom_v1 −6.22%, mom_roa_6535 −5.61%.<br />
+- <strong>Residual-signal sleeves (weight ladder + residual_roa_6535) far more resilient</strong>: −0.71% to −1.62% across all 11 residual-family sleeves, roughly a quarter to a third of the raw-momentum drawdown over the same week.<br />
+- <strong>Flat-to-positive</strong>: llm_overlay_mom_roa_top1 (cash) +0.00%, sector_top4_full +0.09%, sector_top4 +0.22%, both SPY benchmarks +0.41%.<br />
+- This is the clearest week-over-week illustration yet of the residual-momentum thesis (idiosyncratic/residual signal should carry less single-factor/single-name concentration risk than raw price momentum) — consistent with, not a new finding beyond, the original residual_roa_6535 backtest case for lower drawdown (HANDOFF.md backtest table: residual_roa_6535 held-out maxDD −20.1% vs. mom_v2's −34.8%).</p>
+<h3 id="6-strategic-insights--structural-edge-or-new-sleeve-concepts_12">6. Strategic insights — structural edge or new sleeve concepts?</h3>
+<p><strong>A. The residual-momentum family's live drawdown resilience this week (§5) is a genuine, if still-short, forward data point supporting its designed edge</strong> — not a new finding, but the sharpest real-time confirmation since the 06-09 deployment decision (record: residual_roa_6535 beats mom_roa_6535 on return+Sharpe+DD in both backtest windows). A week of a real semiconductor-driven selloff hitting raw-momentum sleeves 4-7x harder than the residual-signal sleeves is exactly the kind of out-of-sample stress period the original backtest thesis predicted.</p>
+<p><strong>B. The stock-level LLM overlay experiment produced its most striking single data point yet today.</strong> Treatment (cash, VETO'd BE twice) vs. control (BE, down an estimated ~23% from its 07-07 peak) is now a ~21-22 percentage-point NAV gap on one ticker. This is still n=1 decision and n=8 total logged picks — nowhere near statistically meaningful, and the kill-switch design (30 picks/12 months) exists precisely because early divergences like this can reverse. But it is the single clearest illustration since inception of what the experiment is designed to test.</p>
+<p><strong>C. The llm_cascade_top1_paper design gap (§3/§4) is worth flagging as a process item, not a sleeve-concept idea.</strong> An "always-invested, walk-past-the-veto" cascade concept that holds a name through a stop-level breach with no mechanical exit is a coherent design choice (it's explicitly not meant to have the overlay's veto-and-cash behavior), but it means WDC's current position has no risk control beyond the next LLM re-evaluation cycle (which, per the log history, has run roughly monthly at rebalance, not on stop breaches). Worth Evan confirming this is intended before the position potentially deepens further.</p>
+<p><strong>D. No new sleeve concept is proposed from today's data.</strong> TSMC's capex-guidance reaction, the CXMT IPO date, the BE short-seller allegations, and the GOOGL Gemini-3.5-delay report are all within the scope of exposures already embedded in the current 27-sleeve roster (momentum universes hold WDC/MU/GOOGL-class names broadly; the stock-arm experiment already holds BE directly). The standing open items are: (1) whether Evan wants a stop mechanism added to the cascade design given today's WDC breach (§4/C), (2) the still-pending 07-16 official NAV mark (§0) — expected to resolve on a future <code>mtm_catchup</code> pass per the self-healing pipeline design, and (3) the EACO stale-price watch item (§0), which mirrors the pattern that produced the BKGM ghost-price finding in the 2026-06-01 audit and may be worth a manual check the next time Evan is in the DB.</p>
+<hr />
+<p><em>Report generated: 2026-07-16 (Thursday), ~18:15–18:40 CDT (~19:15–19:40 ET), roughly 2h15m–2h40m after the 4:00pm ET close. Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>paper_portfolio</code>, <code>price_cache</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>) queried read-only directly; official <code>paper_nav</code>/<code>verify_run</code> mark remains 2026-07-15 (PASS 27/27, <code>var/verify_report.log</code>, run 2026-07-16 17:33 CDT); 2026-07-16 is PENDING per <code>mtm_catchup</code> (coverage 4,414 &lt; 5,000 floor at the 17:25 CDT run; grew to 8,826/9,723 by this report's ~18:05 CDT query — not re-evaluated by any script this report ran, since this task is read-only); all 07-16 figures in this report are <code>price_cache</code>-sourced but self-computed estimates, explicitly not the official mark; one held ticker (EACO, in <code>residual_roa_6535_paper</code>) has no 07-16 close and was excluded from that sleeve's estimate; <code>llm_overlay_ops.py</code>/<code>sector_overlay_ops.py</code> source-read directly to confirm the cascade-sleeve stop-enforcement gap in §3/§4; no <code>daily.bat</code> rebalance/MTM/catch-up was run by this report. | Sources: <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-16-2026">TheStreet — Stock Market Today July 16 2026</a> | <a href="https://finance.yahoo.com/markets/live/stock-market-today-thursday-july-16-dow-sp-500-nasdaq-chip-stocks-slide-103116735.html">Yahoo Finance — Stock Market Today, Thursday July 16 (chip stocks slide)</a> | <a href="https://www.cnbc.com/2026/07/16/sk-hynix-falls-amid-asia-tech-rout-tracking-us-semiconductor-losses.html">CNBC — SK Hynix falls amid Asia tech rout</a> | <a href="https://www.fxleaders.com/news/2026/07/16/semiconductor-stocks-flip-again-sk-hynix-loses-13/">FX Leaders — Semiconductor Stocks Flip Again</a> | <a href="https://247wallst.com/investing/2026/07/16/sk-hynix-and-sandisk-sink-7-micron-falls-5-as-chinas-cxmt-readies-an-8-6b-memory-ipo/">24/7 Wall St — SK Hynix and SanDisk Sink 7%, Micron Falls 5% as China's CXMT Readies an $8.6B Memory IPO</a> | <a href="https://www.marketscreener.com/news/china-s-changxin-memory-technologies-sets-july-27-listing-date-sources-say-ce7f5edcdc8bf420">MarketScreener — CXMT Sets July 27 Listing Date</a> | <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60504724/why-is-western-digital-stock-falling-on-thursday">Benzinga — Why Is Western Digital Stock Falling on Thursday?</a> | <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60506579/whats-going-on-with-bloom-energy-shares-on-thursday">Benzinga — What's Going On With Bloom Energy Shares on Thursday?</a> | <a href="https://finance.yahoo.com/markets/stocks/articles/bloom-energy-biggest-selloff-months-061829587.html">Yahoo Finance — Bloom Energy's Biggest Selloff in Months</a> | <a href="https://simplywall.st/stocks/us/semiconductors/nasdaq-aehr/aehr-test-systems/news/aehr-test-systems-aehr-faces-an-overvalued-view-is-the-pullb">Simply Wall St — AEHR Faces an Overvalued View</a> | <a href="https://www.fool.com/investing/2026/07/15/why-aehr-test-systems-stock-is-up-today/">Motley Fool — Why AEHR Test Systems Stock Is Up Today</a> | <a href="https://www.stocktitan.net/sec-filings/CELC/8-k-celcuity-inc-reports-material-event-a18ca0c4ce46.html">StockTitan — Celcuity 8-K</a> | <a href="https://finance.yahoo.com/news/celcuity-ceo-sets-july-17-044249843.html">Yahoo Finance — Celcuity CEO Sets July 17 PDUFA</a> | <a href="https://www.investing.com/news/stock-market-news/retail-sales-jobless-claims-and-manufacturing-data-due-thursday-93CH-4794041">Investing.com — Retail Sales, Jobless Claims, Manufacturing Data Due Thursday</a> | <a href="https://www.cnbc.com/2026/07/16/us-treasury-yields-wall-street-inflation-employment-data.html">CNBC — Treasury Yields, Inflation, Employment Data</a> | <a href="https://kalkine.com/news/premium/us-sector-performance-analysis-technology-leads-as-defensive-sectors-continue-to-lag">Kalkine — US Sector Performance Analysis</a></em></p>
 </div>
 </body>
 </html>
