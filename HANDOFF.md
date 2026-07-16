@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 27 sleeves live (07-06 cohort + residual weight ladder)
 
-**Last updated: 2026-07-11** — this file is the only live snapshot (state-doc
+**Last updated: 2026-07-15** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
 > **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
@@ -180,8 +180,17 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   exits on invalidation price stop
 - **Rule**: run 3 prompts (growth/quality/risk) on every new underlying name
   before the treatment buys. Decision logged via `llm_overlay_ops`.
-- **Current state**: both hold FN (Fabrinet). Treatment exited FN at $600 stop
-  (Jun-09); control still holds. Divergence starting to accumulate.
+- **Stops FIXED 2026-07-15 (record BZ)**: invalidation stops were DORMANT since
+  deployment — `daily.bat` gated `check-invalidation` behind a universe-wide
+  coverage PASS that the 5:15pm run almost never sees (today = pending), so
+  they simply never ran (zero `invalidation` exits in current DB history).
+  Now enforced EVERY evening via `--settled` (priced as-of the last settled
+  trading day). First live run of the new path: 2026-07-16 5:15pm. Evan chose
+  this (option a) over morning-task enforcement / rebalance-only.
+- **Current state (2026-07-15, DB-verified)**: treatment has never held a
+  position since the 07-01 reset (all cash — the #1 candidate BE was VETO'd
+  07-01 and again 07-07); control holds the #1 name. (The pre-reset FN
+  history lives in the record.)
 - **Kill switch**: 12 months / 30 picks, drop if scores don't predict returns
   OR treatment doesn't beat control over 30 picks.
 
@@ -190,7 +199,10 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 - **Treatment**: `llm_overlay_sector_top4_paper` — sector_top4 picks with
   a 4-prompt macro veto (rates/valuation/breadth/bear-case); veto → cash for
   that 25% slot
-- **Current state**: UNSEEDED (cash, $100k, no decisions yet)
+- **Current state (2026-07-15, DB-verified)**: holds XLB/XLI/XLK since 07-07
+  (XLE slot VETO'd → cash); live stops 49.5/170/172 — none breached through
+  07-14. Same stop fix as the stock overlay applies (record BZ): enforced
+  nightly as-of the last settled close from 2026-07-16.
 - **Code**: `trading_bot/strategies/sector_overlay.py`, `scripts/momentum/sector_overlay_ops.py`
 
 ---
@@ -211,8 +223,8 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/daily_price_refresh.py` | Bulk yfinance refresh (~4,300 tickers) |
 | `scripts/momentum/paper_rebalance.py --strategy NAME --top-n N` | Monthly rebalance |
 | `scripts/momentum/paper_mtm.py --strategy NAME [--as-of DATE]` | Daily mark-to-market |
-| `scripts/momentum/llm_overlay_ops.py candidate\|decide\|rebalance` | LLM stock overlay |
-| `scripts/momentum/sector_overlay_ops.py candidate\|decide\|rebalance` | LLM sector overlay |
+| `scripts/momentum/llm_overlay_ops.py candidate\|decide\|rebalance\|check-invalidation` | LLM stock overlay; `check-invalidation --settled` runs nightly in `daily.bat` (record BZ) |
+| `scripts/momentum/sector_overlay_ops.py candidate\|decide\|rebalance\|check-invalidation` | LLM sector overlay; `check-invalidation --settled` runs nightly in `daily.bat` (record BZ) |
 | `scripts/momentum/seed_spy_benchmark.py` | One-off SPY sleeve seeder (idempotent) |
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |

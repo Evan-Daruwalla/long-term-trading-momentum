@@ -134,6 +134,7 @@ lives in the dated entry, not the digest.
 - [BW - Residual weight ladder DEPLOYED (10 sleeves, 05-01 replay); BV plateau -> live forward test](#appendix-bw---residual-weight-ladder-deployed-10-forward-test-sleeves-seeded-05-01-by-replay-bv-plateau---live-2026-07-14-1830-local) (07-14)
 - [BX - Dashboard: residual ladder own panel; daily-report tasks self-commit + auto-push](#appendix-bx---residual-ladder-gets-its-own-dashboard-panel-daily-report-tasks-now-self-commit--auto-push-2026-07-14-1900-local) (07-14)
 - [BY - Coverage-lag fix: morning refresh task (TradingMorningMTM); overlay stops found dormant](#appendix-by---coverage-lag-fixed-with-a-morning-refresh-task-tradingmorningmtm-separate-finding-overlay-invalidation-stops-are-dormant-2026-07-15-1440-local) (07-15)
+- [BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a)](#appendix-bz---dormant-overlay-invalidation-stops-fixed-daily-enforcement-as-of-the-last-settled-close-evan-option-a-2026-07-15-1730-local) (07-15)
 
 ---
 
@@ -5615,3 +5616,77 @@ refresh would write a transient partial 07-15 bar) - 07-14 heals on tonight's 5:
 morning task first fires 07-16 7:45 AM. No Python changed (new .bat only); frozen tests still 4/4
 d=+/-0.0000pp (last run this session). Task config lives in Windows Task Scheduler, not the repo;
 `morning_refresh.bat` + doc updates are committed.
+
+# Appendix BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a) (2026-07-15, ~17:30 local)
+
+Follow-up to the SEPARATE FINDING flagged in Appendix BY. Investigated, confirmed, presented the
+three options to Evan; **Evan chose option (a)** ("enforce stops against the last SETTLED close
+regardless of today's coverage") and it is now implemented.
+
+## BZ.1 Confirmation + quantification (all read-only, gathered before any edit)
+
+- **Mechanism confirmed in code + live log.** `daily.bat` ran both `check-invalidation` calls only
+  inside the coverage-PASS branch. The 2026-07-14 17:15 run's log shows the skip verbatim:
+  `COVERAGE FAIL: only 4376 closes on 2026-07-14 (< floor 5000)` followed by
+  `TODAY PENDING - incomplete same-day publication. Skipping stop-enforcement.`
+- **Skip rate.** Every scheduled 5:15 PM ops stamp since stamping began is PENDING: 07-10, 07-13,
+  07-14, and tonight's 07-15 (`coverage=PENDING verify=PASS`, run completed 17:18). The only PASS
+  stamps (2x 07-12) came from manual/session runs, not the scheduled task.
+- **Whole-history proof of dormancy.** Across ALL 563 closed positions in the entire DB (every
+  sleeve, since inception), `exit_reason` is `rebalance` on every single row - **zero
+  `invalidation` exits have ever occurred**.
+- **Root cause, sharpened.** The gate requires UNIVERSE-WIDE coverage (>= 5,000 closes) - the right
+  bar for MTM, which ranks the whole universe - but a stop-check only needs the HELD ticker's last
+  settled close. On 07-14 the held sectors (XLB/XLI/XLK) all had settled closes cached at 17:15;
+  the check was gated off anyway because the illiquid tail dragged universe coverage to 4,376.
+- **No realized harm (honest bound).** The stock-overlay treatment
+  (`llm_overlay_mom_roa_top1_paper`) has been ALL-CASH since the 07-01 reset (BE VETO), so its
+  logged stops (e.g. WDC 480) had nothing to guard. The sector-overlay treatment has held
+  XLB/XLI/XLK since 07-07 with stops 49.5/170/172; checked every close 07-07..07-14 - minimums
+  50.16/180.37/179.18, **no breach occurred during the dormant window**. Latent control failure,
+  not a loss event. Nothing to backdate; the fix is forward-only.
+
+## BZ.2 The fix (option a) - 4 files
+
+1. **`scripts/momentum/check_coverage.py`**: new `last_settled_date(conn, lookback=10)` - newest
+   `key_date` whose close count passes the standard floor (same `coverage_status` logic as the
+   gate, so "settled" means the same thing everywhere). Read-only.
+2. **`scripts/momentum/llm_overlay_ops.py`** + **`scripts/momentum/sector_overlay_ops.py`**:
+   `check-invalidation` gains a `--settled` flag - resolves `as_of` to the last settled trading
+   day (read-only connection) instead of trusting `--as-of`/today. Without the flag, behavior is
+   byte-identical to before.
+3. **`scripts/momentum/daily.bat`**: stop-enforcement moved OUT of the PASS branch - it now runs
+   unconditionally after the coverage check (which still sets the `%OPS_COV%` ops stamp), invoking
+   both overlays with `--settled`. Header comments updated; file verified pure ASCII (0 non-ASCII
+   bytes, per the Appendix AS gotcha).
+
+Semantics: on a pending evening the stop prices AND dates at the last settled day (typically T-1) -
+consistent with the sim's close-based `last_close_on_or_before` convention, and the sale lands
+before that day is catch-up-marked (stops still run before `mtm_catchup` in the flow). When today
+has settled by 17:15, behavior is what the PASS branch always intended: stop off today's close.
+`TradingMorningMTM` (Appendix BY) remains trade-free - stops stay on the evening cadence, exactly
+as decided there. This IS a deliberate live-experiment behavior change (the designed stops become
+real), approved by Evan this session; treatment-vs-control comparability is forward-consistent
+since the design always specified daily invalidation stops - they were just never firing.
+
+## BZ.3 Verification
+
+- Dry-runs (no trades; both also confirmed no breach at the settled close):
+  `llm_overlay_ops check-invalidation --settled --dry-run` -> "pricing stop as-of 2026-07-14 (last
+  settled trading day)" + "no open position - nothing to check" (treatment is in cash).
+  `sector_overlay_ops check-invalidation --settled --dry-run` -> as-of 2026-07-14; XLB $50.64 >
+  $49.50, XLI $180.45 > $170.00, XLK $183.62 > $172.00 - all "holding". These are the first
+  enforcement-path stop evaluations the experiment has ever produced.
+- Frozen regression tests after the Python changes - actual output:
+  momentum_v1/2023_Q4 +14.5547% (d=-0.0000pp, 70 trades), momentum_v1/2025_H1 +1.8792%
+  (d=-0.0000pp, 156), momentum_v2/2023_Q4 +14.4062% (d=-0.0000pp, 38), momentum_v2/2025_H1
+  +10.2194% (d=+0.0000pp, 87). All 4 OK.
+  NOTE: `python -m pytest` fails (pytest not installed in the venv); the working runner is
+  `.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies` - the pytest form in the
+  project CLAUDE.md is stale.
+- Timing discipline: tonight's 17:15 `TradingDailyMTM` run was verified COMPLETE (log "Done.",
+  27/27 sleeves PASS, stamp written 17:18) before `daily.bat` was edited - never edit a .bat that
+  cmd may still be executing. First live run of the new path: **2026-07-16 17:15**.
+
+Not committed yet (no commit instruction at time of writing). HANDOFF.md updated (automation +
+LLM-experiment sections).

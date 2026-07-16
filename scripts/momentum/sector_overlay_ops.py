@@ -35,6 +35,7 @@ import logging
 import sys
 from datetime import date
 
+from scripts.momentum import check_coverage
 from trading_bot.execution import market_data, paper_trader
 from trading_bot.factors import sector_momentum
 from trading_bot.strategies import sector_overlay
@@ -185,7 +186,21 @@ def cmd_rebalance(args) -> int:
 
 
 def cmd_check_invalidation(args) -> int:
-    as_of = date.fromisoformat(args.as_of)
+    if args.settled:
+        conn = check_coverage._ro_connect()
+        try:
+            settled = check_coverage.last_settled_date(conn)
+        finally:
+            conn.close()
+        if settled is None:
+            log.warning("[sector-overlay] no settled trading day in "
+                        "price_cache — cannot check stops.")
+            return 0
+        as_of = date.fromisoformat(settled)
+        log.info("[sector-overlay] --settled: pricing stops as-of %s (last "
+                 "settled trading day).", as_of)
+    else:
+        as_of = date.fromisoformat(args.as_of)
     strat = sector_overlay.TREATMENT_STRATEGY
     open_positions = paper_trader.list_open(strat)
     if not open_positions:
@@ -251,6 +266,9 @@ def main() -> int:
 
     p_k = sub.add_parser("check-invalidation", help="enforce per-sector stops")
     p_k.add_argument("--as-of", default=date.today().isoformat())
+    p_k.add_argument("--settled", action="store_true",
+                     help="price the stops as-of the last settled "
+                          "(coverage-passing) trading day, ignoring --as-of")
     p_k.add_argument("--dry-run", action="store_true")
     p_k.set_defaults(func=cmd_check_invalidation)
 

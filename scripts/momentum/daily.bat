@@ -1,15 +1,19 @@
 @echo off
-REM Daily paper-trade maintenance (M3.5 catch-up flow, 2026-07-09).
+REM Daily paper-trade maintenance (M3.5 catch-up flow, 2026-07-09;
+REM stop-enforcement decoupled from the coverage gate 2026-07-15, Appendix BZ).
 REM
-REM Flow: refresh -> [if TODAY settled: enforce overlay stops] -> catch-up MTM
-REM (marks every settled missing trading day, today included, for ALL sleeves) ->
-REM anomaly scan -> graphify -> verify -> ops stamp.
+REM Flow: refresh -> coverage check (sets the ops stamp only) -> enforce overlay
+REM stops as-of the LAST SETTLED trading day (ALWAYS runs; --settled resolves
+REM the newest coverage-passing date, so stops price off settled closes even
+REM when today is pending - previously a pending today skipped them entirely
+REM and they never fired) -> catch-up MTM (marks every settled missing trading
+REM day, today included, for ALL sleeves) -> anomaly scan -> graphify ->
+REM verify -> ops stamp.
 REM
 REM TODAY-PENDING is NORMAL: same-day yfinance data is usually incomplete at the
 REM 17:15 run, so today is left unmarked and gets marked by the NEXT run's catch-up
 REM once it settles (record Appendix BH/BI + the M3.5 amendment). The task fails
 REM (nonzero exit) ONLY on a real settled-history gap (verify) or a catch-up error.
-REM Stop-enforcement is skipped on a pending day so no stop fires off partial prices.
 REM Branching uses goto (not parenthesized blocks) so %OPS_COV% expands correctly.
 
 cd /d D:\ClaudeCode\Trading
@@ -19,23 +23,24 @@ echo === Daily price refresh ===
 if errorlevel 1 echo WARNING: Price refresh failed. Marks may use stale prices.
 
 echo.
-echo === Coverage check for TODAY (gates same-day stop-enforcement) ===
+echo === Coverage check for TODAY (ops stamp only; does NOT gate stops) ===
 .venv\Scripts\python.exe -m scripts.momentum.check_coverage
 if errorlevel 1 goto today_pending
 
 set OPS_COV=PASS
-echo.
-echo === Enforce overlay invalidation stops (today settled) ===
-.venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops check-invalidation
-.venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops check-invalidation
-goto do_catchup
+goto enforce_stops
 
 :today_pending
 set OPS_COV=PENDING
-echo TODAY PENDING - incomplete same-day publication. Skipping stop-enforcement.
+echo TODAY PENDING - incomplete same-day publication.
 echo Today will be marked by catch-up on the next run once it settles.
 
-:do_catchup
+:enforce_stops
+echo.
+echo === Enforce overlay invalidation stops (as-of last settled trading day) ===
+.venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops check-invalidation --settled
+.venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops check-invalidation --settled
+
 echo.
 echo === Catch-up MTM: mark every settled missing trading day (incl today), all sleeves ===
 .venv\Scripts\python.exe -m scripts.momentum.mtm_catchup

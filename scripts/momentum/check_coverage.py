@@ -105,6 +105,22 @@ def coverage_status(conn: sqlite3.Connection, target_date: str | None = None,
             "ok": count >= floor, "n_baseline": len(baseline_days), "floor_src": floor_src}
 
 
+def last_settled_date(conn: sqlite3.Connection, lookback: int = 10) -> str | None:
+    """Most recent key_date whose close coverage passes the standard floor —
+    i.e. the newest fully-published (settled) trading day. Scans candidate
+    dates newest-first, skipping market-closed straggler dates. Lets the
+    overlay stop-enforcement price off SETTLED data even while today is still
+    pending (record Appendix BZ), instead of being skipped along with the
+    whole coverage-PASS branch.
+    """
+    for d, n in coverage_by_date(conn, lookback * 3):
+        if n < MIN_TRADING_DAY_COUNT:
+            continue
+        if coverage_status(conn, d)["ok"]:
+            return d
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=None,

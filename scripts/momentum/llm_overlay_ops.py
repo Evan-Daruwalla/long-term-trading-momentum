@@ -31,6 +31,7 @@ import logging
 import sys
 from datetime import date
 
+from scripts.momentum import check_coverage
 from trading_bot.execution import market_data, paper_trader
 from trading_bot.strategies import llm_overlay
 
@@ -219,7 +220,21 @@ def cmd_rebalance(args) -> int:
 
 
 def cmd_check_invalidation(args) -> int:
-    as_of = date.fromisoformat(args.as_of)
+    if args.settled:
+        conn = check_coverage._ro_connect()
+        try:
+            settled = check_coverage.last_settled_date(conn)
+        finally:
+            conn.close()
+        if settled is None:
+            log.warning("[overlay] no settled trading day in price_cache — "
+                        "cannot check stop.")
+            return 0
+        as_of = date.fromisoformat(settled)
+        log.info("[overlay] --settled: pricing stop as-of %s (last settled "
+                 "trading day).", as_of)
+    else:
+        as_of = date.fromisoformat(args.as_of)
     open_positions = paper_trader.list_open(llm_overlay.OVERLAY_STRATEGY)
     if not open_positions:
         log.info("[overlay] no open position — nothing to check.")
@@ -287,6 +302,9 @@ def main() -> int:
 
     p_chk = sub.add_parser("check-invalidation", help="enforce overlay stop")
     p_chk.add_argument("--as-of", default=date.today().isoformat())
+    p_chk.add_argument("--settled", action="store_true",
+                       help="price the stop as-of the last settled "
+                            "(coverage-passing) trading day, ignoring --as-of")
     p_chk.add_argument("--dry-run", action="store_true")
     p_chk.set_defaults(func=cmd_check_invalidation)
 
