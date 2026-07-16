@@ -1,4 +1,14 @@
-"""Static configuration for the trading bot."""
+"""Static configuration: paths, SEC/EDGAR ingest settings, and the fill-cost model.
+
+The canonical `DB_PATH`/`VAR_DIR` used across the codebase, plus the calibrated
+transaction-cost constants the backtest fill model reads: per-fill half-spread
+(Corwin-Schultz high-low estimator), SEC Section 31 + FINRA TAF fees, cash-sweep
+APY, and the ADV liquidity guard - each pinned to a published rate with its
+source cited inline, not hand-tuned per run.
+
+The trailing TREND_/LIQUIDITY_FILTER_* flags belong to the retired Form-4
+insider strategy (closed 2026-05-22); kept because the backtest engine imports them.
+"""
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

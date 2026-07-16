@@ -1,4 +1,9 @@
-"""Side-by-side comparison of multi-profile backtest results."""
+"""Rich console tables comparing multi-profile backtest results side by side.
+
+`render()` loads the profile archives via `execution/multi_backtest.load_archives()`
+and prints a summary table, an exit-reason breakdown, and per-profile top
+winners/losers. Read-only console output; writes nothing.
+"""
 from __future__ import annotations
 
 from rich import box

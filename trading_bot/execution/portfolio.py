@@ -1,4 +1,11 @@
-"""Portfolio cash + open-position bookkeeping."""
+"""Backtest portfolio: cash + open-position bookkeeping over `portfolio_state`/`positions`.
+
+The BACKTEST counterpart to `paper_trader.py` (which owns the persistent
+`paper_*` tables). This singleton `portfolio_state` row is truncated by
+`factor_backtest._wipe_state()` on every run. `init_portfolio()` is idempotent
+(never resets cash); `open_positions_value` is book value (sum of `entry_value`),
+NOT mark-to-market. `open_position_value_by_sector()` backs the sector cap.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,4 +1,10 @@
-"""Chain in-sample + held-out sleeves backtests."""
+"""Chain the in-sample + held-out `run_sleeves` backtests in one shot.
+
+Runs `scripts.momentum.run_sleeves` twice as subprocesses - in-sample
+(2015-01-01..2023-12-31) then held-out (2024-01-01..2026-05-01), labelled
+`sleeves_stdevfloor_*` - aborting on the first non-zero exit. A research
+convenience wrapper, not part of live automation.
+"""
 from __future__ import annotations
 
 import subprocess, sys

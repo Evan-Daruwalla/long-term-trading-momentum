@@ -1,4 +1,17 @@
-"""SQLite schema and connection helpers."""
+"""SQLite schema (the `SCHEMA` DDL) plus thread-local connection helpers.
+
+`connect()` yields a per-thread WAL connection tuned for the backtest workload
+(~500K roundtrips/profile): synchronous=NORMAL, ~500MB page cache, 256MB mmap.
+`init_db()` applies `SCHEMA` idempotently and back-fills columns older DBs lack.
+
+`SCHEMA` is the authoritative definition of every table - the Form-4 `signals`,
+the backtest `positions`/`portfolio_state`, and the live paper-trade
+`paper_portfolio`/`paper_positions`/`paper_nav` plus `llm_overlay_log`/
+`sector_overlay_log`. The `paper_*` tables are deliberately SEPARATE from
+`positions`/`portfolio_state` because `factor_backtest._wipe_state()` truncates
+the latter on every run - paper state must survive that - and are keyed by
+`strategy_name` so many sleeves share one DB.
+"""
 import sqlite3
 import threading
 from contextlib import contextmanager
