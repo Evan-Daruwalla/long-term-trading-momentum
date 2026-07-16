@@ -11,14 +11,13 @@ REM This runs in the morning: re-pull prices (the prior day has settled at yfina
 REM by now) and mark it via catch-up, so the books are current by ~8am instead of
 REM ~24h later.
 REM
-REM DELIBERATELY NOT daily.bat: daily.bat's overlay invalidation-stop enforcement
-REM (llm_overlay_ops / sector_overlay_ops check-invalidation -> paper_trader.sell)
-REM is coverage-gated. It SKIPS on PENDING evenings (latest cached date = today,
-REM incomplete) but WOULD FIRE in a morning run (latest = yesterday, settled),
-REM which would activate stops that are currently dormant and change the live
-REM LLM-overlay experiment. So this task does refresh + catch-up + verify ONLY;
-REM stop-enforcement stays on the evening cadence. (Separate "stops rarely fire"
-REM note is in record BY for a deliberate decision later.)
+REM DELIBERATELY NOT daily.bat: daily.bat now enforces the overlay invalidation
+REM stops EVERY evening as-of the last settled close (llm_overlay_ops /
+REM sector_overlay_ops check-invalidation --settled -> paper_trader.sell; record
+REM BZ, 2026-07-15). Stop-enforcement is owned by that evening run; the morning
+REM task must NOT run it too, or the SAME settled close would be evaluated twice
+REM in one day. So this task does refresh + catch-up + verify ONLY; stops stay on
+REM the evening cadence.
 
 cd /d D:\ClaudeCode\Trading
 
