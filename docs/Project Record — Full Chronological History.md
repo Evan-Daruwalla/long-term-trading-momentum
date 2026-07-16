@@ -136,6 +136,7 @@ lives in the dated entry, not the digest.
 - [BY - Coverage-lag fix: morning refresh task (TradingMorningMTM); overlay stops found dormant](#appendix-by---coverage-lag-fixed-with-a-morning-refresh-task-tradingmorningmtm-separate-finding-overlay-invalidation-stops-are-dormant-2026-07-15-1440-local) (07-15)
 - [BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a)](#appendix-bz---dormant-overlay-invalidation-stops-fixed-daily-enforcement-as-of-the-last-settled-close-evan-option-a-2026-07-15-1730-local) (07-15)
 - [CA - Stock-overlay stop check hardened: match the stop to the held ticker (cascade-log mispairing bug)](#appendix-ca---stock-overlay-stop-check-hardened-match-the-stop-to-the-held-ticker-cascade-log-mispairing-bug-2026-07-15-2020-local) (07-15)
+- [CB - Doc-hygiene: stale --settled stop comments corrected + navigation docstrings](#appendix-cb---doc-hygiene-pass-stale-stop-comments-aligned-to---settled-enforcement-plus-modulepackage-navigation-docstrings-2026-07-15-2050-local) (07-15)
 
 ---
 
@@ -5738,3 +5739,63 @@ position has ever been mispaired and NO history needs repair.
   the overlay path, so no movement was expected - run anyway per the hard rule.)
 
 Not committed (no commit instruction). HANDOFF.md stock-overlay note updated.
+
+
+# Appendix CB - Doc-hygiene pass: stale stop comments aligned to --settled enforcement, plus module/package navigation docstrings (2026-07-15, ~20:50 local)
+
+Pure documentation session (two commits, zero logic change): closes out the doc drift left by the
+concurrent stop-fix (Appendices BZ/CA, done in a separate session) and adds navigation docstrings at
+Evan's request.
+
+## CB.1 Stale stop-comments corrected (commit 3966985)
+
+A post-compaction consistency check (two sessions had edited the live docs concurrently) confirmed
+the git history was linear and HANDOFF/record were coherent - appendices BY->BZ->CA sequential,
+BY's dormant-stops FINDING correctly superseded by BZ's FIX. But two spots still described the OLD
+coverage-gated/dormant stop behavior that BZ replaced with unconditional nightly `--settled`
+enforcement:
+- `scripts/momentum/morning_refresh.bat` REM (lines 14-21): said stops were "currently dormant" and
+  "would fire in a morning run" (implying NOT in the evening) - backwards after BZ. Rewrote to state
+  the evening run now OWNS stop-enforcement and the morning task skips it so the same settled close
+  is not evaluated twice in one day. Re-verified pure ASCII (0 non-ASCII bytes) per the .bat rule.
+- `.claude/codebase-memory/architecture.md` line 12: daily.bat flow read `[stops if today settled]`
+  -> corrected to `stops (unconditional, as-of last settled close; record BZ)`.
+Comment/bin only, no Python. Committed local, then pushed (51acb79..3966985).
+
+## CB.2 Navigation docstring pass (commit 4ed8efa)
+
+Evan asked to "add more verbose comments to the codebase to make finding things easier" and to
+"update the /graphify-windows." Pushed back on both premises before acting:
+- There is NO `graphify-windows` skill (only `graphify` v0.8.50, already Windows-aware), and the
+  graphify knowledge graph already auto-refreshes nightly inside daily.bat (root graph.json stamped
+  today 17:17) - nothing to update.
+- A blanket "verbose comments everywhere" pass would be a ~91-file diff, largely redundant (an `ast`
+  audit showed 22/23 scripts/momentum and 61/68 trading_bot files ALREADY carry a module docstring,
+  atop the graph + codebase-memory bins + HANDOFF), and it fights the surgical-changes standard
+  while multiplying the exact stale-comment rot just fixed in CB.1. Evan approved the targeted
+  alternative.
+
+Executed: the `ast` audit found 10 files with NO module docstring (all empty package `__init__.py`)
+and 5 real modules with a thin one-liner. Filled the 10 `__init__.py` with a one/two-line package-
+purpose landmark (scripts/momentum = the live ops CLIs; research = offline experiments; warm = cache
+warmers; the six trading_bot subpackages), and upgraded the 5 thin modules to house-style navigation
+headers (purpose + entry points + related files + invariants): `trading_bot/config.py` (canonical DB
+paths + calibrated fill-cost constants; flagged the retired Form-4 filter flags), `trading_bot/db.py`
+(the SCHEMA map + why the paper_* tables are wipe-isolated from positions/portfolio_state),
+`trading_bot/execution/portfolio.py` (backtest-vs-paper distinction, book-value-not-MTM invariant),
+`trading_bot/reporting/compare.py`, and `scripts/momentum/research/run_sleeves_chain.py`. Every
+header was written from reading the actual file (no invented behavior); the 123 already-good
+docstrings were left untouched.
+
+## CB.3 Verification
+
+- `py_compile` on all 15 edited files: OK.
+- Frozen regression tests - actual output: momentum_v1/2023_Q4 +14.5547% (d=-0.0000pp, 70),
+  momentum_v1/2025_H1 +1.8792% (d=-0.0000pp, 156), momentum_v2/2023_Q4 +14.4062% (d=-0.0000pp, 38),
+  momentum_v2/2025_H1 +10.2194% (d=+0.0000pp, 87). All 4 OK.
+- git diff: 15 files, +68/-5, docstring-only. Committed local, then pushed (3966985..4ed8efa).
+
+No strategy/data/automation reality shifted this session, so HANDOFF carries no new snapshot and was
+not modified; the architecture.md bin edit shipped inline in CB.1. Aside: today (07-15) NAV is
+correctly PENDING (4,385 closes < 5,000 floor) and self-heals via TradingMorningMTM ~07:45 tomorrow -
+by design, not a regression (asked + answered this session).
