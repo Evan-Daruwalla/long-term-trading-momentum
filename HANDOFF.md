@@ -8,9 +8,9 @@ rigor + a track record**, not "make money now." Every strategy gets a proper
 in-sample / held-out evaluation before it's trusted; the workflow itself is
 the asset.
 
-## Current state — Phase 2d, 27 sleeves live (07-06 cohort + residual weight ladder)
+## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-07-15** — this file is the only live snapshot (state-doc
+**Last updated: 2026-07-17** — this file is the only live snapshot (state-doc
 tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 
 > **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
@@ -75,7 +75,7 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY).
 > Frozen tests re-run 2026-07-08 ~20:35, d=±0.0000pp on all 4 configs (Appendix BA).
 
-The DB now holds **27 sleeves in four families** (this file is the roster
+The DB now holds **76 sleeves in four families** (this file is the roster
 source — `CLAUDE.md` holds the durable invariants, not the roster, since
 2026-07-08):
 
@@ -91,11 +91,16 @@ contaminated sleeves were re-inceptioned on clean data 2026-06-13):
 | mom_v2_paper | $95,200 |
 | mom_v1_paper | $95,124 |
 
+Plus `qqq_benchmark_paper` (added 2026-07-17, record CE): $100k buy-hold QQQ from
+the 05-01 close — a second index control next to SPY. NAV @ 2026-07-16 $104,716
+(+4.72%). NOT Alpaca-mirrored.
+
 **2. 07-06 cohort — 5 systematic `_0701` + benchmark** (inception 2026-07-06;
 ★ = mirrored to Alpaca PAPER): `mom_roa_6535_0701_paper`★ $100,355 ·
 `mom_v2_0701_paper` $100,212 · `residual_roa_6535_0701_paper`★ $100,207 (48/50,
 2 untradable) · `mom_v1_0701_paper` $100,141 · `spy_benchmark_0701_paper`★
-$99,525.
+$99,525. Plus `qqq_benchmark_0701_paper` (added 2026-07-17, record CE; NOT
+mirrored): $100k buy-hold QQQ from the 07-01 close, NAV @ 2026-07-16 $97,348.
 
 **3. 07-06 cohort — 6 LLM-experiment** (inception 2026-07-06): stock arm
 `mom_roa_top1_paper` (control, holds **BE**) / `llm_overlay_mom_roa_top1_paper`
@@ -108,16 +113,21 @@ arm `sector_top4_paper` (control XLK/XLE/XLI/XLB) /
 > `sector_top4_full_paper` (continuous systematic twin, unbroken since 05-01).
 > They hold identical picks going forward; they differ only in pre-07-01 P&L.
 
-**4. Residual weight ladder** (inception 2026-05-01, replay-seeded 2026-07-14;
-record BW): 10 systematic sleeves `residual_w<MM><RR>_paper` differing ONLY in the
-residual-mom/ROA blend (MM/RR %), top-50 monthly, same config as
-`residual_roa_6535_paper` otherwise. Forward-test of the BU/BV in-backtest
-weight-plateau finding. **NOT Alpaca-mirrored, no LLM decisions.** NAV @ 2026-07-13
-(deterministic 05-01→07-13 REPLAY — live forward data begins 2026-07-14; see BW
-honesty demarcation + the ~1–2% replay/cache-drift caveat): w6040 $105,800 ·
-w5545 $105,625 · w5050 $105,167 · w6535 $104,294 · w8515 $104,252 · w9505 $103,678
-· w7525 $102,550 · w9010 $102,441 · w7030 $102,373 · w8020 $102,234. (This 05-01→
-07-13 ranking is 10-week NOISE — inverts the backtest holdout; forward data decides.)
+**4. Residual weight ladder — 3-cadence experiment** (inception 2026-05-01,
+replay-seeded; records BW/CD): the SAME 19-point residual-mom/ROA blend ladder
+`residual_w<MM><RR>[_wk|_2wk]_paper` (MM/RR %, top-50, same config as
+`residual_roa_6535_paper` otherwise) rebalanced at THREE cadences — **monthly**
+(19, no suffix; 05-01/06-03/07-01), **weekly** (19, `_wk`; first trading day each
+week), **biweekly** (19, `_2wk`; every other week). 57 ladder sleeves. Forward-test
+of whether rebalance FREQUENCY changes where on the blend ladder the edge lives
+(extends the BU/BV weight-plateau question). **NOT Alpaca-mirrored, no LLM
+decisions.** Full NAV snapshot in record CD. As of the 05-01->07-16 REPLAY
+(deterministic, NOT live fills; live forward begins after each cadence's last replay
+rebalance — monthly 07-01, weekly 07-13, biweekly 07-06), the LOW-residual/high-ROA
+end LEADS all three cadences, INVERTING the BV backtest w80-90 plateau — 10-11wk
+replay NOISE (BW carried the same caveat), live forward decides. Weekly/biweekly
+rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, daily
+7pm, self-decides due-ness); monthly via `rebalance.bat`.
 
 ### Systematic sleeve specs
 
@@ -127,7 +137,7 @@ w5545 $105,625 · w5050 $105,167 · w6535 $104,294 · w8515 $104,252 · w9505 $1
 | mom_v2_paper | 12-1 momentum, top-50 | `trading_bot/strategies/momentum_v2.py` |
 | mom_roa_6535_paper | 65% mom Z + 35% ROA Z, top-50 | `trading_bot/strategies/mom_roa_6535.py` |
 | residual_roa_6535_paper | 65% residual-mom Z + 35% ROA Z, top-50 | `trading_bot/strategies/residual_roa_6535.py` |
-| residual_w<MM><RR>_paper (×10) | MM% residual-mom Z + RR% ROA Z, top-50 (weight ladder) | `scripts/momentum/paper_rebalance.py` `_strategy_config` (parsed from name) |
+| residual_w<MM><RR>[_wk\|_2wk]_paper (×57) | MM% residual-mom Z + RR% ROA Z, top-50 (weight ladder, 3 cadences) | `scripts/momentum/paper_rebalance.py` `_strategy_config` (parsed from name) |
 | sector_top4_paper | 12-1 momentum on 11 SPDR ETFs, top-4 | `trading_bot/strategies/sector_top4.py` |
 
 Regression tests: `trading_bot/strategies/test_strategies.py` — 4 pinned
@@ -229,7 +239,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/paper_mtm.py --strategy NAME [--as-of DATE]` | Daily mark-to-market |
 | `scripts/momentum/llm_overlay_ops.py candidate\|decide\|rebalance\|check-invalidation` | LLM stock overlay; `check-invalidation --settled` runs nightly in `daily.bat` (record BZ) |
 | `scripts/momentum/sector_overlay_ops.py candidate\|decide\|rebalance\|check-invalidation` | LLM sector overlay; `check-invalidation --settled` runs nightly in `daily.bat` (record BZ) |
-| `scripts/momentum/seed_spy_benchmark.py` | One-off SPY sleeve seeder (idempotent) |
+| `scripts/momentum/seed_spy_benchmark.py` | One-off index-benchmark sleeve seeder (idempotent; `--ticker` — seeded SPY + QQQ controls) |
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
@@ -244,6 +254,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 |---|---|
 | `scripts/momentum/daily.bat` | Daily after market close (auto via `TradingDailyMTM` at 5:15pm) |
 | `scripts/momentum/rebalance.bat` | 1st trading day of each month (manual, idempotent) |
+| `scripts/momentum/ladder_rebalance.bat` | Nightly weekly/biweekly ladder rebalance (auto via `TradingLadderRebalance` 7pm; no-op on non-rebalance evenings) |
 | `scripts/start_all.bat` | Manual full restart (kills dashboard, refreshes prices, MTMs all) |
 | `scripts/dashboard.bat` | Manual dashboard launch |
 
@@ -259,6 +270,12 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   `var/last_morning_run.log`
 - **`TradingWeeklyBackup`** — Sundays 9:00 AM → `backup_trades_db.py` (rotating
   `VACUUM INTO` backup). Logs: `var/backup.log` (added 2026-07-09, M5.2)
+- **`TradingLadderRebalance`** — fires `ladder_rebalance.bat` daily at 7:00 PM,
+  `StartWhenAvailable` (added 2026-07-17, record CD). Forward rebalance for the
+  WEEKLY + BIWEEKLY residual ladders: `ladder_forward_rebalance.py` self-decides
+  whether today is a weekly/biweekly rebalance day (holiday- + parity-aware). Runs
+  AFTER the 5:15 PM MTM and ~6:03 PM monthly rebalance so no two rebalance processes
+  overlap (the "never concurrent factor_backtest" rule). Logs: `var/last_ladder_run.log`
 
 Manual control:
 ```

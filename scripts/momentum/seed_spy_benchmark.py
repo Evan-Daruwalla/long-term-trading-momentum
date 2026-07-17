@@ -12,10 +12,17 @@ Before the first close at/after inception exists, it creates a $100k cash stub
 (inception set) and buys on the first run where a close is available — so it can
 be wired into rebalance.bat to auto-seed the 07-01 baseline when 07-01 arrives.
 
-Run (default 05-01 baseline):
+Also seeds other buy-hold index benchmarks via --ticker (record CE: the QQQ
+control sleeves qqq_benchmark_paper / qqq_benchmark_0701_paper use the same
+mechanics — only the ticker and sleeve name differ).
+
+Run (default 05-01 SPY baseline):
   .venv\\Scripts\\python.exe -m scripts.momentum.seed_spy_benchmark
 Run (07-01 baseline, aligned with the 07-01 LLM-experiment cohort):
   .venv\\Scripts\\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve spy_benchmark_0701_paper --inception 2026-07-01
+Run (QQQ controls):
+  .venv\\Scripts\\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve qqq_benchmark_paper --ticker QQQ
+  .venv\\Scripts\\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve qqq_benchmark_0701_paper --ticker QQQ --inception 2026-07-01
 """
 from __future__ import annotations
 
@@ -33,12 +40,12 @@ INCEPTION = date(2026, 5, 1)
 START_CASH = 100_000.0
 
 
-def _spy_closes_since(d0: date) -> list[tuple[str, float]]:
+def _closes_since(ticker: str, d0: date) -> list[tuple[str, float]]:
     conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
         "SELECT key_date, price FROM price_cache "
-        "WHERE ticker='SPY' AND kind='close' AND key_date>=? ORDER BY key_date",
-        (d0.isoformat(),),
+        "WHERE ticker=? AND kind='close' AND key_date>=? ORDER BY key_date",
+        (ticker, d0.isoformat()),
     ).fetchall()
     conn.close()
     return [(d, p) for d, p in rows if p and p > 0]
@@ -47,10 +54,13 @@ def _spy_closes_since(d0: date) -> list[tuple[str, float]]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sleeve", default=SLEEVE)
+    ap.add_argument("--ticker", default="SPY",
+                    help="Index ETF to buy-hold (default SPY; e.g. QQQ)")
     ap.add_argument("--inception", default=INCEPTION.isoformat(),
                     help="ISO date YYYY-MM-DD")
     args = ap.parse_args()
     sleeve = args.sleeve
+    ticker = args.ticker
     inception = date.fromisoformat(args.inception)
 
     paper_trader.init(sleeve, START_CASH)
@@ -61,23 +71,23 @@ def main() -> int:
             (inception.isoformat() + "T00:00:00+00:00", sleeve),
         )
 
-    closes = _spy_closes_since(inception)
+    closes = _closes_since(ticker, inception)
     if not closes:
         # No close at/after inception yet (e.g. 07-01 baseline seeded on 06-30):
         # the $100k cash stub now exists; re-run once the close lands to buy + MTM.
-        print(f"No SPY closes in cache since {inception} — created $100k stub "
+        print(f"No {ticker} closes in cache since {inception} — created $100k stub "
               f"for {sleeve}; re-run on/after the inception close to buy + MTM.")
         return 0
     first_date, first_px = closes[0]
 
-    # Buy SPY fully-invested at the inception close (idempotent).
+    # Buy the index ETF fully-invested at the inception close (idempotent).
     if not paper_trader.list_open(sleeve):
         qty = START_CASH / first_px
-        paper_trader.buy(strategy_name=sleeve, ticker="SPY", qty=qty,
+        paper_trader.buy(strategy_name=sleeve, ticker=ticker, qty=qty,
                          fill_price=first_px, as_of=inception, sector="Index")
-        print(f"Bought {qty:.6f} SPY @ {first_px} on {first_date}")
+        print(f"Bought {qty:.6f} {ticker} @ {first_px} on {first_date}")
     else:
-        print("SPY position already open - skipping buy")
+        print(f"{ticker} position already open - skipping buy")
 
     # Daily MTM from inception -> today on every cached SPY trading day.
     n = 0

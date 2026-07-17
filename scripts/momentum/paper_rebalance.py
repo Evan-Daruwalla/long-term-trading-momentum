@@ -69,13 +69,19 @@ def _strategy_config(strategy_name: str):
         return (sector_momentum.rank_universe,
                 lambda as_of: list(sector_momentum.SECTOR_UNIVERSE))
     if base.startswith("residual_w") and base.endswith("_paper"):
-        # Residual-weight-sweep experiment family (record BW, seeded 2026-07-14):
-        # residual_w<MM><RR>_paper where MM = residual-momentum weight %, RR = ROA
-        # weight % (e.g. residual_w8020_paper = 80/20). Identical top-50 monthly
-        # config to residual_roa_6535_paper; ONLY the resid/ROA blend weight varies,
-        # to forward-test where on the weight ladder the edge lives (Appendix BV
-        # found a broad w80-90 holdout plateau in-backtest; this races it live).
+        # Residual-weight-sweep experiment family (records BW, CD): residual_w<MM><RR>
+        # where MM = residual-momentum weight %, RR = ROA weight % (e.g. w8020 = 80/20).
+        # Identical top-50 config to residual_roa_6535_paper; ONLY the resid/ROA blend
+        # weight varies (Appendix BV found a broad w80-90 holdout plateau in-backtest;
+        # this races it live). An optional cadence marker follows the digits — monthly
+        # (none, BW), _wk (weekly) or _2wk (biweekly) (CD): the RANK FUNCTION is
+        # cadence-independent, so strip the marker and read the same 4 weight digits;
+        # only the rebalance SCHEDULE differs (which task rebalances the sleeve).
         digits = base[len("residual_w"):-len("_paper")]
+        for _marker in ("_2wk", "_wk"):
+            if digits.endswith(_marker):
+                digits = digits[:-len(_marker)]
+                break
         if len(digits) == 4 and digits.isdigit():
             w_resid, w_roa = int(digits[:2]) / 100.0, int(digits[2:]) / 100.0
             return (zcombo.make_rank_fn([

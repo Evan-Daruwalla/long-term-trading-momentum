@@ -176,7 +176,9 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-bz---dormant-overlay-invalidation-stops-fixed-daily-enforcement-as-of-the-last-settled-close-evan-option-a-2026-07-15-1730-local">BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a)</a> (07-15)<br />
 - <a href="#appendix-ca---stock-overlay-stop-check-hardened-match-the-stop-to-the-held-ticker-cascade-log-mispairing-bug-2026-07-15-2020-local">CA - Stock-overlay stop check hardened: match the stop to the held ticker (cascade-log mispairing bug)</a> (07-15)<br />
 - <a href="#appendix-cb---doc-hygiene-pass-stale-stop-comments-aligned-to---settled-enforcement-plus-modulepackage-navigation-docstrings-2026-07-15-2050-local">CB - Doc-hygiene: stale --settled stop comments corrected + navigation docstrings</a> (07-15)<br />
-- <a href="#appendix-cc---coverage-gate-validated-live-a-mid-market-morning_refresh-run-2026-07-16-1301-was-correctly-rejected-partial-bar-self-healed-with-no-nav-contamination-2026-07-17-1320-local">CC - Coverage gate validated LIVE: mid-market refresh rejected, partial bar self-healed, no NAV contamination</a> (07-17)</p>
+- <a href="#appendix-cc---coverage-gate-validated-live-a-mid-market-morning_refresh-run-2026-07-16-1301-was-correctly-rejected-partial-bar-self-healed-with-no-nav-contamination-2026-07-17-1320-local">CC - Coverage gate validated LIVE: mid-market refresh rejected, partial bar self-healed, no NAV contamination</a> (07-17)<br />
+- <a href="#appendix-cd---residual-weight-ladder-extended-to-a-3-cadence-experiment-9-monthly-points-added--full-19-point-weekly-and-biweekly-ladders-replay-seeded-05-01-live-forward-via-tradingladderrebalance-2026-07-17-1410-local">CD - Residual ladder -&gt; 3-cadence experiment (9 monthly points + 19 weekly + 19 biweekly, 47 new sleeves; TradingLadderRebalance)</a> (07-17)<br />
+- <a href="#appendix-ce---nasdaq-100-qqq-added-as-a-second-index-control-two-buy-hold-benchmark-sleeves--dotted-line-on-every-overview-panel-2026-07-17-1430-local">CE - QQQ (Nasdaq-100) second index control: 2 buy-hold sleeves, dotted line on every panel</a> (07-17)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -6258,6 +6260,526 @@ unmarked partial day self-corrects on the next settled refresh with no NAV conta
 design intent (record BN self-healing MTM; BQ paper_mtm coverage-gating) is now empirically confirmed,<br />
 not just argued. No fix needed and none made; nulling the (already-overwritten) partial bar would be<br />
 pure churn. Read-only probes only; nothing committed by the run itself.</p>
+<h1 id="appendix-cd---residual-weight-ladder-extended-to-a-3-cadence-experiment-9-monthly-points-added--full-19-point-weekly-and-biweekly-ladders-replay-seeded-05-01-live-forward-via-tradingladderrebalance-2026-07-17-1410-local">Appendix CD - Residual weight ladder extended to a 3-cadence experiment: 9 monthly points added + full 19-point WEEKLY and BIWEEKLY ladders, replay-seeded 05-01, live forward via TradingLadderRebalance (2026-07-17, ~14:10 local)</h1>
+<p>Extends the residual weight ladder (record BW) from 10 monthly sleeves into a full<br />
+3-CADENCE experiment: the same resid-momentum/ROA blend ladder rebalanced monthly,<br />
+weekly, and biweekly, to forward-test whether rebalance FREQUENCY changes where on<br />
+the blend ladder the edge lives. Evan-directed; scope confirmed via three decisions<br />
+(full 19-point ladder per cadence; first-trading-day-of-week schedule; scheduled<br />
+tasks built now).</p>
+<h2 id="cd1-what-was-added">CD.1 What was added</h2>
+<ul>
+<li><strong>Monthly ladder filled to 19</strong> — added the low-residual end residual_w<MM><RR>_paper<br />
+  for MM/RR in 05/95, 10/90, 15/85, 20/80, 25/75, 30/70, 35/65, 40/60, 45/55 (the<br />
+  existing 10 were 50/50..95/05). Same 05-01/06-03/07-01 monthly rebalances as BW.</li>
+<li><strong>WEEKLY ladder (new, 19)</strong> — residual_w<MM><RR>_wk_paper, rebalanced on the first<br />
+  settled trading day of each ISO week: 05-01, 05-04, 05-11, 05-18, 05-26, 06-01,<br />
+  06-08, 06-15, 06-22, 06-29, 07-06, 07-13 (12 dates, holiday-aware).</li>
+<li><strong>BIWEEKLY ladder (new, 19)</strong> — residual_w<MM><RR>_2wk_paper, every other week from<br />
+  05-01: 05-01, 05-11, 05-26, 06-08, 06-22, 07-06 (6 dates).</li>
+<li><strong>47 new sleeves -&gt; 74 total.</strong> Each cadence panel benchmarks against the existing<br />
+  spy_benchmark_paper (05-01 buy-hold); buy-hold is cadence-independent, so one SPY<br />
+  series serves all three (no duplicate SPY sleeves).</li>
+</ul>
+<h2 id="cd2-how-code-all-surgical--tested-on-copy-first">CD.2 How (code, all surgical + tested-on-copy-first)</h2>
+<ul>
+<li><strong>seed_residual_cadence_ladder.py</strong> (new) — generalizes the BW seeder to param-driven<br />
+  cadences with per-name SKIP-existing (the BW seeder REFUSED if any residual_w% existed,<br />
+  so it could not add to the family). Same deterministic interleaved 05-01 replay<br />
+  (rebalance -&gt; MTM each settled day -&gt; next rebalance); last_rebalanced_at set to the<br />
+  last replay date so mtm_catchup/verify treat forward days as live.</li>
+<li><strong>paper_rebalance._strategy_config</strong> — strips a <code>_wk</code>/<code>_2wk</code> cadence marker before<br />
+  reading the 4 weight digits; the rank function is cadence-independent (only the<br />
+  rebalance SCHEDULE differs), so weekly/biweekly reuse the identical zcombo blend.</li>
+<li><strong>verify_run</strong> — generic <code>residual_w*</code> position target = 50 (no 47 hardcoded entries).</li>
+<li><strong>dashboard/web.py</strong> — the single ladder panel split into three (monthly/weekly/biweekly<br />
+  via <code>_ladder_cadence</code>), each with the shared dotted SPY line; residual labels generated<br />
+  (<code>resid MM/RR</code> + <code>w</code>/<code>2w</code> tag) instead of 57 dict entries.</li>
+<li><strong>Forward automation.</strong> Monthly: 9 lines added to rebalance.bat. Weekly+biweekly: new<br />
+<strong>ladder_forward_rebalance.py</strong> dispatcher — runs every evening, SELF-DETERMINES from the<br />
+  trading calendar whether today is a weekly (first trading day of its ISO week) and/or<br />
+  biweekly (that week is an even number of weeks after the 05-01 anchor, W18) rebalance<br />
+  day, and rebalances only the due sleeves (holiday- and parity-aware). ONE process =&gt;<br />
+  weekly+biweekly run sequentially, never a concurrent factor_backtest. Wired to a new<br />
+<strong>TradingLadderRebalance</strong> task (daily 7:00pm, AFTER the 5:15pm MTM and ~6:03pm monthly<br />
+  rebalance so no two rebalance processes overlap). First real fire: Monday 2026-07-20<br />
+  (W30 -&gt; both weekly and biweekly due); tonight (Fri) is a correct no-op.</li>
+</ul>
+<h2 id="cd3-verification-all-real-output">CD.3 Verification (all real output)</h2>
+<ul>
+<li><strong>Copy-first</strong> (VACUUM INTO snapshot, 4.76 GB): seeded 47 -&gt; <code>verify_run</code> PASS <strong>74/74</strong>;<br />
+  additive-integrity probe confirmed every EXISTING sleeve byte-identical copy-vs-live<br />
+  (seed touched only the 47 new names); 57/57 residual sleeves continuity/sanity OK.</li>
+<li><strong>Frozen tests 4/4 at d=+/-0.0000pp</strong> (v1 2023_Q4 +14.5547%/70, 2025_H1 +1.8792%/156;<br />
+  v2 2023_Q4 +14.4062%/38, 2025_H1 +10.2194%/87) after all Python changes.</li>
+<li><strong>Live seed</strong>: 47 sleeves in 6.5 min -&gt; <code>verify_run</code> LIVE PASS <strong>74/74</strong>.</li>
+<li><strong>Dispatcher due-ness</strong> validated across dated scenarios (Mon W29 weekly-only, Tue W29<br />
+  none, Mon W28 weekly+biweekly, Fri none).</li>
+<li><strong>Dashboard</strong>: all three panels render with SPY lines and correct labels (browser-checked).</li>
+<li>Test copy deleted; TradingLadderRebalance registered (State Ready, next run 2026-07-17 7pm).</li>
+</ul>
+<h2 id="cd4-nav-snapshot-deterministic-05-01---07-16-replay-cached-closes">CD.4 NAV snapshot (deterministic 05-01 -&gt; 07-16 REPLAY, cached closes)</h2>
+<p>HONESTY (same as BW): these rows are deterministic SIMULATION on cached closes, NOT live<br />
+fills. Live forward begins after each cadence's last replay rebalance (monthly 07-01,<br />
+weekly 07-13, biweekly 07-06); the 05-01-&gt;07-13 segment is post-BU/BV-selection data (a<br />
+tiny mini-holdout). <strong>Across ALL three cadences the LOW-residual / high-ROA end leads and<br />
+the high-residual end lags</strong> — which INVERTS the BV in-backtest w80-90 plateau. This is<br />
+10-11 weeks of REPLAY noise (BW carried the same caveat when its 05-01-&gt;07-13 ranking<br />
+inverted the holdout); live forward data decides, and the cadence comparison only becomes<br />
+meaningful once the weekly/biweekly sleeves accumulate live rebalances.</p>
+<p><strong>MONTHLY</strong> (19 sleeves, NAV @ 2026-07-16):</p>
+<table>
+<thead>
+<tr>
+<th>blend</th>
+<th>NAV</th>
+<th>since 05-01</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>05/95</td>
+<td>$108,263</td>
+<td>+8.26%</td>
+</tr>
+<tr>
+<td>10/90</td>
+<td>$107,203</td>
+<td>+7.20%</td>
+</tr>
+<tr>
+<td>35/65</td>
+<td>$106,488</td>
+<td>+6.49%</td>
+</tr>
+<tr>
+<td>20/80</td>
+<td>$105,874</td>
+<td>+5.87%</td>
+</tr>
+<tr>
+<td>30/70</td>
+<td>$105,426</td>
+<td>+5.43%</td>
+</tr>
+<tr>
+<td>25/75</td>
+<td>$105,394</td>
+<td>+5.39%</td>
+</tr>
+<tr>
+<td>15/85</td>
+<td>$104,889</td>
+<td>+4.89%</td>
+</tr>
+<tr>
+<td>55/45</td>
+<td>$104,241</td>
+<td>+4.24%</td>
+</tr>
+<tr>
+<td>40/60</td>
+<td>$104,171</td>
+<td>+4.17%</td>
+</tr>
+<tr>
+<td>45/55</td>
+<td>$104,130</td>
+<td>+4.13%</td>
+</tr>
+<tr>
+<td>50/50</td>
+<td>$103,940</td>
+<td>+3.94%</td>
+</tr>
+<tr>
+<td>60/40</td>
+<td>$103,839</td>
+<td>+3.84%</td>
+</tr>
+<tr>
+<td>85/15</td>
+<td>$102,779</td>
+<td>+2.78%</td>
+</tr>
+<tr>
+<td>95/05</td>
+<td>$102,155</td>
+<td>+2.16%</td>
+</tr>
+<tr>
+<td>65/35</td>
+<td>$101,885</td>
+<td>+1.89%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td>$100,756</td>
+<td>+0.76%</td>
+</tr>
+<tr>
+<td>75/25</td>
+<td>$100,529</td>
+<td>+0.53%</td>
+</tr>
+<tr>
+<td>80/20</td>
+<td>$100,459</td>
+<td>+0.46%</td>
+</tr>
+<tr>
+<td>70/30</td>
+<td>$99,989</td>
+<td>-0.01%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>WEEKLY</strong> (19 sleeves, NAV @ 2026-07-16):</p>
+<table>
+<thead>
+<tr>
+<th>blend</th>
+<th>NAV</th>
+<th>since 05-01</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>05/95</td>
+<td>$107,265</td>
+<td>+7.27%</td>
+</tr>
+<tr>
+<td>20/80</td>
+<td>$106,928</td>
+<td>+6.93%</td>
+</tr>
+<tr>
+<td>30/70</td>
+<td>$106,367</td>
+<td>+6.37%</td>
+</tr>
+<tr>
+<td>20/80</td>
+<td>$106,309</td>
+<td>+6.31%</td>
+</tr>
+<tr>
+<td>10/90</td>
+<td>$105,768</td>
+<td>+5.77%</td>
+</tr>
+<tr>
+<td>10/90</td>
+<td>$105,503</td>
+<td>+5.50%</td>
+</tr>
+<tr>
+<td>35/65</td>
+<td>$105,492</td>
+<td>+5.49%</td>
+</tr>
+<tr>
+<td>15/85</td>
+<td>$105,401</td>
+<td>+5.40%</td>
+</tr>
+<tr>
+<td>15/85</td>
+<td>$105,368</td>
+<td>+5.37%</td>
+</tr>
+<tr>
+<td>30/70</td>
+<td>$105,146</td>
+<td>+5.15%</td>
+</tr>
+<tr>
+<td>25/75</td>
+<td>$104,564</td>
+<td>+4.56%</td>
+</tr>
+<tr>
+<td>35/65</td>
+<td>$104,275</td>
+<td>+4.27%</td>
+</tr>
+<tr>
+<td>25/75</td>
+<td>$104,096</td>
+<td>+4.10%</td>
+</tr>
+<tr>
+<td>40/60</td>
+<td>$103,721</td>
+<td>+3.72%</td>
+</tr>
+<tr>
+<td>45/55</td>
+<td>$103,610</td>
+<td>+3.61%</td>
+</tr>
+<tr>
+<td>50/50</td>
+<td>$103,556</td>
+<td>+3.56%</td>
+</tr>
+<tr>
+<td>40/60</td>
+<td>$103,182</td>
+<td>+3.18%</td>
+</tr>
+<tr>
+<td>05/95</td>
+<td>$102,903</td>
+<td>+2.90%</td>
+</tr>
+<tr>
+<td>45/55</td>
+<td>$102,342</td>
+<td>+2.34%</td>
+</tr>
+<tr>
+<td>50/50</td>
+<td>$102,045</td>
+<td>+2.05%</td>
+</tr>
+<tr>
+<td>55/45</td>
+<td>$101,507</td>
+<td>+1.51%</td>
+</tr>
+<tr>
+<td>55/45</td>
+<td>$101,268</td>
+<td>+1.27%</td>
+</tr>
+<tr>
+<td>95/05</td>
+<td>$101,045</td>
+<td>+1.04%</td>
+</tr>
+<tr>
+<td>60/40</td>
+<td>$100,682</td>
+<td>+0.68%</td>
+</tr>
+<tr>
+<td>60/40</td>
+<td>$100,217</td>
+<td>+0.22%</td>
+</tr>
+<tr>
+<td>80/20</td>
+<td>$100,185</td>
+<td>+0.18%</td>
+</tr>
+<tr>
+<td>75/25</td>
+<td>$99,547</td>
+<td>-0.45%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td>$99,304</td>
+<td>-0.70%</td>
+</tr>
+<tr>
+<td>85/15</td>
+<td>$99,274</td>
+<td>-0.73%</td>
+</tr>
+<tr>
+<td>95/05</td>
+<td>$99,272</td>
+<td>-0.73%</td>
+</tr>
+<tr>
+<td>65/35</td>
+<td>$99,085</td>
+<td>-0.92%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td>$98,905</td>
+<td>-1.09%</td>
+</tr>
+<tr>
+<td>65/35</td>
+<td>$98,283</td>
+<td>-1.72%</td>
+</tr>
+<tr>
+<td>85/15</td>
+<td>$97,481</td>
+<td>-2.52%</td>
+</tr>
+<tr>
+<td>80/20</td>
+<td>$96,915</td>
+<td>-3.08%</td>
+</tr>
+<tr>
+<td>70/30</td>
+<td>$96,631</td>
+<td>-3.37%</td>
+</tr>
+<tr>
+<td>75/25</td>
+<td>$96,215</td>
+<td>-3.79%</td>
+</tr>
+<tr>
+<td>70/30</td>
+<td>$95,432</td>
+<td>-4.57%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>BIWEEKLY</strong> (19 sleeves, NAV @ 2026-07-16):</p>
+<table>
+<thead>
+<tr>
+<th>blend</th>
+<th>NAV</th>
+<th>since 05-01</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>05/95</td>
+<td>$107,265</td>
+<td>+7.27%</td>
+</tr>
+<tr>
+<td>20/80</td>
+<td>$106,928</td>
+<td>+6.93%</td>
+</tr>
+<tr>
+<td>10/90</td>
+<td>$105,768</td>
+<td>+5.77%</td>
+</tr>
+<tr>
+<td>35/65</td>
+<td>$105,492</td>
+<td>+5.49%</td>
+</tr>
+<tr>
+<td>15/85</td>
+<td>$105,368</td>
+<td>+5.37%</td>
+</tr>
+<tr>
+<td>30/70</td>
+<td>$105,146</td>
+<td>+5.15%</td>
+</tr>
+<tr>
+<td>25/75</td>
+<td>$104,096</td>
+<td>+4.10%</td>
+</tr>
+<tr>
+<td>40/60</td>
+<td>$103,721</td>
+<td>+3.72%</td>
+</tr>
+<tr>
+<td>45/55</td>
+<td>$103,610</td>
+<td>+3.61%</td>
+</tr>
+<tr>
+<td>50/50</td>
+<td>$102,045</td>
+<td>+2.05%</td>
+</tr>
+<tr>
+<td>55/45</td>
+<td>$101,268</td>
+<td>+1.27%</td>
+</tr>
+<tr>
+<td>60/40</td>
+<td>$100,682</td>
+<td>+0.68%</td>
+</tr>
+<tr>
+<td>95/05</td>
+<td>$99,272</td>
+<td>-0.73%</td>
+</tr>
+<tr>
+<td>65/35</td>
+<td>$99,085</td>
+<td>-0.92%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td>$98,905</td>
+<td>-1.09%</td>
+</tr>
+<tr>
+<td>85/15</td>
+<td>$97,481</td>
+<td>-2.52%</td>
+</tr>
+<tr>
+<td>80/20</td>
+<td>$96,915</td>
+<td>-3.08%</td>
+</tr>
+<tr>
+<td>75/25</td>
+<td>$96,215</td>
+<td>-3.79%</td>
+</tr>
+<tr>
+<td>70/30</td>
+<td>$95,432</td>
+<td>-4.57%</td>
+</tr>
+</tbody>
+</table>
+<h1 id="appendix-ce---nasdaq-100-qqq-added-as-a-second-index-control-two-buy-hold-benchmark-sleeves--dotted-line-on-every-overview-panel-2026-07-17-1430-local">Appendix CE - Nasdaq-100 (QQQ) added as a second index control: two buy-hold benchmark sleeves + dotted line on every Overview panel (2026-07-17, ~14:30 local)</h1>
+<p>Evan: "throw in QQQ on all the graphs as another control point" (same prompt also asked for<br />
+biweekly on its own graph with SPY - that was ALREADY live from Appendix CD's 3-panel split,<br />
+re-verified in the browser; no change needed there).</p>
+<h2 id="ce1-what">CE.1 What</h2>
+<p>Two REAL buy-hold benchmark sleeves, mirroring the established spy_benchmark pattern exactly<br />
+(a real sleeve flows into every panel/table and is verified/MTM'd like everything else, no<br />
+special-case chart code):<br />
+- <code>qqq_benchmark_paper</code> - $100k of QQQ at the 2026-05-01 close (148.334935 sh @ 674.15).<br />
+  NAV @ 2026-07-16 $104,715.56 (+4.72%) vs SPY control +5.40% over the same window.<br />
+- <code>qqq_benchmark_0701_paper</code> - $100k at the 2026-07-01 close (137.898703 sh @ 725.17).<br />
+  NAV @ 2026-07-16 $97,348.21 (-2.65%). NOT Alpaca-mirrored (unlike spy_benchmark_0701).<br />
+76 sleeves total. QQQ history was already in price_cache (dividend-unadjusted, refreshed<br />
+daily, coverage identical to SPY - verified before seeding); daily MTM is automatic<br />
+(mtm_catchup marks every sleeve).</p>
+<h2 id="ce2-how">CE.2 How</h2>
+<ul>
+<li><code>seed_spy_benchmark.py</code> generalized with a <code>--ticker</code> arg (default SPY - existing behavior<br />
+  unchanged); QQQ sleeves seeded with it. Tested on a fresh VACUUM INTO copy FIRST (both<br />
+  sleeves seeded, verify_run PASS 76/76 on the copy), then live (identical numbers -<br />
+  deterministic replay on the same cached closes; live verify PASS 76/76, recon $0.00).</li>
+<li><code>verify_run.py</code> POSITION_TARGETS: qqq entries (1 each).</li>
+<li><code>dashboard/web.py</code>: QQQ labels ("Nasdaq-100 (control)" / "(07-01)"); benchmark line styling<br />
+  split - SPY dotted gray #94a3b8, QQQ dotted amber #d4a017; the ladder panels' shared<br />
+  benchmark append now includes both 05-01 controls (buy-hold = cadence-independent, one<br />
+  series serves all three cadences); QQQ excluded from Top movers + Concentration alongside<br />
+  SPY (benchmarks, not stock picks).</li>
+</ul>
+<h2 id="ce3-verification">CE.3 Verification</h2>
+<ul>
+<li>Browser-checked: Nasdaq-100 line renders on ALL 5 Overview panels (Original, 7/1 cohort,<br />
+  monthly/weekly/biweekly ladders); absent from Top movers/Concentration.</li>
+<li>verify_run LIVE: PASS 76/76.</li>
+<li>Frozen tests 4/4 at d=+/-0.0000pp (v1 +14.5547%/70 &amp; +1.8792%/156, v2 +14.4062%/38 &amp;<br />
+  +10.2194%/87).</li>
+<li>Test copy deleted after use.</li>
+</ul>
 </div>
 </body>
 </html>

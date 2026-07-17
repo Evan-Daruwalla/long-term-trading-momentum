@@ -107,9 +107,19 @@ echo === Mark-to-market: 7/1 cohort duplicates ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_0701_paper --force
 
 echo.
-echo === RESIDUAL WEIGHT LADDER: 10 same-start sleeves, only the resid/ROA blend varies ===
-echo (record BW: forward-test of the BU/BV weight-plateau finding; seeded 2026-07-14
-echo  by 05-01 replay. Systematic, no LLM decisions, not Alpaca-mirrored.)
+echo === RESIDUAL WEIGHT LADDER (MONTHLY cadence): 19 same-start sleeves, only the resid/ROA blend varies ===
+echo (records BW/CD: forward-test of the BU/BV weight-plateau finding; seeded by
+echo  05-01 replay. Systematic, no LLM decisions, not Alpaca-mirrored. The WEEKLY
+echo  and BIWEEKLY cadences rebalance via ladder_forward_rebalance.py, NOT here.)
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w0595_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w1090_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w1585_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w2080_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w2575_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w3070_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w3565_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w4060_paper --top-n 50 --broker-realistic
+.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w4555_paper --top-n 50 --broker-realistic
 .venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5050_paper --top-n 50 --broker-realistic
 .venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5545_paper --top-n 50 --broker-realistic
 .venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w6040_paper --top-n 50 --broker-realistic
@@ -122,7 +132,16 @@ echo  by 05-01 replay. Systematic, no LLM decisions, not Alpaca-mirrored.)
 .venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w9505_paper --top-n 50 --broker-realistic
 
 echo.
-echo === Mark-to-market: residual weight ladder ===
+echo === Mark-to-market: residual weight ladder (MONTHLY cadence) ===
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w0595_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w1090_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w1585_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w2080_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w2575_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w3070_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w3565_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w4060_paper --force
+.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w4555_paper --force
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5050_paper --force
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5545_paper --force
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w6040_paper --force

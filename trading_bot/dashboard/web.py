@@ -1820,17 +1820,27 @@ _SLEEVE_SHORT = {
     "llm_cascade_sector4_paper": "casc_sec4",
     "spy_benchmark_paper": "S&P 500 (control)",
     "spy_benchmark_0701_paper": "S&P 500 (07-01)",
-    # Residual weight ladder (record BW): resid-mom/ROA blend sweep.
-    "residual_w5050_paper": "resid 50/50", "residual_w5545_paper": "resid 55/45",
-    "residual_w6040_paper": "resid 60/40", "residual_w6535_paper": "resid 65/35",
-    "residual_w7030_paper": "resid 70/30", "residual_w7525_paper": "resid 75/25",
-    "residual_w8020_paper": "resid 80/20", "residual_w8515_paper": "resid 85/15",
-    "residual_w9010_paper": "resid 90/10", "residual_w9505_paper": "resid 95/05",
+    "qqq_benchmark_paper": "Nasdaq-100 (control)",
+    "qqq_benchmark_0701_paper": "Nasdaq-100 (07-01)",
+    # Residual weight ladder (records BW/CD) is labeled generically in _short().
 }
 
 
 def _short(name: str) -> str:
-    return _SLEEVE_SHORT.get(name, name[:-6] if name.endswith("_paper") else name)
+    if name in _SLEEVE_SHORT:
+        return _SLEEVE_SHORT[name]
+    # Residual weight ladder (records BW/CD): residual_w<MM><RR>[_wk|_2wk]_paper
+    # -> "resid MM/RR" with a cadence tag (w = weekly, 2w = biweekly, none = monthly).
+    if name.startswith("residual_w") and name.endswith("_paper"):
+        body = name[len("residual_w"):-len("_paper")]
+        tag = ""
+        for marker, suffix in (("_2wk", " 2w"), ("_wk", " w")):
+            if body.endswith(marker):
+                body, tag = body[:-len(marker)], suffix
+                break
+        if len(body) == 4 and body.isdigit():
+            return f"resid {body[:2]}/{body[2:]}{tag}"
+    return name[:-6] if name.endswith("_paper") else name
 
 
 def _rg(v):
@@ -1925,11 +1935,16 @@ def _render_cohort_panel(panel_sleeves: list[dict], key: str) -> None:
                                             "total_nav": s["starting"]}]),
                              ndf], ignore_index=True)
         ndf["ret_pct"] = ((ndf["total_nav"] / s["starting"] - 1.0) * 100).round(3)
-        is_spy = s["name"].startswith("spy_benchmark")
+        # Index benchmark lines: SPY dotted gray, QQQ dotted amber (record CE).
+        bench_line = None
+        if s["name"].startswith("spy_benchmark"):
+            bench_line = dict(color="#94a3b8", width=2, dash="dot")
+        elif s["name"].startswith("qqq_benchmark"):
+            bench_line = dict(color="#d4a017", width=2, dash="dot")
         label = _short(s["name"])
         _traces.append((ndf["ret_pct"].iloc[-1], go.Scatter(
             x=ndf["nav_date"], y=ndf["ret_pct"], name=label, mode="lines+markers",
-            line=(dict(color="#94a3b8", width=2, dash="dot") if is_spy else None),
+            line=bench_line,
             hovertemplate=(label + "<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>"))))
     if not _traces:
         st.caption("No NAV history yet — this cohort deploys on its 07-01 rebalance.")
@@ -2034,28 +2049,48 @@ def _render_overview(all_names: list[str]) -> None:
         inc = s["inception"]
         return inc is not None and inc.date() >= CUTOVER
 
-    def _is_ladder(s) -> bool:
-        # Residual weight ladder (record BW): its own panel so the 10-sleeve
-        # blend sweep doesn't crowd the original systematic cohort.
-        return s["name"].startswith("residual_w")
+    def _ladder_cadence(s):
+        # Residual weight ladder (records BW/CD): each rebalance cadence gets its
+        # own panel so the 3x19 blend sweep doesn't crowd the systematic cohort.
+        n = s["name"]
+        if not n.startswith("residual_w"):
+            return None
+        if n.endswith("_2wk_paper"):
+            return "biweekly"
+        if n.endswith("_wk_paper"):
+            return "weekly"
+        return "monthly"
 
-    original = [s for s in sleeves if not _is_0701(s) and not _is_ladder(s)]
+    original = [s for s in sleeves if not _is_0701(s) and _ladder_cadence(s) is None]
     cohort_0701 = [s for s in sleeves if _is_0701(s)]
-    ladder = [s for s in sleeves if _is_ladder(s)]
 
     st.markdown("#### Original sleeves · since 2026-05-01")
     _render_cohort_panel(original, key="original")
     st.markdown("#### 7/1 cohort · fresh $100k, inception 2026-07-01")
     _render_cohort_panel(cohort_0701, key="cohort0701")
-    if ladder:
-        # Include the 05-01 S&P control as a shared benchmark line/row (same
-        # inception epoch as the ladder; the panel renderer draws spy_benchmark
-        # as a dotted gray line). It also remains in the Original panel.
-        _spy = next((s for s in sleeves if s["name"] == "spy_benchmark_paper"), None)
-        st.markdown("#### Residual weight ladder · resid/ROA blend sweep, "
-                    "replay-seeded 2026-05-01 (record BW · 05-01→07-13 is replay, "
-                    "live forward from 07-14)")
-        _render_cohort_panel(ladder + ([_spy] if _spy else []), key="residual_ladder")
+
+    # Residual ladder: one panel per rebalance cadence, each with the 05-01 S&P
+    # and Nasdaq-100 controls as shared dotted benchmark lines (both are buy-hold,
+    # so they are cadence-independent — the same series benchmark all three).
+    # They also remain in the Original panel.
+    _benches = [s for s in sleeves
+                if s["name"] in ("spy_benchmark_paper", "qqq_benchmark_paper")]
+
+    def _spy_add(panel):
+        return panel + _benches
+
+    _LADDER_PANELS = [
+        ("monthly",  "MONTHLY rebalance (05-01, 06-03, 07-01)",       "residual_ladder_monthly"),
+        ("weekly",   "WEEKLY rebalance (first trading day each week)", "residual_ladder_weekly"),
+        ("biweekly", "BIWEEKLY rebalance (every other week)",         "residual_ladder_biweekly"),
+    ]
+    for _cad, _desc, _key in _LADDER_PANELS:
+        _panel = [s for s in sleeves if _ladder_cadence(s) == _cad]
+        if not _panel:
+            continue
+        st.markdown(f"#### Residual weight ladder · {_desc} · resid/ROA blend sweep, "
+                    f"replay-seeded 2026-05-01 (records BW/CD)")
+        _render_cohort_panel(_spy_add(_panel), key=_key)
     st.caption("Legend click = hide/show · double-click = isolate. Full-size "
                "charts + absolute $ in the **NAV charts** view.")
 
@@ -2066,8 +2101,8 @@ def _render_overview(all_names: list[str]) -> None:
         st.markdown("##### Top movers today (held names)")
         held: dict[str, list[str]] = {}
         for s in sleeves:
-            if s["name"].startswith("spy_benchmark"):
-                continue    # SPY is the benchmark, not a stock pick
+            if s["name"].startswith(("spy_benchmark", "qqq_benchmark")):
+                continue    # SPY/QQQ are benchmarks, not stock picks
             for p in s["open_positions"]:
                 held.setdefault(p["ticker"], []).append(_short(s["name"]))
         movers = []
@@ -2156,7 +2191,7 @@ def _render_overview(all_names: list[str]) -> None:
 
         st.markdown("##### Concentration (top sector)")
         for s in sleeves:
-            if (s["name"].startswith(("sector_top4", "spy_benchmark"))
+            if (s["name"].startswith(("sector_top4", "spy_benchmark", "qqq_benchmark"))
                     or s["name"] in ("llm_overlay_sector_top4_paper",
                                      "mom_roa_top1_paper",
                                      "llm_overlay_mom_roa_top1_paper")):

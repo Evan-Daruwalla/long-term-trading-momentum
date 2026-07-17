@@ -53,6 +53,7 @@ POSITION_TARGETS = {
     "residual_roa_6535_paper": 50, "residual_roa_6535_0701_paper": 50,
     "sector_top4_paper": 4, "sector_top4_full_paper": 4,
     "spy_benchmark_paper": 1, "spy_benchmark_0701_paper": 1,
+    "qqq_benchmark_paper": 1, "qqq_benchmark_0701_paper": 1,
     "mom_roa_top1_paper": 1,
     # Residual weight ladder (record BW, seeded 2026-07-14): top-50 like the
     # champions; broker-realistic drops a few untradable names, so counts run
@@ -161,6 +162,8 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
         "SELECT COUNT(*) AS c FROM paper_positions WHERE strategy_name=? AND status='open'",
         (strategy,)).fetchone()["c"]
     tgt = POSITION_TARGETS.get(strategy)
+    if tgt is None and strategy.startswith("residual_w") and strategy.endswith("_paper"):
+        tgt = 50  # entire residual ladder (monthly / _wk / _2wk cadences) targets top-50
     if monthly and tgt is not None and n_open > tgt:
         fails.append(f"position count {n_open} EXCEEDS target {tgt}")
     tgt_str = (f"{n_open}/{tgt}" if tgt is not None else f"{n_open}/var")
