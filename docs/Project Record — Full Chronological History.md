@@ -137,6 +137,7 @@ lives in the dated entry, not the digest.
 - [BZ - Dormant overlay invalidation stops fixed: daily enforcement as-of the last settled close (Evan: option a)](#appendix-bz---dormant-overlay-invalidation-stops-fixed-daily-enforcement-as-of-the-last-settled-close-evan-option-a-2026-07-15-1730-local) (07-15)
 - [CA - Stock-overlay stop check hardened: match the stop to the held ticker (cascade-log mispairing bug)](#appendix-ca---stock-overlay-stop-check-hardened-match-the-stop-to-the-held-ticker-cascade-log-mispairing-bug-2026-07-15-2020-local) (07-15)
 - [CB - Doc-hygiene: stale --settled stop comments corrected + navigation docstrings](#appendix-cb---doc-hygiene-pass-stale-stop-comments-aligned-to---settled-enforcement-plus-modulepackage-navigation-docstrings-2026-07-15-2050-local) (07-15)
+- [CC - Coverage gate validated LIVE: mid-market refresh rejected, partial bar self-healed, no NAV contamination](#appendix-cc---coverage-gate-validated-live-a-mid-market-morning_refresh-run-2026-07-16-1301-was-correctly-rejected-partial-bar-self-healed-with-no-nav-contamination-2026-07-17-1320-local) (07-17)
 
 ---
 
@@ -5799,3 +5800,47 @@ No strategy/data/automation reality shifted this session, so HANDOFF carries no 
 not modified; the architecture.md bin edit shipped inline in CB.1. Aside: today (07-15) NAV is
 correctly PENDING (4,385 closes < 5,000 floor) and self-heals via TradingMorningMTM ~07:45 tomorrow -
 by design, not a regression (asked + answered this session).
+
+
+# Appendix CC - Coverage gate validated LIVE: a mid-market morning_refresh run (2026-07-16 13:01) was correctly rejected, partial bar self-healed with no NAV contamination (2026-07-17, ~13:20 local)
+
+An accidental live stress-test of the price-coverage gate (record BN/BQ), plus a logged process slip.
+Recording because it is the FIRST real-world proof - previously only reasoned about - that the gate
+rejects mid-market intraday data and that a partial bar self-heals without contaminating NAV.
+
+## CC.1 What happened (and the slip)
+
+Evan: "run morning_refresh.bat". I asserted it was ~20:55 on 07-15 based on a STALE `date` reading
+from earlier in the session and flagged only the one-way NAV-marking risk. The batch actually ran at
+**2026-07-16 13:01, mid-market** (close is 15:00 CDT) - exactly the manual-mid-market-refresh case
+record BY cautions against. The slip was the stale timestamp, not the command; the command is
+non-trading by design and the gate made it harmless, but the process error is logged here honestly:
+re-read the clock, do not assert time from memory.
+
+## CC.2 The gate held (run output, 2026-07-16 13:01-13:04)
+
+- `mtm_catchup`: **marked=27** as-of 2026-07-15 (all sleeves healed on overnight-settled closes -
+  e.g. residual_w5050 $106,213.86, mom_roa_6535 $94,401.30, spy_benchmark $104,740.16).
+- `mtm_catchup`: **PENDING 2026-07-16: coverage 4337 < floor 5000 - leaving unmarked**. The feared
+  outcome (locking today's NAV to 1pm intraday prices, permanently, since NAV is never rewritten)
+  did NOT occur - the gate refused the partial day.
+- `verify_run`: **PASS (27/27)**, settled<=2026-07-15, continuity clean across all sleeves.
+
+## CC.3 Self-heal verified (probe 2026-07-17 13:18, read-only)
+
+Loop closed with VERIFIED facts, not a prediction:
+- price_cache: 07-16 now **5,190 closes** (was the 4,337 intraday partial) - the 07-16 5:15pm daily
+  run overwrote the partial bar with the official settled closes. 07-15 = 5,190, both settled.
+- paper_nav: **07-16 marked for all 27 sleeves**; 07-15 marked. 07-17 (today) = 2 closes, correctly
+  PENDING/unmarked.
+- Net: NO NAV was ever computed on the intraday partial (07-16 was unmarked until it settled), so no
+  sacred history was touched; the transient bar left zero trace after the evening overwrite.
+
+## CC.4 Significance
+
+This is the first LIVE demonstration under real conditions that (a) the coverage floor rejects
+mid-market intraday data even when a human/agent runs a refresh at the wrong time, and (b) an
+unmarked partial day self-corrects on the next settled refresh with no NAV contamination. The gate's
+design intent (record BN self-healing MTM; BQ paper_mtm coverage-gating) is now empirically confirmed,
+not just argued. No fix needed and none made; nulling the (already-overwritten) partial bar would be
+pure churn. Read-only probes only; nothing committed by the run itself.
