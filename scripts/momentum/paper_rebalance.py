@@ -51,7 +51,13 @@ def _strategy_config(strategy_name: str):
     rank/universe config, fresh $100k inception 07-01). Strip it so the duplicate
     reuses its base sleeve's config — no per-duplicate branch needed.
     """
-    base = strategy_name.replace("_0701", "")
+    # Anchored strip (audit 2026-07-17, record CG): only the exact `_0701_paper`
+    # suffix marks a cohort duplicate. A blind replace("_0701", "") could mangle
+    # a future name containing those digits elsewhere (e.g. inside a weight token).
+    if strategy_name.endswith("_0701_paper"):
+        base = strategy_name[:-len("_0701_paper")] + "_paper"
+    else:
+        base = strategy_name
     if base in ("mom_v1_paper", "mom_v2_paper"):
         return momentum.rank_universe, tradeable_universe
     if base == "mom_roa_6535_paper":
@@ -83,7 +89,13 @@ def _strategy_config(strategy_name: str):
                 digits = digits[:-len(_marker)]
                 break
         if len(digits) == 4 and digits.isdigit():
-            w_resid, w_roa = int(digits[:2]) / 100.0, int(digits[2:]) / 100.0
+            mm, rr = int(digits[:2]), int(digits[2:])
+            # Guard (record CG): the ladder is defined as complementary blends;
+            # a name whose weights don't sum to 100 is a typo, not a strategy.
+            if mm + rr != 100:
+                raise ValueError(f"{strategy_name}: weights {mm}/{rr} do not sum "
+                                 f"to 100 — refusing to trade a malformed blend.")
+            w_resid, w_roa = mm / 100.0, rr / 100.0
             return (zcombo.make_rank_fn([
                         (residual_momentum.residual_momentum_score, w_resid),
                         (roa.roa_score, w_roa)]),

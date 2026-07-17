@@ -140,6 +140,8 @@ lives in the dated entry, not the digest.
 - [CC - Coverage gate validated LIVE: mid-market refresh rejected, partial bar self-healed, no NAV contamination](#appendix-cc---coverage-gate-validated-live-a-mid-market-morning_refresh-run-2026-07-16-1301-was-correctly-rejected-partial-bar-self-healed-with-no-nav-contamination-2026-07-17-1320-local) (07-17)
 - [CD - Residual ladder -> 3-cadence experiment (9 monthly points + 19 weekly + 19 biweekly, 47 new sleeves; TradingLadderRebalance)](#appendix-cd---residual-weight-ladder-extended-to-a-3-cadence-experiment-9-monthly-points-added--full-19-point-weekly-and-biweekly-ladders-replay-seeded-05-01-live-forward-via-tradingladderrebalance-2026-07-17-1410-local) (07-17)
 - [CE - QQQ (Nasdaq-100) second index control: 2 buy-hold sleeves, dotted line on every panel](#appendix-ce---nasdaq-100-qqq-added-as-a-second-index-control-two-buy-hold-benchmark-sleeves--dotted-line-on-every-overview-panel-2026-07-17-1430-local) (07-17)
+- [CF - QQQ follow-ups: alpha-vs-QQQ column + QQQ row highlight; 07-01 cohort QQQ re-seeded to its real 07-06 start](#appendix-cf---qqq-follow-ups-alpha-vs-qqq-column--qqq-row-highlight-in-the-cohort-tables-and-the-07-01-cohort-qqq-control-re-seeded-to-its-real-07-06-start-2026-07-17-1445-local) (07-17)
+- [CG - Full audit (4 Opus workers): 16 findings all fixed - collision hardening, dashboard loopback + 37x, monthly dispatcher](#appendix-cg---full-system-audit-4-parallel-opus-workers--automated-pass-16-findings-all-fixed-same-session---collision-hardening-dashboard-loopback--37x-speedup-monthly-single-process-dispatcher-2026-07-17-1555-local) (07-17)
 
 ---
 
@@ -6051,3 +6053,152 @@ daily, coverage identical to SPY - verified before seeding); daily MTM is automa
 - Frozen tests 4/4 at d=+/-0.0000pp (v1 +14.5547%/70 & +1.8792%/156, v2 +14.4062%/38 &
   +10.2194%/87).
 - Test copy deleted after use.
+
+
+# Appendix CF - QQQ follow-ups: alpha-vs-QQQ column + QQQ row highlight in the cohort tables, and the 07-01 cohort QQQ control re-seeded to its real 07-06 start (2026-07-17, ~14:45 local)
+
+Three follow-ups to the QQQ control added in Appendix CE, all Evan-directed.
+
+## CF.1 QQQ cohort control re-seeded 07-01 -> 07-06 (renamed)
+
+The "7/1 cohort" actually deployed on the 2026-07-06 close: `spy_benchmark_0701_paper` and all the
+`_0701` sleeves have inception/first-NAV 07-06 despite the `_0701` name. But CE seeded the QQQ
+cohort control at 07-01, so its line started 5 days early and pulled the cohort panel's x-axis back
+to Jul 1. Fixed by re-seeding at the cohort's real start and renaming to match:
+- **Deleted** `qqq_benchmark_0701_paper` (created same session in CE) via a guarded, scoped script:
+  it enumerates only `paper_%` tables that have a `strategy_name` column (paper_portfolio /
+  paper_positions / paper_nav), asserts exactly 1 portfolio row, deletes only that sleeve, and
+  re-counts to 0 + confirms the total dropped 76->75. Live delete (the sleeve was created today, so
+  fully reversible by re-seeding; the seed path itself is already proven live).
+- **Re-seeded** `qqq_benchmark_0706_paper` via `seed_spy_benchmark --ticker QQQ --inception
+  2026-07-06`: bought 138.347028 QQQ @ 722.82 on 07-06, MTM'd 9 trading days (07-06..07-16), NAV
+  $97,664.70 (-2.34%) - a 9/9 window matching `spy_benchmark_0701`.
+NOTE: the SPY cohort control keeps its `_0701` name (its history is not mine to rewrite); only the
+new QQQ sleeve is renamed to the accurate `_0706`. So the two cohort controls now share the same
+07-06 start but differ in name suffix - a deliberate, minor cosmetic mismatch.
+
+## CF.2 alpha vs QQQ column (Overview cohort tables)
+
+Added an "alpha vs QQQ" column beside the existing "alpha vs SPY" in every Overview cohort table
+(`_render_cohort_panel`). `_spy_cache_closes()` generalized to `_index_cache_closes(ticker)` (cache-
+based, no network); the overview builds both a SPY and a QQQ close series and computes
+`s["alpha_qqq"] = sleeve_pct - qqq_return_since_inception` alongside the SPY alpha. Column gets the
+same red/green + `{:+.2f}%` formatting.
+
+## CF.3 QQQ row highlight (like SPY)
+
+The cohort-table row styler (`_style`) and the NAV-charts control styler (`_hl_control`) now tint
+`Nasdaq-100` benchmark rows AMBER (rgba(212,160,23,0.20)) just as `S&P 500` rows are tinted GRAY -
+matching the dotted line colors, so QQQ reads as a benchmark, not a tradeable sleeve.
+
+SCOPE NOTE: the SINGLE-SLEEVE view's SPY control box (a fixed 5-column metric row) was left as-is -
+adding a QQQ box there needs a layout change beyond "alpha in the tables"; the alpha-vs-QQQ lives in
+the cohort tables where alpha-vs-SPY already lived. Flagged for a follow-up if wanted.
+
+## CF.4 Verification
+
+- verify_run LIVE: PASS **76/76** (`qqq_benchmark_0706_paper` continuity 9/9, recon $0.00).
+- Frozen tests 4/4 at d=+/-0.0000pp.
+- Browser: the 7/1 cohort panel now shows "Nasdaq-100 (07-06)" and its x-axis starts Jul 6 (was
+  Jul 1); all 5 Overview panels render, so the tables (with the new alpha-vs-QQQ column) build
+  cleanly. Label + verify_run POSITION_TARGETS updated 0701 -> 0706.
+
+
+# Appendix CG - Full-system audit (4 parallel Opus workers + automated pass): 16 findings, all fixed same-session - collision hardening, dashboard loopback + 37x speedup, monthly single-process dispatcher (2026-07-17, ~15:55 local)
+
+Evan: "/audit ... do a full audit of the system" then "do all". Hybrid audit per the audit skill:
+an automated pass (frozen tests, compileall, verify_run, .bat ASCII sweep, secret-scan) plus a
+manual sweep fanned out to FOUR parallel Opus 4.8 workers (correctness/automation-chain, data
+integrity via read-only queries, security/secrets/infra, performance/docs-drift), findings
+reviewed and the crit/high claims independently re-verified before reporting. Result: 2 HIGH,
+3 MED, 11 LOW; zero data corruption (3,448 NAV rows, 18 tables, PK/orphan/jump/position scans all
+clean); secrets history scan 0 findings (alpaca_keys.env never committed). Evan approved "do all".
+
+## CG.1 The two HIGHs
+
+**H1 - Rebalance-writer collision window (audit F#1).** The monthly rebalance.bat (6:03pm start on
+the 1st trading day) measured ~35-45 min - dominated by ~34 per-process preloads of the 37.4M-row
+price cache at ~44s each - while the new TradingLadderRebalance fired at 7:00pm. On a month whose
+first trading day is a MONDAY (2026-08-03, 2026-11-02) the ladder rebalances 38 sleeves, and two
+writer processes on one WAL SQLite with NO busy_timeout means the loser dies instantly with
+"database is locked" - mid-rebalance, non-atomic, and INVISIBLE to verify_run (an under-count
+passes; recon recomputes from actual positions). Fixed three ways, belt-and-suspenders:
+- `PRAGMA busy_timeout=30000` in db.py `_new_connection` (a colliding writer now waits, not dies);
+- TradingLadderRebalance moved 7:00pm -> 8:30pm (re-imported task XML; schtasks /change hung on a
+  credential prompt in the non-interactive session - XML re-create is the reliable path);
+- root cause removed: NEW `scripts/momentum/monthly_rebalance.py` (audit F#3, Opus worker) - a
+  single-process dispatcher replacing the 29 paper_rebalance + 30 paper_mtm --force per-process
+  lines in rebalance.bat. Preload paid ONCE (~52s) instead of ~59x (~25 min saved); same sleeves,
+  same args, same order (dry-run plan matched the .bat inventory 29/29 + 30/30 exactly); per-sleeve
+  try/except (a failed sleeve logs + skips, exit nonzero at end); refuses to silently CREATE a
+  missing sleeve (paper_rebalance would mint one at $100k/today - every real sleeve is seeded by
+  replay, so auto-creation is always a bug); ladder names generated from the seeder's WEIGHTS so
+  the rosters cannot drift. The LLM-overlay ops sections, alpaca_sync, seed, stamp and verify
+  stay in rebalance.bat unchanged.
+
+**H2 - Dashboard exposed to the LAN (audit F#2).** Streamlit's default bind is 0.0.0.0: netstat
+showed `0.0.0.0:8501 LISTENING` and dashboard.log printed LAN + External URLs - the whole
+DB-backed dashboard (NAVs, positions, LLM decision logs) readable by any LAN device, no auth.
+Fixed: `--server.address 127.0.0.1` in dashboard.bat. The old listener survived `schtasks /end`
+(detached process, and interestingly owned by a NON-venv system Python) - killed PID explicitly,
+relaunched via the task, verified `127.0.0.1:8501 LISTENING` and the dashboard renders.
+
+## CG.2 The rest (by audit finding number)
+
+- **#4 (MED)** Overview render was 382 queries / ~9.7s - a correlated last-close subquery over the
+  37.5M-row price_cache repeated per sleeve x76. Opus worker replaced it with one bulk
+  `GROUP BY ticker` query (`_bulk_last_closes()`, ttl=60): measured **36.9x** (10.213s -> 0.277s),
+  functional match 225/225 held tickers, zero divergence.
+- **#5 (MED)** Holiday NAV rows: 6 pre-M3.5 sleeves carry 2026-06-19/07-03 rows (marked against
+  ~200 stray closes, +/-0.02%); 70 sleeves do not -> cross-sleeve comparisons must JOIN ON
+  nav_date. DOCUMENTED in the data bin; the 12 legacy rows are KEPT - "do all" was NOT read as a
+  sacred-history delete order; say "delete the holiday rows" to remove them. No new ones possible
+  (M3.5 settled-day gate).
+- **#6 (LOW)** start_all.bat em-dash (the Appendix-AS silent-corruption byte class) -> ASCII hyphen.
+- **#7 (LOW)** ladder_rebalance.bat now ends with its own `verify_run --mode daily` + errorlevel
+  warning (was: first check a full day later).
+- **#8 (LOW)** Biweekly parity switched from ISO-week-number parity to ordinal-weeks-since-
+  2026-04-27 (ANCHOR_MONDAY). ISO parity breaks in 53-week years - 2026 is one - producing a
+  one-time 3-week gap (12-21 -> 01-11); ordinal parity gives strict 14-day spacing (12-21 -> 01-04)
+  and is provably identical on all seeded + near-term dates (computed: all 6 seed dates even;
+  07-20 +12w, 08-03 +14w due). Dry-runs re-validated: 07-13 weekly-only, 07-06 both.
+- **#9 (LOW)** All 8 dashboard sqlite connects now read-only URIs via a `_ro_uri()` helper
+  (write attempt confirmed blocked).
+- **#10 (LOW)** `_load_paper_state` ttl 10s -> 60s.
+- **#11 (LOW)** Cadence seeder now refuses `--end` earlier than a cadence's last rebalance date
+  (would have produced a future-rebalanced, continuity-gapped sleeve).
+- **#12 (LOW)** `_strategy_config`: `_0701` strip anchored to the exact `_0701_paper` suffix
+  (blind `.replace` could mangle future names), and residual blends must sum to 100 (integer
+  check, raises on malformed names instead of trading them).
+- **#13 (LOW)** Docs drift: HANDOFF/architecture "verify_run wired into monthly_auto.bat" corrected
+  to rebalance.bat/ladder_rebalance.bat; HANDOFF's "9 rows + SPY" Overview description rewritten
+  for the 76-sleeve cohort-panel reality; web.py module docstring rewritten (was Form-4-era).
+- **#14 (LOW)** monthly_auto.bat relabeled DORMANT-by-design (it is the documented Option-B
+  unattended path, BLOCKED-ON-EVAN on an API credential - NOT dead code, so kept); 0-byte stray
+  `docs/double-hyphen` git rm'd. The "gitignore the generated HTML twins" idea was REJECTED: the
+  commit hook deliberately regenerates + stages the record twin.
+- **#15 (LOW)** requirements.txt: floors -> exact pins (httpx 0.28.1, numpy 2.4.4, pandas 3.0.2,
+  plotly 6.7.0, rich 15.0.0, streamlit 1.57.0, yfinance 1.3.0) + the missing runtime deps added.
+  yfinance pinned deliberately: a silent upgrade could change adjustment semantics vs the
+  split-adjusted/dividend-UNadjusted cache convention.
+- **#16 (LOW)** daily.bat graphify path -> %USERPROFILE% (username no longer hardcoded into the
+  public repo going forward; history retains it, not worth a rewrite).
+- Data-bin correction found during #5: there is NO paper_transactions table (18 tables inventoried;
+  older docs claimed one) - data.md fixed.
+
+## CG.3 Audit info items (no action)
+
+AFJK genuinely fell -51.7% on 2026-07-09 (sustained, ratio 2.07 - real decline, not a split
+artifact; the 07-06 cohort's mom sleeves entered 07-07 @ $26.15). spy_benchmark cash = -1.5e-11
+(FP epsilon). SEC_USER_AGENT email is deliberate per SEC policy. Firewall-rule enumeration did not
+complete - internet (vs LAN) reachability of the old 0.0.0.0 bind was never confirmed either way;
+moot post-fix. Known pre-existing asymmetry kept: the QQQ benchmark sleeves (like
+spy_benchmark_0701) are not in the rebalance-evening MTM set - they heal next morning via catchup.
+
+## CG.4 Verification (final sweep, real output)
+
+Frozen tests 4/4 d=+/-0.0000pp (run before AND after every python-touching fix; v1 +14.5547%/70 &
++1.8792%/156, v2 +14.4062%/38 & +10.2194%/87). compileall scripts+trading_bot clean. verify_run
+daily PASS 76/76. ALL .bat files pure ASCII. netstat: 127.0.0.1:8501. schtasks: TradingLadderRebalance
+Next Run 20:30, Ready. monthly_rebalance --dry-run exit 0 (plan 29+30, one preload). Dashboard
+browser-verified rendering all 5 panels post-change. Dispatcher's first live fire: 2026-08-03.

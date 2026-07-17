@@ -23,7 +23,8 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > `check_anomalies` wired into `daily.bat`, standalone `check_cache_gaps`. M3
 > (unattended-automation safety): pre-inception NAV guard in `paper_mtm.py`
 > (+regression test), read-only `verify_run` wired into
-> `daily.bat`/`monthly_auto.bat`, ops-status stamp to `var/ops_status.log` (NOT
+> `daily.bat`/`rebalance.bat`/`ladder_rebalance.bat` (monthly_auto.bat is the
+> DORMANT Option-B path, not scheduled), ops-status stamp to `var/ops_status.log` (NOT
 > `daily_report.md` — that's Evan's journal). M4 (experiment-integrity reporting):
 > `experiment_report.py` (kill-switch tracker + control-vs-treatment NAV
 > divergence, `--md`), plus n/30-picks & months/12 counters in the dashboard LLM
@@ -99,8 +100,10 @@ the 05-01 close — a second index control next to SPY. NAV @ 2026-07-16 $104,71
 ★ = mirrored to Alpaca PAPER): `mom_roa_6535_0701_paper`★ $100,355 ·
 `mom_v2_0701_paper` $100,212 · `residual_roa_6535_0701_paper`★ $100,207 (48/50,
 2 untradable) · `mom_v1_0701_paper` $100,141 · `spy_benchmark_0701_paper`★
-$99,525. Plus `qqq_benchmark_0701_paper` (added 2026-07-17, record CE; NOT
-mirrored): $100k buy-hold QQQ from the 07-01 close, NAV @ 2026-07-16 $97,348.
+$99,525. Plus `qqq_benchmark_0706_paper` (added 2026-07-17, records CE/CF; NOT
+mirrored): $100k buy-hold QQQ from the **07-06** close (started 07-06 to match this
+cohort's real start, like `spy_benchmark_0701` — record CF re-seeded it from the
+original 07-01), NAV @ 2026-07-16 $97,665 (-2.34%).
 
 **3. 07-06 cohort — 6 LLM-experiment** (inception 2026-07-06): stock arm
 `mom_roa_top1_paper` (control, holds **BE**) / `llm_overlay_mom_roa_top1_paper`
@@ -243,7 +246,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
-| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat`/`monthly_auto.bat` (M3.2/M3.3) |
+| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), cash recon, position-count (monthly), no-pre-inception → `var/verify_report.log`. Wired into `daily.bat` (M3.2), `rebalance.bat` (record BS), `ladder_rebalance.bat` (record CG) |
 | `scripts/momentum/mtm_catchup.py [--dry-run]` | Self-healing MTM: marks every settled missing trading day (incl today) for all sleeves; skips pending days + never overwrites/back-marks across a rebalance. Runs in `daily.bat` after refresh (M3.5) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 | `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
@@ -270,12 +273,14 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   `var/last_morning_run.log`
 - **`TradingWeeklyBackup`** — Sundays 9:00 AM → `backup_trades_db.py` (rotating
   `VACUUM INTO` backup). Logs: `var/backup.log` (added 2026-07-09, M5.2)
-- **`TradingLadderRebalance`** — fires `ladder_rebalance.bat` daily at 7:00 PM,
-  `StartWhenAvailable` (added 2026-07-17, record CD). Forward rebalance for the
-  WEEKLY + BIWEEKLY residual ladders: `ladder_forward_rebalance.py` self-decides
-  whether today is a weekly/biweekly rebalance day (holiday- + parity-aware). Runs
-  AFTER the 5:15 PM MTM and ~6:03 PM monthly rebalance so no two rebalance processes
-  overlap (the "never concurrent factor_backtest" rule). Logs: `var/last_ladder_run.log`
+- **`TradingLadderRebalance`** — fires `ladder_rebalance.bat` daily at 8:30 PM,
+  `StartWhenAvailable` (added 2026-07-17 at 7 PM, record CD; moved to 8:30 PM same
+  day, audit record CG — the measured ~35-45 min monthly run from 6:03 PM left the
+  7 PM slot a too-thin margin against a two-writer collision). Forward rebalance for
+  the WEEKLY + BIWEEKLY residual ladders: `ladder_forward_rebalance.py` self-decides
+  whether today is a weekly/biweekly rebalance day (holiday-aware; biweekly parity is
+  ordinal-weeks-since-2026-04-27, immune to 53-ISO-week years). Ends with its own
+  `verify_run --mode daily`. Logs: `var/last_ladder_run.log`
 
 Manual control:
 ```
@@ -289,9 +294,11 @@ schtasks /run /tn TradingDailyMTM     # run daily MTM now
 Tabs: **Live experiment** (paper-trade) + **Backtest archive**.
 
 Views on the paper-trade tab:
-- **📊 Overview** (default): status strip, all-sleeve table (9 rows + SPY
-  control), compact NAV %-chart, top movers across held names, LLM experiment
-  panel, concentration warnings.
+- **📊 Overview** (default): status strip, then per-cohort panels (Original ·
+  7/1 cohort · residual ladder × 3 cadences), each a table (α vs SPY + α vs QQQ,
+  SPY/QQQ rows tinted) + compact NAV %-chart with dotted SPY/QQQ benchmark
+  lines; top movers across held names, LLM experiment panel, concentration
+  warnings. 76 sleeves total.
 - **🔬 Single sleeve**: positions, NAV history, vs-SPY benchmark.
 - **📈 NAV charts**: overlay %-from-inception + absolute-$ for all sleeves.
 

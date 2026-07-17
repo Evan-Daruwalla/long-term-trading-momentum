@@ -1,6 +1,6 @@
 # data — Trading
 
-Last updated 2026-07-15. Canonical home for the data/schema standards. The
+Last updated 2026-07-17. Canonical home for the data/schema standards. The
 price_cache convention, trades.db read-only rule, and no-concurrent-backtest
 rule are also always-load cross-bin invariants (INDEX).
 
@@ -19,8 +19,17 @@ rule are also always-load cross-bin invariants (INDEX).
 
 ## Schema (paper-sim tables — structural detail in architecture.md)
 - `paper_portfolio`, `paper_positions` (open/closed), `paper_nav`
-  (nav_date, total_nav), `paper_transactions`; plus `price_cache`,
-  `llm_overlay_log`, `sector_overlay_log`.
+  (nav_date, total_nav), `slippage_log` (M6, empty until live fills); plus
+  `price_cache`, `llm_overlay_log`, `sector_overlay_log`. (There is NO
+  `paper_transactions` table — older docs claimed one; DB audit 2026-07-17
+  confirmed 18 tables, none by that name.)
+- **Holiday NAV rows (audit 2026-07-17, record CG)**: the 6 pre-M3.5 sleeves
+  (mom_v1/v2, mom_roa, residual_roa, sector_top4_full, spy_benchmark — all
+  `_paper`) carry NAV rows on the 2026-06-19 and 2026-07-03 market holidays
+  (old daily MTM marked them against ~200 stray closes, ±0.02%); the other 70
+  sleeves don't. No NEW holiday rows are possible (M3.5 settled-day gate).
+  Cross-sleeve NAV comparisons must JOIN ON nav_date, never align by row index.
+  The 12 legacy rows are KEPT (sacred-history rule; removal = Evan's explicit call).
 - Universe filters: `MAX_HIST_RATIO=100` (baseline), `NON_STOCK_TICKERS`
   (2026-06-09, keeps warmed ETFs/indices out of the stock universe),
   `MIN_TRADING_DAY_COUNT=1000` (excludes market-closed noise days in guardrail checks).

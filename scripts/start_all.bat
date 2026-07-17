@@ -1,6 +1,6 @@
 @echo off
 REM ===================================================================
-REM  START EVERYTHING — one command to bring the trading rig fully live
+REM  START EVERYTHING - one command to bring the trading rig fully live
 REM  after a reboot (or anytime you want it current).
 REM
 REM  What it does:

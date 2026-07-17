@@ -15,8 +15,10 @@ processes overlap — the project's hard "never concurrent factor_backtest" rule
 
 RULES (mirror how the ladder was seeded, record CD):
   weekly   -> rebalance if today is the FIRST trading day of its ISO week.
-  biweekly -> also require today's ISO week to be an even number of weeks after
-              the 05-01 anchor week (W18) — i.e. weeks W18, W20, W22, ...
+  biweekly -> also require an EVEN number of ordinal weeks since ANCHOR_MONDAY
+              (2026-04-27, the Monday of the 05-01 seed week). Ordinal parity,
+              not ISO-week-number parity: ISO parity breaks in 53-week years
+              (2026) with a one-time 3-week gap at the year boundary (record CG).
 
   'first trading day of the week' = the most recent settled trading day BEFORE
   today falls in an earlier ISO week. 'today is a trading day' = today has
@@ -37,7 +39,7 @@ import argparse
 import logging
 import sqlite3
 import sys
-from datetime import date
+from datetime import date, timedelta
 
 from scripts.momentum.seed_residual_cadence_ladder import WEIGHTS, CADENCES, MONTHLY_DATES
 
@@ -46,7 +48,13 @@ logging.basicConfig(level=logging.INFO,
 log = logging.getLogger("ladder_forward_rebalance")
 
 TRADING_DAY_MIN = 1000          # market-open threshold (matches check_coverage)
-ANCHOR_WEEK = MONTHLY_DATES[0].isocalendar()[1]   # 05-01 ISO week = W18
+# Biweekly anchor = the MONDAY of the 05-01 seed week (2026-04-27). Parity uses
+# ordinal weeks since this date, NOT raw ISO week numbers: ISO parity breaks in
+# a 53-week year (2026 is one) and would insert a one-time 3-week gap across
+# 2026-12-21 -> 2027-01-11 (audit 2026-07-17, record CG). Ordinal parity gives
+# strict 14-day spacing forever and is identical to the seeded schedule
+# (05-01, 05-11, 05-26, 06-08, 06-22, 07-06, then 07-20, 08-03, ...).
+ANCHOR_MONDAY = MONTHLY_DATES[0] - timedelta(days=MONTHLY_DATES[0].weekday())  # 2026-04-27
 TOP_N = 50
 HALF_SPREAD_BPS = 5.0           # same fill model the ladder was seeded with
 
@@ -118,10 +126,12 @@ def main() -> int:
 
     prev = _last_trading_day_before(db_path, today)
     weekly_due = prev is None or prev.isocalendar()[:2] != today.isocalendar()[:2]
-    biweekly_due = weekly_due and (today.isocalendar()[1] - ANCHOR_WEEK) % 2 == 0
+    biweekly_due = weekly_due and ((today - ANCHOR_MONDAY).days // 7) % 2 == 0
 
-    log.info("today=%s week=W%d prev_trading_day=%s | weekly_due=%s biweekly_due=%s",
-             today, today.isocalendar()[1], prev, weekly_due, biweekly_due)
+    log.info("today=%s week=W%d (+%dw from anchor) prev_trading_day=%s | "
+             "weekly_due=%s biweekly_due=%s",
+             today, today.isocalendar()[1], (today - ANCHOR_MONDAY).days // 7,
+             prev, weekly_due, biweekly_due)
 
     if not weekly_due:
         log.info("Not the first trading day of the week; no ladder rebalance due today.")

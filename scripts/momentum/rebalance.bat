@@ -1,13 +1,13 @@
 @echo off
 REM Monthly rebalance - run on the FIRST trading day of each calendar month
-REM after market close. Order: refresh, rebalance v1+v2+roa, MTM all.
+REM after market close. Order: refresh -> monthly_rebalance dispatcher (ALL
+REM systematic + ladder rebalance+MTM in ONE process) -> spy_0701 seed -> LLM
+REM overlays -> alpaca sync -> stamp -> verify.
 REM
-REM Runs FOUR parallel sleeves (decided 2026-05-28 / 2026-05-29):
-REM   mom_v1_paper       (top-100, momentum-only, diversified)
-REM   mom_v2_paper       (top-50,  momentum-only, concentrated)
-REM   mom_roa_6535_paper (top-50,  momentum 65% + ROA 35% Z-score combo)
-REM   sector_top4_paper  (top-4 of 11 SPDR sector ETFs, defensive)
-REM See HANDOFF.md + memory/sleeves_verdict.md (Attempts 17, 21) for context.
+REM Systematic roster (decided 2026-05-28 onward): the 6 May sleeves
+REM (mom_v1/v2, mom_roa_6535, residual_roa_6535, sector_top4, sector_top4_full),
+REM the 4 _0701-cohort duplicates, and the 19-point residual weight ladder
+REM (MONTHLY cadence). See HANDOFF.md + memory/sleeves_verdict.md for context.
 REM
 REM Idempotent: re-running same day is a no-op (target set unchanged).
 
@@ -27,131 +27,34 @@ REM coverage gate would abort every monthly run. It is safe because 12-1 momentu
 REM ranks use the close ~21 trading days back (SKIP_TRADING_DAYS, momentum.py), so
 REM incomplete SAME-day data does not affect ranks; fills carry-forward for any
 REM name missing a same-day close (paper_rebalance last_close_on_or_before).
-REM The per-sleeve paper_mtm calls below use --force to bypass paper_mtm's own
-REM coverage gate (record Appendix BQ): on a rebalance day the held names are
-REM GUARANTEED present (we just filled them) and the MTM price basis == the fill
-REM basis, so marking today on the partial cache is correct. Without --force those
-REM calls refuse (exit 2, no write), leaving the rebalance day unmarked while
-REM positions have changed -> verify_run recon would then FAIL that night.
+REM The monthly_rebalance dispatcher's MTM phase replicates paper_mtm --force to
+REM bypass paper_mtm's own coverage gate (record Appendix BQ): on a rebalance day
+REM the held names are GUARANTEED present (we just filled them) and the MTM price
+REM basis == the fill basis, so marking today on the partial cache is correct.
+REM Without --force the coverage gate would refuse (no write), leaving the
+REM rebalance day unmarked while positions changed -> verify_run recon would then
+REM FAIL that night.
 
 echo.
-echo === Monthly rebalance: mom_v1_paper (top-100) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_v1_paper --top-n 100 --broker-realistic
-
-echo.
-echo === Monthly rebalance: mom_v2_paper (top-50) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_v2_paper --top-n 50 --broker-realistic
-
-echo.
-echo === Monthly rebalance: mom_roa_6535_paper (top-50 mom+ROA Z-score) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_roa_6535_paper --top-n 50 --broker-realistic
-
-echo.
-echo === Monthly rebalance: residual_roa_6535_paper (top-50 residual-mom+ROA Z) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_roa_6535_paper --top-n 50 --broker-realistic
-
-echo.
-echo === Monthly rebalance: sector_top4_paper (top-4 of 11 SPDR sectors) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy sector_top4_paper --top-n 4 --broker-realistic
-
-echo.
-echo === Monthly rebalance: sector_top4_full_paper (same picks, full 05-01 history; systematic control) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy sector_top4_full_paper --top-n 4 --broker-realistic
-
-echo.
-echo === 7/1 COHORT: fresh-on-07-01 duplicates of the May systematic sleeves ===
-echo (same configs, $100k inception 07-01; clean-start cohort that mirrors to Alpaca paper)
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_v1_0701_paper --top-n 100 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_v2_0701_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy mom_roa_6535_0701_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_roa_6535_0701_paper --top-n 50 --broker-realistic
-
-echo.
-echo === Mark-to-market: spy_benchmark_paper (S^&P 500 control, buy-and-hold SPY, NOT rebalanced) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy spy_benchmark_paper --force
+echo === Systematic + ladder rebalance + MTM (single-process dispatcher) ===
+REM audit 2026-07-17 fix #3 (record Appendix CG): the ~29 paper_rebalance + ~30
+REM paper_mtm --force lines that used to live here were one OS process each, and
+REM every process re-preloaded the ~37.5M-row price_cache (~44s) -> ~25 min wasted.
+REM monthly_rebalance runs the SAME sleeves, same args, same order in ONE process
+REM (cache preloaded once). It covers the 6 May systematic sleeves, the 4 _0701
+REM duplicates, the 19-point residual weight ladder (MONTHLY cadence) and the
+REM spy_benchmark_paper mark. The LLM-overlay sleeves + the spy_benchmark_0701
+REM seed stay below (they depend on their own ops/seed steps). Sleeve roster lives
+REM in the module + HANDOFF.md. A failed sleeve is logged and skipped, not fatal.
+.venv\Scripts\python.exe -m scripts.momentum.monthly_rebalance
+if errorlevel 1 (
+    echo WARNING: monthly_rebalance reported a sleeve failure. See output above; verify_run will re-check.
+)
 
 echo.
 echo === Seed/MTM: spy_benchmark_0701_paper (S^&P 500 control aligned with the 7/1 cohort; reset to 07-06) ===
 echo Idempotent buy-and-hold SPY at the 07-06 close; no-op stub until that close lands.
 .venv\Scripts\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve spy_benchmark_0701_paper --inception 2026-07-06
-
-echo.
-echo === Mark-to-market: mom_v1_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v1_paper --force
-
-echo.
-echo === Mark-to-market: mom_v2_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v2_paper --force
-
-echo.
-echo === Mark-to-market: mom_roa_6535_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_6535_paper --force
-
-echo.
-echo === Mark-to-market: residual_roa_6535_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_paper --force
-
-echo.
-echo === Mark-to-market: sector_top4_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy sector_top4_paper --force
-
-echo.
-echo === Mark-to-market: sector_top4_full_paper ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy sector_top4_full_paper --force
-
-echo.
-echo === Mark-to-market: 7/1 cohort duplicates ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v1_0701_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_v2_0701_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_6535_0701_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_roa_6535_0701_paper --force
-
-echo.
-echo === RESIDUAL WEIGHT LADDER (MONTHLY cadence): 19 same-start sleeves, only the resid/ROA blend varies ===
-echo (records BW/CD: forward-test of the BU/BV weight-plateau finding; seeded by
-echo  05-01 replay. Systematic, no LLM decisions, not Alpaca-mirrored. The WEEKLY
-echo  and BIWEEKLY cadences rebalance via ladder_forward_rebalance.py, NOT here.)
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w0595_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w1090_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w1585_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w2080_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w2575_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w3070_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w3565_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w4060_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w4555_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5050_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w5545_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w6040_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w6535_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w7030_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w7525_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w8020_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w8515_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w9010_paper --top-n 50 --broker-realistic
-.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance --strategy residual_w9505_paper --top-n 50 --broker-realistic
-
-echo.
-echo === Mark-to-market: residual weight ladder (MONTHLY cadence) ===
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w0595_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w1090_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w1585_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w2080_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w2575_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w3070_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w3565_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w4060_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w4555_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5050_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w5545_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w6040_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w6535_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w7030_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w7525_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w8020_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w8515_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w9010_paper --force
-.venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy residual_w9505_paper --force
 
 echo.
 echo === LLM-experiment CONTROL rebalance: mom_roa_top1_paper ===
@@ -228,4 +131,4 @@ if errorlevel 1 (
 )
 
 echo.
-echo Rebalance complete (4 systematic + 3 LLM-experiment sleeves; 3 mirrored to Alpaca paper).
+echo Rebalance complete (systematic + ladder via dispatcher; 3 LLM-experiment pairs; 3 mirrored to Alpaca paper).

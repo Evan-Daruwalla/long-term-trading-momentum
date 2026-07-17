@@ -1,4 +1,10 @@
 @echo off
+REM STATUS (audit 2026-07-17, record CG): DORMANT by design -- referenced by NO
+REM scheduled task or script. This is the "Option B" fully-unattended path,
+REM BLOCKED-ON-EVAN until an Anthropic API credential is provisioned. The LIVE
+REM monthly path is the monthy-llm-rebalance agent task -> rebalance.bat.
+REM Kept as the documented activation route; do not delete.
+REM
 REM FULLY-UNATTENDED monthly rebalance (Option B). UNTESTED until a credential is
 REM provisioned -- see docs/overlay_decision_runbook.md "Option B activation".
 REM   1. overlay_auto_decide.py : Anthropic API makes the LLM veto/approve calls.

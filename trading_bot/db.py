@@ -37,6 +37,11 @@ def _new_connection() -> sqlite3.Connection:
         of price_cache, so we can hold the whole hot set resident.
     mmap_size=256MB: lets SQLite serve reads via mmap, skipping the page-cache
         copy for hot pages. Stacks with cache_size.
+    busy_timeout=30s: WAL allows only ONE writer; without a timeout a second
+        writer process gets an immediate "database is locked" error, which can
+        abort a rebalance mid-sleeve (audit 2026-07-17, record CG — the 6:03pm
+        monthly / 8:30pm ladder tasks are separate writer processes). With it,
+        a colliding writer WAITS up to 30s per statement instead of dying.
     """
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -44,6 +49,7 @@ def _new_connection() -> sqlite3.Connection:
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA cache_size=-500000")
     conn.execute("PRAGMA mmap_size=268435456")
+    conn.execute("PRAGMA busy_timeout=30000")
     return conn
 
 

@@ -1,18 +1,33 @@
-"""Streamlit web dashboard for the multi-profile backtest results.
+"""Streamlit web dashboard. A sidebar radio picks the strategy area — Momentum
+(current, the primary surface), Form 4 (archived), or Shared infra (the EDGAR
+cache / simulation runner both use).
 
-Reads the versioned `var/sim_archive/runs/{run_id}/` folders and renders:
+Momentum → "Live experiment" is the live paper-trade view (`render_paper_trading`).
+Its own radio switches three sub-views:
+  * Overview — every sleeve's vitals on one screen: a status strip (prices-through
+    date + stale-holding count, S&P today / since inception, next manual
+    rebalance), then cohort panels — Original sleeves (since 2026-05-01), the
+    7/1 reset cohort (fresh $100k, inception 2026-07-01), and one panel per
+    residual weight-ladder cadence (monthly / weekly / biweekly) — plus a
+    held-name movers table and the latest LLM-overlay decisions.
+  * Single sleeve — KPI cards, NAV curve, open/closed positions, per-name price
+    chart, and SPY/QQQ benchmark-alpha columns.
+  * NAV charts — multi-sleeve NAV / relative-performance overlay.
+Momentum → "Backtest archive" (`render_factors`) holds the momentum factor
+backtests; the Form 4 area is the legacy multi-profile EDGAR backtest browser
+(versioned `var/…/runs/{run_id}/` folders, compare-runs, backfill progress),
+retained for history and not actively used.
 
-  * Overview tab — at-a-glance compare of all 3 profiles for the selected run
-  * Per-profile tabs — KPI cards, exit-reason / sector / score breakdowns,
-    cumulative P&L, position table, and per-position price chart with
-    entry / exit markers (yfinance-backed)
-  * Compare Runs tab — pick two runs and see their metrics side-by-side
-  * Backfill tab — live progress bars + tail of `var/ingest_backfill.out`
-    so the user can watch the EDGAR backfill from the same UI
+Data comes from the `paper_*` tables (paper_portfolio / paper_positions /
+paper_nav / the LLM-overlay logs) and `price_cache` in `var/trades.db`, read
+**only** — every connection opens `?mode=ro` (the dashboard issues no DML).
+Last-close MTM/staleness uses one bulk `_bulk_last_closes()` lookup shared by
+all sleeves rather than a per-sleeve price_cache scan (audit #4).
 
-Auto-refresh is implemented as a periodic `st.rerun()` driven by a sleep
-in the sidebar — keeps the dashboard up-to-date as new runs land in the
-archive without forcing a page reload.
+Refresh model: the live view ends in an `st.fragment(run_every=…)` timer that
+reruns on an interval. Auto-refresh defaults **OFF** and is toggled (with its
+interval) from the sidebar; read paths are `st.cache_data`-cached so idle
+interactions stay cheap.
 
 Launch via `python main.py web-dashboard` (or directly via Streamlit:
 `streamlit run trading_bot/dashboard/web.py`).
@@ -36,6 +51,13 @@ import streamlit.components.v1 as components
 import yfinance as yf
 
 from trading_bot.config import DB_PATH, VAR_DIR
+
+
+def _ro_uri(db_path) -> str:
+    """Read-only SQLite URI for a DB path (Windows-safe forward slashes).
+    The dashboard has zero DML — every connection opens `?mode=ro` so a stray
+    write can't touch the live 5 GB var/trades.db (audit #9)."""
+    return f"file:{Path(db_path).as_posix()}?mode=ro"
 
 
 # Paths grouped by strategy (post-reorg 2026-05-26): Form 4 (archived) and
@@ -172,7 +194,7 @@ def fetch_spy_series(start: str, end: str) -> pd.DataFrame:
     `nav_date >= inception` themselves."""
     import sqlite3 as _sq
     from trading_bot.config import DB_PATH as _DB
-    conn = _sq.connect(_DB)
+    conn = _sq.connect(_ro_uri(_DB), uri=True)
     try:
         rows = conn.execute(
             "SELECT nav_date, total_nav FROM paper_nav "
@@ -1744,13 +1766,48 @@ def render_factors() -> None:
 # -----------------------------------------------------------------------------
 # Paper-trading live view
 
-@st.cache_data(ttl=10, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
+def _bulk_last_closes() -> dict[str, tuple[str, float]]:
+    """Latest cached close (date + price) for EVERY open paper-position ticker,
+    across all sleeves, in one shot. {ticker: (last_close_date_iso, price)}.
+
+    Replaces the per-sleeve correlated subquery that _load_paper_state used to
+    run against the 37.5M-row price_cache (audit #4): one distinct-ticker scan
+    of open positions, then a single GROUP BY MAX(key_date) with a join-back
+    for the price at that date — ~40x cheaper than 76 correlated subqueries.
+    `price IS NOT NULL` skips nulled spike/miss rows (see price_cache convention);
+    for actively-held tickers the latest close is populated, so results match the
+    old query bar-for-bar."""
+    import sqlite3
+    conn = sqlite3.connect(_ro_uri(DB_PATH), uri=True)
+    try:
+        tickers = [r[0] for r in conn.execute(
+            "SELECT DISTINCT ticker FROM paper_positions WHERE status='open'"
+        ).fetchall()]
+        out: dict[str, tuple[str, float]] = {}
+        if tickers:
+            ph = ",".join("?" * len(tickers))
+            for t, d, p in conn.execute(
+                f"SELECT pc.ticker, pc.key_date, pc.price FROM price_cache pc "
+                f"JOIN (SELECT ticker, MAX(key_date) AS md FROM price_cache "
+                f"      WHERE kind='close' AND price IS NOT NULL "
+                f"      AND ticker IN ({ph}) GROUP BY ticker) mx "
+                f"  ON pc.ticker=mx.ticker AND pc.key_date=mx.md "
+                f"WHERE pc.kind='close'",
+                tuple(tickers),
+            ).fetchall():
+                out[t] = (d, p)
+    finally:
+        conn.close()
+    return out
+
+
+@st.cache_data(ttl=60, show_spinner=False)
 def _load_paper_state(strategy_name: str = "mom_v2_paper") -> dict | None:
     """Read paper_portfolio + paper_positions + paper_nav for one strategy.
     Returns None if no portfolio row exists (experiment not yet started)."""
     import sqlite3
-    from trading_bot.config import DB_PATH
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_ro_uri(DB_PATH), uri=True)
     conn.row_factory = sqlite3.Row
     try:
         pf_row = conn.execute(
@@ -1775,24 +1832,19 @@ def _load_paper_state(strategy_name: str = "mom_v2_paper") -> dict | None:
         "SELECT nav_date, cash, positions_value, total_nav, n_open_positions "
         "FROM paper_nav WHERE strategy_name=? ORDER BY nav_date",
         (strategy_name,)).fetchall()
-    # Latest cached close + date per ticker (for MTM + staleness flag).
-    # Uses a correlated subquery so price + date come from the same row
-    # (audit M1: avoids non-standard SQLite GROUP BY semantics).
-    open_tickers = tuple({r["ticker"] for r in open_rows})
+    conn.close()
+    # Latest cached close + date per ticker (for MTM + staleness flag), pulled
+    # from the shared bulk lookup and filtered to this sleeve's open tickers —
+    # avoids a per-sleeve correlated subquery over the 37.5M-row price_cache
+    # (audit #4). Same (ticker -> price) / (ticker -> date) shape as before.
+    open_tickers = {r["ticker"] for r in open_rows}
+    bulk = _bulk_last_closes()
     last_closes: dict[str, float] = {}
     last_close_dates: dict[str, str] = {}
-    if open_tickers:
-        placeholders = ",".join("?" * len(open_tickers))
-        for t, d, p in conn.execute(
-            f"SELECT pc.ticker, pc.key_date, pc.price FROM price_cache pc "
-            f"WHERE pc.kind='close' AND pc.ticker IN ({placeholders}) "
-            f"AND pc.key_date = (SELECT MAX(key_date) FROM price_cache "
-            f"  WHERE ticker=pc.ticker AND kind='close')",
-            open_tickers,
-        ).fetchall():
-            last_closes[t] = p
-            last_close_dates[t] = d
-    conn.close()
+    for t in open_tickers:
+        hit = bulk.get(t)
+        if hit is not None:
+            last_close_dates[t], last_closes[t] = hit[0], hit[1]
     return {
         "portfolio": dict(pf_row),
         "open_positions": [dict(r) for r in open_rows],
@@ -1821,7 +1873,7 @@ _SLEEVE_SHORT = {
     "spy_benchmark_paper": "S&P 500 (control)",
     "spy_benchmark_0701_paper": "S&P 500 (07-01)",
     "qqq_benchmark_paper": "Nasdaq-100 (control)",
-    "qqq_benchmark_0701_paper": "Nasdaq-100 (07-01)",
+    "qqq_benchmark_0706_paper": "Nasdaq-100 (07-06)",
     # Residual weight ladder (records BW/CD) is labeled generically in _short().
 }
 
@@ -1862,15 +1914,16 @@ def _sleeve_inception(s: dict):
 
 
 @st.cache_data(ttl=300, show_spinner=False)
-def _spy_cache_closes() -> list[tuple[str, float]]:
-    """SPY daily closes from price_cache (sorted by date). Cache-based — same
-    pricing basis as the sleeves themselves, no network."""
+def _index_cache_closes(ticker: str) -> list[tuple[str, float]]:
+    """Index ETF daily closes from price_cache (sorted by date). Cache-based —
+    same pricing basis as the sleeves themselves, no network. Used for the
+    SPY + QQQ benchmark alpha columns."""
     import sqlite3 as _sq
     from trading_bot.config import DB_PATH as _DB
-    conn = _sq.connect(_DB)
+    conn = _sq.connect(_ro_uri(_DB), uri=True)
     rows = conn.execute(
-        "SELECT key_date, price FROM price_cache WHERE ticker='SPY' "
-        "AND kind='close' ORDER BY key_date").fetchall()
+        "SELECT key_date, price FROM price_cache WHERE ticker=? "
+        "AND kind='close' ORDER BY key_date", (ticker,)).fetchall()
     conn.close()
     return [(d, p) for d, p in rows if p is not None and p > 0]
 
@@ -1899,6 +1952,7 @@ def _render_cohort_panel(panel_sleeves: list[dict], key: str) -> None:
         "Day %": s["day_pct"],
         "Total %": s["pct"],
         "α vs SPY": s["alpha"],
+        "α vs QQQ": s["alpha_qqq"],
         "Max DD %": s["max_dd"],
         "Cash": s["cash"],
         "Pos": s["n_open"],
@@ -1907,15 +1961,19 @@ def _render_cohort_panel(panel_sleeves: list[dict], key: str) -> None:
     df = pd.DataFrame(rows).sort_values("Total %", ascending=False)
 
     def _style(row):
-        if str(row["Sleeve"]).startswith("S&P 500"):
+        # Tint the benchmark rows: SPY gray, QQQ amber (match their chart lines).
+        sleeve = str(row["Sleeve"])
+        if sleeve.startswith("S&P 500"):
             return ["background-color: rgba(148,163,184,0.25)"] * len(row)
+        if sleeve.startswith("Nasdaq-100"):
+            return ["background-color: rgba(212,160,23,0.20)"] * len(row)
         return [""] * len(row)
 
     st.dataframe(
         df.style.apply(_style, axis=1)
-          .map(_rg, subset=["Day %", "Total %", "α vs SPY"])
+          .map(_rg, subset=["Day %", "Total %", "α vs SPY", "α vs QQQ"])
           .format({"NAV": "${:,.0f}", "Day %": "{:+.2f}%", "Total %": "{:+.2f}%",
-                   "α vs SPY": "{:+.2f}%", "Max DD %": "{:+.1f}%",
+                   "α vs SPY": "{:+.2f}%", "α vs QQQ": "{:+.2f}%", "Max DD %": "{:+.1f}%",
                    "Cash": "${:,.0f}"}, na_rep="—"),
         use_container_width=True, hide_index=True,
         height=38 * (len(df) + 1),
@@ -1966,7 +2024,8 @@ def _render_overview(all_names: list[str]) -> None:
     """Default landing view: every sleeve's vitals on one dense screen."""
     from datetime import date as _date
     today_iso = _date.today().isoformat()
-    spy = _spy_cache_closes()
+    spy = _index_cache_closes("SPY")
+    qqq = _index_cache_closes("QQQ")
 
     # ---- Load all sleeves (incl. the hidden LLM control — it's a real $100k) ----
     sleeves = []
@@ -2008,10 +2067,15 @@ def _render_overview(all_names: list[str]) -> None:
         }
         s["inception"] = _sleeve_inception(s)
         s["alpha"] = None
+        s["alpha_qqq"] = None
         if s["inception"] is not None:
-            spy_ret = _spy_ret_between(s["inception"].date().isoformat(), spy)
+            _inc_iso = s["inception"].date().isoformat()
+            spy_ret = _spy_ret_between(_inc_iso, spy)
             if spy_ret is not None:
                 s["alpha"] = s["pct"] - spy_ret
+            qqq_ret = _spy_ret_between(_inc_iso, qqq)
+            if qqq_ret is not None:
+                s["alpha_qqq"] = s["pct"] - qqq_ret
         sleeves.append(s)
     if not sleeves:
         st.warning("No sleeve data.")
@@ -2109,7 +2173,7 @@ def _render_overview(all_names: list[str]) -> None:
         if held:
             import sqlite3 as _sq
             from trading_bot.config import DB_PATH as _DB
-            conn = _sq.connect(_DB)
+            conn = _sq.connect(_ro_uri(_DB), uri=True)
             ph = ",".join("?" * len(held))
             by_t: dict[str, list[tuple[str, float]]] = {}
             for t, d, p in conn.execute(
@@ -2143,7 +2207,7 @@ def _render_overview(all_names: list[str]) -> None:
         st.markdown("##### LLM experiments")
         import sqlite3 as _sq
         from trading_bot.config import DB_PATH as _DB
-        conn = _sq.connect(_DB)
+        conn = _sq.connect(_ro_uri(_DB), uri=True)
         ld = conn.execute(
             "SELECT decision_date, ticker, verdict, score, invalidation_level "
             "FROM llm_overlay_log ORDER BY decision_date DESC LIMIT 1").fetchone()
@@ -2278,8 +2342,11 @@ def _render_overlay_all(available: list[str]) -> None:
     head_df = pd.DataFrame(rows).sort_values("Return %", ascending=False)
 
     def _hl_control(row):
-        if str(row["Sleeve"]).startswith("S&P 500"):
+        sleeve = str(row["Sleeve"])
+        if sleeve.startswith("S&P 500"):
             return ["background-color: rgba(148,163,184,0.25)"] * len(row)
+        if sleeve.startswith("Nasdaq-100"):
+            return ["background-color: rgba(212,160,23,0.20)"] * len(row)
         return [""] * len(row)
 
     st.dataframe(
@@ -2459,7 +2526,7 @@ def _render_llm_overlay_panel(strategy_name: str) -> None:
 
     # Quick control-vs-treatment NAV comparison
     import sqlite3 as _sq
-    conn = _sq.connect(DB_PATH)
+    conn = _sq.connect(_ro_uri(DB_PATH), uri=True)
     conn.row_factory = _sq.Row
     rows = conn.execute(
         "SELECT strategy_name, starting_cash, cash FROM paper_portfolio "
@@ -2695,7 +2762,7 @@ def render_paper_trading() -> None:
     # Discover available strategies (any rows in paper_portfolio)
     import sqlite3 as _sq
     from trading_bot.config import DB_PATH as _DB
-    conn = _sq.connect(_DB)
+    conn = _sq.connect(_ro_uri(_DB), uri=True)
     conn.row_factory = _sq.Row
     available = [r["strategy_name"] for r in conn.execute(
         "SELECT strategy_name FROM paper_portfolio ORDER BY strategy_name").fetchall()]

@@ -154,12 +154,19 @@ def main() -> int:
 
     selected = ["monthly", "weekly", "biweekly"] if args.cadence == "all" else [args.cadence]
 
-    # Validate every rebalance date is a settled trading day (fail fast).
+    # Validate every rebalance date is a settled trading day (fail fast), and
+    # that --end does not precede a cadence's last rebalance date: _seed_one
+    # fires ALL rebalance dates regardless of --end (which only bounds the MTM
+    # window), so an early --end would rebalance "in the future" relative to
+    # the sleeve's last NAV and leave a continuity gap (audit 2026-07-17, CG).
     for cad in selected:
         dates, _ = CADENCES[cad]
         for rd in dates:
             if rd.isoformat() not in cal_set:
                 raise SystemExit(f"{cad} rebalance date {rd} is not a settled trading day in cache")
+        if end < max(dates):
+            raise SystemExit(f"--end {end} precedes {cad}'s last rebalance date "
+                             f"{max(dates)}; refusing to seed a gapped sleeve")
 
     # Build the work list, skipping sleeves that already exist.
     with connect() as conn:

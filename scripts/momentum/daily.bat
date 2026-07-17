@@ -56,7 +56,7 @@ REM Report-only by design: a giant move can be legitimate news, so never halt.
 echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===
 REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/tests/research).
-"C:\Users\evan.EVANFREDY\.local\bin\graphify.exe" update
+"%USERPROFILE%\.local\bin\graphify.exe" update
 if errorlevel 1 echo WARNING: Graphify update failed. Code graph may be stale.
 
 echo.
