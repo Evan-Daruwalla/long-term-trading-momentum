@@ -2010,7 +2010,7 @@ def _render_cohort_panel(panel_sleeves: list[dict], key: str) -> None:
     for _, tr in sorted(_traces, key=lambda t: t[0], reverse=True):
         fig.add_trace(tr)
     fig.add_hline(y=0, line_dash="dash", line_color="gray")
-    fig.update_layout(height=430, margin=dict(l=40, r=20, t=10, b=25),
+    fig.update_layout(height=600, margin=dict(l=40, r=20, t=10, b=25),
                       xaxis_title=None, yaxis_title="% from inception",
                       yaxis_ticksuffix="%", yaxis_hoverformat="+.3f",
                       hovermode="x unified",
@@ -2422,7 +2422,7 @@ def _render_overlay_all(available: list[str]) -> None:
         fig.add_trace(tr)
     fig.add_hline(y=0, line_dash="dash", line_color="gray")
     fig.update_layout(
-        height=460, margin=dict(l=40, r=20, t=20, b=30),
+        height=620, margin=dict(l=40, r=20, t=20, b=30),
         xaxis_title=None, yaxis_title="Return from inception (%)",
         yaxis_ticksuffix="%", yaxis_hoverformat="+.3f",
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
@@ -2480,7 +2480,7 @@ def _render_overlay_all(available: list[str]) -> None:
                        line_color="gray",
                        annotation_text=f"Start ${sleeves[0]['starting']:,.0f}")
     fig2.update_layout(
-        height=380, margin=dict(l=40, r=20, t=20, b=30),
+        height=520, margin=dict(l=40, r=20, t=20, b=30),
         xaxis_title=None, yaxis_title="Total NAV ($)",
         yaxis_tickformat="$,.0f",
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
@@ -2591,7 +2591,7 @@ def _render_llm_overlay_panel(strategy_name: str) -> None:
         if any_curve:
             fig.add_hline(y=0, line_dash="dash", line_color="gray")
             fig.update_layout(
-                height=360, margin=dict(l=40, r=20, t=20, b=30),
+                height=480, margin=dict(l=40, r=20, t=20, b=30),
                 xaxis_title=None, yaxis_title="Return from inception (%)",
                 yaxis_ticksuffix="%", yaxis_hoverformat="+.3f",
                 hovermode="x unified",
@@ -2735,7 +2735,7 @@ def _render_sector_overlay_panel() -> None:
     if any_curve:
         fig.add_hline(y=0, line_dash="dash", line_color="gray")
         fig.update_layout(
-            height=360, margin=dict(l=40, r=20, t=20, b=30),
+            height=480, margin=dict(l=40, r=20, t=20, b=30),
             xaxis_title=None, yaxis_title="Return from inception (%)",
             yaxis_ticksuffix="%", yaxis_hoverformat="+.3f",
             hovermode="x unified",
@@ -2950,7 +2950,7 @@ def render_paper_trading() -> None:
             fig.add_trace(tr)
         fig.add_hline(y=starting_cash, line_dash="dash", line_color="gray",
                       annotation_text=f"Start ${starting_cash:,.0f}")
-        fig.update_layout(height=380, margin=dict(l=40, r=20, t=40, b=30),
+        fig.update_layout(height=500, margin=dict(l=40, r=20, t=40, b=30),
                           title=f"Paper NAV — {pf['strategy_name']}",
                           yaxis_tickformat="$,.0f", xaxis_title=None,
                           yaxis_title="Total NAV", hovermode="x unified",
