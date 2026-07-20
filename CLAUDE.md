@@ -66,8 +66,9 @@ Work is not finished until ALL of these hold. Run them; don't assume.
 1. The task's own done-check (from `PRD_ROADMAP.md` or Evan's instruction)
    passes, verified by actually running it.
 2. Frozen tests print d=±0.0000pp — actual output stated in the report.
-3. Record entry appended (absolute date + approx time, WHAT/WHY/HOW), HTML twin
-   regenerated.
+3. Record entry appended (absolute date + approx time — run `date` first, never
+   estimate; label the zone by its UTC offset: UTC-6→CST, UTC-5→CDT, DST-aware),
+   WHAT/WHY/HOW, HTML twin regenerated.
 4. HANDOFF.md updated if reality shifted (new sleeve, automation change,
    audit finding).
 5. Local commit when a task authorizes it. Never push without Evan's instruction.
