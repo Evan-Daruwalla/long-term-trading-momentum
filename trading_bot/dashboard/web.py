@@ -2003,7 +2003,7 @@ def _render_cohort_panel(panel_sleeves: list[dict], key: str) -> None:
         _traces.append((ndf["ret_pct"].iloc[-1], go.Scatter(
             x=ndf["nav_date"], y=ndf["ret_pct"], name=label, mode="lines+markers",
             line=bench_line,
-            hovertemplate=(label + "<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>"))))
+            hovertemplate=(label + ": %{y:+.3f}%<extra></extra>"))))
     if not _traces:
         st.caption("No NAV history yet — this cohort deploys on its 07-01 rebalance.")
         return
@@ -2393,7 +2393,7 @@ def _render_overlay_all(available: list[str]) -> None:
         _traces.append((nav_df["ret_pct"].iloc[-1], go.Scatter(
             x=nav_df["nav_date"], y=nav_df["ret_pct"],
             name=s["name"], mode="lines+markers",
-            hovertemplate=(s["name"] + "<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>"),
+            hovertemplate=(s["name"] + ": %{y:+.3f}%<extra></extra>"),
         )))
     # S&P 500 (SPY) benchmark, normalized to % return from the earliest sleeve inception.
     _inceptions = []
@@ -2416,7 +2416,7 @@ def _render_overlay_all(available: list[str]) -> None:
                 x=spy["nav_date"], y=spy["ret_pct"],
                 name="S&P 500 (SPY)", mode="lines",
                 line=dict(color="#94a3b8", width=2, dash="dot"),
-                hovertemplate="S&P 500<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>",
+                hovertemplate="S&P 500: %{y:+.3f}%<extra></extra>",
             )))
     for _, tr in sorted(_traces, key=lambda t: t[0], reverse=True):
         fig.add_trace(tr)
@@ -2582,8 +2582,7 @@ def _render_llm_overlay_panel(strategy_name: str) -> None:
                 x=ndf["nav_date"], y=ndf["ret_pct"], name=_PAIR[name],
                 mode="lines+markers",
                 line=dict(dash="dot") if name == "mom_roa_top1_paper" else None,
-                hovertemplate=(_PAIR[name] +
-                               "<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>"),
+                hovertemplate=(_PAIR[name] + ": %{y:+.3f}%<extra></extra>"),
             )))
         for _, tr in sorted(_pair_traces, key=lambda t: t[0], reverse=True):
             fig.add_trace(tr)
@@ -2727,8 +2726,7 @@ def _render_sector_overlay_panel() -> None:
             x=ndf["nav_date"], y=ndf["ret_pct"], name=_PAIR[name],
             mode="lines+markers",
             line=dict(dash="dot") if name == "sector_top4_paper" else None,
-            hovertemplate=(_PAIR[name] +
-                           "<br>%{x|%Y-%m-%d}: %{y:+.3f}%<extra></extra>"))))
+            hovertemplate=(_PAIR[name] + ": %{y:+.3f}%<extra></extra>"))))
     for _, tr in sorted(_pair_traces, key=lambda t: t[0], reverse=True):
         fig.add_trace(tr)
     any_curve = bool(_pair_traces)
