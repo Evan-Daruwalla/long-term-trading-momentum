@@ -31648,6 +31648,636 @@ residual_w0595 +8.32% · residual_w0595_2wk +7.32% · residual_w1090 +7.26% · r
 <p><strong>D. Process learning, 2nd occurrence:</strong> the pre-market→open timing drift first flagged in the 07-20 report recurred today, in milder form (~1 hour past open vs. several hours). Two occurrences in two consecutive reports suggests this may be a structural property of the research phase's length rather than a one-off, worth Evan's awareness even though, again, no data was misrepresented — every figure above is labeled with its actual capture time.</p>
 <hr />
 <p><em>Report generated: 2026-07-21 (Tuesday), started ~08:08 CDT (pre-market, per <code>date</code>), research/sourcing completed ~09:34 CDT (see §0 for the timing-drift honesty note). Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>price_cache</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>) queried read-only directly; official NAV mark for all 76 sleeves advanced to 2026-07-20 close overnight (PASS 76/76, continuity 54/54, <code>var/last_morning_run.log</code> run 2026-07-21 07:47:10 CDT), resolving the missed-<code>TradingDailyMTM</code> gap flagged in the 2026-07-20 post-market report. No <code>daily.bat</code>/rebalance/MTM/catch-up write script was run by this report — read/research-only. | Sources: <a href="https://www.benzinga.com/markets/prediction-markets/26/07/60569710/sp500-july-21-open-up-or-down-polymarket-iran-ceasefire-oil-earnings-ai">Benzinga — S&amp;P 500 July 21 Open Up or Down</a> | <a href="https://finance.yahoo.com/markets/live/stock-market-today-tuesday-july-21-dow-sp-500-nasdaq-084631499.html">Yahoo Finance — Stock Market Today, Tuesday July 21 live blog</a> | <a href="https://athens-times.com/oil-prices-edge-lower-amid-hopes-for-us-iran-ceasefire-but-brent-stays-near-90/">Athens Times — Oil Prices Near $90 Amid US-Iran Ceasefire Hopes</a> | <a href="https://www.tradingkey.com/analysis/stocks/us-stocks/262044307-nvda-samsung-skhynix-dram-mu-spcx-sndk-hbm-tradingkey">TradingKey — Memory Chips Extend Rally</a> | <a href="https://stockanalysis.com/stocks/wdc/">stockanalysis.com — WDC</a> | <a href="https://stockanalysis.com/stocks/mu/">stockanalysis.com — MU</a> | <a href="https://stockanalysis.com/stocks/stx/">stockanalysis.com — STX</a> | <a href="https://stockanalysis.com/stocks/be/">stockanalysis.com — BE</a> | <a href="https://www.tikr.com/blog/bloom-energy-stock-jumped-after-brookfield-quintupled-its-ai-power-pact-to-25-billion-heres-where-be-could-go">TIKR — Bloom Energy Stock Jumped After Brookfield Quintupled AI Power Pact</a> | <a href="https://www.fxleaders.com/news/2026/07/21/alphabet-stock-rises-on-frozen-v2-ai-chip-report-as-earnings-put-358-resistance-in-focus/">FX Leaders — Alphabet Stock Rises on Frozen v2 AI Chip Report</a> | <a href="https://news.alphastreet.com/alphabet-googl-q2-2026-preview-eps-est-2-89-reports-july-22/amp/">Alphastreet — GOOGL Q2 2026 Preview</a> | <a href="https://www.ig.com/en/news-and-trade-ideas/alphabet-q2-2026-earnings-preview-260716">IG International — GOOGL Q2 2026 earnings preview</a></em></p>
+<h2 id="report-2026-07-21-tuesday--post-market-close-analysis">Report: 2026-07-21 (Tuesday) — Post-Market Close Analysis</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong> — <strong>Today was the largest single-day upside move for this portfolio's most concentrated exposure since the 07-13 SOX rout began: a sector-wide memory/storage-chip rally, foreshadowed in this morning's pre-market report, held and extended through the close.</strong> Indices: S&amp;P 500 <strong>+0.89%</strong> to 7,509, Nasdaq Composite <strong>+1.29%</strong> to 25,837, Dow <strong>+0.74%</strong> to 52,225 — a broad rebound after Monday's decline, snapping a three-session losing run. Official <code>paper_nav</code> mark remains <strong>stuck at 2026-07-20 close</strong> for all 76 sleeves as of this report (07-21 coverage=PENDING, 8,732 closes at last check vs. the 5,000 floor at the 17:18 CDT <code>daily.bat</code> run — see §0); this report's 07-21 figures are self-computed unofficial estimates from <code>price_cache</code> (221/225 distinct held tickers covered, 4 chronically-sparse names carried forward from 07-20 — see §0 methodology note). <strong>Unofficial NAV since inception, best → worst (07-21 estimate):</strong> residual_w3565 +8.51% · residual_w0595 +7.78% · residual_w2080_2wk +7.76% · residual_w3565_2wk +7.73% · residual_w5545 +7.61% · residual_w3070_wk +7.61% · residual_w2080_wk +7.43% · residual_w6040 +7.35% · residual_w5050 +7.28% · residual_w1090 +7.12% · [full 76-row table in §2] · ... · llm_overlay_mom_roa_top1 +0.00% (all-cash) · spy_benchmark_0701 −0.40% · mom_roa_6535 −3.37% · mom_v2 −7.32% · mom_v1 −7.38% · mom_roa_top1 (BE, worst) −14.26%. <strong>Day move (07-20→07-21, unofficial):</strong> the raw-momentum family that got hit hardest over the past week staged a sharp reversal — <code>mom_roa_top1_paper</code> (BE) <strong>+14.80%</strong>, <code>llm_cascade_top1_paper</code> (WDC) <strong>+12.50%</strong>, <code>mom_v2_paper</code> <strong>+7.99%</strong>, <code>mom_roa_6535_0701</code> <strong>+8.20%</strong>, <code>mom_v2_0701</code> <strong>+8.03%</strong>, <code>mom_roa_6535</code> <strong>+7.85%</strong>, <code>mom_v1_0701</code> <strong>+6.86%</strong>, <code>mom_v1</code> <strong>+6.55%</strong>; residual-ladder sleeves up a more modest <strong>+0.7% to +4.2%</strong>; SPY/QQQ benchmarks <strong>+0.83%/+1.85%</strong>. <strong>Key movers (official closes, held tickers):</strong> WDC <strong>+12.51%</strong> ($487.42→$548.39, memory/storage AI-demand rebound, Morgan Stanley raised Q3 DRAM/NAND price forecasts), MU <strong>+12.17%</strong> (Morgan Stanley: memory prices could rise ~25% on AI demand), STX <strong>+11.14%</strong>, BE <strong>+14.82%</strong> ($197.06→$226.26, JPMorgan PT hike $267→$346 + new $1.7B Nebius AI-datacenter fuel-cell deal), AMAT +7.39%, LRCX +4.97%, AEHR +25.78% (Q4 earnings beat + FY27 guide far above Street), MSCI <strong>−10.14%</strong> (not held — flagged for context only, see §3), VICR <strong>−7.05%</strong> (Q2 beat on EPS/revenue but still down — insider-selling overhang, no fresh negative catalyst found), ALIT <strong>−5.3%</strong> (no clear 07-21 catalyst found), GOOGL/GOOG <strong>−1.4%</strong> (EU antitrust fine reported ~$4.67B + pre-earnings capex-guidance jitters ahead of tomorrow's print). <strong>Macro:</strong> oil eased on mediator-proposed 10-day US-Iran ceasefire (Brent −1.1% to $88.26, WTI −0.9% to $82.50) even as strikes continued; gold +1.75% to $4,082.73; 10Y yield +3bp to 4.63%. <strong>LLM overlay standings:</strong> unchanged since 2026-07-07 — no new decisions in either arm; stock-arm treatment still 100% cash flat +0.00%, today is the second consecutive session where that cash position missed a large rebound (BE +14.82%, WDC's cascade counterpart +12.50%) rather than avoiding a loss — see §4 for the balanced framing. <strong>Critical outstanding items:</strong> (1) 07-21 official NAV mark still PENDING as of this report (§0), expected to heal via tomorrow's <code>TradingMorningMTM</code>; (2) <strong>GOOGL earnings tomorrow, 2026-07-22 after close</strong> — the week's dominant scheduled catalyst, GOOGL/GOOG span 56/55 of 76 sleeves; (3) ECB policy decision Thursday 2026-07-23 (~88% odds hold at 2.25%); (4) <code>mom_roa_top1_paper</code> (BE) and <code>llm_cascade_top1_paper</code> (WDC) still lack automated stop-enforcement — today that gap again cut in the position's favor, not against it; (5) FMBM/FGMC/EACO/DMAA remain chronically-sparse-coverage names (carried forward from 07-20 in this report's estimates, immaterial individually, growing slightly from the 2-name pattern flagged in past reports to 4 — worth a manual DB check if the pattern keeps spreading).</p>
+</blockquote>
+<h3 id="0-data-status-and-methodology-note_6">0. Data status and methodology note</h3>
+<p>This report is compiled 2026-07-21 (Tuesday) evening, <code>date</code>-stamped <strong>18:07 CDT</strong> (~19:07 ET), roughly 3h37m after the 4:00pm ET close. <code>daily.bat</code> (<code>TradingDailyMTM</code>) ran on schedule this evening — confirmed via <code>var/last_daily_run.log</code> (file-modified 17:34 CDT) and <code>var/verify_report.log</code>: <code>verify_run</code> <strong>PASSED 76/76 sleeves, continuity 54/54</strong>, but that PASS covers the <strong>2026-07-20</strong> mark (the last settled day), not today. <code>check_coverage</code> at the 17:18 CDT run found only <strong>4,367</strong> <code>price_cache</code> closes for 2026-07-21 against the 5,000-close floor (<code>check_coverage.py</code>: "COVERAGE FAIL... Likely incomplete publication... do NOT MTM on this data"), so <code>mtm_catchup</code> correctly left 2026-07-21 <strong>PENDING</strong> (marked=0) — <code>[OPS 2026-07-21] coverage=PENDING verify=PASS</code> in <code>var/ops_status.log</code> confirms this, continuing the same recurring pattern seen on 07-13 through 07-17 and again 07-20. A direct read-only query against <code>var/trades.db</code> taken during this report's compilation (after the 17:18 CDT check) found <code>price_cache</code> for <code>key_date='2026-07-21'</code> had grown to <strong>8,732</strong> rows — well past the floor — meaning coverage has very likely resolved since the scheduled check ran, consistent with the recurring pattern where the evening snapshot undercounts a still-trickling-in data feed. <strong>This is a READ-ONLY report — it does not run any MTM, rebalance, or catch-up script</strong>, so the official mark is not advanced here regardless. All §1–§2 figures for 07-20 are the <strong>official</strong> <code>paper_nav</code> mark. All 07-21 figures are self-computed <strong>unofficial estimates</strong>: <code>price_cache</code> closes as-of 2026-07-21 (kind='close') joined against each sleeve's open <code>paper_positions</code> (qty unchanged since 07-07/05-01 — no rebalance today) and current <code>paper_portfolio.cash</code>. Of 225 distinct held tickers, <strong>221 had a 07-21 close</strong> in this snapshot; the 4 without one — <strong>FMBM</strong> (<code>residual_roa_6535_paper</code> only), <strong>FGMC</strong> (~30 residual-ladder sleeves), <strong>EACO</strong> (<code>residual_roa_6535_paper</code> only), and <strong>DMAA</strong> (~20 residual-ladder sleeves) — were carried forward at their 07-20 price (flat-day assumption) rather than dropped to zero. This matters methodologically: an earlier pass of this report's own calculation that simply <em>excluded</em> missing tickers from the position-value sum manufactured a false <strong>−5.38%</strong> single-day "crash" for <code>residual_roa_6535_paper</code> (driven purely by ~$9,072, or ~8.8% of that sleeve's NAV, being zeroed out rather than held flat) — re-running with carry-forward corrected it to a normal <strong>+3.43%</strong>, in line with every other residual-ladder sleeve's +1% to +4% day. This carry-forward methodology is used consistently for all 76 sleeves' 07-21 estimates below, and the 4 affected tickers are flagged wherever they appear. FMBM and FGMC were already known chronic-sparse-coverage names from prior reports; EACO and DMAA missing today is new and worth a manual DB check if the pattern persists into tomorrow's official catch-up.</p>
+<h3 id="1-market-summary_7">1. Market summary</h3>
+<ul>
+<li><strong>S&amp;P 500</strong>: +0.89% to 7,509. <strong>Nasdaq Composite</strong>: +1.29% to 25,837. <strong>Dow</strong>: +0.74% to 52,225 — all three snapped a three-session losing streak. <a href="https://finance.yahoo.com/markets/live/stock-market-today-tuesday-july-21-dow-sp-500-nasdaq-084631499.html">Yahoo Finance</a>, <a href="https://www.fool.com/coverage/stock-market-today/2026/07/21/stock-market-today-july-21-micron-surges-12-as-semiconductor-strength-lifts-nasdaq/">The Motley Fool</a>, <a href="https://www.cnbc.com/2026/07/20/stock-market-today-live-updates.html">CNBC</a>, all 2026-07-21. This report's own <code>price_cache</code>-derived SPY/QQQ moves (+0.83%/+1.85%) corroborate the index-level figures directionally and in close magnitude.</li>
+<li><strong>Driver</strong>: a sector-wide memory/storage-chip technical rebound, "a key sector gauge up 5.2%" per CNBC, led by Micron (+12%, some sources +10.1%) and SanDisk (+14%). Morgan Stanley raised its Q3 2026 memory price forecasts — PC DRAM from 3–8% to <strong>15–20%</strong>, enterprise SSD to <strong>18–23%</strong> — and separately predicted memory prices could rise <strong>~25%</strong> on continued AI demand; the DRAM market is described as "extremely tight" into Q3, with contract prices seen up 13–18% QoQ and NAND up 10–15%. South Korean chip-export data and expectations that global memory demand rises 50–60% next year (AI-specific demand 60–100%) reinforced the move. <a href="https://www.fool.com/investing/2026/07/21/memory-stocks-spark-a-market-rebound/">The Motley Fool — Memory Stocks Spark a Market Rebound</a>, <a href="https://uk.finance.yahoo.com/news/chip-stocks-surge-sk-hynix-174430156.html">Yahoo Finance UK — Chip Stocks Surge</a>, <a href="https://www.tradingkey.com/analysis/stocks/us-stocks/262044307-nvda-samsung-skhynix-dram-mu-spcx-sndk-hbm-tradingkey">TradingKey — Memory Chips Extend Rally</a>, <a href="https://www.kucoin.com/news/flash/morgan-stanley-raises-memory-price-forecasts-for-q3-2026-warns-of-near-term-momentum-peak">KuCoin — Morgan Stanley Raises Q3 2026 Memory Price Forecasts</a>, all 2026-07-21.</li>
+<li><strong>Earnings season backdrop</strong>: GM, 3M, and Charles Schwab all reported Q2 today — GM +4.91%, MMM +7.32% per TradingKey/Yahoo sourcing; none held by this portfolio. S&amp;P 500 Q2 y/y earnings growth is tracking ~24.7% consensus. Big Tech earnings begin tomorrow night (GOOGL Wed after close; also Tesla per the earnings-live-blog title, not confirmed held/relevant here). <a href="https://finance.yahoo.com/markets/live/earnings-live-second-quarter-results-tesla-google-july-115324842.html">Yahoo Finance — Earnings Live</a>, <a href="https://www.tradingkey.com/news/market-movers/262044931-market-movers-cat-20260721">TradingKey — CAT Market Movers</a>, 2026-07-21.</li>
+<li><strong>Sector performance</strong> (SPDR ETF closes, <code>price_cache</code>-sourced): Technology (XLK) <strong>+2.89%</strong> ($175.71→$180.78, the session's strongest of the five sectors this portfolio holds); Industrials (XLI) +0.30%; Energy (XLE) +0.97%; Health Care (XLV) +0.63%; Materials (XLB) +0.14% (the weakest, essentially flat).</li>
+<li><strong>Other markets</strong>: Gold +1.75% to $4,082.73; the 10-Year Treasury yield +3bp to 4.63%. <a href="https://www.fool.com/coverage/stock-market-today/2026/07/21/stock-market-today-july-21-micron-surges-12-as-semiconductor-strength-lifts-nasdaq/">The Motley Fool</a>, 2026-07-21.</li>
+<li><strong>Macro/geopolitics</strong>: mediators proposed a <strong>10-day US-Iran ceasefire</strong> that could revive the June 17 memorandum of understanding; a senior Iranian official told Reuters Tehran had received the proposal. Oil eased on the news even as strikes and counter-threats (a Houthi threat to blockade Saudi Arabia) continued: Brent <strong>−1.1% to $88.26/bbl</strong>, WTI <strong>−0.9% to $82.50/bbl</strong> (September contract −0.7% to $81.91). ING: "there's some hope of de-escalation... but major differences remain." <a href="https://www.cnbc.com/amp/2026/07/21/oil-prices-dip-as-mediation-efforts-offset-us-iran-strikes.html">CNBC — Oil prices dip as mediation efforts offset US-Iran strikes</a>, <a href="https://live.euronext.com/en/financial-news/oil-prices-ease-mediators-propose-us-iran-ceasefire">Euronext live</a>, both 2026-07-21.</li>
+<li><strong>Macro data/Fed</strong>: no CPI, jobs, or Fed-speaker events dated specifically 2026-07-21 were found. 2026-07-21 remains inside the FOMC blackout period (July 18–30) ahead of the next meeting; next scheduled macro catalyst is the <strong>ECB policy decision Thursday 2026-07-23</strong> (13:45 CET decision, 14:30 CET Lagarde press conference) — markets price <strong>~88% odds of a hold at 2.25%</strong> after June's hike, a non-projection meeting so the policy statement/Q&amp;A carries the full signaling weight. <a href="https://global.morningstar.com/en-nd/economy/ecb-rate-decision-what-expect-july-23">Morningstar — ECB Rate Decision: What to Expect on July 23</a>, <a href="https://www.piptheory.com/research/ecb-meeting-july-2026-preview-euro-eur">PIPTHEORY — ECB Preview July 2026</a>, both 2026-07-21.</li>
+</ul>
+<h3 id="2-full-nav-table--all-76-sleeves">2. Full NAV table — all 76 sleeves</h3>
+<p>§2a is the <strong>official</strong> mark (<code>paper_nav</code>, 2026-07-20 close, unchanged from this morning's pre-market report). §2b is this report's <strong>unofficial</strong> 07-21 estimate (see §0 methodology — carry-forward for FMBM/FGMC/EACO/DMAA).</p>
+<p><strong>2a. Official, 2026-07-20 close — extremes only</strong> (full 76-row table last printed in the 2026-07-21 pre-market report, §2; only the 07-21 estimate below has moved since):</p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th style="text-align: right;">NAV (2026-07-20, official)</th>
+<th style="text-align: right;">Since-inception</th>
+<th style="text-align: right;">Open pos.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_w0595_paper (best, official)</td>
+<td style="text-align: right;">$106,881.35</td>
+<td style="text-align: right;">+6.88%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>mom_roa_top1_paper (worst, official)</td>
+<td style="text-align: right;">$74,685.71</td>
+<td style="text-align: right;">−25.31%</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2b. Unofficial, 2026-07-21 estimate — all 76 sleeves, ranked best → worst since-inception:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Sleeve</th>
+<th style="text-align: right;">NAV (07-21 est.)</th>
+<th style="text-align: right;">Since-inception (est.)</th>
+<th style="text-align: right;">Day (07-20→07-21, est.)</th>
+<th style="text-align: right;">Open pos.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>residual_w3565_paper</td>
+<td style="text-align: right;">$108,506.66</td>
+<td style="text-align: right;">+8.51%</td>
+<td style="text-align: right;">+2.82%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w0595_paper</td>
+<td style="text-align: right;">$107,779.04</td>
+<td style="text-align: right;">+7.78%</td>
+<td style="text-align: right;">+0.84%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w2080_2wk_paper</td>
+<td style="text-align: right;">$107,755.62</td>
+<td style="text-align: right;">+7.76%</td>
+<td style="text-align: right;">+1.81%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w3565_2wk_paper</td>
+<td style="text-align: right;">$107,728.54</td>
+<td style="text-align: right;">+7.73%</td>
+<td style="text-align: right;">+2.77%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w5545_paper</td>
+<td style="text-align: right;">$107,614.65</td>
+<td style="text-align: right;">+7.61%</td>
+<td style="text-align: right;">+3.62%</td>
+<td style="text-align: right;">45 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w3070_wk_paper</td>
+<td style="text-align: right;">$107,609.16</td>
+<td style="text-align: right;">+7.61%</td>
+<td style="text-align: right;">+2.31%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w2080_wk_paper</td>
+<td style="text-align: right;">$107,427.30</td>
+<td style="text-align: right;">+7.43%</td>
+<td style="text-align: right;">+2.08%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w6040_paper</td>
+<td style="text-align: right;">$107,347.98</td>
+<td style="text-align: right;">+7.35%</td>
+<td style="text-align: right;">+3.57%</td>
+<td style="text-align: right;">46 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w5050_paper</td>
+<td style="text-align: right;">$107,281.27</td>
+<td style="text-align: right;">+7.28%</td>
+<td style="text-align: right;">+3.40%</td>
+<td style="text-align: right;">45 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w1090_paper</td>
+<td style="text-align: right;">$107,120.42</td>
+<td style="text-align: right;">+7.12%</td>
+<td style="text-align: right;">+1.22%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w4555_paper</td>
+<td style="text-align: right;">$106,963.61</td>
+<td style="text-align: right;">+6.96%</td>
+<td style="text-align: right;">+3.27%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w2080_paper</td>
+<td style="text-align: right;">$106,848.45</td>
+<td style="text-align: right;">+6.85%</td>
+<td style="text-align: right;">+1.92%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w8515_paper</td>
+<td style="text-align: right;">$106,836.22</td>
+<td style="text-align: right;">+6.84%</td>
+<td style="text-align: right;">+3.31%</td>
+<td style="text-align: right;">47 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w5050_wk_paper</td>
+<td style="text-align: right;">$106,774.87</td>
+<td style="text-align: right;">+6.77%</td>
+<td style="text-align: right;">+3.32%</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>residual_w4555_2wk_paper</td>
+<td style="text-align: right;">$106,677.16</td>
+<td style="text-align: right;">+6.68%</td>
+<td style="text-align: right;">+3.14%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w4060_paper</td>
+<td style="text-align: right;">$106,658.56</td>
+<td style="text-align: right;">+6.66%</td>
+<td style="text-align: right;">+3.14%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td style="text-align: right;">$106,493.05</td>
+<td style="text-align: right;">+6.49%</td>
+<td style="text-align: right;">+3.43%</td>
+<td style="text-align: right;">50 (carried: FMBM, FGMC, EACO, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w2575_paper</td>
+<td style="text-align: right;">$106,466.20</td>
+<td style="text-align: right;">+6.47%</td>
+<td style="text-align: right;">+1.97%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w3070_paper</td>
+<td style="text-align: right;">$106,442.47</td>
+<td style="text-align: right;">+6.44%</td>
+<td style="text-align: right;">+2.00%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w9505_paper</td>
+<td style="text-align: right;">$106,419.12</td>
+<td style="text-align: right;">+6.42%</td>
+<td style="text-align: right;">+3.34%</td>
+<td style="text-align: right;">45 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w3070_2wk_paper</td>
+<td style="text-align: right;">$106,352.81</td>
+<td style="text-align: right;">+6.35%</td>
+<td style="text-align: right;">+2.16%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w0595_2wk_paper</td>
+<td style="text-align: right;">$106,301.19</td>
+<td style="text-align: right;">+6.30%</td>
+<td style="text-align: right;">+0.70%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w4060_2wk_paper</td>
+<td style="text-align: right;">$105,959.74</td>
+<td style="text-align: right;">+5.96%</td>
+<td style="text-align: right;">+2.82%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w3565_wk_paper</td>
+<td style="text-align: right;">$105,904.82</td>
+<td style="text-align: right;">+5.90%</td>
+<td style="text-align: right;">+2.37%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w2575_wk_paper</td>
+<td style="text-align: right;">$105,848.45</td>
+<td style="text-align: right;">+5.85%</td>
+<td style="text-align: right;">+2.18%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w5050_2wk_paper</td>
+<td style="text-align: right;">$105,745.36</td>
+<td style="text-align: right;">+5.75%</td>
+<td style="text-align: right;">+3.82%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w1090_2wk_paper</td>
+<td style="text-align: right;">$105,669.37</td>
+<td style="text-align: right;">+5.67%</td>
+<td style="text-align: right;">+1.21%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w1585_wk_paper</td>
+<td style="text-align: right;">$105,607.50</td>
+<td style="text-align: right;">+5.61%</td>
+<td style="text-align: right;">+1.57%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w1585_2wk_paper</td>
+<td style="text-align: right;">$105,518.75</td>
+<td style="text-align: right;">+5.52%</td>
+<td style="text-align: right;">+1.35%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w1090_wk_paper</td>
+<td style="text-align: right;">$105,437.96</td>
+<td style="text-align: right;">+5.44%</td>
+<td style="text-align: right;">+1.27%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w9505_wk_paper</td>
+<td style="text-align: right;">$105,424.19</td>
+<td style="text-align: right;">+5.42%</td>
+<td style="text-align: right;">+3.93%</td>
+<td style="text-align: right;">43</td>
+</tr>
+<tr>
+<td>residual_w6535_paper</td>
+<td style="text-align: right;">$105,416.97</td>
+<td style="text-align: right;">+5.42%</td>
+<td style="text-align: right;">+3.47%</td>
+<td style="text-align: right;">46 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w2575_2wk_paper</td>
+<td style="text-align: right;">$105,257.74</td>
+<td style="text-align: right;">+5.26%</td>
+<td style="text-align: right;">+2.08%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>qqq_benchmark_paper</td>
+<td style="text-align: right;">$105,165.01</td>
+<td style="text-align: right;">+5.17%</td>
+<td style="text-align: right;">+1.85%</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>residual_w4060_wk_paper</td>
+<td style="text-align: right;">$105,053.38</td>
+<td style="text-align: right;">+5.05%</td>
+<td style="text-align: right;">+2.64%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w1585_paper</td>
+<td style="text-align: right;">$105,048.12</td>
+<td style="text-align: right;">+5.05%</td>
+<td style="text-align: right;">+1.38%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w5545_2wk_paper</td>
+<td style="text-align: right;">$104,951.63</td>
+<td style="text-align: right;">+4.95%</td>
+<td style="text-align: right;">+3.85%</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr>
+<td>residual_w9010_paper</td>
+<td style="text-align: right;">$104,882.85</td>
+<td style="text-align: right;">+4.88%</td>
+<td style="text-align: right;">+3.52%</td>
+<td style="text-align: right;">47 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w4555_wk_paper</td>
+<td style="text-align: right;">$104,879.86</td>
+<td style="text-align: right;">+4.88%</td>
+<td style="text-align: right;">+2.96%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w6040_2wk_paper</td>
+<td style="text-align: right;">$104,638.59</td>
+<td style="text-align: right;">+4.64%</td>
+<td style="text-align: right;">+3.75%</td>
+<td style="text-align: right;">45 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w5545_wk_paper</td>
+<td style="text-align: right;">$104,600.72</td>
+<td style="text-align: right;">+4.60%</td>
+<td style="text-align: right;">+3.43%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w9505_2wk_paper</td>
+<td style="text-align: right;">$104,360.68</td>
+<td style="text-align: right;">+4.36%</td>
+<td style="text-align: right;">+4.19%</td>
+<td style="text-align: right;">43 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w7525_paper</td>
+<td style="text-align: right;">$104,108.68</td>
+<td style="text-align: right;">+4.11%</td>
+<td style="text-align: right;">+3.24%</td>
+<td style="text-align: right;">46 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w8020_paper</td>
+<td style="text-align: right;">$104,041.33</td>
+<td style="text-align: right;">+4.04%</td>
+<td style="text-align: right;">+3.15%</td>
+<td style="text-align: right;">46 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w7030_paper</td>
+<td style="text-align: right;">$103,890.50</td>
+<td style="text-align: right;">+3.89%</td>
+<td style="text-align: right;">+3.48%</td>
+<td style="text-align: right;">46 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>llm_cascade_top1_paper (WDC)</td>
+<td style="text-align: right;">$103,887.60</td>
+<td style="text-align: right;">+3.89%</td>
+<td style="text-align: right;">+12.50%</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>residual_w9010_2wk_paper</td>
+<td style="text-align: right;">$103,862.41</td>
+<td style="text-align: right;">+3.86%</td>
+<td style="text-align: right;">+4.21%</td>
+<td style="text-align: right;">44 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td style="text-align: right;">$103,834.04</td>
+<td style="text-align: right;">+3.83%</td>
+<td style="text-align: right;">+0.83%</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>residual_w8020_wk_paper</td>
+<td style="text-align: right;">$103,722.40</td>
+<td style="text-align: right;">+3.72%</td>
+<td style="text-align: right;">+3.31%</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>residual_w6040_wk_paper</td>
+<td style="text-align: right;">$103,458.82</td>
+<td style="text-align: right;">+3.46%</td>
+<td style="text-align: right;">+3.24%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w6535_2wk_paper</td>
+<td style="text-align: right;">$103,251.91</td>
+<td style="text-align: right;">+3.25%</td>
+<td style="text-align: right;">+3.64%</td>
+<td style="text-align: right;">45 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w9010_wk_paper</td>
+<td style="text-align: right;">$103,069.96</td>
+<td style="text-align: right;">+3.07%</td>
+<td style="text-align: right;">+3.29%</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>residual_w8515_wk_paper</td>
+<td style="text-align: right;">$102,953.17</td>
+<td style="text-align: right;">+2.95%</td>
+<td style="text-align: right;">+3.35%</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td style="text-align: right;">$102,932.79</td>
+<td style="text-align: right;">+2.93%</td>
+<td style="text-align: right;">+1.11%</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>residual_w7525_wk_paper</td>
+<td style="text-align: right;">$102,869.83</td>
+<td style="text-align: right;">+2.87%</td>
+<td style="text-align: right;">+3.29%</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper</td>
+<td style="text-align: right;">$102,727.39</td>
+<td style="text-align: right;">+2.73%</td>
+<td style="text-align: right;">+3.35%</td>
+<td style="text-align: right;">48 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>residual_w8515_2wk_paper</td>
+<td style="text-align: right;">$102,177.93</td>
+<td style="text-align: right;">+2.18%</td>
+<td style="text-align: right;">+4.20%</td>
+<td style="text-align: right;">46 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>residual_w0595_wk_paper</td>
+<td style="text-align: right;">$101,886.81</td>
+<td style="text-align: right;">+1.89%</td>
+<td style="text-align: right;">+0.74%</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>residual_w6535_wk_paper</td>
+<td style="text-align: right;">$101,708.67</td>
+<td style="text-align: right;">+1.71%</td>
+<td style="text-align: right;">+3.31%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>residual_w8020_2wk_paper</td>
+<td style="text-align: right;">$101,285.51</td>
+<td style="text-align: right;">+1.29%</td>
+<td style="text-align: right;">+3.84%</td>
+<td style="text-align: right;">45 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>sector_top4_paper</td>
+<td style="text-align: right;">$101,206.21</td>
+<td style="text-align: right;">+1.21%</td>
+<td style="text-align: right;">+1.07%</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>residual_w7525_2wk_paper</td>
+<td style="text-align: right;">$100,422.22</td>
+<td style="text-align: right;">+0.42%</td>
+<td style="text-align: right;">+3.63%</td>
+<td style="text-align: right;">44 (carried: FGMC)</td>
+</tr>
+<tr>
+<td>mom_roa_6535_0701_paper</td>
+<td style="text-align: right;">$100,094.97</td>
+<td style="text-align: right;">+0.09%</td>
+<td style="text-align: right;">+8.20%</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>residual_w7030_wk_paper</td>
+<td style="text-align: right;">$100,061.86</td>
+<td style="text-align: right;">+0.06%</td>
+<td style="text-align: right;">+3.26%</td>
+<td style="text-align: right;">45</td>
+</tr>
+<tr>
+<td>llm_overlay_mom_roa_top1_paper</td>
+<td style="text-align: right;">$100,000.00</td>
+<td style="text-align: right;">+0.00%</td>
+<td style="text-align: right;">+0.00%</td>
+<td style="text-align: right;">0 (cash)</td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper</td>
+<td style="text-align: right;">$99,600.68</td>
+<td style="text-align: right;">−0.40%</td>
+<td style="text-align: right;">+0.83%</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>residual_w7030_2wk_paper</td>
+<td style="text-align: right;">$99,428.69</td>
+<td style="text-align: right;">−0.57%</td>
+<td style="text-align: right;">+3.68%</td>
+<td style="text-align: right;">45 (carried: FGMC, DMAA)</td>
+</tr>
+<tr>
+<td>llm_overlay_sector_top4_paper</td>
+<td style="text-align: right;">$99,137.62</td>
+<td style="text-align: right;">−0.86%</td>
+<td style="text-align: right;">+0.83%</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>mom_v2_0701_paper</td>
+<td style="text-align: right;">$98,535.41</td>
+<td style="text-align: right;">−1.46%</td>
+<td style="text-align: right;">+8.03%</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>llm_cascade_sector4_paper</td>
+<td style="text-align: right;">$98,450.68</td>
+<td style="text-align: right;">−1.55%</td>
+<td style="text-align: right;">+0.99%</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>qqq_benchmark_0706_paper</td>
+<td style="text-align: right;">$98,083.89</td>
+<td style="text-align: right;">−1.92%</td>
+<td style="text-align: right;">+1.85%</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>mom_v1_0701_paper</td>
+<td style="text-align: right;">$98,052.72</td>
+<td style="text-align: right;">−1.95%</td>
+<td style="text-align: right;">+6.86%</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td style="text-align: right;">$96,626.58</td>
+<td style="text-align: right;">−3.37%</td>
+<td style="text-align: right;">+7.85%</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td style="text-align: right;">$92,684.57</td>
+<td style="text-align: right;">−7.32%</td>
+<td style="text-align: right;">+7.99%</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td style="text-align: right;">$92,621.24</td>
+<td style="text-align: right;">−7.38%</td>
+<td style="text-align: right;">+6.55%</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>mom_roa_top1_paper (BE, worst)</td>
+<td style="text-align: right;">$85,737.68</td>
+<td style="text-align: right;">−14.26%</td>
+<td style="text-align: right;">+14.80%</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-key-position-analysis--movers-stop-watch-new-developments_2">3. Key position analysis — movers, stop watch, new developments</h3>
+<p><strong>Biggest movers among held tickers, official 07-20→07-21 closes:</strong><br />
+- Gainers: <strong>AEHR +25.78%</strong> ($77.36→$98.91, later intraday reads showed as high as +27.86%), <strong>FEIM +19.67%</strong> ($66.72→$79.85, no company-specific 07-21 catalyst found, likely riding the broad chip/tech rally given its 2.47 beta — reported as NOT FOUND, not assumed), PVLA +15.94%, AAOI +15.76%, ACMR +15.45%, <strong>BE +14.82%</strong> (see below), MXL +14.73%, UCTT +14.59%, DOCN +14.58%, ICHR +14.53%, <strong>WDC +12.51%</strong> (see below), UMAC +12.37%, <strong>MU +12.17%</strong> (see below), TER +12.07%, SLGL +12.03%, AIP +11.54%, CIFR +11.44%, QUIK +11.44%, COHR +11.15%, <strong>STX +11.14%</strong>, NVTS +11.14%, MRAM +11.09%, TTMI +10.27%, LASR +10.13%.<br />
+- Decliners: <strong>MSCI −10.14%</strong> (not held in this portfolio — flagged for macro context only, see below), <strong>ALIT −7.71%</strong> (§ below), <strong>VICR −7.05%</strong> (§ below), <strong>APPF −6.28%</strong> (no 07-21 catalyst found), WING −4.36%, PAVM −4.32%, VATE −3.72%, ADBE −3.23%, RHLD −2.91%, FICO −2.89%, EVER −2.25%, MO −2.24%, IRMD −2.12%, IDXX −2.01%, INTG −1.99%.</p>
+<p><strong>Ticker-specific research:</strong><br />
+- <strong>WDC (66/76 sleeves) +12.51% ($487.42→$548.39):</strong> the standing AI-storage/HDD-demand thesis (already covered in every report since 07-16) accelerated sharply on Morgan Stanley's raised Q3 memory-price forecasts (PC DRAM 15–20%, enterprise SSD 18–23%) and broader "memory demand +50–60% next year, AI-specific +60–100%" framing. TradingKey: WDC moved +12.12% intraday, opened $528.81, ranged $517.01–$550.83. <a href="https://www.tradingkey.com/news/market-movers/262045086-market-movers-wdc-20260721">TradingKey — WDC Market Movers July 21</a>, <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60591328/why-is-western-digital-stock-surging-on-tuesday">Benzinga — Why Is Western Digital Stock Surging on Tuesday?</a>, both 2026-07-21. No fresh Kioxia-merger update found this pass (still unresolved, unchanged from 07-18/07-20 reporting).<br />
+- <strong>MU (62/76 sleeves) +12.17% ($865.46→$970.82):</strong> Morgan Stanley predicted memory prices could rise ~25% on continued AI demand; the memory market is described as "extremely tight" into Q3 2026. <a href="https://www.fool.com/coverage/stock-market-today/2026/07/21/stock-market-today-july-21-micron-surges-12-as-semiconductor-strength-lifts-nasdaq/">The Motley Fool — Micron Surges 12%</a>, 2026-07-21.<br />
+- <strong>STX (65/76 sleeves) +11.14% ($802.45→$891.83):</strong> same sector-wide memory/storage rebound, no distinct company-specific catalyst found beyond the broad theme (consistent with prior reports' HAMR/hyperscale-demand framing, not re-verified this pass).<br />
+- <strong>BE (mom_roa_top1_paper control) +14.82% ($197.06→$226.26):</strong> two concrete, dated drivers — <strong>JPMorgan raised its price target from $267 to $346</strong> (Overweight maintained), projecting 4.1GW of product-segment deliveries through FY2030 and explicitly citing that Bloom's recent updates address the scandium-supply concerns that drove the short-seller-triggered decline earlier this month; separately, a <strong>$1.7B Nebius AI-datacenter deal</strong> (backed by IDF and Oaktree) will deploy Bloom fuel-cell systems for dedicated behind-the-meter power. BE is +126% YTD but still −27.5% below its 52-week high of $307.88 (May 2026). <a href="https://stockstory.org/us/stocks/nyse/be/news/why-up-down/why-bloom-energy-be-stock-is-trading-up-today-8">StockStory — Why Bloom Energy (BE) Stock Is Trading Up Today</a>, <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60590326/bloom-energy-stock-booms-tuesday-whats-happening">Benzinga — Bloom Energy Stock Booms Tuesday</a>, <a href="https://247wallst.com/investing/2026/07/21/prediction-up-140-ytd-does-bloom-energy-have-more-room-to-run/">247wallst.com — Up 140% YTD</a>, all 2026-07-21. BE next reports Q2 earnings 2026-07-28 (unchanged, not re-verified this pass).<br />
+- <strong>MSCI −10.14% ($625.11→$561.74) — NOT held by any of this portfolio's 76 sleeves, flagged for market-context only</strong> (it's a notable index-provider name and a common momentum/quality-factor holding elsewhere, worth knowing why the tape's biggest single-name decliner moved so far): Q2 non-GAAP EPS of $4.94 missed by $0.04, revenue grew 12.2% y/y but missed by $3.03M, and the company raised 2026 opex guidance to $1.54–1.58B (from $1.49–1.53B) on higher non-compensation costs and acquisitions — the ~10–12% decline was more than double the ~4.2% move options markets had priced in. <a href="https://www.gurufocus.com/news/8968890/msci-reports-q2-earnings-miss-raises-2026-expense-guidance">GuruFocus — MSCI Reports Q2 Earnings Miss</a>, <a href="https://www.fool.com/investing/2026/07/21/why-msci-stock-is-plummeting-lower-today/">The Motley Fool — Why MSCI Stock Is Plummeting Lower Today</a>, <a href="https://ts2.tech/en/msci-falls-11-as-projections-for-increased-2026-expenses-overshadow-all-time-high-revenues-from-index-fees/">ts2.tech — MSCI falls 11%</a>, all 2026-07-21.<br />
+- <strong>VICR (46/76 sleeves) −7.05% ($230.99→$214.70):</strong> counterintuitively declined despite <strong>beating Q2 estimates</strong> ($1.04 EPS vs. $0.62 consensus, $143.35M revenue vs. $138.37M consensus) — this reads as a "sell the beat" reaction, compounded by a standing overhang from insiders selling $199.4M of shares over the trailing three months with no offsetting purchases reported (per the same sourcing pass that also surfaced VICR's unrelated −11.6% single-day drop on 07-16, already covered in a prior report). This is the second time in six sessions VICR has posted a double-digit-adjacent decline; it notably did not participate in today's broader power-semiconductor/chip-equipment rally. <a href="https://www.gurufocus.com/news/8963378/vicor-vicr-shares-drop-116-amid-broader-tech-selloff">GuruFocus — Vicor (VICR) Shares Drop 11.6% Amid Broader Tech Selloff</a> (07-16 context), <a href="https://www.stocktitan.net/news/VICR/vicor-corporation-to-hold-second-quarter-earnings-conference-call-yu11ip2woox2.html">StockTitan — Vicor Q2 earnings call set for July 21</a>, <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60312461/why-is-vicor-stock-falling-on-tuesday">Benzinga — Why Is Vicor Stock Falling on Tuesday?</a>, all accessed 2026-07-21 (some source dates ambiguous between 07-16/07-21 reporting — presented as found, not reconciled beyond what's stated).<br />
+- <strong>ALIT (held in the 47-sleeve group per prior widest-held lists — position count not re-verified this pass) −5.3% to −7.71% (source figures diverge slightly; official price_cache close −7.71% used for consistency):</strong> no company-specific 2026-07-21 catalyst was found in this pass; a DA Davidson price-target hike ($2.00→$40.00, Buy) was dated 2026-07-02, not new today. Reported as NOT FOUND for a same-day driver, not assumed. <a href="https://www.themarketsdaily.com/2026/07/21/alight-nysealit-trading-down-5-3-whats-next.html">Markets Daily — Alight (NYSE:ALIT) Trading Down 5.3%</a>, 2026-07-21.<br />
+- <strong>GOOGL/GOOG (56/76, 55/76 sleeves) −1.38%/−1.47% ($351.99→$347.15, $351.37→$346.19):</strong> pre-earnings pressure ahead of tomorrow's (2026-07-22, after close) Q2 print, driven by a combination of factors reported today: a <strong>~$4.67B EU antitrust fine</strong> plus Digital Markets Act data-sharing compliance orders (exact fine-announcement date not independently pinned down in this pass — presented as reported, not verified against a primary EU source), the standing Gemini 3.5 Pro delay story, and continuing investor concern about the raised <strong>$180–190B 2026 capex guidance</strong> compressing free cash flow (FCF margin cited as falling from 21% to 9.2%, FCF down ~47% y/y in Q1 to $10.1B) with 2027 capex guided to "significantly increase." Consensus for tomorrow: revenue ~$101.2–117B (sources vary — the lower figure appears to be a subset/segment estimate, not reconciled here), EPS ~$2.87–2.90, cloud growth and capex commentary the key watch items. <a href="https://ts2.tech/en/alphabet-nasdaqgoogl-shares-fall-ahead-of-earnings-amid-rising-capex-outpacing-revenue-gains/">ts2.tech — Alphabet shares fall ahead of earnings</a>, <a href="https://www.fxleaders.com/news/2026/07/19/alphabet-googl-stock-forecast-google-drops-4-ahead-of-earnings-can-ai-keep-the-rally-alive/">FX Leaders — Google Drops 4% Ahead of Earnings</a>, <a href="https://stockstory.org/us/stocks/nasdaq/googl/news/earnings/alphabet-googl-to-report-earnings-tomorrow-here-is-what-to-expect-3">StockStory — Alphabet To Report Earnings Tomorrow</a>, all 2026-07-21.<br />
+- <strong>AMAT (47/76) +7.39%, LRCX (62/76) +4.97%:</strong> both swept into the same chip-equipment/memory-capex rally; no distinct company-specific catalyst beyond the sector move was found this pass. Note a data inconsistency flagged, not resolved: one comparison source describes LRCX down 19.5% over the trailing month despite the rally, which doesn't fully reconcile with today's positive move — presented as found, not adjudicated.<br />
+- <strong>AEHR (held, sleeve count not confirmed this pass) +25.78% ($77.36→$98.91):</strong> a genuine, dated, company-specific catalyst distinct from the broad rally — fiscal Q4 results showed 33% y/y revenue growth, a swing to profitability, record $60.7M bookings, ~$100.6M effective backlog, and $116.5M cash after an equity raise; FY2027 guidance of $130–150M revenue (160–200% growth) came in far above the ~$85M Street estimate. New silicon-carbide wafer-level burn-in orders (&gt;$8M, EV-program-linked) and a follow-on FOX-XP order tied to AI optical interconnect/hyperscale data centers were also cited. <a href="https://timothysykes.com/news/aehr-test-systems-aehr-news-2026_07_21/">Timothy Sykes — AEHR Stock Surges As Earnings Beat Triggers New Bull Run</a>, 2026-07-21.<br />
+- <strong>CAT (47/76) — correction/clarification</strong>: this report's own research found CAT's Q2 2026 earnings are scheduled for <strong>2026-08-04</strong>, not 2026-07-22 as might be inferred from proximity to other earnings this week — no CAT-specific 07-21 catalyst beyond general industrial-sector strength (CAT +3.64% per TradingKey) was found. <a href="https://www.stocktitan.net/news/CAT/caterpillar-inc-to-announce-second-quarter-2026-financial-results-on-9kfz64shfa3s.html">StockTitan — Caterpillar Q2 2026 Earnings Set for Aug. 4</a>, <a href="https://www.tradingkey.com/news/market-movers/262044931-market-movers-cat-20260721">TradingKey — CAT Market Movers July 21</a>, both 2026-07-21.</p>
+<p><strong>Stop watch:</strong><br />
+- <strong>WDC / $480 (llm_cascade_top1_paper):</strong> today's official close $548.39 is now <strong>14.2% above</strong> the logged (unenforced) $480 reference level — the widest cushion since the 07-07 entry. As established in prior reports (not re-verified this pass), this sleeve has no automated stop-enforcement mechanism; today's rally makes the design gap moot in practice for now, though the gap itself is unchanged.<br />
+- <strong>Sector overlay (<code>llm_overlay_sector_top4_paper</code>):</strong> stops XLB $49.50, XLI $170.00, XLK $172.00 (from <code>sector_overlay_log</code>, 2026-07-07). Today's official closes: XLK $180.78 (cushion ~5.1%, widened from Monday), XLI $178.66 (cushion ~5.1%, roughly flat), <strong>XLB $50.10 (cushion only ~1.2%, the tightest of the three and essentially unchanged from Monday's ~1% level)</strong> — worth watching if Materials continues to lag the broader rally.<br />
+- <strong>Stock overlay (<code>llm_overlay_mom_roa_top1_paper</code>):</strong> no open position — confirmed all-cash since the 07-01 reset.</p>
+<h3 id="4-llm-overlay-treatment-vs-control_9">4. LLM overlay treatment vs. control</h3>
+<p><strong>Stock arm</strong> (<code>mom_roa_top1_paper</code> control vs. <code>llm_overlay_mom_roa_top1_paper</code> treatment vs. <code>llm_cascade_top1_paper</code> cascade):<br />
+- Control (BE) NAV path (unofficial 07-21): $74,686 (07-20, official) → <strong>est. $85,738 (07-21, +14.80%)</strong>. Still down ~14.3% since inception even after today's rally, versus a peak of ~+2.1% on 07-07.<br />
+- Treatment remains 100% cash, flat at exactly $100,000 every day since the double VETO (07-01, 07-07). The gap versus control narrowed sharply today — from an official ~25.3-point gap (07-20) to an estimated ~14.3-point gap (07-21) — the second straight session (after 07-17's smaller version) where the cash position's opportunity cost is the dominant story rather than its downside protection. Total logged stock-arm decisions: 8, since 2026-05-29 — well short of the 30-pick/12-month kill-switch threshold.<br />
+- Cascade (WDC) NAV path: $92,349 (07-20, official) → <strong>est. $103,888 (07-21, +12.50%)</strong>. Now back to +3.89% since inception, its best relative standing since the 07-13 rout began — still with no automated stop, a gap that has cut favorably in both directions this week (the 07-16 crash it couldn't avoid, today's rally it could fully capture).</p>
+<p><strong>Sector arm</strong> (<code>sector_top4_paper</code> control vs. <code>llm_overlay_sector_top4_paper</code> treatment vs. <code>llm_cascade_sector4_paper</code> cascade): no new decisions since 07-07 (unchanged holdings: control XLE/XLK/XLI/XLB; treatment XLK/XLI/XLB, XLE vetoed to cash; cascade XLK/XLI/XLB/XLV). Official 07-20: control +0.13%, treatment −1.68%, cascade −2.52%. Unofficial 07-21: control <strong>+1.21%</strong>, treatment <strong>−0.86%</strong>, cascade <strong>−1.55%</strong> — control's lead over both LLM variants widened slightly today, as XLE (+0.97%, the vetoed slot) again outperformed the treatment's realized 3-ETF blend. Total logged sector-arm decisions: 15, since 2026-05-29.</p>
+<h3 id="5-weekperiod-summary-07-14--07-21-mixing-official-07-1407-1707-20-marks-with-the-07-21-unofficial-estimate">5. Week/period summary (07-14 → 07-21, mixing official 07-14/07-17/07-20 marks with the 07-21 unofficial estimate)</h3>
+<ul>
+<li><strong>The raw-momentum family round-tripped violently and is still net negative for the week despite today's rally:</strong> <code>mom_roa_top1_paper</code> (BE) $92,225 (07-14) → $74,686 (07-20, official) → est. $85,738 (07-21) — still down roughly <strong>7.1%</strong> for the full week even after a +14.80% single day; <code>llm_cascade_top1_paper</code> (WDC) $106,713 → $92,349 → est. $103,888 — down roughly <strong>2.6%</strong> for the week; <code>mom_v1_paper</code>/<code>mom_v2_paper</code>/<code>mom_roa_6535_paper</code> all still down <strong>1–2%</strong> for the week on an unofficial basis, despite Tuesday's +6.5% to +8.0% single-day pops.</li>
+<li><strong>Residual-ladder sleeves show the same, now-familiar pattern in miniature</strong>: <code>residual_w0595_paper</code> $107,704 (07-14) → est. $107,779 (07-21) — essentially flat for the week (+0.07%), a small fraction of the raw-momentum family's whipsaw over the same window, extending the resilience thesis noted in every report since 07-17.</li>
+<li><strong>Benchmarks</strong>: <code>spy_benchmark_paper</code> $104,327 → est. $103,834, down ~0.47% for the week; <code>qqq_benchmark_paper</code> $106,755 → est. $105,165, down ~1.49% — both sat out the whipsaw entirely, as expected of a single-position buy-and-hold control.</li>
+<li>This is now the third consecutive weekly-scale illustration of the same structural finding: raw single-factor momentum sleeves carry meaningfully higher round-trip volatility than the residual/idiosyncratic-signal sleeves, even when the net weekly return ends up similar in sign — consistent with, not a new addition to, the 06-09 deployment thesis and HANDOFF.md's backtest table (residual_roa_6535 held-out maxDD −20.1% vs. mom_v2's −34.8%).</li>
+</ul>
+<h3 id="6-strategic-insights--structural-edge-or-new-sleeve-concepts_18">6. Strategic insights — structural edge or new sleeve concepts?</h3>
+<p><strong>A. No new sleeve concept is proposed from today's data.</strong> The memory/storage-chip rally, JPMorgan's BE upgrade, and the GOOGL pre-earnings jitters are all exposures already embedded in the existing 76-sleeve roster via the momentum/residual-momentum factor construction.</p>
+<p><strong>B. Today completes a clean natural experiment on realized round-trip volatility, and the raw-momentum sleeves lost it even on the up day.</strong> Despite posting the single largest one-day gains of any sleeves today (BE +14.80%, WDC's cascade +12.50%, the mom_v1/v2/mom_roa_6535 family +6.5–8.2%), every one of those sleeves remains net negative for the trailing week (§5) — the round-trip cost of concentrated single-factor exposure wasn't fully recovered by one strong bounce. The residual-ladder family, by contrast, never had much to recover from. This is the same finding as every prior report since 07-16/07-17, now extended to a third consecutive week-scale observation.</p>
+<p><strong>C. The LLM stock-overlay experiment's cash position has now had two consecutive sessions (07-17, and more sharply today) where the "cost of caution" is the dominant, not secondary, storyline.</strong> The treatment is still far ahead of control cumulatively (since the 07-07 double-VETO), but the gap has now narrowed in two of the last four reported sessions specifically because control captured upside the cash position structurally cannot. Worth carrying into the eventual n=30 kill-switch evaluation as a genuine two-sided data point, not a one-directional treatment win — consistent with the framing introduced in the 07-17 and 07-21-pre-market reports.</p>
+<p><strong>D. VICR's divergence from the broader chip/power-semiconductor rally (§3) is a small but notable anomaly worth one line:</strong> every other chip-adjacent name in the held universe rallied double digits today; VICR fell 7.05% despite beating Q2 estimates. No sleeve is VICR-concentrated (46/76 sleeves each hold it as one of 44-50 names), so this is immaterial to portfolio-level risk, but it's a reminder that "sell the beat" reactions can occur even inside a strongly positive sector tape — not a pattern to act on with n=1.</p>
+<p><strong>E. Standing open items carried forward, unchanged in substance from 07-20/07-21-pre-market:</strong> (1) the 07-21 official NAV mark is still PENDING as of this report (§0), expected to resolve via tomorrow's <code>TradingMorningMTM</code>; (2) GOOGL earnings tomorrow after close remains the week's dominant scheduled catalyst given its 56/55-of-76-sleeve footprint; (3) whether Evan wants a stop mechanism added to the cascade/control designs (unchanged discussion point, now moot in the very near term after today's rally but not resolved as a design question); (4) the FMBM/FGMC/EACO/DMAA sparse-coverage watch list (§0) grew from 2 to 4 names today — worth a manual DB check if it keeps expanding.</p>
+<hr />
+<p><em>Report generated: 2026-07-21 (Tuesday), ~18:07–18:30 CDT (~19:07–19:30 ET), roughly 3h37m–4h after the 4:00pm ET close. Coverage: <code>var/trades.db</code> (<code>paper_nav</code>, <code>paper_positions</code>, <code>paper_portfolio</code>, <code>price_cache</code>, <code>llm_overlay_log</code>, <code>sector_overlay_log</code>) queried read-only directly; official <code>paper_nav</code>/<code>verify_run</code> mark is 2026-07-20 (PASS 76/76, continuity 54/54, <code>var/verify_report.log</code>, run 2026-07-21 17:34 CDT); 2026-07-21 is PENDING per <code>check_coverage</code>/<code>mtm_catchup</code> (4,367 closes &lt; 5,000 floor at the 17:18 CDT run, though a later read this session found 8,732 closes — likely resolved since, not yet reflected in an official mark); all 07-21 figures in this report are <code>price_cache</code>-sourced self-computed estimates using carry-forward for 4 tickers with no 07-21 close (FMBM, FGMC, EACO, DMAA — see §0 for the methodology correction this required), explicitly not the official mark; <code>llm_overlay_log</code>/<code>sector_overlay_log</code> source-read directly to confirm no new decisions since 2026-07-07; no <code>daily.bat</code>/rebalance/MTM/catch-up write script was run by this report. | Sources: <a href="https://finance.yahoo.com/markets/live/stock-market-today-tuesday-july-21-dow-sp-500-nasdaq-084631499.html">Yahoo Finance — Stock Market Today, Tuesday July 21</a> | <a href="https://www.fool.com/coverage/stock-market-today/2026/07/21/stock-market-today-july-21-micron-surges-12-as-semiconductor-strength-lifts-nasdaq/">The Motley Fool — Micron Surges 12% as Semiconductor Strength Lifts Nasdaq</a> | <a href="https://www.cnbc.com/2026/07/20/stock-market-today-live-updates.html">CNBC — Stock market today live updates</a> | <a href="https://www.fool.com/investing/2026/07/21/memory-stocks-spark-a-market-rebound/">The Motley Fool — Memory Stocks Spark a Market Rebound</a> | <a href="https://uk.finance.yahoo.com/news/chip-stocks-surge-sk-hynix-174430156.html">Yahoo Finance UK — Chip Stocks Surge as SK hynix, Micron Lead AI-Fueled Rally</a> | <a href="https://www.tradingkey.com/analysis/stocks/us-stocks/262044307-nvda-samsung-skhynix-dram-mu-spcx-sndk-hbm-tradingkey">TradingKey — Memory Chips Extend Rally</a> | <a href="https://www.kucoin.com/news/flash/morgan-stanley-raises-memory-price-forecasts-for-q3-2026-warns-of-near-term-momentum-peak">KuCoin — Morgan Stanley Raises Q3 2026 Memory Price Forecasts</a> | <a href="https://www.tradingkey.com/news/market-movers/262045086-market-movers-wdc-20260721">TradingKey — WDC Market Movers July 21</a> | <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60591328/why-is-western-digital-stock-surging-on-tuesday">Benzinga — Why Is Western Digital Stock Surging on Tuesday?</a> | <a href="https://stockstory.org/us/stocks/nyse/be/news/why-up-down/why-bloom-energy-be-stock-is-trading-up-today-8">StockStory — Why Bloom Energy (BE) Stock Is Trading Up Today</a> | <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60590326/bloom-energy-stock-booms-tuesday-whats-happening">Benzinga — Bloom Energy Stock Booms Tuesday</a> | <a href="https://247wallst.com/investing/2026/07/21/prediction-up-140-ytd-does-bloom-energy-have-more-room-to-run/">247wallst.com — Prediction: Up 140% YTD, Does Bloom Energy Have More Room to Run?</a> | <a href="https://www.gurufocus.com/news/8968890/msci-reports-q2-earnings-miss-raises-2026-expense-guidance">GuruFocus — MSCI Reports Q2 Earnings Miss</a> | <a href="https://www.fool.com/investing/2026/07/21/why-msci-stock-is-plummeting-lower-today/">The Motley Fool — Why MSCI Stock Is Plummeting Lower Today</a> | <a href="https://ts2.tech/en/msci-falls-11-as-projections-for-increased-2026-expenses-overshadow-all-time-high-revenues-from-index-fees/">ts2.tech — MSCI falls 11%</a> | <a href="https://www.gurufocus.com/news/8963378/vicor-vicr-shares-drop-116-amid-broader-tech-selloff">GuruFocus — Vicor (VICR) Shares Drop 11.6% Amid Broader Tech Selloff</a> | <a href="https://www.stocktitan.net/news/VICR/vicor-corporation-to-hold-second-quarter-earnings-conference-call-yu11ip2woox2.html">StockTitan — Vicor Q2 earnings call set for July 21</a> | <a href="https://www.benzinga.com/trading-ideas/movers/26/07/60312461/why-is-vicor-stock-falling-on-tuesday">Benzinga — Why Is Vicor Stock Falling on Tuesday?</a> | <a href="https://www.themarketsdaily.com/2026/07/21/alight-nysealit-trading-down-5-3-whats-next.html">Markets Daily — Alight (NYSE:ALIT) Trading Down 5.3%</a> | <a href="https://ts2.tech/en/alphabet-nasdaqgoogl-shares-fall-ahead-of-earnings-amid-rising-capex-outpacing-revenue-gains/">ts2.tech — Alphabet shares fall ahead of earnings</a> | <a href="https://www.fxleaders.com/news/2026/07/19/alphabet-googl-stock-forecast-google-drops-4-ahead-of-earnings-can-ai-keep-the-rally-alive/">FX Leaders — Google Drops 4% Ahead of Earnings</a> | <a href="https://stockstory.org/us/stocks/nasdaq/googl/news/earnings/alphabet-googl-to-report-earnings-tomorrow-here-is-what-to-expect-3">StockStory — Alphabet To Report Earnings Tomorrow</a> | <a href="https://timothysykes.com/news/aehr-test-systems-aehr-news-2026_07_21/">Timothy Sykes — AEHR Stock Surges As Earnings Beat Triggers New Bull Run</a> | <a href="https://www.stocktitan.net/news/CAT/caterpillar-inc-to-announce-second-quarter-2026-financial-results-on-9kfz64shfa3s.html">StockTitan — Caterpillar Q2 2026 Earnings Set for Aug. 4</a> | <a href="https://www.tradingkey.com/news/market-movers/262044931-market-movers-cat-20260721">TradingKey — CAT Market Movers July 21</a> | <a href="https://www.cnbc.com/amp/2026/07/21/oil-prices-dip-as-mediation-efforts-offset-us-iran-strikes.html">CNBC — Oil prices dip as mediation efforts offset US-Iran strikes</a> | <a href="https://live.euronext.com/en/financial-news/oil-prices-ease-mediators-propose-us-iran-ceasefire">Euronext — Oil prices ease as mediators propose US-Iran ceasefire</a> | <a href="https://global.morningstar.com/en-nd/economy/ecb-rate-decision-what-expect-july-23">Morningstar — ECB Rate Decision: What to Expect on July 23</a> | <a href="https://www.piptheory.com/research/ecb-meeting-july-2026-preview-euro-eur">PIPTHEORY — ECB Preview July 2026</a></em></p>
 </div>
 </body>
 </html>
