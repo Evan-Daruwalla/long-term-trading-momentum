@@ -381,12 +381,25 @@ rewriting 1,881 rows of sacred NAV history. **If in doubt, do not start M7.**
    `file:...?mode=ro`. Done: for ALL 76 sleeves, `state_at(name, <latest settled date>)` matches
    live `paper_portfolio.cash` to **$0.00** and `paper_trader.list_open()` count exactly —
    reconstructing a state whose true answer is already known is the only honest way to test this.
+   **[DONE 2026-08-02, record CK: `historical_state.py` shipped; done-check PASS 76/76 at
+   as_of=2026-07-31, max |cash delta| $0.000000, open counts exact, 0 legs after as_of.]**
 2. **Validate against UNCONTAMINATED history — this is the gate.** Recompute historical NAV from
    task 1 for ≥5 sleeves that never held KLAC, across their full history, and diff against the
    stored `paper_nav` rows. Done: |delta| ≤ $0.01 on ≥95% of rows, AND any systematic divergence
    (dividends, fees, fractional-share rounding) identified and explained IN WRITING before
    proceeding. **If the reconstructor cannot reproduce known-good history, STOP and report — it
    must never be used to rewrite contaminated history.**
+   **[RUN 2026-08-02 — GATE FAILED, record CK. 27 KLAC-free sleeves, 1,195 stored NAV rows:
+   1,129 within $0.01 = 94.48%, under the 95% bar. Diagnosis (the reason matters more than the
+   number): the LEDGER is exact — cash reconstructs on 1,194/1,195 rows (99.92%) and n_open on
+   the same 1,194. The one cash miss is the XLK invalidation stop of 2026-07-28, an ORDERING
+   artifact (`daily.bat` writes the NAV row before `check-invalidation --settled` back-stamps the
+   exit), not a defect. The remaining 65 rows diverge on PRICE only, and cannot be fixed:
+   `daily_price_refresh.py` re-downloads the last 30 days for every ticker with
+   `INSERT OR REPLACE` BY DESIGN, so a stored NAV row is a snapshot of an input this system
+   revises nightly. Historical NAV is therefore NOT reproducible in principle. Divergence blocks
+   map to the 2026-06-13 backfill, the 614 spike-nulls, and the 2026-08-02 CI rate-limit
+   backfill. STOP executed per this task's own instruction — no repair attempted.]**
 3. **Repair the 31 closed rows — ON A COPY FIRST.** Extend `scripts/backadjust_split.py` with an
    opt-in `--include-closed` flag: `qty×N`, `entry_price÷N`, `exit_value×N`, `realized_pnl =
    exit_value − entry_value`, and correct each sleeve's `paper_portfolio.cash` by
@@ -399,6 +412,19 @@ rewriting 1,881 rows of sacred NAV history. **If in doubt, do not start M7.**
    `verify_run --mode daily --db <copy>` → **PASS 76/76**, NAV continuity unbroken, 0
    pre-inception rows, and the ladder's cross-rung spread re-reported with the KLAC distortion
    gone.
+   **[BLOCKED 2026-08-02 by the M7.2 finding, record CK — do NOT execute as written. Re-marking
+   with today's `price_cache` would not isolate the KLAC repair: it would silently restate those
+   1,881 rows for at least four UNRELATED reasons (the 06-13 history-gap backfill, the 614
+   spike-nulls, nightly yfinance revisions inside the rolling 30-day refresh window, and the
+   08-02 CI rate-limit backfill), while task 5 reported the result as the KLAC fix. Observed
+   magnitude of the unrelated restatement on KLAC-free sleeves: up to +$397.77 on a $108k NAV
+   (0.37%) vs the KLAC error's ~1.8% — smaller, same order, not dismissible.
+   RECOMMENDATION (Evan's call): run task 3 and SKIP tasks 4-5's NAV rewrite. That repairs the
+   31 closed positions and the sleeves' CURRENT cash, making cross-rung comparison trustworthy
+   from the repair date FORWARD, and matches the precedent CJ already set for the 15 open
+   positions (fix present state, leave a visible dated jump, never rewrite history). The
+   ladder's live-forward period is what decides the experiment anyway — HANDOFF already records
+   the 05-01→07-16 replay spread as noise.]**
 5. **Apply live. BLOCKED-ON-EVAN.** Claude's live-DB writes are refused by the permission
    classifier (recorded in CH and CJ — Evan ran the CJ commands himself), so this step is a
    command handed to Evan, never executed by the model. Take a fresh backup first

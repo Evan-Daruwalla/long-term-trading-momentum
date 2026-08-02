@@ -157,11 +157,23 @@ rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, dai
 >    - **STILL BROKEN**: the 31 CLOSED positions that exited on/after the 05-13
 >      split still hold **−$55,343.70** of phantom realized loss inside those
 >      sleeves' CASH. (The 2 that exited 05-11 are legitimately correct, +$276.56.)
->      **Cross-rung ladder comparisons remain NOT trustworthy.** Fixing it needs a
->      historical-state reconstructor that does not exist: `paper_mtm.compute_nav`
+>      **Cross-rung ladder comparisons remain NOT trustworthy.** ~~Fixing it needs a
+>      historical-state reconstructor that does not exist~~: `paper_mtm.compute_nav`
 >      has no historical mode (reads today's cash + today's open positions), and
 >      per-date cash can only be rebuilt by replaying entries/exits because there
 >      is no `paper_transactions` table. ~1,881 NAV rows would be rewritten.
+>    - **2026-08-02 UPDATE (record CK, PRD M7.1/M7.2).** The reconstructor now
+>      EXISTS — `scripts/momentum/historical_state.py`, read-only, verified exact
+>      on all 76 sleeves ($0.000000 cash delta). But its validation gate FAILED at
+>      94.48% (bar: 95%), and the failure is informative: the **cash ledger replays
+>      exactly** (1,194/1,195 stored NAV rows), while **historical NAV is NOT
+>      reproducible in principle** — `daily_price_refresh.py` re-downloads the last
+>      30 days for every ticker with `INSERT OR REPLACE` by design, so a stored NAV
+>      row is a snapshot of an input the system revises nightly. **Consequence: the
+>      planned M7.4 NAV rewrite would restate those 1,881 rows for four unrelated
+>      reasons on top of the KLAC fix and is now BLOCKED.** Recommended path is
+>      M7.3 only — repair the 31 closed positions + current cash, leave history
+>      alone (same precedent as the 15 open positions above). **Awaiting Evan.**
 
 ### Systematic sleeve specs
 
@@ -284,6 +296,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 | `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
 | `scripts/backup_trades_db.py [--keep N] [--dry-run]` | Rotating `VACUUM INTO` backup of `trades.db` → `var/backups/`, keep newest 3, disk-guard (M5.1) |
+| `scripts/momentum/historical_state.py [--mode selfcheck\|validate]` | Reconstructs a sleeve's cash + open positions AS OF any past date by replaying `paper_positions` (read-only; there is no `paper_transactions` table). `selfcheck` = M7.1 done-check vs the live portfolio; `validate` = M7.2 full-history diff vs stored `paper_nav`. Ledger replay is exact; NAV recompute is NOT reproducible for past dates — see record CK before using it to rewrite anything |
 
 ### Batch files
 | File | When to run |

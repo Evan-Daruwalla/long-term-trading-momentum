@@ -145,6 +145,7 @@ lives in the dated entry, not the digest.
 - [CH - 2nd full audit (5 Opus workers): 2 CRITs - biweekly ladder never live-rebalanced; price_cache never back-adjusts splits ($83k phantom)](#appendix-ch---second-full-system-audit-5-parallel-opus-workers-2-criticals-found---the-biweekly-ladder-had-never-live-rebalanced-and-price_cache-never-back-adjusts-splits-83k-phantom-loss-across-48-sleeves-2026-07-28-1537-cdt) (07-28)
 - [CI - 2 trading days of prices lost to a yfinance rate limit; CH's refresh fix had a hole (empty frame != exception), now closed](#appendix-ci---two-trading-days-of-prices-silently-lost-to-a-yfinance-rate-limit-the-ch-refresh-fix-had-a-hole-empty-frame--exception-now-closed-biweekly-ladder-catch-up-confirmed-fired-2026-08-02-1615-cdt) (08-02)
 - [CJ - KLAC split back-adjustment APPLIED: cache root cause fixed, 15 open positions re-based, frozen d=0.0000pp; 31 closed rows deferred](#appendix-cj---klac-split-back-adjustment-applied-price_cache-root-cause-fixed-15-open-positions-re-based-frozen-tests-unmoved-at-d00000pp-the-31-closed-rows--5534370-deferred---compute_nav-has-no-historical-mode-2026-08-02-1653-cdt) (08-02)
+- [CK - PRD M7.1 shipped (76/76 exact); M7.2 gate FAILED 94.48% - the ledger replays exactly but historical NAV is NOT reproducible (price_cache is mutable by design)](#appendix-ck---prd-m71-shipped-historical_statepy-7676-exact-m72-gate-failed-at-9448---the-cash-ledger-replays-exactly-but-historical-nav-is-not-reproducible-because-price_cache-is-deliberately-mutable-stop-per-the-prd-recommend-m73-only-2026-08-02-1723-cdt) (08-02)
 
 ---
 
@@ -6563,3 +6564,152 @@ v2 +14.4062%/38 & +10.2194%/87). `verify_run --mode daily` FAIL 61/76 immediatel
 (expected, the discontinuity), then **PASS 76/76** after the 07-31 re-mark. Cache continuity
 confirmed across 05-11..05-14. `alpaca_keys.env` ACL hardened by Evan
 (`icacls /inheritance:r /grant:r`) - the audit's outstanding security item, now closed.
+
+---
+
+# Appendix CK - PRD M7.1 SHIPPED (historical_state.py, 76/76 exact); M7.2 gate FAILED at 94.48% - the cash ledger replays exactly but historical NAV is NOT reproducible because price_cache is deliberately mutable. STOP per the PRD; recommend M7.3-only (2026-08-02, ~17:23 CDT)
+
+Evan: "run PRD task M7". M7 (added earlier the same day, record CJ) exists to repair the 31
+CLOSED KLAC positions still holding -$55,343.70 of phantom realized loss inside their sleeves'
+cash. Its first two tasks are read-only: build a historical-state reconstructor (M7.1), then
+PROVE it against known-good history before letting it near contaminated history (M7.2).
+
+M7.1 passed. **M7.2 failed its own gate, and the reason is more useful than the repair would
+have been.** No DB write was made this session; nothing was repaired.
+
+## CK.1 M7.1 - `scripts/momentum/historical_state.py` (read-only)
+
+New module. `state_at(history, as_of)` returns `{cash, open_positions, n_open}` reconstructed
+purely from `paper_positions` + `paper_portfolio`:
+
+    cash(t) = starting_cash - SUM(entry_value where entry_date <= t)
+                            + SUM(exit_value  where exit_date  <= t)
+    open(t) = entry_date <= t AND (exit_date IS NULL OR exit_date > t)
+
+Before writing it, the formula's premise was verified rather than assumed. `grep adjust_cash`
+shows `paper_trader.adjust_cash` has NO caller outside `buy()`/`sell()`, nothing else writes
+`paper_portfolio.cash`, and every `sell()` call site (7 of them across `paper_rebalance`,
+`llm_overlay_ops`, `sector_overlay_ops`, `llm_cascade_ops`) passes the position's FULL `qty` -
+so the cash credit is identically `exit_value`, never a partial. Schema sanity: 6,465 positions
+(3,246 open / 3,219 closed), 0 closed rows with a null `exit_value` or `exit_date`, 0 open rows
+carrying an `exit_date`, all 76 sleeves at `starting_cash` $100,000.
+
+**Done-check (the PRD's own): PASS.**
+
+    historical_state selfcheck  db=trades.db  as_of=2026-07-31  sleeves=76
+    MAX |cash delta| across 76 sleeve(s): $0.000000
+    RESULT: PASS (76/76 sleeves reconstruct exactly)
+
+Open-position counts matched exactly on all 76. Zero sleeves had an entry or exit leg dated
+after `as_of`, so the comparison is fully meaningful rather than accidentally clean.
+
+## CK.2 M7.2 - the gate, and why it FAILED
+
+Recomputed FULL NAV history for the **27 sleeves that never held KLAC** (their stored
+`paper_nav` is known-good; any divergence is the reconstructor's fault, not the contamination's)
+and diffed against the stored rows. `paper_nav` stores `cash` and `n_open_positions` per row
+alongside `total_nav`, so the **ledger replay** and the **price resolution** were diffed
+SEPARATELY - conflating them would have hidden which one was wrong.
+
+    TOTAL: 1129/1195 rows within $0.01 (94.48%) across 27 sleeve(s)
+    RESULT: FAIL (20/27 sleeves reproduce known history)
+
+PRD bar was |delta| <= $0.01 on **>=95%** of rows. 94.48% misses it by 0.52pp. Per M7.2's own
+wording - "If the reconstructor cannot reproduce known-good history, STOP and report" - this
+session stops here.
+
+**But the split diff says the reconstructor is not the problem:**
+
+| axis | result |
+|---|---|
+| cash (ledger replay) | **1,194 / 1,195 rows exact = 99.92%** |
+| n_open | 1,194 / 1,195 exact |
+| total_nav (ledger + prices) | 1,129 / 1,195 = 94.48% |
+
+## CK.3 Divergence class 1 - the single cash row (fully explained)
+
+`llm_overlay_sector_top4_paper` @ 2026-07-28: stored cash $25,000.00 / 3 open, reconstructed
+$48,818.14 / 2 open. Cause: the XLK **invalidation stop** (`exit_reason='invalidation'`,
+`exit_date=2026-07-28`, `exit_value=$23,818.14`) - the ONLY non-rebalance exit in the entire DB.
+`check-invalidation --settled` (record BZ) prices as-of the last SETTLED day and stamps
+`exit_date` to it, but `daily.bat` writes the NAV row BEFORE running the stop check. So the
+stored 07-28 row legitimately captures pre-exit state while the ledger books the exit on 07-28.
+
+This is an **ordering artifact of the daily pipeline, not a data error and not a reconstructor
+bug** - the reconstruction is arguably the more correct of the two. Per CLAUDE.md the stored row
+stays as-is; it is reported, not fixed. It is also self-limiting: 1 row in 1,195, and it can only
+ever affect a sleeve on the day a stop fires.
+
+## CK.4 Divergence class 2 - historical NAV is NOT reproducible, by design
+
+The other 65 divergent rows show cash exact, n_open exact, 0 carry-forwards, 0 missing prices.
+With `nav = cash + SUM(qty x px)` and cash/qty/n_open all verified identical, the residual is
+arithmetically FORCED to be `price_cache[ticker, date]` having changed since the row was written.
+(`qty` is immutable here: the only script that mutates it is `backadjust_split.py`, scoped to a
+single ticker, and these 27 sleeves never held KLAC.)
+
+Confirmed from the code, not inferred: **`daily_price_refresh.py` re-downloads the last 30 days
+for EVERY cached ticker with `INSERT OR REPLACE`** - deliberately, "tolerant of missed days
+without needing complex gap detection". Every historical close inside a rolling 30-day window is
+overwritten nightly with whatever yfinance currently serves.
+
+The per-date deltas are blocky, not noisy - each block starts and ends at a rebalance boundary,
+which is the signature of a held name being restated:
+
+| block | sleeves | worst delta | matches |
+|---|---|---|---|
+| 05-15 -> 06-02 | mom_v1 | -$249.63 | 2026-06-13 history-gap backfill (2.25M rows) rewriting May |
+| 06-15 -> 06-26 | all 3 | +$397.77 | same backfill + the 614 spike-nulls |
+| 06-24 -> 06-25 | mom_roa_6535 | -$65.20 | same |
+| 07-30 -> 07-31 | all 3 + ladder `_wk` | +$172.58 | **record CI, TODAY** - the yfinance rate limit dropped 07-30/07-31 for part of the universe; those names were marked on carry-forward and backfilled later |
+
+Fingerprint confirming a shared-holding cause: mom_v1's 07-30 delta (+$86.29) is EXACTLY half
+mom_v2's (+$172.58), and mom_v2's equals mom_roa_6535's to the cent - the top-100 vs top-50
+slot-size ratio. 22 tickers held by all three carry a qty ratio of exactly 2.0000.
+
+**The consequence, which the PRD did not anticipate:** a NAV row is a snapshot of a mutable
+input. It cannot be reproduced once that input has been revised, and this system revises it
+nightly by design. This is not fixable and not a bug - but it means **M7.4 as written would not
+isolate the KLAC repair.** Re-marking ~1,881 rows with today's cache would silently restate them
+for at least four unrelated reasons (the 06-13 backfill, the spike-nulls, nightly yfinance
+revisions, and today's CI rate-limit backfill), and M7.5's "real before/after ladder numbers"
+would be measuring all five effects at once while being reported as the KLAC fix.
+
+Magnitude for scale: the largest unrelated restatement observed is +$397.77 on a $108k NAV
+(0.37%), against the KLAC error's ~1.8% of NAV. Smaller, but the same order - not noise that
+can be waved off.
+
+## CK.5 Recommendation to Evan (his call, per the PRD)
+
+**Do M7.3, skip M7.4.** Repair the 31 closed positions and the sleeves' CURRENT cash (the
+$55,343.70), and leave the historical `paper_nav` rows alone. Rationale:
+
+- It is exactly the precedent CJ already set for the 15 OPEN positions: fix present state, let
+  the correction land as a visible dated jump, do not rewrite history.
+- It makes cross-rung ladder comparison trustworthy **from the repair date forward**, which is
+  the period that actually decides the experiment. HANDOFF already records the 05-01 -> 07-16
+  replay as "10-11wk replay NOISE - live forward decides"; the historical spread was never the
+  deciding evidence.
+- It avoids rewriting 1,881 rows of sacred NAV history to achieve a restatement that would be
+  provably impure.
+
+Alternatives: (a) do nothing and permanently caveat the ladder - the PRD's stated cheap option,
+now strictly worse than M7.3-only; (c) full M7.3+M7.4 as written - now known to conflate five
+effects. Not recommended without Evan explicitly accepting that.
+
+## CK.6 Verification (real output)
+
+Frozen tests 4/4 **d=+/-0.0000pp** (run 2026-08-02 ~17:16 CDT, after `historical_state.py` was
+created):
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+    All regression tests passed.
+
+No DB writes this session. Everything above ran against `file:...?mode=ro`. Work was done
+between ~17:11 and ~17:23 CDT, which overlaps the 5:00-6:30pm MTM window the PRD says to avoid -
+acceptable here ONLY because every query was read-only and short; a future M7.3 (which writes to
+a copy) must respect the window.
