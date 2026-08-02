@@ -7,7 +7,8 @@ like another sleeve" benchmark requested 2026-06-10 — it replaces the old
 yfinance-sourced dashboard line (which rate-limited and left the S&P curve
 blank / "broken").
 
-Idempotent: re-running won't double-buy the position; it just re-MTMs (REPLACE).
+Idempotent: re-running won't double-buy the position, and it only marks NAV
+dates that have no row yet (never rewrites settled NAV history).
 Before the first close at/after inception exists, it creates a $100k cash stub
 (inception set) and buys on the first run where a close is available — so it can
 be wired into rebalance.bat to auto-seed the 07-01 baseline when 07-01 arrives.
@@ -27,10 +28,8 @@ Run (QQQ controls):
 from __future__ import annotations
 
 import argparse
-import sqlite3
 from datetime import date
 
-from trading_bot.config import DB_PATH
 from trading_bot.db import connect
 from trading_bot.execution import paper_trader
 from scripts.momentum import paper_mtm
@@ -41,14 +40,22 @@ START_CASH = 100_000.0
 
 
 def _closes_since(ticker: str, d0: date) -> list[tuple[str, float]]:
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        "SELECT key_date, price FROM price_cache "
-        "WHERE ticker=? AND kind='close' AND key_date>=? ORDER BY key_date",
-        (ticker, d0.isoformat()),
-    ).fetchall()
-    conn.close()
+    # trading_bot.db.connect, not raw sqlite3.connect: it sets busy_timeout=30s
+    # so a collision with the concurrent writer waits instead of dying on
+    # "database is locked" (audit 2026-07-17, record CG).
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT key_date, price FROM price_cache "
+            "WHERE ticker=? AND kind='close' AND key_date>=? ORDER BY key_date",
+            (ticker, d0.isoformat()),
+        ).fetchall()
     return [(d, p) for d, p in rows if p and p > 0]
+
+
+def _existing_nav_dates(sleeve: str) -> set[str]:
+    with connect() as conn:
+        return {r[0] for r in conn.execute(
+            "SELECT nav_date FROM paper_nav WHERE strategy_name=?", (sleeve,))}
 
 
 def main() -> int:
@@ -89,9 +96,16 @@ def main() -> int:
     else:
         print(f"{ticker} position already open - skipping buy")
 
-    # Daily MTM from inception -> today on every cached SPY trading day.
+    # Daily MTM from inception -> today, GAP-FILL ONLY. write_nav is INSERT OR
+    # REPLACE and rebalance.bat runs this every month, so looping every cached
+    # close used to restamp the sleeve's ENTIRE settled NAV history on each run
+    # — NAV history is never rewritten (project rule). Dates that already have a
+    # row are skipped; a brand-new sleeve has none, so seeding is unchanged.
+    already = _existing_nav_dates(sleeve)
     n = 0
     for d_iso, _ in closes:
+        if d_iso in already:
+            continue
         as_of = date.fromisoformat(d_iso)
         nav = paper_mtm.compute_nav(sleeve, as_of)
         paper_mtm.write_nav(sleeve, as_of, nav)
@@ -99,8 +113,8 @@ def main() -> int:
 
     pf = paper_trader.get(sleeve)
     last_nav = paper_mtm.compute_nav(sleeve, date.fromisoformat(closes[-1][0]))
-    print(f"MTM'd {n} trading days "
-          f"({closes[0][0]} -> {closes[-1][0]}). "
+    print(f"MTM'd {n} new trading day(s) "
+          f"(scanned {closes[0][0]} -> {closes[-1][0]}). "
           f"cash=${pf.cash:.6f}  "
           f"NAV=${last_nav['total_nav']:,.4f}  "
           f"({(last_nav['total_nav'] / START_CASH - 1) * 100:+.4f}%)")

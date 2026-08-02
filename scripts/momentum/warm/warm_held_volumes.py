@@ -38,7 +38,7 @@ BATCH_SIZE = 50
 
 
 def _held_tickers() -> list[str]:
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     try:
         rows = conn.execute(
             "SELECT DISTINCT ticker FROM paper_positions WHERE status='open'"

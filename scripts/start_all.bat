@@ -23,9 +23,21 @@ call scripts\restart_dashboard.bat
 echo.
 echo ############## 2/2  Refresh prices + MTM all sleeves ##############
 call scripts\momentum\daily.bat
+if errorlevel 1 goto :daily_failed
 
 echo.
 echo ============================================================
 echo  ALL UP. Dashboard: http://localhost:8501/
-echo  (4 systematic sleeves + llm_overlay; mom_roa_top1 control runs hidden)
+echo  (all paper sleeves refreshed + marked to market; see HANDOFF.md
+echo   for the current roster)
 echo ============================================================
+goto :eof
+
+:daily_failed
+echo.
+echo ============================================================
+echo  FAILED: scripts\momentum\daily.bat exited non-zero.
+echo  Prices/NAVs may be STALE. Check var\last_daily_run.log.
+echo  Dashboard (if it came up): http://localhost:8501/
+echo ============================================================
+exit /b 1

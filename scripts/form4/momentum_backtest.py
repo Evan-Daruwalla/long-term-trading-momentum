@@ -46,7 +46,7 @@ MIN_HISTORY_DAYS       = 200   # require ≥200 cached bars to be eligible
 def _load_prices(since: date, until: date) -> dict[str, list[tuple[date, float]]]:
     """Load close history. Returns {ticker: [(date, price), ...]} sorted asc."""
     extended_since = since - timedelta(days=400)  # need pre-window for first lookback
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker, key_date, price FROM price_cache "
         "WHERE kind='close' AND key_date >= ? AND key_date <= ? AND price > 0",
@@ -171,7 +171,7 @@ def _max_drawdown(nav_series: list[tuple[date, float]]) -> float:
 def run_momentum(*, since: date, until: date, starting_cash: float = 100_000.0) -> dict:
     log.info("Loading close cache...")
     all_prices = _load_prices(since, until)
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     prices = _filter_universe(all_prices, conn)
     conn.close()
     log.info("Universe: %d tickers (filtered from %d cache, %d signals)",

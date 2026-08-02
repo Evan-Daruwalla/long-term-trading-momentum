@@ -20,8 +20,10 @@ data bugs) is treated as the real asset.
     overlay ops (the day-to-day paper-trading pipeline).
   - `form4/` — insider Form-4 filing ingestion and backtesting.
   - `data_audit/` — one-off audits, backfills, and data-integrity checks.
-- `docs/` — dated audit reports, research notes, and point-in-time state
-  snapshots.
+- `docs/` — the append-only project record, dated audit reports, and research
+  notes. (The `docs/state_<date>.md` snapshot tier was retired 2026-07-08 —
+  point-in-time snapshots now live inside the record; `HANDOFF.md` is the only
+  live snapshot.)
 - `HANDOFF.md` — running summary of current strategy sleeves and status.
 - `MOMENTUM_DESIGN.md` — design rationale for the momentum factor sleeves.
 

@@ -21,18 +21,25 @@ old versions of this file — a stale roster here caused confusion before).
 
 - Python venv. Invoke modules as `.venv\Scripts\python.exe -m scripts.momentum.<module>`
   from the repo root (matches all existing usage).
-- **Frozen regression tests**: `.venv\Scripts\python.exe -m pytest
-  trading_bot/strategies/test_strategies.py` — 4 pinned configs, must stay at
+- **Frozen regression tests**: `.venv\Scripts\python.exe -m
+  trading_bot.strategies.test_strategies` — 4 pinned configs, must stay at
   **d=±0.0000pp after ANY Python change**, even "obviously unrelated" ones.
-  Paste the real output; never say "should pass".
+  Paste the real output; never say "should pass". (**pytest is NOT installed** —
+  the `-m pytest` form documented here until 2026-07-28 could never run; the
+  module `__main__` block is the invocation.)
 - DB: `var/trades.db` (~5 GB SQLite). Open **read-only** (`file:...?mode=ro`)
   unless the task explicitly writes. Frozen backup
   `var/trades.db.bak_pre_spike_cleanup` — DO NOT DELETE.
 - Dashboard: Streamlit at http://localhost:8501 (`TradingDashboard` task);
   logs `var/dashboard.log`.
-- Scheduled tasks: `TradingDailyMTM` (5:15pm daily → `daily.bat`, logs
-  `var/last_daily_run.log`) and `monthy-llm-rebalance` (monthly ~6pm — **the
-  typo is real; renaming it breaks the automation chain**).
+- Scheduled tasks (6 total, verified 2026-07-28): `TradingDailyMTM` (5:15pm
+  daily → `daily.bat`, logs `var/last_daily_run.log`), `TradingMorningMTM`
+  (7:45am → `morning_refresh.bat`, heals a day left pending at 5:15pm),
+  `TradingLadderRebalance` (8:30pm daily → `ladder_rebalance.bat`, weekly +
+  biweekly residual ladders), `TradingWeeklyBackup` (Sun 9am →
+  `backup_trades_db.py`), `TradingDashboard` (at logon → Streamlit :8501), and
+  the Claude agent task `monthy-llm-rebalance` (monthly ~6pm — **the typo is
+  real; renaming it breaks the automation chain**).
 
 ## Hard rules
 

@@ -51,7 +51,7 @@ CASH_BUFFER = 0.01  # deploy 99% of equity; leaves headroom so market-fill
 def _latest_closes(tickers: set[str]) -> dict[str, float]:
     if not tickers:
         return {}
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     out: dict[str, float] = {}
     for t in tickers:
         row = conn.execute(

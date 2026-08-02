@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect('var/trades.db')
+conn = sqlite3.connect('file:var/trades.db?mode=ro', uri=True)
 c = conn.cursor()
 
 # When was each strategy last rebalanced?

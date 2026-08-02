@@ -10,7 +10,8 @@ fail loudly instead of MTM-ing on a partial day.
 Reads price_cache READ-ONLY (file:...?mode=ro). Never writes.
 
 Logic:
-  target date   = the latest key_date with kind='close' (default), or --date.
+  target date   = the latest key_date with kind='close' that has at least
+                  MIN_TRADING_DAY_COUNT of them (default), or --date.
   count         = non-NULL closes on the target date.
   baseline      = median non-NULL close count over the prior 10 *trading* days
                   (dates with count >= MIN_TRADING_DAY_COUNT, so market-closed
@@ -90,8 +91,18 @@ def coverage_status(conn: sqlite3.Connection, target_date: str | None = None,
         if not recent:
             return {"date": None, "count": 0, "baseline": 0, "floor": 0,
                     "ok": None, "n_baseline": 0, "floor_src": "no closes"}
-        target_date, count = recent[0]
-        baseline_days = [n for (_d, n) in recent[1:] if n >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
+        # Target = newest date that actually LOOKS like a trading day. Same
+        # MIN_TRADING_DAY_COUNT guard the baseline uses: a single stray intraday
+        # row (a lone ^VIX close stamped with today) or a market-holiday
+        # straggler day would otherwise become the target and FAIL the gate on
+        # data nobody is waiting for. A genuinely pending today (~4,400 of
+        # ~5,200 closes at the 17:15 run) is far above the guard, so it is still
+        # selected and still fails -> daily.bat's "today pending" contract holds.
+        i_target = next((i for i, (_d, n) in enumerate(recent)
+                         if n >= MIN_TRADING_DAY_COUNT), 0)
+        target_date, count = recent[i_target]
+        baseline_days = [n for (_d, n) in recent[i_target + 1:]
+                         if n >= MIN_TRADING_DAY_COUNT][:BASELINE_WINDOW]
 
     baseline = int(statistics.median(baseline_days)) if baseline_days else 0
     if floor_override is not None:

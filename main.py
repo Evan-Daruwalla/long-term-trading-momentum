@@ -116,7 +116,11 @@ def main() -> None:
     web.add_argument("--no-browser", action="store_true", help="Don't auto-open the browser")
 
     args = parser.parse_args()
-    init_db()
+    # Schema script + defensive ALTERs only run for subcommands that touch the
+    # DB. `compare` reads run JSON and `web-dashboard` only re-execs Streamlit,
+    # so neither needs a write connection opened against the 5 GB store.
+    if args.cmd not in ("compare", "web-dashboard"):
+        init_db()
 
     if args.cmd == "poll-edgar":
         stats = edgar.poll(since=args.since, until=args.until)
@@ -207,6 +211,9 @@ def main() -> None:
         cmd = [
             sys.executable, "-m", "streamlit", "run", str(app_path),
             "--server.port", str(args.port),
+            # Loopback-only: Streamlit defaults to 0.0.0.0, which would expose
+            # this unauthenticated DB-backed dashboard to the whole LAN.
+            "--server.address", "127.0.0.1",
             "--server.headless", "true" if args.no_browser else "false",
             "--browser.gatherUsageStats", "false",
             "--theme.base", "dark",

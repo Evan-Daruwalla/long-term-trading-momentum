@@ -11,10 +11,19 @@ REM biweekly rebalance day, and rebalances only the due sleeves (holiday- and
 REM every-other-week-aware). A non-rebalance evening is a fast no-op.
 cd /d D:\ClaudeCode\Trading
 .venv\Scripts\python.exe -m scripts.momentum.ladder_forward_rebalance
-if errorlevel 1 echo WARNING: ladder rebalance reported an error; check the log above.
+set LADDER_RC=%errorlevel%
+if not "%LADDER_RC%"=="0" echo WARNING: ladder rebalance reported an error; check the log above.
 
 echo.
 echo === Post-run verification (daily) ===
 REM Audit fix (record CG): verify immediately after a ladder rebalance instead
-REM of waiting for the next evening's daily.bat. Last command = task exit code.
+REM of waiting for the next evening's daily.bat.
 .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
+set VERIFY_RC=%errorlevel%
+
+REM Audit fix (2026-07-28): the task exit code must reflect BOTH steps. Before
+REM this, verify_run was the last command, so its PASS masked a failed ladder
+REM rebalance and the task's Last Result stayed 0 -- part of why the 2026-07-20
+REM miss went unnoticed for 8 days. Ladder failure wins; verify failure is next.
+if not "%LADDER_RC%"=="0" exit /b %LADDER_RC%
+exit /b %VERIFY_RC%

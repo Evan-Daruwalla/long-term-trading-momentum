@@ -33,7 +33,7 @@ LOOKBACK_TRADING_DAYS = 126    # ~6 months
 @lru_cache(maxsize=2)
 def _load_closes(ticker: str) -> list[tuple[str, float]]:
     """Return sorted [(date_iso, close), ...] for one ticker."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT key_date, price FROM price_cache "
         "WHERE ticker=? AND kind='close' "

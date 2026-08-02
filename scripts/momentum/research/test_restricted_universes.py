@@ -38,7 +38,7 @@ WINDOWS = [
 
 
 def _top_n_by_marketcap(n: int) -> set[str]:
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker FROM fundamentals_cache "
         "WHERE field='marketCap' AND value IS NOT NULL "
@@ -52,14 +52,14 @@ def _top_n_by_marketcap(n: int) -> set[str]:
 def _ex_sector_tickers(excluded_sector: str) -> set[str]:
     """Return tickers whose sector is NOT the excluded one. Tickers without
     cached sector data are KEPT (assume not excluded — conservative)."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker, sector FROM sectors_cache"
     ).fetchall()
     conn.close()
     excluded = {t for t, s in rows if s == excluded_sector}
     # We need to start from the full ticker list and remove excluded
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     all_tickers = conn.execute(
         "SELECT DISTINCT ticker FROM price_cache WHERE kind='close'"
     ).fetchall()

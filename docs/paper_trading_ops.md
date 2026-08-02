@@ -7,7 +7,10 @@ Built 2026-05-27. **Updated 2026-05-28 after data audit + v1-v2 parallel decisio
 2. **mom_v2_paper** (top-50, more concentrated) — inceptioned 2026-05-01
 
 Both use the same frozen momentum signal (12-1 month). Both start with $100K paper.
-Compare their forward-OOS performance over time. See `memory/data_audit_2026-05-28.md`
+Compare their forward-OOS performance over time. See the `data_audit_2026-05-28`
+memory file (path corrected 2026-07-28 — `memory/` is not in this repo; those
+files live in Claude's per-project memory at
+`C:\Users\evan.EVANFREDY\.claude\projects\D--ClaudeCode-Trading\memory\`, outside git)
 for why we're running both: clean-data backtest shows v1 wins in-sample (9 yr,
 better risk-adjusted), v2 wins held-out (2.4 yr) — needs live data to decide.
 

@@ -49,7 +49,7 @@ MARKET_TICKER = "SPY"
 @lru_cache(maxsize=1)
 def _market_returns() -> dict[str, float]:
     """{date_iso: daily_return} for the market proxy. Cached for the process."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT key_date, price FROM price_cache "
         "WHERE ticker=? AND kind='close' ORDER BY key_date",

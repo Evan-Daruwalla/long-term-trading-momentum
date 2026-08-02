@@ -130,7 +130,28 @@ rebalance — monthly 07-01, weekly 07-13, biweekly 07-06), the LOW-residual/hig
 end LEADS all three cadences, INVERTING the BV backtest w80-90 plateau — 10-11wk
 replay NOISE (BW carried the same caveat), live forward decides. Weekly/biweekly
 rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, daily
-7pm, self-decides due-ness); monthly via `rebalance.bat`.
+8:30pm, self-decides due-ness); monthly via `rebalance.bat`.
+
+> **TWO AUDIT FINDINGS AGAINST THIS LADDER (2026-07-28, record CH) — read before
+> citing any ladder number.**
+> 1. **The BIWEEKLY arm had never live-rebalanced.** Due-ness was day-based ("is
+>    today the first trading day of the week"), so the 2026-07-20 evening miss was
+>    unrecoverable; all 19 `_2wk` sleeves sat buy-and-hold from 07-06 while this
+>    doc described them as a live 14-day cadence. The weekly arm lost 07-20 too
+>    (07-13 -> 07-27). `verify_run` never caught it — it checks NAV continuity and
+>    cash, nothing about cadence. FIXED 2026-07-28: due-ness is now PERIOD-based
+>    and self-healing, the dispatcher fails loudly (per-sleeve try/except + nonzero
+>    exit), and `ladder_rebalance.bat` propagates its exit code instead of letting
+>    verify_run's PASS mask it.
+> 2. **The ladder carries ~$83k of phantom KLAC loss.** `price_cache` never
+>    back-adjusts corporate actions, so seeding on 2026-07-17 backdated to 05-01
+>    re-read unadjusted pre-split KLAC history: 48 sleeves booked the same 05-01
+>    trade at $1,727.12 (32 closed, realized -$53,215.70) that
+>    `residual_roa_6535_paper` booked at $172.71 (+$1,079.84) — ratio exactly
+>    10.0000. That is -1.8%/-1.9% of NAV, unevenly spread across rungs, against a
+>    total ladder spread of 11.43pp. **Cross-rung comparisons are NOT trustworthy
+>    until this is repaired.** UNRESOLVED at time of writing — repair touches
+>    sacred NAV history and is Evan's decision.
 
 ### Systematic sleeve specs
 
@@ -229,9 +250,11 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 ### Database
 - `var/trades.db` (~5 GB) — all paper positions, NAVs, price cache, XBRL
 - Backup: `var/trades.db.bak_pre_spike_cleanup` — DO NOT DELETE
-- Tables: `price_cache`, `paper_portfolio`, `paper_positions`, `paper_nav`,
-  `paper_transactions`, `xbrl_facts`, `sectors_cache`, `fundamentals_cache`,
-  `signals`, `llm_overlay_log`, `sector_overlay_log`
+- Tables (18 total, verified 2026-07-28): `price_cache`, `paper_portfolio`,
+  `paper_positions`, `paper_nav`, `xbrl_facts`, `sectors_cache`,
+  `fundamentals_cache`, `signals`, `llm_overlay_log`, `sector_overlay_log`
+  — **there is no `paper_transactions` table** (listed here in error until
+  2026-07-28; fills live in `paper_positions`)
 - **CRITICAL**: never run concurrent `factor_backtest` against same DB — silent corruption
 
 ### Key scripts
@@ -257,7 +280,8 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 |---|---|
 | `scripts/momentum/daily.bat` | Daily after market close (auto via `TradingDailyMTM` at 5:15pm) |
 | `scripts/momentum/rebalance.bat` | 1st trading day of each month (manual, idempotent) |
-| `scripts/momentum/ladder_rebalance.bat` | Nightly weekly/biweekly ladder rebalance (auto via `TradingLadderRebalance` 7pm; no-op on non-rebalance evenings) |
+| `scripts/momentum/ladder_rebalance.bat` | Nightly weekly/biweekly ladder rebalance (auto via `TradingLadderRebalance` 8:30pm; no-op on evenings where both cadences have already been served this period). Propagates the dispatcher's exit code (record CH) |
+| `scripts/add_price_cache_date_index.py` | One-time migration, APPLIED 2026-07-28 (record CH): partial index on `price_cache(key_date) WHERE kind='close' AND price IS NOT NULL`. Every date query used to full-scan 37.5M rows; the coverage gate went 7.1s -> 0.271s. Dry-run by default, `--execute` to apply, reversible via `DROP INDEX idx_pc_close_date` |
 | `scripts/start_all.bat` | Manual full restart (kills dashboard, refreshes prices, MTMs all) |
 | `scripts/dashboard.bat` | Manual dashboard launch |
 
@@ -272,7 +296,13 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   pending at the 5:15 PM run is marked by ~8 AM instead of ~24 h later. Logs:
   `var/last_morning_run.log`
 - **`TradingWeeklyBackup`** — Sundays 9:00 AM → `backup_trades_db.py` (rotating
-  `VACUUM INTO` backup). Logs: `var/backup.log` (added 2026-07-09, M5.2)
+  `VACUUM INTO` backup). Logs: `var/backup.log` (added 2026-07-09, M5.2).
+  **Was silently DEAD 2026-07-09 → 2026-07-28** (record CH): `DisallowStartIfOnBatteries`
+  + `StopIfGoingOnBatteries` made every run return `-2147020576` (0x800710E0) without
+  ever launching cmd.exe, so `backup.log` kept showing the 07-09 run and the 5 GB DB
+  sat on a single 19-day-old copy. Both flags cleared and `StartWhenAvailable` set
+  2026-07-28; verified by a real run (4.77 GB in 26s, 2 generations retained).
+  If backups stop appearing again, check those power flags FIRST.
 - **`TradingLadderRebalance`** — fires `ladder_rebalance.bat` daily at 8:30 PM,
   `StartWhenAvailable` (added 2026-07-17 at 7 PM, record CD; moved to 8:30 PM same
   day, audit record CG — the measured ~35-45 min monthly run from 6:03 PM left the
@@ -311,7 +341,11 @@ Chart conventions (as of 2026-06-10):
 
 ## What's been ruled out (25+ experiments)
 
-Full list in `memory/sleeves_verdict.md`. Summary of failure patterns:
+Full list in the `sleeves_verdict` memory file. (Path corrected 2026-07-28: the
+`memory/` directory is NOT in this repo — those files live in Claude's
+per-project memory at
+`C:\Users\evan.EVANFREDY\.claude\projects\D--ClaudeCode-Trading\memory\`,
+outside git.) Summary of failure patterns:
 
 | Pattern | Examples |
 |---|---|
@@ -354,8 +388,11 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 `0 18 * * *`, ~6:03pm local — shifted back from a drifted `30 17`/~5:33pm on
 2026-07-11 per Evan, to clear a rebalance-day two-writer overlap with the 5:15pm
 daily MTM; record BS; self-gates on `rebalance_log.md` so only the first
-trading day of the month does real work). It runs `rebalance.bat` (all 10 paper
-lines carry `--broker-realistic`), does the LLM overlay decisions per
+trading day of the month does real work). It runs `rebalance.bat`, which now
+dispatches through `scripts/momentum/monthly_rebalance.py` (29 rebalance + 30
+MTM sleeves, all `--broker-realistic`) instead of the old per-sleeve .bat lines
+— the "all 10 paper lines" phrasing here was obsolete as of 2026-07-28. It also
+does the LLM overlay decisions per
 `docs/overlay_decision_runbook.md`, MTMs everything (per-sleeve `paper_mtm
 --force` so the rebalance day is marked despite partial same-day coverage,
 record BS), runs `verify_run --mode monthly`, and fires
@@ -387,5 +424,8 @@ Manual fallback (same steps) if you ever need to run it by hand:
   `docs/state_*.md` files.
 - `docs/paper_trading_ops.md` — ops guide (daily/monthly procedures)
 - `docs/research_2026-06-09_algo_candidates.md` — June algo-research report
-- `memory/` — per-verdict memory files (sleeves_verdict, data_audit, etc.)
+- Per-verdict memory files (sleeves_verdict, data_audit, etc.) — **not in this
+  repo**; they live in Claude's per-project memory at
+  `C:\Users\evan.EVANFREDY\.claude\projects\D--ClaudeCode-Trading\memory\`
+  (outside git). The bare `memory/` path used here until 2026-07-28 never resolved.
 - `daily_report.md` — owner's daily trading journal

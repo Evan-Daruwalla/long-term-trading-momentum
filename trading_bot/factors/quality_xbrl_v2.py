@@ -56,7 +56,7 @@ DEBT_CONCEPTS    = ("LongTermDebt", "LongTermDebtNoncurrent")
 @lru_cache(maxsize=1)
 def _load_facts() -> dict[str, dict[str, list[tuple]]]:
     """{ticker: {concept: [(period_end, filed, val), ...sorted by filed]}}"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker, concept, period_end, filed, val "
         "FROM xbrl_facts WHERE val IS NOT NULL "

@@ -1654,7 +1654,7 @@ def render_factors() -> None:
     if not runs:
         st.info(
             "No sleeve runs yet. Launch via:\n"
-            "`python -m scripts.run_sleeves_chain`  (90 min in-sample + held-out)"
+            "`python -m scripts.momentum.research.run_sleeves_chain`  (90 min in-sample + held-out)"
         )
         # Still show live log if a run is mid-flight
         log = _latest_sleeves_log()

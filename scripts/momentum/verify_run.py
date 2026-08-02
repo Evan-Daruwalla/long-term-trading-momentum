@@ -10,13 +10,16 @@ sleeve:
   (b) cash reconciliation — recompute cash + Sum(qty x close@nav_date) the same
       way paper_mtm does (carry-forward last close; entry_price if none) and
       compare to the stored total_nav within a few cents.
-  (c) position count vs target — MONTHLY only. Hardcoded targets from HANDOFF's
-      2026-07-09 cohort spec; overlay/cascade sleeves are variable (veto->cash)
-      so they are reported, not asserted. FAIL only if count EXCEEDS target.
+  (c) position count vs target. Hardcoded targets from HANDOFF's 2026-07-09
+      cohort spec; overlay/cascade sleeves are variable (veto->cash) so they are
+      reported, not asserted. FAIL if count EXCEEDS target (MONTHLY only — an
+      overshoot is only meaningful right after a rebalance) or if it falls below
+      UNDERFILL_FRACTION of target (both modes — a wipeout is always a failure).
   (d) no pre-inception rows — no paper_nav row dated before inception.
 
---mode daily runs (a),(b),(d); --mode monthly adds (c) and a reminder line to
-eyeball the Alpaca submit/reject counts in the run log. Read-only (file:...?mode=ro);
+--mode daily runs (a),(b),(c: underfill only),(d); --mode monthly adds the
+EXCEEDS half of (c) and a reminder line to eyeball the Alpaca submit/reject
+counts in the run log. Read-only (file:...?mode=ro);
 appends a dated PASS/FAIL block to var/verify_report.log; nonzero exit on any FAIL.
 
 Usage:
@@ -42,6 +45,10 @@ log = logging.getLogger("verify_run")
 
 MIN_TRADING_DAY_COUNT = 1000
 CASH_RECON_TOL = 0.05  # dollars
+# Catastrophic-underfill floor: FAIL below this share of the position target.
+# Deliberately far under the normal 43-50 of 50 range so a thin rebalance never
+# trips it — this catches wipeouts (e.g. a mass liquidation), not selectivity.
+UNDERFILL_FRACTION = 0.5
 
 # Open-position targets from HANDOFF (2026-07-09 cohort spec). Overlay/cascade
 # sleeves are intentionally variable (a macro/stock veto sends a slot to cash),
@@ -157,7 +164,7 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
             fails.append(f"cash recon: recomputed {recomputed:.2f} vs stored total_nav "
                          f"{stored:.2f} (delta {diff:+.2f} > ${CASH_RECON_TOL})")
 
-    # (c) position count vs target — monthly only
+    # (c) position count vs target
     n_open = conn.execute(
         "SELECT COUNT(*) AS c FROM paper_positions WHERE strategy_name=? AND status='open'",
         (strategy,)).fetchone()["c"]
@@ -166,6 +173,13 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
         tgt = 50  # entire residual ladder (monthly / _wk / _2wk cadences) targets top-50
     if monthly and tgt is not None and n_open > tgt:
         fails.append(f"position count {n_open} EXCEEDS target {tgt}")
+    # Lower bound, DAILY too: an EXCEEDS-only check let a catastrophically
+    # liquidated sleeve (3 of 50 names) pass forever. Mild undershoot is NORMAL
+    # (rebalance drops ineligible/untradable names; observed 43-50 of 50), so
+    # this fires only at half the target — a wipeout, not a thin month.
+    if tgt is not None and n_open < UNDERFILL_FRACTION * tgt:
+        fails.append(f"position count {n_open} is UNDER {int(UNDERFILL_FRACTION*100)}% "
+                     f"of target {tgt} - sleeve looks catastrophically under-filled")
     tgt_str = (f"{n_open}/{tgt}" if tgt is not None else f"{n_open}/var")
 
     info = (f"continuity({len(window)-len(missing)}/{len(window)}"

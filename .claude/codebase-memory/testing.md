@@ -4,10 +4,13 @@ Last updated 2026-07-15. Canonical home for the testing standard. The
 frozen-test contract is also an always-load cross-bin invariant (INDEX).
 
 ## The frozen-test contract (THE testing rule)
-- `.venv\Scripts\python.exe -m pytest trading_bot/strategies/test_strategies.py`
+- `.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies`
   — 4 pinned strategy configs. Must stay at **d=±0.0000pp after ANY Python
   change**, even "obviously unrelated" ones. **Paste the REAL output; never say
   "should pass".** Part of the definition of done for every task.
+  **pytest is NOT installed in the venv** — the `-m pytest ...` form documented
+  here until 2026-07-28 could never run; the module `__main__` block
+  (`test_strategies.py:160`) is the real invocation.
 
 ## Other tests + verification
 - `test_inception_guard.py` — regression test for the pre-inception NAV guard (M3).

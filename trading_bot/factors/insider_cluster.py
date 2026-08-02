@@ -40,7 +40,7 @@ def _load_all_buys() -> dict[str, list[tuple[str, str]]]:
     Only includes 'P' (open-market purchase), 'A' (acquired), total_value
     above MIN_VALUE_USD. Cached for the process lifetime.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     rows = conn.execute("""
         SELECT ticker, filed_at, filer_cik

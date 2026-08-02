@@ -18,7 +18,7 @@ runs = [
 for factor, since, until, label in runs:
     print(f"\n{'='*70}\n=== RUN: factor={factor}  {since} -> {until}  label={label}\n{'='*70}", flush=True)
     rc = subprocess.call(
-        [PY, "-m", "scripts.run_momentum",
+        [PY, "-m", "scripts.momentum.run_momentum",
          "--factor", factor, "--since", since, "--until", until,
          "--label", label],
         cwd=str(ROOT),

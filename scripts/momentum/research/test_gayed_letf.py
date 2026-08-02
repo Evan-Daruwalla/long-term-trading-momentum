@@ -51,7 +51,7 @@ CONFIGS = [
 
 
 def _closes(ticker: str) -> dict[str, float]:
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT key_date, price FROM price_cache "
         "WHERE ticker=? AND kind='close' ORDER BY key_date", (ticker,)).fetchall()

@@ -16,7 +16,11 @@ Last updated 2026-07-15. Canonical home for run/automation + commands.
   `rebalance.bat`; cron `0 18 * * *` (~6:00pm; shifted from ~5:33pm on 2026-07-11
   to clear a two-writer overlap with the 5:15pm MTM). **The typo "monthy" is REAL
   — renaming it breaks the chain.**
-- `TradingWeeklyBackup` — Sun 9am. `TradingDashboard` — Streamlit :8501.
+- `TradingLadderRebalance` — daily 8:30pm → `ladder_rebalance.bat` (forward
+  rebalance for the weekly + biweekly residual ladders; self-decides due-ness).
+- `TradingWeeklyBackup` — Sun 9am. `TradingDashboard` — Streamlit :8501 (at logon).
+- Six total (five Windows tasks + the `monthy-llm-rebalance` Claude agent task),
+  verified 2026-07-28.
 
 ## Timing window (avoid for DB-heavy work)
 - Stay out of 5:00–6:30pm local (daily MTM) and the 1st trading day of the month

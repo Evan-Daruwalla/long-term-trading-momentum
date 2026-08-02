@@ -142,6 +142,8 @@ lives in the dated entry, not the digest.
 - [CE - QQQ (Nasdaq-100) second index control: 2 buy-hold sleeves, dotted line on every panel](#appendix-ce---nasdaq-100-qqq-added-as-a-second-index-control-two-buy-hold-benchmark-sleeves--dotted-line-on-every-overview-panel-2026-07-17-1430-local) (07-17)
 - [CF - QQQ follow-ups: alpha-vs-QQQ column + QQQ row highlight; 07-01 cohort QQQ re-seeded to its real 07-06 start](#appendix-cf---qqq-follow-ups-alpha-vs-qqq-column--qqq-row-highlight-in-the-cohort-tables-and-the-07-01-cohort-qqq-control-re-seeded-to-its-real-07-06-start-2026-07-17-1445-local) (07-17)
 - [CG - Full audit (4 Opus workers): 16 findings all fixed - collision hardening, dashboard loopback + 37x, monthly dispatcher](#appendix-cg---full-system-audit-4-parallel-opus-workers--automated-pass-16-findings-all-fixed-same-session---collision-hardening-dashboard-loopback--37x-speedup-monthly-single-process-dispatcher-2026-07-17-1555-local) (07-17)
+- [CH - 2nd full audit (5 Opus workers): 2 CRITs - biweekly ladder never live-rebalanced; price_cache never back-adjusts splits ($83k phantom)](#appendix-ch---second-full-system-audit-5-parallel-opus-workers-2-criticals-found---the-biweekly-ladder-had-never-live-rebalanced-and-price_cache-never-back-adjusts-splits-83k-phantom-loss-across-48-sleeves-2026-07-28-1537-cdt) (07-28)
+- [CI - 2 trading days of prices lost to a yfinance rate limit; CH's refresh fix had a hole (empty frame != exception), now closed](#appendix-ci---two-trading-days-of-prices-silently-lost-to-a-yfinance-rate-limit-the-ch-refresh-fix-had-a-hole-empty-frame--exception-now-closed-biweekly-ladder-catch-up-confirmed-fired-2026-08-02-1615-cdt) (08-02)
 
 ---
 
@@ -6202,3 +6204,273 @@ Frozen tests 4/4 d=+/-0.0000pp (run before AND after every python-touching fix; 
 daily PASS 76/76. ALL .bat files pure ASCII. netstat: 127.0.0.1:8501. schtasks: TradingLadderRebalance
 Next Run 20:30, Ready. monthly_rebalance --dry-run exit 0 (plan 29+30, one preload). Dashboard
 browser-verified rendering all 5 panels post-change. Dispatcher's first live fire: 2026-08-03.
+
+
+# Appendix CH - Second full-system audit (5 parallel Opus workers): 2 CRITICALs found - the biweekly ladder had NEVER live-rebalanced, and price_cache never back-adjusts splits ($83k phantom loss across 48 sleeves) (2026-07-28, ~15:37 CDT)
+
+Evan: "/audit ... do a full audit of the system", explicitly choosing a FULL fresh sweep over a
+delta-since-CG scan when offered the choice. Then "1" = fix everything EXCEPT rewriting the closed-
+position NAV history. Method as in CG but wider: an automated pass plus FIVE parallel Opus 4.8
+workers (correctness/automation, data integrity, security/deps/infra, performance/docs-drift, and a
+dead-code/orphan sweep). Every crit/high was independently re-verified by the reviewing model with
+its own queries before being reported - two worker claims were downgraded on that re-check (below).
+
+PROCESS NOTE / correction: the reviewing model opened by telling Evan the last audit was
+"yesterday". It was 2026-07-17 - ELEVEN days earlier. The claim came from stale session context
+instead of reading the clock; `date` was run immediately after and the error corrected in the same
+reply. This is the second dated instance of asserting a time from memory (cf. Appendix CC) and is
+recorded so the pattern stays visible: run `date` BEFORE any temporal claim, not after.
+
+## CH.1 CRITICAL 1 - the biweekly ladder has never live-rebalanced
+
+`ladder_forward_rebalance` decided due-ness as "is TODAY the first trading day of its ISO week."
+That is a DAY-based test with no catch-up: if the 8:30pm task does not run that one evening, the
+cycle is lost permanently. On 2026-07-20 (a real trading day - 5,190 closes) the task did not run,
+and the miss was invisible because (a) `verify_run` checks NAV continuity and cash recon but nothing
+about rebalance CADENCE, and (b) `ladder_rebalance.bat` ended with `verify_run`, so the task's exit
+code was verify's PASS regardless of what the dispatcher did.
+
+Evidence (read-only queries, this session):
+- weekly arm entry_dates: ... 07-06, 07-13, [07-20 ABSENT], 07-27
+- biweekly arm entry_dates: 05-01, 05-11, 05-26, 06-08, 06-22, 07-06, then NOTHING
+- all 19 `_2wk` sleeves still carry `last_rebalanced_at = 2026-07-06T00:00:00+00:00`, the midnight
+  REPLAY stamp format written by the seeder - not a live wall-clock stamp (the `_wk` arm shows
+  `2026-07-28T01:31:38.392397+00:00`).
+
+So the biweekly leg of the 3-cadence experiment has been buy-and-hold since inception while
+HANDOFF described it as a live 14-day-cadence forward test. 22 days.
+
+FIXED - due-ness is now PERIOD-based and self-healing: "has this cadence traded yet inside its
+current period?" (period = this calendar week's Monday for weekly; the current two-week block's
+Monday for biweekly, anchored ordinal-even from 2026-04-27). A missed evening is picked up by the
+next trading day in the same period. Also fixed in the same edit:
+- per-sleeve try/except + failure list, and a nonzero return - previously EVERY path returned 0 and
+  one raising sleeve aborted the whole ladder mid-run (`monthly_rebalance` already did this right);
+- `ladder_rebalance.bat` now captures both exit codes and propagates them, so a ladder failure can
+  no longer be masked by verify_run's PASS;
+- a latent bug found while fixing, NOT in the audit findings: the old per-sleeve "already rebalanced
+  today" guard compared `last_rebalanced_at[:10]` to the as-of date, but `paper_trader.py:179`
+  stamps that column with write-time UTC. An 8:30pm CDT run stamps the NEXT UTC day, so the guard
+  silently never matched and could not have prevented a double-rebalance. The new code derives the
+  cadence's last activity from `paper_positions` entry/exit dates, which are true as-of dates and
+  timezone-proof.
+
+Verified by a 7-case assert self-check (scratchpad `check_cadence_logic.py`): seeded biweekly dates
+map to 5 distinct blocks 14d apart; 50 block starts over ~2 years all exactly 14 days apart
+(including the 2026 53-week boundary that CG fixed); the 07-20 miss now self-heals on 07-21; no
+re-fire once a period is served; holiday-Monday still served on Tuesday.
+
+CONSEQUENCE FLAGGED TO EVAN, DECISION PENDING AT TIME OF WRITING: under the new rule the biweekly
+arm is DUE at the next 8:30pm run (it still owes the 07-20 block), i.e. 19 sleeves would rebalance
+that evening. Options put to him: (1) let it fire and catch up, accepting one short 6-day interval
+before 08-03 restores clean 14-day spacing, or (2) gate it to 08-03 for clean block alignment at the
+cost of a 28-day gap. Recommendation given: (1).
+
+## CH.2 CRITICAL 2 - price_cache never back-adjusts corporate actions
+
+The KLAC 10:1 split (2026-05-13) was applied FORWARD ONLY. Cached history still reads $1,811.35 on
+05-12 and $184.97 on 05-13. The 2026-06-12 repair (Appendix X) and the 2026-06-13 backfill fixed
+SLEEVES, never the CACHE - so when the 3-cadence ladder was seeded on 2026-07-17 backdated to
+05-01, it re-read the still-unadjusted history and reproduced the bug verbatim in 48 new sleeves.
+
+Same ticker, same entry date, booked two opposite ways:
+- 48 `residual_w*` sleeves: entry $1,727.12 (pre-split), 32 closed -> realized **-$53,215.70**
+- `residual_roa_6535_paper` (repaired in June): entry $172.71 -> realized **+$1,079.84**
+- ratio of the two entry prices: **10.0000** exactly
+
+Aggregate phantom loss 48 sleeves: realized -$53,215.70 + unrealized -$29,965.11 = **-$83,180.81**.
+Per sleeve that is about -1.8% to -1.9% of NAV, against a total ladder return spread of 11.43pp -
+and it is NOT a common-mode offset that cancels in the comparison: it lands on different sleeves at
+different exit dates (32 closed, 16 still open), so it differentially distorts the very rung-vs-rung
+comparison the ladder exists to make. Also found: QDMI (ratio 0.372) cost one position -$1,769.62.
+
+NOT FIXED THIS SESSION - deliberately. Repairing the 32 CLOSED positions means rewriting NAV history
+that CLAUDE.md calls sacred, which Evan explicitly excluded from his "fix everything" approval. A
+wrinkle surfaced while planning the mechanics and was put back to him: repairing the 16 OPEN rows
+without also re-MTM-ing the contaminated days produces a NAV discontinuity (~+$1,800/sleeve with no
+market move behind it), so open and closed are not cleanly separable. Three options were presented -
+(a) repair + re-MTM (rewrites history), (b) repair + leave history (honest ledger forward, one
+disclosed dated jump), (c) cache-only fix (nothing retroactive). Recommendation given: (b).
+DECISION PENDING. The cache-level root cause (no back-adjustment pass at all) is what must actually
+be broken to stop this recurring a third time.
+
+## CH.3 The rest - fixed and verified this session
+
+- **TradingWeeklyBackup dead 19 days (HIGH).** `Last Result -2147020576` (0x800710E0, "operator or
+  administrator has refused the request"); `var/backups/` held exactly one file, `trades_2026-07-09.db`;
+  `backup.log` was still untruncated from 07-09, proving cmd.exe never even launched on 07-12, 07-19
+  or 07-26. Cause: `DisallowStartIfOnBatteries` + `StopIfGoingOnBatteries` both true. FIXED via
+  Set-ScheduledTask (both false, plus `StartWhenAvailable` true so a missed Sunday now catches up).
+  Ran it: 4.77 GB written in 26s, 2 generations retained. This was done FIRST, before any DB write,
+  so a restore point existed - the 5 GB DB had had none for 19 days.
+- **price_cache had no date-usable index (HIGH).** Only the PK autoindex (ticker, kind, key_date), so
+  every date query full-scanned 37.5M rows. Measured on a full-size COPY (never live): GROUP BY
+  8.258s -> 0.005s, count-for-one-date 4.415s -> 0.001s, range 9.170s -> 0.016s, results byte-
+  identical, build 16.2s, +308 MB. Shipped as a documented reversible migration,
+  `scripts/add_price_cache_date_index.py` (dry-run by default, `--execute` to apply). Live build
+  14.7s; planner confirmed adopting it. End-to-end effect: the coverage gate went **7.1s -> 0.271s**.
+- **daily_price_refresh could lose a 200-ticker batch and still exit 0** - now counts exhausted
+  batches, logs the ticker count, and returns nonzero. Also routed through `trading_bot.db.connect()`,
+  making it the last writer to pick up the `busy_timeout=30000` two-writer protection from CG.
+- **check_coverage picked a stray-row day as its target** - one lone intraday ^VIX row for 07-28 made
+  the gate report FAIL. `MIN_TRADING_DAY_COUNT` now guards target selection too; the gate now
+  correctly evaluates 07-27 and reports PASS. (Consequence was benign - `daily.bat:28` routed exit 1
+  to its today_pending branch - so this was downgraded from the worker's MED to LOW on re-check.)
+- **seed_spy_benchmark rewrote the benchmark's ENTIRE NAV history every monthly run** (INSERT OR
+  REPLACE over every cached close, called unconditionally by rebalance.bat) - now fills only dates
+  with no existing nav row.
+- **verify_run could not detect an under-filled sleeve** (it FAILed only on EXCEEDS, monthly-only) -
+  now runs daily with a catastrophic-undershoot floor at 50% of target. Deliberately loose: mild
+  undershoot is NORMAL here (live range 43-50 of 50) and is not a defect.
+- **main.py re-introduced the LAN exposure CG had fixed** - `web-dashboard` built the Streamlit
+  command with no `--server.address`, so it would have bound 0.0.0.0 again. Fixed. (Latent only; the
+  live process was loopback, launched via dashboard.bat.) Also `init_db()` no longer fires on the two
+  genuinely read-only subcommands.
+- **13 modules opened the 5 GB DB read-write while only reading** - all converted to `?mode=ro`.
+- Docs drift, all corrected: INDEX.md said "17 sleeves/3 families" (reality 76/4) - the first line a
+  fresh session reads; `paper_transactions` referenced in 3 docs though no such table exists;
+  CLAUDE.md's frozen-test command was `-m pytest ...` which CANNOT RUN (pytest is not installed) and
+  is now the module invocation; CLAUDE.md listed 2 of 6 scheduled tasks; HANDOFF's "all 10
+  rebalance.bat paper lines" predates the CG dispatcher; `memory/...` paths that do not resolve from
+  the repo; dependencies.md claimed an alpaca SDK the code explicitly refuses. PRD_ROADMAP.md handled
+  per Evan's convention - 12 dated strike-throughs, 7 criteria ticked, ZERO net deletions (verified
+  by diff). Three criteria deliberately left unticked with in-file reasons rather than claimed done.
+- Misc: `start_all.bat` printed "ALL UP" unconditionally (now branches on errorlevel);
+  `watch_record_html.bat` claimed a `TradingRecordWatch` task that does not exist; two live strings
+  pointed at module paths that would raise ModuleNotFoundError; `markdown`/`watchdog` added to
+  requirements.txt.
+
+## CH.4 Reported, deliberately NOT actioned
+
+- **HIGH - phantom momentum in live selection.** Five non-reverting step-changes (ALIT 19.6x, MQ
+  3.85x, DD 3.05x, QDMI 0.372) entered the 12-1 lookback and each name was bought on the first
+  rebalance after. `MAX_HIST_RATIO` catches historical-much-greater-than-current; this is the
+  reverse and no filter covers it. Entry prices are post-event and correct, so the corruption is in
+  RANKING, not P&L. Causation was NOT proven - that needs a re-ranked backtest, which the audit was
+  not permitted to run. Reported as mechanism-consistent, not as established fact.
+- **alpaca_keys.env is readable by every local account** (`BUILTIN\Users: ReadAndExecute`,
+  `Authenticated Users: Modify`, inherited). Contents never read. NOT changed by Claude - modifying
+  OS security settings is outside what Claude does unilaterally; the `icacls` command was handed to
+  Evan to run himself.
+- **Undocumented scheduled task `\llm rebal`** - fires 5:59pm on 2026-08-01, one minute before the
+  real rebalance, running a `user32.dll mouse_event` PowerShell one-liner. Reads as a deliberate
+  keep-awake shim but appears in no repo doc. A second claimed task `\hellohello` could NOT be
+  confirmed and is recorded as unverified rather than asserted.
+- **12 legacy holiday NAV rows** - state re-confirmed unchanged from CG (exactly 12 rows, the same 6
+  sleeves, the same 2 dates, none new). Still kept; still Evan's call.
+- Dead code inventory produced (checkpoint: `scripts/check_june.py` has zero references anywhere;
+  the whole `scripts/momentum/warm/` package is a dead cluster; `test_inception_guard.py` never runs
+  automatically). NOTHING deleted - reported only, per the standing rule.
+
+## CH.5 Verification (real output)
+
+Frozen tests run THREE times - before the sweep, after all code edits, and again after the live index
+build - 4/4 d=+/-0.0000pp every time (v1 +14.5547%/70 & +1.8792%/156, v2 +14.4062%/38 &
++10.2194%/87). compileall over scripts+trading_bot+main.py exit 0. `verify_run --mode daily` PASS
+76/76 both before and after. Coverage gate 7.1s -> 0.271s. `PRAGMA quick_check` = ok,
+`foreign_key_check` = no violations, 0 NAV gaps across all 76 sleeves, 0 pre-inception rows, cash
+drift <= $1e-10, 0 orphans. Secret-scan over all 79 commits: 0 findings; alpaca_keys.env untracked
+and ignored. All .bat files re-confirmed pure ASCII. 37 files changed, +393/-175.
+
+
+# Appendix CI - Two trading days of prices silently lost to a yfinance rate limit: the CH refresh fix had a hole (empty frame != exception), now closed; biweekly ladder catch-up CONFIRMED fired (2026-08-02, ~16:15 CDT)
+
+Evan, from the dashboard: "Prices through 2026-07-29 / 3246 stale holdings". Then "fix stale
+holdings". Investigation, repair, and a follow-up fix to the gap that let it happen silently.
+
+## CI.1 What was wrong
+
+TWO independent causes stacked:
+1. **The machine was powered off** from ~2026-07-30 to 2026-08-02 15:31 (TradingDashboard is an
+   AtLogon task and its last run was 15:31 today, i.e. this boot). TradingDailyMTM last ran 07-29
+   17:15, TradingMorningMTM 07-30 07:45. Nothing ran across 07-31 / 08-01 / 08-02.
+2. **yfinance was rate-limiting**: `YFRateLimitError('Too Many Requests')` on nearly every batch.
+   This is the part that mattered, because it did NOT surface as an error.
+
+Result: `price_cache` ended at 2026-07-29 (5,176 closes), with 07-30 holding 3 stray rows and
+07-31 entirely absent - both real trading days. 239 held tickers were pinned to the 07-29 close;
+the dashboard's stale counter (which counts POSITION ROWS across 76 sleeves, not unique tickers)
+read 3,246.
+
+## CI.2 The hole in yesterday's fix - honest accounting
+
+Appendix CH shipped a fix for exactly this class ("daily_price_refresh could lose a 200-ticker
+batch and still exit 0"). It did not catch this case. The fix counted batches that exhausted all 3
+retries **with an exception**; but yfinance swallows `YFRateLimitError` internally and returns an
+**empty DataFrame** rather than raising, and the code classified an empty frame as a legitimate
+"no bars in range". So the run printed `Done. 104170 rows upserted` and exited **0** while ~200
+tickers per batch silently failed. A fix that addressed the symptom's shape but not its actual
+failure mode.
+
+CLOSED this session. `_process_batch` now also records wholly-EMPTY batches, and `main()`
+disambiguates using whole-run context: empty batches only mean failure when OTHER batches in the
+same run returned rows (on a weekend or holiday every batch is legitimately empty, and that must
+stay exit 0 or the morning task would fail every Saturday).
+
+The threshold is deliberate and was chosen against a real blast radius: `rebalance.bat:18`
+HARD-ABORTS the monthly rebalance on errorlevel 1, and partial same-day publication (~4,400 of
+~5,200 closes at 17:33) is NORMAL on a rebalance day. But normal partial publication shows up as
+fewer rows PER TICKER, never as wholly-empty batches - so requiring
+`EMPTY_BATCH_FAIL_FRACTION = 0.10` of batches to come back empty catches a real rate limit
+(today: 6 of 30 = 20%) without letting an ordinary rebalance evening abort. Verified by a 4-case
+self-check (scratchpad `check_ratelimit_fix.py`, no network/DB, VAR_DIR redirected):
+all-empty/holiday -> 0; 6-of-30 empty with others succeeding -> 1 (was 0, the bug); 1-of-30 empty
+-> 0 (rebalance not aborted); exception-lost batch -> 1 (unchanged contract).
+
+## CI.3 The repair
+
+Four spaced refresh passes were needed - the rate limit only clears with time, and hammering it
+extends the block:
+
+    07-31 closes:  0 -> 2,907 -> 4,461 -> 4,904 -> 5,049      (floor 5,000)
+
+The coverage gate correctly held 07-30/07-31 as sub-floor PENDING through the first three passes -
+the M3.5 guardrails behaved exactly as designed, refusing to MTM on partial data. After the fourth
+pass `check_coverage` returned COVERAGE PASS (5,049 >= 5,000) and `mtm_catchup` marked **152 rows**
+(76 sleeves x 07-30 + 07-31), `pending=none`. `verify_run --mode daily` -> **PASS (76/76)**.
+237 of 239 held tickers now current to 07-31 (2 stragglers still at 07-29, below any gate).
+
+## CI.4 The 9 verify failures from 07-29 - NOT the ladder fix
+
+The 07-29 daily run had ended `verify=FAIL (67/76)`: 8 `_2wk` sleeves with a ~+$0.07 cash-recon
+delta plus `llm_overlay_sector_top4_paper` at -$11.92. These first appeared 2026-07-29 07:47, the
+morning AFTER the biweekly catch-up rebalance fired, so the CH ladder change was the prime suspect.
+It was not: all 9 cleared to PASS 76/76 once complete prices landed and the NAVs were re-marked.
+The cause was incomplete price data at mark time; the correlation with the rebalance was
+circumstantial. Recorded because the suspicion was real and the exoneration should be too.
+
+**Also CONFIRMED this session: the CH ladder fix worked.** 247 positions carry `entry_date =
+2026-07-28` across the `_2wk` sleeves - the biweekly arm rebalanced on the 07-28 evening run, for
+the first time since inception, exactly as the fix predicted it would.
+
+## CI.5 PROCESS ERROR - a third instance, and this one changed a decision
+
+Evan asked to run the monthly LLM-rebalance routine, whose Step 0 gate is "if
+`rebalance_log.md`'s Last rebalance is in the CURRENT calendar month, STOP". The log reads
+2026-07-01. The reviewing model asserted "today is 2026-07-28" **from stale session context
+instead of running `date`**, concluded July == July, and stopped.
+
+Today is 2026-08-02. July != August, so the gate actually PASSES and the model stopped for a
+reason that was factually wrong. The outcome happened to be correct anyway - 08-02 is a Sunday
+with no same-day close, which Step 2's data-integrity guardrail stops on - but by luck, not by
+reasoning.
+
+This is the THIRD dated instance of asserting a time from memory (Appendix CC, Appendix CH's own
+process note, now this). The rule already exists in CLAUDE.md: run `date` BEFORE any temporal
+claim. What is new here is the demonstration that the failure is not cosmetic - it can flip a
+control-flow gate. NOTE: Appendix CH's own timestamp (2026-07-28 ~15:37 CDT) is CORRECT and was
+briefly and wrongly said to need fixing; the audit really did run on 07-28 (its backup artifact is
+`var/backups/trades_2026-07-28.db`, and the ladder fired that evening). Only the gate reasoning
+used a stale date.
+
+## CI.6 State + what is due next
+
+Frozen tests 4/4 d=+/-0.0000pp after the refresh change. verify_run daily PASS 76/76. All 76
+sleeves marked through 2026-07-31. Dashboard HTTP 200.
+
+**2026-08-03 is a TRIPLE trigger day**: first trading day of August (monthly rebalance, needs the
+LLM-decision routine), a Monday (weekly ladder), and an even ordinal block from ANCHOR_MONDAY
+(biweekly ladder). Still OPEN and unresolved: the CH CRITICAL-2 KLAC repair (the
+`backadjust_split` migration is written, copy-tested and idempotency-guarded, but its live
+`--execute` was blocked by the permission classifier and is waiting on Evan), and the 32 closed
+KLAC positions' phantom -$53,215.70, which remains in those sleeves' cash.

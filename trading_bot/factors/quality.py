@@ -45,7 +45,7 @@ def _load_all() -> dict[str, dict[str, float]]:
     """{ticker: {field: value}} from sqlite. Cached process-wide.
     Cache invalidates only on process restart — fine since warm is a
     separate step."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker, field, value FROM fundamentals_cache "
         "WHERE value IS NOT NULL"

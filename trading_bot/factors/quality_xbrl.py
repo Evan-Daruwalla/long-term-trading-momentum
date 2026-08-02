@@ -80,7 +80,7 @@ DEBT_CONCEPTS = ("LongTermDebt", "LongTermDebtNoncurrent")
 def _load_facts() -> dict[str, dict[str, list[tuple]]]:
     """{ticker: {concept: [(period_end, filed, val), ...sorted by filed]}}.
     Loaded once per process; xbrl_facts is read-only during a backtest."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT ticker, concept, period_end, filed, val "
         "FROM xbrl_facts "

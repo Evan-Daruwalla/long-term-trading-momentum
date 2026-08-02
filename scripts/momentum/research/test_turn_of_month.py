@@ -38,7 +38,7 @@ WINDOWS = [
 
 
 def _spy_closes() -> list[tuple[str, float]]:
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
     rows = conn.execute(
         "SELECT key_date, price FROM price_cache "
         "WHERE ticker='SPY' AND kind='close' ORDER BY key_date",
