@@ -146,6 +146,7 @@ lives in the dated entry, not the digest.
 - [CI - 2 trading days of prices lost to a yfinance rate limit; CH's refresh fix had a hole (empty frame != exception), now closed](#appendix-ci---two-trading-days-of-prices-silently-lost-to-a-yfinance-rate-limit-the-ch-refresh-fix-had-a-hole-empty-frame--exception-now-closed-biweekly-ladder-catch-up-confirmed-fired-2026-08-02-1615-cdt) (08-02)
 - [CJ - KLAC split back-adjustment APPLIED: cache root cause fixed, 15 open positions re-based, frozen d=0.0000pp; 31 closed rows deferred](#appendix-cj---klac-split-back-adjustment-applied-price_cache-root-cause-fixed-15-open-positions-re-based-frozen-tests-unmoved-at-d00000pp-the-31-closed-rows--5534370-deferred---compute_nav-has-no-historical-mode-2026-08-02-1653-cdt) (08-02)
 - [CK - PRD M7.1 shipped (76/76 exact); M7.2 gate FAILED 94.48% - the ledger replays exactly but historical NAV is NOT reproducible (price_cache is mutable by design)](#appendix-ck---prd-m71-shipped-historical_statepy-7676-exact-m72-gate-failed-at-9448---the-cash-ledger-replays-exactly-but-historical-nav-is-not-reproducible-because-price_cache-is-deliberately-mutable-stop-per-the-prd-recommend-m73-only-2026-08-02-1723-cdt) (08-02)
+- [CL - PRD M7.3 PASSED on a copy: 31 closed KLAC rows repair cleanly, cash reconciles $0.00 on 76/76, ladder spreads compress 1.4-2.8pp with no leader change; live apply BLOCKED-ON-EVAN](#appendix-cl---prd-m73-passed-on-a-copy-the-31-closed-klac-rows-repair-cleanly-cash-reconciles-at-000-on-7676-sleeves-ladder-spreads-compress-14-28pp-but-no-leader-changes-live-apply-blocked-on-evan-separately-verify_run-went-fail-5576-tonight-from-the-ci-backfill-2026-08-02-1750-cdt) (08-02)
 
 ---
 
@@ -6713,3 +6714,154 @@ No DB writes this session. Everything above ran against `file:...?mode=ro`. Work
 between ~17:11 and ~17:23 CDT, which overlaps the 5:00-6:30pm MTM window the PRD says to avoid -
 acceptable here ONLY because every query was read-only and short; a future M7.3 (which writes to
 a copy) must respect the window.
+
+---
+
+# Appendix CL - PRD M7.3 PASSED ON A COPY: the 31 closed KLAC rows repair cleanly, cash reconciles at $0.00 on 76/76 sleeves, ladder spreads compress 1.4-2.8pp but no leader changes. Live apply BLOCKED-ON-EVAN. Separately: verify_run went FAIL 55/76 tonight from the CI backfill (2026-08-02, ~17:50 CDT)
+
+Evan chose option 1 from the CK writeup: **do M7.3, skip M7.4** - repair the 31 closed positions
+and the sleeves' CURRENT cash, leave the ~1,881 historical `paper_nav` rows alone. Executed
+against a `VACUUM INTO` copy (5.08 GB, 87.8 s). **No live DB write was made.**
+
+## CL.1 Three corrections to the numbers M7 was written with
+
+The PRD and HANDOFF describe this repair with figures that do not survive contact with the DB.
+All three were verified this session and the PRD/HANDOFF are corrected:
+
+| stated | actual | why |
+|---|---|---|
+| "33 affected sleeves" | **31 sleeves** | 31 target rows, one per sleeve. The "33" appears to have counted the 2 legitimately-correct 05-11 exits' sleeves. |
+| "repair the -$55,343.70" | cash moves **+$85,779.95** | -$55,343.71 is the phantom LOSS being removed. The true P&L on those 31 exits was a **+$30,436.24 GAIN**, so cash moves by the sum of both, not by the loss alone. |
+| "15 open / 31 closed / 2 skipped = 48" | 16 open, 35 closed, **51 KLAC rows total** | 1 open + 2 closed were never contaminated (entered post-split at a correct basis) and are correctly untouched. |
+
+A naive `entry_date < 2026-05-13 AND exit_date >= 2026-05-13` filter returns **33** rows, not 31.
+The extra two entered before the split at a CORRECT price and must not be repaired. Only the
+staleness self-guard (`entry_price > threshold`, threshold = first post-split close x sqrt(N) =
+$584.93) selects the right 31. Anyone re-deriving this set without that guard will over-repair.
+
+One of those two is `residual_roa_6535_paper` - the ORIGINAL sleeve, which booked its 05-01 KLAC
+trade at the correct $172.71 while the 48 replay-seeded ladder sleeves booked $1,727.12 (exactly
+the ratio-10 discrepancy record CJ identified). Its +$1,079.84 realized gain is real and was left
+alone by the threshold guard, as designed.
+
+## CL.2 The blocker M7.3 hit, and the fix
+
+`backadjust_split.py` has an idempotency guard that refuses to run when the price cliff is gone
+("History looks ALREADY ADJUSTED"). **Record CJ removed that cliff this morning.** So M7.3 as
+written - "extend `backadjust_split.py` with `--include-closed`" - could never have run: the
+script would abort before reaching the position repair.
+
+Fix (surgical): the cliff guard now scopes to the **cache UPDATE** rather than the whole run. The
+position repairs were always independently self-guarding (they touch nothing at or below
+`threshold`), so skipping only the cache update is safe. The hard refusal is UNCHANGED on the
+default path - it relaxes only under the new opt-in `--include-closed`. A second `--execute` is
+therefore still incapable of dividing history by N twice.
+
+## CL.3 What `--include-closed` does
+
+For CLOSED rows entered before D at an un-adjusted price AND exited on/after D:
+`qty * N`, `entry_price / N`, **`entry_value` PRESERVED** (the Appendix X cost-basis invariant),
+`exit_value * N`, `realized_pnl = exit_value_new - entry_value`, and each sleeve's
+`paper_portfolio.cash` corrected by `SUM(exit_value_new - exit_value_old)`.
+
+`exit_price` is deliberately NOT touched: an exit on/after D was already priced post-split and is
+correct. It was the SHARE COUNT that was wrong, so the exit PROCEEDS were understated N-fold.
+
+**Beyond the PRD's list:** `realized_pnl_pct` is restated too. The PRD omitted it, but leaving it
+at its pre-repair -89% beside a now-positive `realized_pnl` would be knowingly writing incoherent
+data. It is recomputed as `(exit_value_new / entry_value - 1) * 100`.
+
+`paper_nav` is NOT touched, under any flag - that is the whole point of choosing M7.3-only.
+
+## CL.4 Done-checks (real output, on the copy)
+
+Dry run correctly identified the state: cache SKIPPED (cliff 0.9793x, already adjusted),
+0 open rows to repair (CJ did them), 31 closed rows across 31 sleeves, 2 skipped at +$276.56.
+
+    realized_pnl total: $-55343.71 -> $+30436.24 | cash correction $+85779.95
+    APPLIED: 0 price rows, 0 volume rows (cache SKIPPED (already adjusted)), 0 open +
+             31 closed positions re-based (entry_value preserved), 31 sleeve cash
+             correction(s) totalling $+85779.95.
+    open positions still un-adjusted after repair: 0 (expect 0)
+    closed positions still un-adjusted after repair: 0 (expect 0)
+    closed rows failing realized_pnl == exit_value - entry_value or
+      exit_value == qty * exit_price: 0 (expect 0)
+
+**Done-check 1 - cash reconciles at $0.00 (the PRD's bar).** Using the M7.1 reconstructor, which
+replays the position ledger independently of `paper_portfolio.cash`:
+
+    historical_state selfcheck  db=m7_copy.db  as_of=2026-07-31  sleeves=76
+    MAX |cash delta| across 76 sleeve(s): $0.000000
+    RESULT: PASS (76/76 sleeves reconstruct exactly)
+
+This is the strong check: the position edits and the cash correction are proven mutually
+consistent, not merely each plausible. (Baseline before the repair: also PASS 76/76 - so the
+repair preserved an invariant rather than accidentally restoring one.)
+
+**Done-check 2 - realized_pnl plausibility.** All 31 repaired rows land at `entry_price`
+$172.7123 (= 1727.123 / 10) with `exit_price` untouched in $175.56..$278.25, giving
+`realized_pnl_pct` +1.65%..+61.11%, 0 rows internally incoherent. Cross-checked against KLAC's
+actual adjusted price path - 05-01 $172.63, 05-18 $175.65, 06-03 $212.51, 06-22 $269.16,
+07-28 $190.80 - every repaired P&L matches its own exit date's real price. Every one is a GAIN,
+which is correct rather than suspicious: KLAC rose from $172 to a $269 June peak, so exits in
+that window genuinely profited. That is precisely the gain the phantom loss was masking.
+
+Frozen tests after the code change: **4/4 d=+/-0.0000pp** (v1 +14.5547%/70 & +1.8792%/156,
+v2 +14.4062%/38 & +10.2194%/87).
+
+## CL.5 Ladder impact - spreads compress, leaders do NOT change
+
+NAV_after = latest stored NAV + that sleeve's cash correction. Exact, because closed positions
+contribute nothing to `positions_value`; labelled a projection because it is arithmetic, not a
+re-mark.
+
+| cadence | n | affected | cross-rung spread BEFORE | AFTER | leader |
+|---|---:|---:|---:|---:|---|
+| WEEKLY | 19 | 10 | 10.56pp | **7.78pp** | w2080_wk -> unchanged |
+| BIWEEKLY | 19 | 10 | 14.54pp | **12.93pp** | w0595_2wk -> unchanged |
+| MONTHLY | 19 | 11 | 6.32pp | **4.93pp** | w0595 -> unchanged |
+
+The distortion was real and material (1.4-2.8pp of spread, roughly a fifth to a quarter of it),
+but **the qualitative read survives**: the low-residual/high-ROA end still leads all three
+cadences, so the BV-plateau inversion noted in HANDOFF is not a KLAC artifact. Still a ~10-11
+week replay window - live forward remains what decides it.
+
+## CL.6 SEPARATE LIVE FINDING - tonight's daily run went FAIL 55/76
+
+Unrelated to M7 and not caused by this session (no live writes were made). Found while checking
+whether the DB was quiet enough to copy.
+
+`var/last_daily_run.log`, 2026-08-02 17:18:52: `RESULT: FAIL (55/76 sleeves OK)`, banner
+`VERIFY FAIL - daily run left a settled-history gap`. **That banner is misleading** - continuity
+is 63/63 everywhere. The 21 failures are all **cash recon**, deltas +$195.18 .. +$234.40,
+concentrated on the weekly ladder arm:
+
+    [FAIL] residual_w9505_wk_paper  continuity(63/63) recon(delta $+233.46) preinc(0) pos(46/50)
+             - cash recon: recomputed 101021.48 vs stored total_nav 100788.02 (delta +233.46)
+
+Cause is exactly divergence class 2 from record CK, now surfacing live: the record CI rate-limit
+backfill restored the 07-30/07-31 closes AFTER those NAV rows had been marked on carry-forward,
+so the stored `total_nav` is stale against the now-complete cache. The magnitudes match the CK
+measurements for the same sleeves (+$234.31 / +$231.49 / +$234.65 at 07-30) to within a day's drift.
+
+**`mtm_catchup` will NOT heal this** - verified by reading it: it only marks days that are
+MISSING for a sleeve, and these rows exist. Healing requires an explicit re-mark of 2026-07-31,
+which is a rewrite of an existing NAV row and therefore Evan's call, not the model's.
+
+## CL.7 M7.5 - live apply, BLOCKED-ON-EVAN
+
+Unchanged from the PRD: Claude does not write to the live DB. Commands for Evan, in order:
+
+    .venv\Scripts\python.exe -m scripts.backup_trades_db
+    .venv\Scripts\python.exe -m scripts.backadjust_split --ticker KLAC --ratio 10 ^
+        --effective 2026-05-13 --include-closed
+    .venv\Scripts\python.exe -m scripts.backadjust_split --ticker KLAC --ratio 10 ^
+        --effective 2026-05-13 --include-closed --execute
+    .venv\Scripts\python.exe -m scripts.momentum.historical_state
+
+Expect: dry run reports 31 closed / 31 sleeves / $+85,779.95; after `--execute`, the selfcheck
+must print **PASS 76/76, max |cash delta| $0.000000**. If it does not, restore the backup.
+
+Note that `verify_run --mode daily` will FAIL for the 31 repaired sleeves afterwards - their
+latest NAV row predates the cash correction - on top of the 21 already failing from CL.6. Both
+are cured by the same re-mark of 2026-07-31, which is a separate decision.

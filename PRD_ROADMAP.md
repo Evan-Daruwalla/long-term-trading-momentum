@@ -405,8 +405,25 @@ rewriting 1,881 rows of sacred NAV history. **If in doubt, do not start M7.**
    exit_value − entry_value`, and correct each sleeve's `paper_portfolio.cash` by
    `Σ(exit_value_new − exit_value_old)`. Must skip positions that exited BEFORE the split date
    (the two 2026-05-11 exits are legitimately correct at +$276.56). Test against a `VACUUM INTO`
-   copy. Done: on the copy, all 33 affected sleeves reconcile at **$0.00** cash delta and every
-   repaired `realized_pnl` has a plausible sign/magnitude vs its entry and exit prices.
+   copy. Done: on the copy, all ~~33~~ **31** affected sleeves reconcile at **$0.00** cash delta
+   and every repaired `realized_pnl` has a plausible sign/magnitude vs its entry and exit prices.
+   **[DONE 2026-08-02 on a copy, record CL — Evan chose M7.3-only. PASS on both done-checks:
+   `historical_state` selfcheck **PASS 76/76, max |cash delta| $0.000000**; all 31 repaired rows
+   internally coherent and matching KLAC's real adjusted price path. Frozen tests 4/4
+   d=±0.0000pp. THREE corrections to the figures above, all verified: (1) **31 sleeves, not 33**
+   — a naive `entry_date < eff AND exit_date >= eff` filter returns 33, and the extra 2 entered
+   pre-split at a CORRECT basis (one is `residual_roa_6535_paper`); only the staleness guard
+   `entry_price > threshold` ($584.93) selects the right set, so DO NOT re-derive it without
+   that guard. (2) cash moves **+$85,779.95**, not $55,343.70 — the −$55,343.71 is the phantom
+   loss removed, but the true P&L was a **+$30,436.24 gain**, and cash moves by both.
+   (3) 51 KLAC rows exist (16 open / 35 closed); 1 open + 2 closed were never contaminated.
+   ALSO: this task as written could not run — CJ had already removed the price cliff, so
+   `backadjust_split`'s idempotency guard aborted before reaching the position repair. The guard
+   now scopes to the CACHE UPDATE only, and only under `--include-closed`; the default path
+   keeps its hard refusal. `realized_pnl_pct` is restated too (omitted from the list above;
+   leaving it at −89% beside a positive `realized_pnl` would be incoherent data).
+   Ladder impact, projected: cross-rung spread weekly 10.56→7.78pp, biweekly 14.54→12.93pp,
+   monthly 6.32→4.93pp — **no cadence changes its leading rung.**]**
 4. **Re-mark the affected NAV rows — ON THE COPY.** Using task 1, rewrite `paper_nav` for the 33
    sleeves from the earliest affected exit (2026-05-18) forward (~1,881 rows). Done:
    `verify_run --mode daily --db <copy>` → **PASS 76/76**, NAV continuity unbroken, 0

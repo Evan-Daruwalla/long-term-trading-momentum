@@ -26,13 +26,26 @@ WHAT IT DOES, for ticker T with ratio N effective on date D (first post-split cl
        qty * N, entry_price / N, entry_value PRESERVED.
      Preserving entry_value is the cost-basis invariant from Appendix X -- it is what
      keeps the cash reconciliation at $0.0000.
+  3. ONLY with --include-closed (PRD M7.3, record CK/CL): CLOSED positions entered
+     before D at an un-adjusted price AND exited on/after D:
+       qty * N, entry_price / N, entry_value PRESERVED (same as open), plus
+       exit_value * N, realized_pnl = exit_value_new - entry_value, and the sleeve's
+       paper_portfolio.cash corrected by SUM(exit_value_new - exit_value_old).
+     exit_price is NOT touched -- an exit on/after D was already priced post-split and
+     is correct; it is the SHARE COUNT that was wrong, so the exit PROCEEDS were N-fold
+     understated. Positions that exited BEFORE D are skipped: they entered and exited on
+     the same un-adjusted scale, so their P&L is already right (KLAC: 2 rows, +$276.56).
 
 WHAT IT DELIBERATELY DOES NOT DO:
-  * It does not touch CLOSED positions or their realized P&L.
-  * It does not touch paper_nav.
-  Both are sacred history under CLAUDE.md; rewriting them is Evan's explicit call,
-  not a side effect of a data repair. Consequence: sleeves that already CLOSED an
-  un-adjusted position keep that phantom realized P&L in their cash balance.
+  * It does not touch paper_nav -- EVER, including under --include-closed. Historical
+    NAV rows are sacred under CLAUDE.md, and record CK proved they are not even
+    reproducible (daily_price_refresh rewrites the last 30 days of price_cache nightly
+    with INSERT OR REPLACE, so a stored NAV row is a snapshot of a mutated input).
+    After a repair the affected sleeves' LATEST NAV row is stale by the cash correction;
+    re-marking that one day is a separate, explicit step for the operator.
+  * Without --include-closed it does not touch CLOSED positions at all (the pre-M7.3
+    behaviour, unchanged). Consequence, if you leave the flag off: sleeves that already
+    CLOSED an un-adjusted position keep that phantom realized P&L in their cash.
 
 Ratios are supplied by the operator, not inferred: yfinance's splits_json was empty
 for KLAC, and inferring N from the price cliff is unreliable because the stock also
@@ -41,6 +54,7 @@ moves on the split date (KLAC's raw cliff is 9.79x for a true 10:1 split).
 Usage:
   python -m scripts.backadjust_split --ticker KLAC --ratio 10 --effective 2026-05-13
   python -m scripts.backadjust_split --ticker KLAC --ratio 10 --effective 2026-05-13 --execute
+  ... --include-closed   # ALSO repair closed rows + sleeve cash (M7.3)
   ... --db <path>   # run against a COPY first (project rule: never test write paths live)
 """
 from __future__ import annotations
@@ -70,6 +84,10 @@ def main() -> int:
                     help="ISO date of the FIRST post-split close.")
     ap.add_argument("--db", default=None, help="DB path (default: the live DB).")
     ap.add_argument("--execute", action="store_true", help="Apply (default: dry run).")
+    ap.add_argument("--include-closed", action="store_true",
+                    help="ALSO repair CLOSED positions that exited on/after --effective "
+                         "(exit_value * N, realized_pnl restated) and correct each "
+                         "sleeve's paper_portfolio.cash. Opt-in: PRD M7.3.")
     args = ap.parse_args()
 
     if args.ratio <= 0:
@@ -132,6 +150,43 @@ def main() -> int:
     if len(stale) > 3:
         log.info("    ... and %d more", len(stale) - 3)
 
+    # --- closed positions (M7.3, opt-in) ------------------------------------
+    # Same staleness self-guard as the open path (entry_price > threshold), plus
+    # exit_date >= eff. A position that exited BEFORE eff entered and exited on the
+    # same un-adjusted scale, so its realized P&L is already correct -- repairing it
+    # would CREATE an error.
+    closed: list = []
+    cash_delta: dict[str, float] = {}
+    if args.include_closed:
+        closed = conn.execute(
+            "SELECT id, strategy_name, qty, entry_price, entry_value, exit_price, "
+            "       exit_value, exit_date, realized_pnl "
+            "FROM paper_positions WHERE ticker=? AND status='closed' AND entry_date < ? "
+            "AND exit_date >= ? AND entry_price > ? ORDER BY exit_date, strategy_name",
+            (t, eff, eff, threshold)).fetchall()
+        skipped = conn.execute(
+            "SELECT COUNT(*) c, COALESCE(SUM(realized_pnl),0) p FROM paper_positions "
+            "WHERE ticker=? AND status='closed' AND entry_date < ? AND exit_date < ? "
+            "AND entry_price > ?", (t, eff, eff, threshold)).fetchone()
+        for p in closed:
+            cash_delta[p["strategy_name"]] = (cash_delta.get(p["strategy_name"], 0.0)
+                                              + p["exit_value"] * n - p["exit_value"])
+        old_pnl = sum(p["realized_pnl"] for p in closed)
+        new_pnl = sum(p["exit_value"] * n - p["entry_value"] for p in closed)
+        log.info("closed positions entered before %s and exited on/after it: %d "
+                 "across %d sleeve(s)", eff, len(closed), len(cash_delta))
+        log.info("  SKIPPED (exited before %s, already correct): %d row(s), "
+                 "realized_pnl $%+.2f", eff, skipped["c"], skipped["p"])
+        for p in closed[:3]:
+            log.info("    %-28s exit %s | xv %.2f -> %.2f | pnl %+.2f -> %+.2f",
+                     p["strategy_name"], p["exit_date"], p["exit_value"],
+                     p["exit_value"] * n, p["realized_pnl"],
+                     p["exit_value"] * n - p["entry_value"])
+        if len(closed) > 3:
+            log.info("    ... and %d more", len(closed) - 3)
+        log.info("  realized_pnl total: $%+.2f -> $%+.2f | cash correction $%+.2f",
+                 old_pnl, new_pnl, sum(cash_delta.values()))
+
     # --- idempotency guard -------------------------------------------------
     # The position repair is self-guarding (it only touches rows still above the
     # price threshold), but the cache UPDATE is not: a second --execute would
@@ -147,38 +202,71 @@ def main() -> int:
         conn.close()
         return 1
     cliff = last_pre["price"] / cutoff["price"]
-    if not (n / 2.0 <= cliff <= n * 2.0):
-        log.error("%s: expected an un-adjusted cliff near %.4gx across %s, found %.4gx "
-                  "(%s $%.4f -> $%.4f). History looks ALREADY ADJUSTED (or the ratio/date "
-                  "is wrong). Refusing to touch it.", t, n, eff, cliff,
-                  last_pre["key_date"], last_pre["price"], cutoff["price"])
-        conn.close()
-        return 1
-    log.info("cliff check: %.4gx across %s -- consistent with an un-adjusted %.4g:1 split",
-             cliff, eff, n)
+    adjust_cache = (n / 2.0 <= cliff <= n * 2.0)
+    if not adjust_cache:
+        # The guard exists to stop a SECOND --execute from dividing history by N again.
+        # It protects the cache UPDATE only -- the position repairs are independently
+        # self-guarding (they touch nothing at/below `threshold`). Before M7.3 the whole
+        # run aborted here, which would have made the closed-row repair impossible on a
+        # cache CJ had already fixed. Default path keeps the hard refusal.
+        if not args.include_closed:
+            log.error("%s: expected an un-adjusted cliff near %.4gx across %s, found %.4gx "
+                      "(%s $%.4f -> $%.4f). History looks ALREADY ADJUSTED (or the ratio/date "
+                      "is wrong). Refusing to touch it.", t, n, eff, cliff,
+                      last_pre["key_date"], last_pre["price"], cutoff["price"])
+            conn.close()
+            return 1
+        log.warning("cliff check: %.4gx across %s -- price_cache is ALREADY back-adjusted. "
+                    "SKIPPING the cache UPDATE; repairing POSITIONS only (--include-closed).",
+                    cliff, eff)
+    else:
+        log.info("cliff check: %.4gx across %s -- consistent with an un-adjusted %.4g:1 split",
+                 cliff, eff, n)
 
     if not args.execute:
-        log.info("DRY RUN -- %d price rows, %d volume rows, %d positions would change. "
-                 "Re-run with --execute.", n_price, n_vol, len(stale))
+        log.info("DRY RUN -- %d price rows, %d volume rows (cache %s), %d open + %d closed "
+                 "position(s), %d sleeve cash correction(s) would change. Re-run with --execute.",
+                 n_price if adjust_cache else 0, n_vol if adjust_cache else 0,
+                 "WILL be adjusted" if adjust_cache else "already adjusted, SKIPPED",
+                 len(stale), len(closed), len(cash_delta))
         conn.close()
         return 0
 
     # --- apply -------------------------------------------------------------
     with conn:
-        conn.execute(
-            f"UPDATE price_cache SET price = price / ? WHERE ticker=? AND key_date < ? "
-            f"AND price IS NOT NULL AND kind IN ({','.join('?' * len(PRICE_KINDS))})",
-            (n, t, eff, *PRICE_KINDS))
-        conn.execute(
-            f"UPDATE price_cache SET price = price * ? WHERE ticker=? AND key_date < ? "
-            f"AND price IS NOT NULL AND kind IN ({','.join('?' * len(VOLUME_KINDS))})",
-            (n, t, eff, *VOLUME_KINDS))
+        if adjust_cache:
+            conn.execute(
+                f"UPDATE price_cache SET price = price / ? WHERE ticker=? AND key_date < ? "
+                f"AND price IS NOT NULL AND kind IN ({','.join('?' * len(PRICE_KINDS))})",
+                (n, t, eff, *PRICE_KINDS))
+            conn.execute(
+                f"UPDATE price_cache SET price = price * ? WHERE ticker=? AND key_date < ? "
+                f"AND price IS NOT NULL AND kind IN ({','.join('?' * len(VOLUME_KINDS))})",
+                (n, t, eff, *VOLUME_KINDS))
         for p in stale:
             conn.execute(
                 "UPDATE paper_positions SET qty=?, entry_price=? WHERE id=?",
                 (p["qty"] * n, p["entry_price"] / n, p["id"]))
-    log.info("APPLIED: %d price rows /%.4f, %d volume rows *%.4f, %d open positions "
-             "re-based (entry_value preserved).", n_price, n, n_vol, n, len(stale))
+        for p in closed:
+            xv_new = p["exit_value"] * n
+            # exit_price is already post-split and stays put; entry_value is the
+            # preserved cost basis. realized_pnl_pct is restated too -- leaving it at
+            # the pre-repair -89% beside a positive realized_pnl would be incoherent.
+            conn.execute(
+                "UPDATE paper_positions SET qty=?, entry_price=?, exit_value=?, "
+                "realized_pnl=?, realized_pnl_pct=? WHERE id=?",
+                (p["qty"] * n, p["entry_price"] / n, xv_new,
+                 xv_new - p["entry_value"],
+                 (xv_new / p["entry_value"] - 1.0) * 100.0, p["id"]))
+        for sleeve, delta in cash_delta.items():
+            conn.execute("UPDATE paper_portfolio SET cash = cash + ? WHERE strategy_name=?",
+                         (delta, sleeve))
+    log.info("APPLIED: %d price rows /%.4f, %d volume rows *%.4f (cache %s), %d open + "
+             "%d closed positions re-based (entry_value preserved), %d sleeve cash "
+             "correction(s) totalling $%+.2f.",
+             n_price if adjust_cache else 0, n, n_vol if adjust_cache else 0, n,
+             "adjusted" if adjust_cache else "SKIPPED (already adjusted)",
+             len(stale), len(closed), len(cash_delta), sum(cash_delta.values()))
 
     # --- verify ------------------------------------------------------------
     span = conn.execute(
@@ -191,6 +279,23 @@ def main() -> int:
         "SELECT COUNT(*) c FROM paper_positions WHERE ticker=? AND status='open' "
         "AND entry_date < ? AND entry_price > ?", (t, eff, threshold)).fetchone()["c"]
     log.info("open positions still un-adjusted after repair: %d (expect 0)", bad)
+    if args.include_closed:
+        bad_c = conn.execute(
+            "SELECT COUNT(*) c FROM paper_positions WHERE ticker=? AND status='closed' "
+            "AND entry_date < ? AND exit_date >= ? AND entry_price > ?",
+            (t, eff, eff, threshold)).fetchone()["c"]
+        # Internal consistency of every repaired row: realized_pnl must equal
+        # exit_value - entry_value, and exit_value must equal qty * exit_price.
+        incoh = conn.execute(
+            "SELECT COUNT(*) c FROM paper_positions WHERE ticker=? AND status='closed' "
+            "AND entry_date < ? AND exit_date >= ? AND ("
+            "  ABS(realized_pnl - (exit_value - entry_value)) > 0.01 OR "
+            "  ABS(exit_value - qty * exit_price) > 0.01)",
+            (t, eff, eff)).fetchone()["c"]
+        log.info("closed positions still un-adjusted after repair: %d (expect 0)", bad_c)
+        log.info("closed rows failing realized_pnl == exit_value - entry_value "
+                 "or exit_value == qty * exit_price: %d (expect 0)", incoh)
+        bad += bad_c + incoh
     conn.close()
     return 0 if bad == 0 else 1
 

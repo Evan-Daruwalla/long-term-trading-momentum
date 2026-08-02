@@ -65,6 +65,18 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > the self-healing `daily.bat` and exited 0 (coverage PENDING skip -> catch-up
 > marked=0 -> verify PASS), where the pre-M3.5 flow would have failed the gate.
 
+> ⚠️ **OPEN as of 2026-08-02 17:18 — `TradingDailyMTM` is FAILING, 55/76 (record
+> CL.6).** Not a continuity gap despite `daily.bat`'s banner saying so (continuity
+> is 63/63 everywhere) — all 21 failures are **cash recon**, +$195.18..+$234.40,
+> concentrated on the weekly ladder arm. Cause: the record CI rate-limit backfill
+> restored the 07-30/07-31 closes AFTER those NAV rows had been marked on
+> carry-forward, so the stored `total_nav` is stale against the now-complete cache
+> (this is exactly divergence class 2 from record CK, surfacing live).
+> **`mtm_catchup` will NOT heal it** — it only marks days that are MISSING, and
+> these rows exist. Fix is an explicit re-mark of 2026-07-31, which rewrites an
+> existing NAV row and is therefore Evan's call. The same re-mark also cures the
+> staleness the M7.3 live apply will create for its 31 repaired sleeves.
+
 > **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
 > Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
 > unattended `cohort-0706-deploy` scheduled task; 3 of them are mirrored to
@@ -173,7 +185,23 @@ rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, dai
 >      planned M7.4 NAV rewrite would restate those 1,881 rows for four unrelated
 >      reasons on top of the KLAC fix and is now BLOCKED.** Recommended path is
 >      M7.3 only — repair the 31 closed positions + current cash, leave history
->      alone (same precedent as the 15 open positions above). **Awaiting Evan.**
+>      alone (same precedent as the 15 open positions above). ~~**Awaiting Evan.**~~
+>    - **2026-08-02, M7.3 PASSED ON A COPY (record CL) — Evan chose M7.3-only.**
+>      `backadjust_split.py --include-closed` repairs the 31 closed rows
+>      (qty×10, entry_price÷10, entry_value preserved, exit_value×10,
+>      realized_pnl restated) and corrects each sleeve's cash. On the copy:
+>      `historical_state` selfcheck **PASS 76/76, max |cash delta| $0.000000**;
+>      frozen tests 4/4 d=±0.0000pp. **LIVE APPLY IS STILL PENDING — Evan runs it
+>      (Claude does not write the live DB); commands in record CL.7.**
+>      Corrected figures: **31 sleeves, not 33** (a naive date filter returns 33;
+>      2 entered pre-split at a CORRECT basis — one is `residual_roa_6535_paper` —
+>      and only the `entry_price > $584.93` staleness guard selects the right set).
+>      Cash moves **+$85,779.95**, not $55,343.70: the −$55,343.71 phantom loss is
+>      removed AND a real **+$30,436.24 gain** is booked (KLAC rose $172→$269 over
+>      the exit window). Projected ladder effect: cross-rung spread weekly
+>      10.56→7.78pp, biweekly 14.54→12.93pp, monthly 6.32→4.93pp — **no cadence
+>      changes its leading rung**, so the low-residual/high-ROA lead is NOT a KLAC
+>      artifact.
 
 ### Systematic sleeve specs
 
@@ -296,6 +324,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 | `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
 | `scripts/backup_trades_db.py [--keep N] [--dry-run]` | Rotating `VACUUM INTO` backup of `trades.db` → `var/backups/`, keep newest 3, disk-guard (M5.1) |
+| `scripts/backadjust_split.py --ticker T --ratio N --effective D [--include-closed] [--execute]` | Back-adjusts `price_cache` for a split and repairs un-adjusted paper positions. Dry-run by default. `--include-closed` (M7.3, record CL) also repairs CLOSED rows that exited on/after D and corrects sleeve cash — opt-in, and the only mode that relaxes the cliff guard (to the CACHE update only, so a re-run can still never double-divide history). Never touches `paper_nav` |
 | `scripts/momentum/historical_state.py [--mode selfcheck\|validate]` | Reconstructs a sleeve's cash + open positions AS OF any past date by replaying `paper_positions` (read-only; there is no `paper_transactions` table). `selfcheck` = M7.1 done-check vs the live portfolio; `validate` = M7.2 full-history diff vs stored `paper_nav`. Ledger replay is exact; NAV recompute is NOT reproducible for past dates — see record CK before using it to rewrite anything |
 
 ### Batch files
