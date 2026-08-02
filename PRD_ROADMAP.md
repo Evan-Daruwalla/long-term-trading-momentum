@@ -185,6 +185,7 @@ record.
 | M4 | Experiment-integrity reporting | LLM experiment kill-switch metrics and control-vs-treatment divergence are one command away. | August |
 | M5 | Backup hygiene | trades.db has rotating backups and a proven restore path. | August |
 | M6 | Slippage measurement (Alpaca) | Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills. | Gated: needs fills from the 2026-08-01+ rebalances |
+| M7 | Historical NAV reconstruction | The 31 closed KLAC rows (−$55,343.70) are repairable, making cross-rung ladder comparison trustworthy again. | Added 2026-08-02 (record CJ). No deadline — the ladder is readable-but-caveated until then |
 
 M2 and M3 are the deadline items: the first unattended monthly rebalance fires 2026-08-01, and
 it should not run without the coverage gate (M2.1) and post-run verifier (M3.2) in place.
@@ -350,6 +351,60 @@ adds more). If the gate isn't met, report and stop at M5.
    assumption, write `docs/slippage_memo_<date>.md` stating the finding and the option to
    recalibrate `HALF_SPREAD_BPS`. **Do not change the assumption** — that's a strategy-affecting
    change and is Evan's decision. Done: memo exists (or a "no material difference" entry).
+
+### M7 — Historical NAV reconstruction (added 2026-08-02, record CJ)
+
+**Why this exists.** The KLAC 10:1 split repair (record CJ) fixed the `price_cache` root cause and
+the 15 surviving OPEN positions, but **31 CLOSED positions that exited on/after 2026-05-13 still
+hold −$55,343.70 of phantom realized loss inside their sleeves' CASH**. Until that is repaired,
+cross-rung comparison of the residual weight ladder is NOT trustworthy — the error is ~1.8% of NAV,
+unevenly spread across rungs and exit dates, against a total ladder spread of 11.43pp.
+
+**Why it wasn't just done.** `paper_mtm.compute_nav` (`scripts/momentum/paper_mtm.py:42-70`) reads
+`pf.cash` (TODAY's cash) and `paper_trader.list_open()` (CURRENTLY open positions). It has no
+historical mode. Re-marking the ~1,881 affected `paper_nav` rows with it would value today's
+positions at historical prices using today's cash. There is **no `paper_transactions` table**
+(confirmed by the CG and CH audits), so per-date cash must be reconstructed by replaying entries
+and exits. That machinery does not exist.
+
+**Decide before starting (Evan's call, not the executing model's):** the cheap alternative is to
+NOT repair, and instead permanently caveat the ladder — comparing only rungs that never held KLAC,
+or reporting the ladder with a documented ±1.8% contamination band. That costs nothing and risks
+nothing. M7 is only worth doing if trustworthy cross-rung numbers matter more than the risk of
+rewriting 1,881 rows of sacred NAV history. **If in doubt, do not start M7.**
+
+1. **Historical state reconstructor — READ-ONLY, no writes.** New
+   `scripts/momentum/historical_state.py` exposing `state_at(strategy_name, as_of)` →
+   `{cash, open_positions}`, reconstructed purely from `paper_positions` + `paper_portfolio`:
+   `cash(t) = starting_cash − Σ entry_value[entry_date ≤ t] + Σ exit_value[exit_date ≤ t]`, and
+   open = rows with `entry_date ≤ t AND (exit_date IS NULL OR exit_date > t)`. Open the DB
+   `file:...?mode=ro`. Done: for ALL 76 sleeves, `state_at(name, <latest settled date>)` matches
+   live `paper_portfolio.cash` to **$0.00** and `paper_trader.list_open()` count exactly —
+   reconstructing a state whose true answer is already known is the only honest way to test this.
+2. **Validate against UNCONTAMINATED history — this is the gate.** Recompute historical NAV from
+   task 1 for ≥5 sleeves that never held KLAC, across their full history, and diff against the
+   stored `paper_nav` rows. Done: |delta| ≤ $0.01 on ≥95% of rows, AND any systematic divergence
+   (dividends, fees, fractional-share rounding) identified and explained IN WRITING before
+   proceeding. **If the reconstructor cannot reproduce known-good history, STOP and report — it
+   must never be used to rewrite contaminated history.**
+3. **Repair the 31 closed rows — ON A COPY FIRST.** Extend `scripts/backadjust_split.py` with an
+   opt-in `--include-closed` flag: `qty×N`, `entry_price÷N`, `exit_value×N`, `realized_pnl =
+   exit_value − entry_value`, and correct each sleeve's `paper_portfolio.cash` by
+   `Σ(exit_value_new − exit_value_old)`. Must skip positions that exited BEFORE the split date
+   (the two 2026-05-11 exits are legitimately correct at +$276.56). Test against a `VACUUM INTO`
+   copy. Done: on the copy, all 33 affected sleeves reconcile at **$0.00** cash delta and every
+   repaired `realized_pnl` has a plausible sign/magnitude vs its entry and exit prices.
+4. **Re-mark the affected NAV rows — ON THE COPY.** Using task 1, rewrite `paper_nav` for the 33
+   sleeves from the earliest affected exit (2026-05-18) forward (~1,881 rows). Done:
+   `verify_run --mode daily --db <copy>` → **PASS 76/76**, NAV continuity unbroken, 0
+   pre-inception rows, and the ladder's cross-rung spread re-reported with the KLAC distortion
+   gone.
+5. **Apply live. BLOCKED-ON-EVAN.** Claude's live-DB writes are refused by the permission
+   classifier (recorded in CH and CJ — Evan ran the CJ commands himself), so this step is a
+   command handed to Evan, never executed by the model. Take a fresh backup first
+   (`scripts/backup_trades_db.py`). Done: live `verify_run --mode daily` PASS 76/76, frozen tests
+   d=±0.0000pp, record entry with the real before/after ladder numbers, HANDOFF's M7 caveat
+   removed, commit.
 
 ## 7. HANDOFF NOTES
 
