@@ -143,15 +143,25 @@ rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, dai
 >    and self-healing, the dispatcher fails loudly (per-sleeve try/except + nonzero
 >    exit), and `ladder_rebalance.bat` propagates its exit code instead of letting
 >    verify_run's PASS mask it.
-> 2. **The ladder carries ~$83k of phantom KLAC loss.** `price_cache` never
->    back-adjusts corporate actions, so seeding on 2026-07-17 backdated to 05-01
->    re-read unadjusted pre-split KLAC history: 48 sleeves booked the same 05-01
->    trade at $1,727.12 (32 closed, realized -$53,215.70) that
->    `residual_roa_6535_paper` booked at $172.71 (+$1,079.84) — ratio exactly
->    10.0000. That is -1.8%/-1.9% of NAV, unevenly spread across rungs, against a
->    total ladder spread of 11.43pp. **Cross-rung comparisons are NOT trustworthy
->    until this is repaired.** UNRESOLVED at time of writing — repair touches
->    sacred NAV history and is Evan's decision.
+> 2. **The ladder carried ~$83k of phantom KLAC loss — HALF-REPAIRED 2026-08-02
+>    (record CJ).** `price_cache` never back-adjusted corporate actions, so
+>    seeding on 2026-07-17 backdated to 05-01 re-read unadjusted pre-split KLAC
+>    history: 48 sleeves booked the same 05-01 trade at $1,727.12 that
+>    `residual_roa_6535_paper` booked at $172.71 — ratio exactly 10.0000.
+>    - **FIXED**: the cache root cause (`scripts/backadjust_split.py`, 4,327 price
+>      rows ÷10 + 4,220 volume ×10; the split cliff is gone) and the 15 surviving
+>      OPEN positions (qty×10, price÷10, `entry_value` preserved). Frozen tests
+>      unmoved at d=±0.0000pp; 2026-07-31 re-marked for those 15 sleeves so
+>      verify_run returns PASS 76/76. The corrective jump is visible and dated at
+>      07-30→07-31; earlier NAV rows were deliberately NOT rewritten.
+>    - **STILL BROKEN**: the 31 CLOSED positions that exited on/after the 05-13
+>      split still hold **−$55,343.70** of phantom realized loss inside those
+>      sleeves' CASH. (The 2 that exited 05-11 are legitimately correct, +$276.56.)
+>      **Cross-rung ladder comparisons remain NOT trustworthy.** Fixing it needs a
+>      historical-state reconstructor that does not exist: `paper_mtm.compute_nav`
+>      has no historical mode (reads today's cash + today's open positions), and
+>      per-date cash can only be rebuilt by replaying entries/exits because there
+>      is no `paper_transactions` table. ~1,881 NAV rows would be rewritten.
 
 ### Systematic sleeve specs
 

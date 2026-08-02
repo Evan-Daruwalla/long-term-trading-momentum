@@ -182,7 +182,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cf---qqq-follow-ups-alpha-vs-qqq-column--qqq-row-highlight-in-the-cohort-tables-and-the-07-01-cohort-qqq-control-re-seeded-to-its-real-07-06-start-2026-07-17-1445-local">CF - QQQ follow-ups: alpha-vs-QQQ column + QQQ row highlight; 07-01 cohort QQQ re-seeded to its real 07-06 start</a> (07-17)<br />
 - <a href="#appendix-cg---full-system-audit-4-parallel-opus-workers--automated-pass-16-findings-all-fixed-same-session---collision-hardening-dashboard-loopback--37x-speedup-monthly-single-process-dispatcher-2026-07-17-1555-local">CG - Full audit (4 Opus workers): 16 findings all fixed - collision hardening, dashboard loopback + 37x, monthly dispatcher</a> (07-17)<br />
 - <a href="#appendix-ch---second-full-system-audit-5-parallel-opus-workers-2-criticals-found---the-biweekly-ladder-had-never-live-rebalanced-and-price_cache-never-back-adjusts-splits-83k-phantom-loss-across-48-sleeves-2026-07-28-1537-cdt">CH - 2nd full audit (5 Opus workers): 2 CRITs - biweekly ladder never live-rebalanced; price_cache never back-adjusts splits ($83k phantom)</a> (07-28)<br />
-- <a href="#appendix-ci---two-trading-days-of-prices-silently-lost-to-a-yfinance-rate-limit-the-ch-refresh-fix-had-a-hole-empty-frame--exception-now-closed-biweekly-ladder-catch-up-confirmed-fired-2026-08-02-1615-cdt">CI - 2 trading days of prices lost to a yfinance rate limit; CH's refresh fix had a hole (empty frame != exception), now closed</a> (08-02)</p>
+- <a href="#appendix-ci---two-trading-days-of-prices-silently-lost-to-a-yfinance-rate-limit-the-ch-refresh-fix-had-a-hole-empty-frame--exception-now-closed-biweekly-ladder-catch-up-confirmed-fired-2026-08-02-1615-cdt">CI - 2 trading days of prices lost to a yfinance rate limit; CH's refresh fix had a hole (empty frame != exception), now closed</a> (08-02)<br />
+- <a href="#appendix-cj---klac-split-back-adjustment-applied-price_cache-root-cause-fixed-15-open-positions-re-based-frozen-tests-unmoved-at-d00000pp-the-31-closed-rows--5534370-deferred---compute_nav-has-no-historical-mode-2026-08-02-1653-cdt">CJ - KLAC split back-adjustment APPLIED: cache root cause fixed, 15 open positions re-based, frozen d=0.0000pp; 31 closed rows deferred</a> (08-02)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -7142,6 +7143,76 @@ LLM-decision routine), a Monday (weekly ladder), and an even ordinal block from 
 <code>backadjust_split</code> migration is written, copy-tested and idempotency-guarded, but its live<br />
 <code>--execute</code> was blocked by the permission classifier and is waiting on Evan), and the 32 closed<br />
 KLAC positions' phantom -$53,215.70, which remains in those sleeves' cash.</p>
+<h1 id="appendix-cj---klac-split-back-adjustment-applied-price_cache-root-cause-fixed-15-open-positions-re-based-frozen-tests-unmoved-at-d00000pp-the-31-closed-rows--5534370-deferred---compute_nav-has-no-historical-mode-2026-08-02-1653-cdt">Appendix CJ - KLAC split back-adjustment APPLIED: price_cache root cause fixed, 15 open positions re-based, frozen tests unmoved at d=0.0000pp; the 31 closed rows (-$55,343.70) deferred - compute_nav has no historical mode (2026-08-02, ~16:53 CDT)</h1>
+<p>Evan chose option (b) from the CH CRITICAL-2 menu (repair the cache + open positions, leave NAV<br />
+history), then authorised the 07-31 re-mark. He ran both live commands himself - the permission<br />
+classifier blocked Claude's <code>--execute</code> and the <code>paper_mtm --force</code> loop, and that block was<br />
+respected rather than routed around.</p>
+<h2 id="cj1-what-was-applied">CJ.1 What was applied</h2>
+<p><code>scripts/backadjust_split.py --ticker KLAC --ratio 10 --effective 2026-05-13 --execute</code>:<br />
+- <strong>4,327 price rows / 10</strong> (close 4,115, next_open 106, next_open_range 106)<br />
+- <strong>4,220 volume rows * 10</strong> (volume 4,114, next_open_vol 106)<br />
+- untouched, correctly: atr_pct_20 (a percentage) and above_ma_50 (a boolean) - both scale-invariant<br />
+- <strong>15 open positions re-based</strong>: qty 1.230678 -&gt; 12.306777, entry_price $1,727.1231 -&gt; $172.7123,<br />
+<code>entry_value</code> $2,125.53 PRESERVED (the Appendix X cost-basis invariant, which is what keeps the<br />
+  cash reconciliation at $0.00)<br />
+- guard fired correctly on the pre-run check: <code>cliff check: 9.793x across 2026-05-13 -- consistent
+  with an un-adjusted 10:1 split</code></p>
+<p><strong>The cache cliff is gone.</strong> Before: 05-12 $1,811.35 -&gt; 05-13 $184.97. After: 05-11 $184.5190,<br />
+05-12 $181.1350, 05-13 $184.9710, 05-14 $189.2940 - a continuous series with an ordinary +2% day<br />
+where the 10x discontinuity used to be. The repaired entry price $172.7123 matches<br />
+<code>residual_roa_6535_paper</code>'s June-repaired basis to the digit, an independent consistency check.</p>
+<p><strong>THE ROOT CAUSE IS NOW FIXED, not just its symptom.</strong> Appendix X (06-12) and the 06-13 backfill<br />
+both repaired SLEEVES and left the cache unadjusted, which is precisely why seeding the ladder on<br />
+07-17 reproduced the bug in 48 new sleeves. A future split still needs this script run against it<br />
+(nothing detects splits automatically yet), but the tool now exists and is idempotency-guarded:<br />
+re-running refuses with "History looks ALREADY ADJUSTED", verified on the test copy.</p>
+<h2 id="cj2-the-frozen-tests-did-not-move---and-that-was-the-real-risk">CJ.2 The frozen tests did not move - and that was the real risk</h2>
+<p>Back-adjusting rewrote 8,229 rows INSIDE both frozen-test windows (2023_Q4 and 2025_H1 are entirely<br />
+pre-split). The tests nonetheless returned <strong>4/4 d=+/-0.0000pp</strong>, exactly as predicted, for two<br />
+reasons that were reasoned out BEFORE the write rather than discovered after:<br />
+- momentum is ratio-based, and dividing every price in a window by the same 10 leaves every return<br />
+  identical;<br />
+- the script adjusts price AND volume together, so historical DOLLAR volume is invariant - verified<br />
+  on 5 sample dates spanning both windows, identical to the cent. Adjusting price alone would have<br />
+  cut dollar volume 10x and could have silently changed universe eligibility inside the frozen<br />
+  windows, which is the trap that would have forced a re-baseline.</p>
+<h2 id="cj3-the-disclosed-discontinuity-and-the-07-31-re-mark">CJ.3 The disclosed discontinuity, and the 07-31 re-mark</h2>
+<p>Repairing the open positions made each affected sleeve's stored 07-31 NAV understate reality by<br />
+<strong>+$2,024.93</strong> (15 x $2,024.93 = $30,374, matching the audit's -$29,965 unrealized phantom figure).<br />
+<code>verify_run</code> immediately and correctly went to <strong>FAIL (61/76)</strong> - the recon check catching exactly<br />
+what it exists to catch.</p>
+<p>Left alone that would have been a PERMANENT nightly failure, i.e. alarm fatigue on the one alarm<br />
+that matters - the same "nothing was watching" condition that let both CH criticals survive. So the<br />
+single latest settled day (2026-07-31) was re-marked for those 15 sleeves via <code>paper_mtm --force</code>.<br />
+The 05-01 -&gt; 07-30 rows were NOT touched, so the corrective jump is visible and dated at<br />
+07-30 -&gt; 07-31 rather than being smoothed away. Result: <strong>verify_run PASS (76/76)</strong>. The 15<br />
+sleeves' 07-31 NAV totals $1,575,678.39 (avg $105,045.23).</p>
+<h2 id="cj4-what-is-not-fixed-and-the-honest-reason">CJ.4 What is NOT fixed, and the honest reason</h2>
+<p>The <strong>31 closed positions carrying -$55,343.70</strong> remain. (Scope correction found while surveying:<br />
+33 closed rows sit at the pre-split basis, but the 2 that exited 2026-05-11 bought AND sold before<br />
+the 05-13 split and are legitimately correct at +$276.56 - only the 31 that exited on/after 05-13<br />
+are corrupted. The count also grew 32 -&gt; 33 between the 07-28 dry run and the 08-02 apply, as one<br />
+more position closed and took another -$1,851.44 into cash; that leak is now stopped, since the 15<br />
+surviving positions will close on a correct basis.)</p>
+<p>Repairing them was offered as a simple third option. <strong>It is not, and that framing was wrong.</strong><br />
+<code>paper_mtm.compute_nav</code> (:42-70) reads <code>pf.cash</code> - TODAY's cash - and <code>paper_trader.list_open()</code> -<br />
+CURRENTLY open positions. It has no historical mode at all. Re-marking the 1,881 affected<br />
+<code>paper_nav</code> rows with existing tooling would value today's positions at historical prices using<br />
+today's cash: garbage written over sacred history. Doing it correctly requires a historical-state<br />
+reconstructor - per-date position sets (derivable from entry/exit dates) and per-date CASH, which<br />
+can only be rebuilt by replaying every entry and exit, because there is NO <code>paper_transactions</code><br />
+table (confirmed in the CG/CH audits). That is a build with its own copy-test and cash-recon proof,<br />
+not an extension of what exists.</p>
+<p>Consequence to carry forward: <strong>cross-rung ladder comparisons remain contaminated</strong> by that<br />
+-$55,343.70, unevenly distributed across sleeves and exit dates. The unrealized half is fixed; the<br />
+realized half is not.</p>
+<h2 id="cj5-verification-real-output">CJ.5 Verification (real output)</h2>
+<p>Frozen tests 4/4 d=+/-0.0000pp AFTER the back-adjustment (v1 +14.5547%/70 &amp; +1.8792%/156,<br />
+v2 +14.4062%/38 &amp; +10.2194%/87). <code>verify_run --mode daily</code> FAIL 61/76 immediately post-repair<br />
+(expected, the discontinuity), then <strong>PASS 76/76</strong> after the 07-31 re-mark. Cache continuity<br />
+confirmed across 05-11..05-14. <code>alpaca_keys.env</code> ACL hardened by Evan<br />
+(<code>icacls /inheritance:r /grant:r</code>) - the audit's outstanding security item, now closed.</p>
 </div>
 </body>
 </html>
