@@ -17,7 +17,17 @@ sleeve:
       UNDERFILL_FRACTION of target (both modes — a wipeout is always a failure).
   (d) no pre-inception rows — no paper_nav row dated before inception.
 
---mode daily runs (a),(b),(c: underfill only),(d); --mode monthly adds the
+Plus one run-level (not per-sleeve) check:
+  (e) rebalance cadence — rebalance_log.md's "Last rebalance:" date must be in
+      the same calendar month as the last SETTLED trading day, or later. Checks
+      (a)-(d) structurally CANNOT catch a missed monthly rebalance: a sleeve
+      that never rebalanced has perfectly continuous NAV and cent-perfect cash
+      recon, it just holds a stale book. That is how the 2026-08 rebalance
+      nearly vanished (record CN — the cron had drifted to day-1-of-month and
+      2026-08-01 was a Saturday). Reads the repo's rebalance_log.md, so it
+      describes live ops state even under --db.
+
+--mode daily runs (a),(b),(c: underfill only),(d),(e); --mode monthly adds the
 EXCEEDS half of (c) and a reminder line to eyeball the Alpaca submit/reject
 counts in the run log. Read-only (file:...?mode=ro);
 appends a dated PASS/FAIL block to var/verify_report.log; nonzero exit on any FAIL.
@@ -31,12 +41,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import sqlite3
 import sys
 from datetime import date, datetime
 from pathlib import Path
 
-from trading_bot.config import DB_PATH
+from trading_bot.config import DB_PATH, PROJECT_ROOT
 from scripts.momentum.check_coverage import coverage_status
 
 logging.basicConfig(level=logging.INFO,
@@ -71,6 +82,40 @@ POSITION_TARGETS = {
     "residual_w8020_paper": 50, "residual_w8515_paper": 50,
     "residual_w9010_paper": 50, "residual_w9505_paper": 50,
 }
+
+
+REBALANCE_LOG = PROJECT_ROOT / "rebalance_log.md"
+_LAST_REBALANCE_RE = re.compile(r"Last rebalance:\**\s*(\d{4}-\d{2}-\d{2})")
+
+
+def read_last_rebalance(path: Path = REBALANCE_LOG) -> str | None:
+    """The 'Last rebalance: YYYY-MM-DD' date stamped by rebalance.bat, or None."""
+    try:
+        m = _LAST_REBALANCE_RE.search(path.read_text(encoding="utf-8"))
+    except OSError:
+        return None
+    return m.group(1) if m else None
+
+
+def check_rebalance_cadence(logged: str | None, last_settled: str) -> list[str]:
+    """(e) Has this month's rebalance run? Pure logic — see the module docstring.
+
+    Anchoring on last_settled's MONTH is what makes this correct without a
+    holiday calendar: last_settled falling in month M is itself proof that M's
+    first trading day has passed, so a stamp still pointing at an earlier month
+    means the rebalance was missed. Before that (e.g. 08-02, settled 07-31) a
+    July stamp is right and this stays quiet. '>=' not '==' so the evening of
+    the rebalance itself passes, when the stamp is already 08-03 but coverage
+    has not settled past 07-31 yet.
+    """
+    if logged is None:
+        return [f"rebalance cadence: no parseable 'Last rebalance:' date in "
+                f"{REBALANCE_LOG.name}"]
+    if logged[:7] < last_settled[:7]:
+        return [f"rebalance cadence: last rebalance {logged} predates the settled "
+                f"month {last_settled[:7]} - this month's monthly rebalance has "
+                f"NOT run (check the monthy-llm-rebalance cron, record CN)"]
+    return []
 
 
 def _ro_connect(db_path) -> sqlite3.Connection:
@@ -230,11 +275,21 @@ def main() -> int:
                 out.append(f"         - {f}")
         else:
             out.append(f"[PASS] {s:32s} {info}")
+    # (e) run-level cadence check — not per-sleeve, so it sits after the loop.
+    logged = read_last_rebalance()
+    cadence_fails = check_rebalance_cadence(logged, last_settled)
+    cadence_info = f"last_rebalance({logged or 'unreadable'}) settled_month({last_settled[:7]})"
+    out.append(f"[{'FAIL' if cadence_fails else 'PASS'}] {'(rebalance cadence)':32s} "
+               f"{cadence_info}")
+    for f in cadence_fails:
+        out.append(f"         - {f}")
+
     if monthly:
         out.append("REMINDER (monthly): eyeball Alpaca submit/reject counts in the "
                    "rebalance log for the 3 mirrored sleeves; verify_run does not call the API.")
-    result = (f"RESULT: {'FAIL' if n_fail else 'PASS'} "
-              f"({len(sleeves) - n_fail}/{len(sleeves)} sleeves OK)")
+    result = (f"RESULT: {'FAIL' if n_fail or cadence_fails else 'PASS'} "
+              f"({len(sleeves) - n_fail}/{len(sleeves)} sleeves OK"
+              f"{'; rebalance cadence FAIL' if cadence_fails else ''})")
     out.append(result)
 
     for ln in out:
@@ -248,7 +303,7 @@ def main() -> int:
     with open(report_path, "a", encoding="utf-8") as f:
         f.write("\n".join(out) + "\n\n")
 
-    return 1 if n_fail else 0
+    return 1 if (n_fail or cadence_fails) else 0
 
 
 if __name__ == "__main__":

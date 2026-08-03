@@ -187,7 +187,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ck---prd-m71-shipped-historical_statepy-7676-exact-m72-gate-failed-at-9448---the-cash-ledger-replays-exactly-but-historical-nav-is-not-reproducible-because-price_cache-is-deliberately-mutable-stop-per-the-prd-recommend-m73-only-2026-08-02-1723-cdt">CK - PRD M7.1 shipped (76/76 exact); M7.2 gate FAILED 94.48% - the ledger replays exactly but historical NAV is NOT reproducible (price_cache is mutable by design)</a> (08-02)<br />
 - <a href="#appendix-cl---prd-m73-passed-on-a-copy-the-31-closed-klac-rows-repair-cleanly-cash-reconciles-at-000-on-7676-sleeves-ladder-spreads-compress-14-28pp-but-no-leader-changes-live-apply-blocked-on-evan-separately-verify_run-went-fail-5576-tonight-from-the-ci-backfill-2026-08-02-1750-cdt">CL - PRD M7.3 PASSED on a copy: 31 closed KLAC rows repair cleanly, cash reconciles $0.00 on 76/76, ladder spreads compress 1.4-2.8pp with no leader change; live apply BLOCKED-ON-EVAN</a> (08-02)<br />
 - <a href="#appendix-cm---m7-closed-klac-repair-applied-live-by-evan-verify_run-pass-7676-frozen-d-00000pp-the-2026-07-31-nav-re-mark-also-cured-the-ci-rate-limit-staleness-ladder-spreads-compress-to-7581293493pp-with-no-leader-change-2026-08-02-2002-cdt">CM - <strong>M7 CLOSED</strong>: KLAC repair applied LIVE, verify_run PASS 76/76, frozen d=0.0000pp; the 07-31 re-mark also cured the CI staleness; ladder spreads 7.58/12.93/4.93pp, no leader change</a> (08-02)<br />
-- <a href="#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt">CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. <code>\llm rebal</code> jiggler decoded, <code>hellohello</code> confirmed real</a> (08-02)</p>
+- <a href="#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt">CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. <code>\llm rebal</code> jiggler decoded, <code>hellohello</code> confirmed real</a> (08-02)<br />
+- <a href="#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt">CO - verify_run gains check (e) rebalance cadence: a stale <code>rebalance_log.md</code> now FAILs loudly instead of passing silently; closes the blind spot CN found</a> (08-02)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -7853,6 +7854,104 @@ a FAILURE signal, not as a no-op day.</p>
 <p>M6 remains gated. If 08-03 produces Alpaca fills, the gate opens and M6.1<br />
 (<code>fetch_alpaca_fills.py</code>) starts. If it does not, the gate is still shut and the reason is now a<br />
 known one rather than a mystery.</p>
+<h1 id="appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt">Appendix CO - verify_run gains check (e), rebalance cadence: a stale rebalance_log.md now FAILs loudly instead of passing silently. Closes the blind spot CN found (2026-08-02, ~23:37 CDT)</h1>
+<p>Direct follow-on to CN. The CN finding was not really "a cron drifted" - crons drift, that is<br />
+survivable. The finding was that <strong>nothing in the system could tell you it had drifted.</strong> A sleeve<br />
+that misses its rebalance keeps producing a perfect <code>verify_run</code> line forever: NAV continuity<br />
+unbroken, cash reconciled to the cent, position count on target, zero pre-inception rows. It is<br />
+just holding last month's book. Checks (a)-(d) are all state-consistency checks, and a stale<br />
+portfolio is perfectly self-consistent.</p>
+<p>So the only reason CN was caught at all is that a human-directed session happened to read the<br />
+scheduler. That is not a control.</p>
+<h2 id="co1-the-check">CO.1 The check</h2>
+<p><code>scripts/momentum/verify_run.py</code> gains <strong>(e) rebalance cadence</strong>, a run-level check (not<br />
+per-sleeve, so it sits after the sleeve loop):</p>
+<blockquote>
+<p><code>rebalance_log.md</code>'s <code>Last rebalance:</code> date must be in the same calendar month as the last<br />
+SETTLED trading day, <strong>or later</strong>.</p>
+</blockquote>
+<p>Split into two functions so the logic is testable without I/O: <code>read_last_rebalance(path)</code> (the<br />
+file read, returns <code>None</code> rather than raising on a missing/unstamped file) and<br />
+<code>check_rebalance_cadence(logged, last_settled)</code> (pure).</p>
+<p>The whole design rests on one observation that removes the need for a holiday calendar:<br />
+<strong><code>last_settled</code> falling in month M is itself proof that M's first trading day has passed.</strong> So<br />
+there is no "is today the first trading day" computation anywhere - the settled-data frontier<br />
+already answers it. Two consequences that a naive "stamp month == current month" rule gets wrong,<br />
+both of which would have made the daily task red on ordinary evenings:</p>
+<table>
+<thead>
+<tr>
+<th>situation</th>
+<th>naive rule</th>
+<th>(e)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-02, settled 07-31, stamp 07-01</td>
+<td>FAIL (August has no stamp)</td>
+<td>quiet - correct, August's first trading day has not happened</td>
+</tr>
+<tr>
+<td>08-03 6:03pm rebalance done, stamp 08-03, coverage not settled past 07-31</td>
+<td>FAIL (stamp is "ahead")</td>
+<td>quiet - this is why the comparison is <code>&gt;=</code>, not <code>==</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="co2-verification---four-runs-all-real-output">CO.2 Verification - four runs, all real output</h2>
+<p><strong>Unit</strong> (<code>scripts/momentum/test_rebalance_cadence.py</code>, new, no DB/fixture/network):</p>
+<pre><code>Running verify_run rebalance-cadence tests...
+  [OK  ] read_last_rebalance: real format, unstamped file, missing file
+  [OK  ] check_rebalance_cadence: 4 quiet cases, 3 fail cases
+All rebalance-cadence tests passed.
+</code></pre>
+<p><strong>FAIL path, end-to-end.</strong> Rather than write a false FAIL into the live ops log to test this, the<br />
+run uses a schema-only fixture DB (4 tables, 0 rows) in the scratchpad. Zero rows means an empty<br />
+calendar, which means <code>last_settled</code> falls back to today (2026-08-02) - so the check runs against<br />
+the REAL, genuinely stale <code>rebalance_log.md</code> with no monkeypatching at all:</p>
+<pre><code>=== 2026-08-02 23:34 | verify_run mode=daily db=trades.db sleeves=0 calendar=none settled&lt;=2026-08-02 ===
+[FAIL] (rebalance cadence)              last_rebalance(2026-07-01) settled_month(2026-08)
+         - rebalance cadence: last rebalance 2026-07-01 predates the settled month 2026-08 -
+           this month's monthly rebalance has NOT run (check the monthy-llm-rebalance cron, record CN)
+RESULT: FAIL (0/0 sleeves OK; rebalance cadence FAIL)
+exit=1
+</code></pre>
+<p><code>verify_run</code> co-locates its report with the DB it describes, so that FAIL block landed in the<br />
+fixture directory. <strong><code>var/verify_report.log</code> was never touched by the failure test.</strong></p>
+<p><strong>Live PASS</strong> (read-only, live DB) - the check is correctly quiet today:</p>
+<pre><code>[PASS] (rebalance cadence)              last_rebalance(2026-07-01) settled_month(2026-07)
+RESULT: PASS (76/76 sleeves OK)
+exit=0
+</code></pre>
+<p><strong>Frozen tests: 4/4 d=+/-0.0000pp</strong> (v1 +14.5547%/70 &amp; +1.8792%/156, v2 +14.4062%/38 &amp;<br />
++10.2194%/87).</p>
+<h2 id="co3-ordering-checked-rather-than-assumed">CO.3 Ordering, checked rather than assumed</h2>
+<p>The obvious way to get this wrong is a false FAIL fired by the project's own automation. Checked<br />
+in the batch files rather than reasoned about:</p>
+<ul>
+<li><code>rebalance.bat</code> <strong>stamps at line 123 and verifies at line 127</strong> - stamp first. So the monthly<br />
+  run's own <code>--mode monthly</code> verify always sees a fresh stamp, including on a retry day. No change<br />
+  needed.</li>
+<li><code>daily.bat</code> (5:15pm) and <code>morning_refresh.bat</code> (7:45am) can legitimately fire (e) before the<br />
+  6:03pm rebalance on the first trading day of a month - but only if that day's coverage has<br />
+  already SETTLED by then. Every weekday line in <code>var/ops_status.log</code> reads <code>coverage=PENDING</code><br />
+  (the <code>PASS</code> lines are weekend runs, where the frontier is the previous Friday), so at 5:15pm on<br />
+  Monday 2026-08-03 <code>last_settled</code> will be Friday 07-31 -&gt; month 2026-07 -&gt; quiet.</li>
+</ul>
+<p><strong>Residual window, stated rather than claimed impossible:</strong> if a first-trading-day-of-month ever<br />
+settles before 5:15pm, that evening's daily task goes red for ~48 minutes until the 6:03pm<br />
+rebalance stamps. One evening, self-clearing, and it names its own cause in the log line. That is<br />
+an acceptable price for the check existing at all.</p>
+<h2 id="co4-what-it-would-have-done">CO.4 What it would have done</h2>
+<p>Given CN's actual timeline: 2026-08-04 07:45 (<code>TradingMorningMTM</code>), <code>last_settled</code> = 2026-08-03,<br />
+stamp = 2026-07-01 -&gt; <strong>FAIL</strong>, with the cron named in the failure line. So the August miss would<br />
+have surfaced roughly 14 hours after it happened, in a log Evan already reads, instead of on<br />
+2026-09-01 or never. It does not prevent the miss - with the cron now restored to <code>0 18 * * *</code><br />
+the following evening's fire is the actual repair - it makes the miss impossible to not notice.</p>
+<p>Scope note: this is an ops guardrail on an existing verifier, consistent with the PRD's M3 theme<br />
+(unattended-automation safety). No strategy, factor, universe, sleeve or decision logic was<br />
+touched; no DB write of any kind.</p>
 </div>
 </body>
 </html>
