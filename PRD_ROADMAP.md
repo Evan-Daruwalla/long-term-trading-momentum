@@ -185,7 +185,7 @@ record.
 | M4 | Experiment-integrity reporting | LLM experiment kill-switch metrics and control-vs-treatment divergence are one command away. | August |
 | M5 | Backup hygiene | trades.db has rotating backups and a proven restore path. | August |
 | M6 | Slippage measurement (Alpaca) | Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills. | Gated: needs fills from the 2026-08-01+ rebalances |
-| M7 | Historical NAV reconstruction | The 31 closed KLAC rows (−$55,343.70) are repairable, making cross-rung ladder comparison trustworthy again. | Added 2026-08-02 (record CJ). No deadline — the ladder is readable-but-caveated until then |
+| M7 | Historical NAV reconstruction | The 31 closed KLAC rows (−$55,343.70) are repairable, making cross-rung ladder comparison trustworthy again. | Added 2026-08-02 (record CJ). **CLOSED 2026-08-02 ~20:00 CDT (record CM)** — M7.1/M7.3/M7.5 done, M7.2's gate failed and produced the key finding (historical NAV is not reproducible), M7.4 correctly NOT executed. Live `verify_run` PASS 76/76 |
 
 M2 and M3 are the deadline items: the first unattended monthly rebalance fires 2026-08-01, and
 it should not run without the coverage gate (M2.1) and post-run verifier (M3.2) in place.
@@ -448,6 +448,19 @@ rewriting 1,881 rows of sacred NAV history. **If in doubt, do not start M7.**
    (`scripts/backup_trades_db.py`). Done: live `verify_run --mode daily` PASS 76/76, frozen tests
    d=±0.0000pp, record entry with the real before/after ladder numbers, HANDOFF's M7 caveat
    removed, commit.
+   **[DONE 2026-08-02 ~20:00 CDT, record CM — Evan ran every live command himself. Backup
+   `trades_2026-08-02.db` (5.08 GB) taken first; the live dry run reproduced the copy-test
+   numbers to the dollar; `historical_state` → PASS 76/76 at $0.000000; live
+   `verify_run --mode daily` → **PASS 76/76**; frozen tests 4/4 d=±0.0000pp.
+   ONE ADDITION not in this task: the repair leaves the 31 sleeves' newest NAV row stale, and
+   ~10 more were already stale from the record CI rate-limit backfill. Neither self-heals
+   (`mtm_catchup` only fills MISSING days). New one-off `scripts/data_audit/remark_nav_day.py`
+   re-marks exactly ONE date for all sleeves, dry-run by default, reusing `paper_mtm`'s
+   weekend/pre-inception/coverage guards — 41 changed, 35 already correct, 0 failures, net
+   $+88,298.92 = $85,779.95 (KLAC cash) + $2,518.97 (restored 07-30/31 prices). This is NOT the
+   M7.4 rewrite: one date, both causes named and dated, every affected row enumerated in the dry
+   run first. Real ladder spreads after: weekly 10.56→**7.58pp**, biweekly 14.54→**12.93pp**,
+   monthly 6.32→**4.93pp**, **no cadence changes its leading rung.**]**
 
 ## 7. HANDOFF NOTES
 

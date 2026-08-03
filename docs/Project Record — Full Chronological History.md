@@ -147,6 +147,7 @@ lives in the dated entry, not the digest.
 - [CJ - KLAC split back-adjustment APPLIED: cache root cause fixed, 15 open positions re-based, frozen d=0.0000pp; 31 closed rows deferred](#appendix-cj---klac-split-back-adjustment-applied-price_cache-root-cause-fixed-15-open-positions-re-based-frozen-tests-unmoved-at-d00000pp-the-31-closed-rows--5534370-deferred---compute_nav-has-no-historical-mode-2026-08-02-1653-cdt) (08-02)
 - [CK - PRD M7.1 shipped (76/76 exact); M7.2 gate FAILED 94.48% - the ledger replays exactly but historical NAV is NOT reproducible (price_cache is mutable by design)](#appendix-ck---prd-m71-shipped-historical_statepy-7676-exact-m72-gate-failed-at-9448---the-cash-ledger-replays-exactly-but-historical-nav-is-not-reproducible-because-price_cache-is-deliberately-mutable-stop-per-the-prd-recommend-m73-only-2026-08-02-1723-cdt) (08-02)
 - [CL - PRD M7.3 PASSED on a copy: 31 closed KLAC rows repair cleanly, cash reconciles $0.00 on 76/76, ladder spreads compress 1.4-2.8pp with no leader change; live apply BLOCKED-ON-EVAN](#appendix-cl---prd-m73-passed-on-a-copy-the-31-closed-klac-rows-repair-cleanly-cash-reconciles-at-000-on-7676-sleeves-ladder-spreads-compress-14-28pp-but-no-leader-changes-live-apply-blocked-on-evan-separately-verify_run-went-fail-5576-tonight-from-the-ci-backfill-2026-08-02-1750-cdt) (08-02)
+- [CM - **M7 CLOSED**: KLAC repair applied LIVE, verify_run PASS 76/76, frozen d=0.0000pp; the 07-31 re-mark also cured the CI staleness; ladder spreads 7.58/12.93/4.93pp, no leader change](#appendix-cm---m7-closed-klac-repair-applied-live-by-evan-verify_run-pass-7676-frozen-d-00000pp-the-2026-07-31-nav-re-mark-also-cured-the-ci-rate-limit-staleness-ladder-spreads-compress-to-7581293493pp-with-no-leader-change-2026-08-02-2002-cdt) (08-02)
 
 ---
 
@@ -6865,3 +6866,102 @@ must print **PASS 76/76, max |cash delta| $0.000000**. If it does not, restore t
 Note that `verify_run --mode daily` will FAIL for the 31 repaired sleeves afterwards - their
 latest NAV row predates the cash correction - on top of the 21 already failing from CL.6. Both
 are cured by the same re-mark of 2026-07-31, which is a separate decision.
+
+---
+
+# Appendix CM - M7 CLOSED: KLAC repair applied LIVE by Evan, verify_run PASS 76/76, frozen d=+/-0.0000pp. The 2026-07-31 NAV re-mark also cured the CI rate-limit staleness. Ladder spreads compress to 7.58/12.93/4.93pp with NO leader change (2026-08-02, ~20:02 CDT)
+
+The end of the KLAC saga that started with the 2026-06-12 split misapplication (Appendix X),
+recurred through the 2026-07-17 ladder replay seeding (record CH), had its cache root cause fixed
+this morning (record CJ), and is now fully repaired. **Evan ran every live command himself** -
+Claude's live-DB writes are refused by the permission classifier (records CH/CJ), so this session
+built and proved the tooling on a copy and handed over the commands.
+
+## CM.1 What Evan ran, and what it did
+
+    scripts.backup_trades_db                -> trades_2026-08-02.db (5.08 GB), 3 generations kept
+    scripts.backadjust_split --ticker KLAC --ratio 10 --effective 2026-05-13 --include-closed
+                                            -> dry run: 31 closed / 31 sleeves / $+85,779.95
+    ... --execute                           -> APPLIED
+    scripts.momentum.historical_state       -> PASS 76/76, MAX |cash delta| $0.000000
+    scripts.data_audit.remark_nav_day --date 2026-07-31 --execute
+                                            -> 41 changed, 35 already correct, 0 failures,
+                                               net NAV delta $+88,298.92
+    scripts.momentum.verify_run --mode daily -> **PASS (76/76 sleeves OK)**
+
+The live dry run reproduced the copy-test numbers to the dollar ($-55,343.71 -> $+30,436.24,
+cash $+85,779.95), which is the whole point of having tested on a `VACUUM INTO` copy first.
+
+Frozen tests after all of it: **4/4 d=+/-0.0000pp** (v1 +14.5547%/70 & +1.8792%/156,
+v2 +14.4062%/38 & +10.2194%/87).
+
+## CM.2 The re-mark, and why it is NOT the M7.4 rewrite record CK rejected
+
+New one-off: `scripts/data_audit/remark_nav_day.py` (dry-run by default), which re-marks ONE
+already-existing `paper_nav` date for every sleeve, reusing `paper_mtm.compute_nav`/`write_nav`
+and keeping the weekend, pre-inception and coverage guards. It exists because neither of the two
+staleness sources self-heals: `mtm_catchup` only marks days that are MISSING (these rows existed),
+and `paper_mtm --as-of` handles one sleeve per process launch.
+
+The net $+88,298.92 decomposes exactly into the two known causes:
+
+| cause | sleeves | amount |
+|---|---:|---:|
+| M7.3 KLAC cash correction (record CL) | 31 | $+85,779.95 |
+| record CI rate-limit backfill restoring the 07-30/07-31 closes | ~10 | $+2,518.97 |
+| already correct, left untouched | 35 | $0.00 |
+
+**The distinction from M7.4 matters and is deliberate.** CK rejected re-marking ~1,881 rows
+because `price_cache` is mutable by design (`daily_price_refresh` re-downloads 30 days nightly
+with `INSERT OR REPLACE`), so a broad rewrite would silently restate history for UNNAMED price
+revisions and then be reported as the KLAC fix. This re-mark touches **one** date, both of whose
+staleness causes are named and dated, and the dry run enumerated every affected row with its
+before/after value before anything was written. The 35 sleeves whose stored row already
+reconciled were not rewritten at all.
+
+That also closes the CL.6 finding (`TradingDailyMTM` FAIL 55/76 at 17:18) - it was the CI
+backfill, and the same single re-mark cured it.
+
+## CM.3 Ladder result - the honest before/after
+
+Cross-rung spread of the residual weight ladder, measured from live `paper_nav` @ 2026-07-31,
+BEFORE (pre-repair stored NAVs) and AFTER the full repair + re-mark:
+
+| cadence | n | affected | spread BEFORE | spread AFTER | leader BEFORE | leader AFTER |
+|---|---:|---:|---:|---:|---|---|
+| WEEKLY | 19 | 10 | 10.56pp | **7.58pp** | w2080_wk | w2080_wk (+5.75%) |
+| BIWEEKLY | 19 | 10 | 14.54pp | **12.93pp** | w0595_2wk | w0595_2wk (+7.60%) |
+| MONTHLY | 19 | 11 | 6.32pp | **4.93pp** | w0595 | w0595 (+6.69%) |
+
+The contamination was real and material - it inflated the apparent cross-rung spread by
+1.4-3.0pp, roughly a fifth to a quarter of it. **But no cadence changes its leading rung**, so
+the low-residual/high-ROA lead recorded in HANDOFF is NOT a KLAC artifact. (CL projected
+7.78/12.93/4.93 from cash alone; the weekly arm came in 0.20pp lower because four `_wk` sleeves
+also carried CI price staleness the projection did not model. Biweekly and monthly matched the
+projection exactly.)
+
+Standing caveat unchanged: this is still a ~10-11 week window that began as a REPLAY seed. Live
+forward is what decides the ladder, not this spread.
+
+## CM.4 M7 final status
+
+- **M7.1** DONE - `historical_state.py`, exact on 76/76 sleeves.
+- **M7.2** RAN, GATE FAILED at 94.48% - and the failure produced the milestone's most valuable
+  finding: historical NAV is not reproducible in principle. Recorded in CK, not papered over.
+- **M7.3** DONE - proved on a copy (CL), applied live (this entry).
+- **M7.4** CORRECTLY NOT EXECUTED - blocked by the CK finding. The narrow single-day re-mark in
+  CM.2 achieved the operational goal (`verify_run` PASS 76/76) without the 1,881-row rewrite.
+- **M7.5** DONE - live `verify_run --mode daily` **PASS 76/76**, frozen d=+/-0.0000pp, this
+  record entry, HANDOFF caveat removed, commit.
+
+**M7 is closed.** Remaining open PRD work is M6 (slippage), still gated on Alpaca fills - the
+2026-08-01 monthly rebalance was a Saturday, so the first live fire of `monthy-llm-rebalance`
+under the current schedule is 2026-08-03.
+
+## CM.5 Correction to CL.7
+
+Appendix CL.7 printed the live-apply commands with `^` line continuations. That is cmd.exe
+syntax; Evan's shell is PowerShell 5.1, where `^` is not a continuation and the commands would
+have broken. The record is append-only so CL stands as written - the correct form is a single
+line per command, as actually run and as shown in CM.1. Noted here so a future session copying
+from CL does not inherit the bug.
