@@ -476,7 +476,22 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 `0 18 * * *`, ~6:03pm local — shifted back from a drifted `30 17`/~5:33pm on
 2026-07-11 per Evan, to clear a rebalance-day two-writer overlap with the 5:15pm
 daily MTM; record BS; self-gates on `rebalance_log.md` so only the first
-trading day of the month does real work). It runs `rebalance.bat`, which now
+trading day of the month does real work).
+
+> ⚠️ **THIS TASK'S SCHEDULE HAS DRIFTED FROM ITS DOCUMENTATION THREE TIMES**
+> (`0 8 * * *` → record AP; `30 17 * * *` → record BS; `0 18 1 * *` → record CN).
+> **Read the cron from `mcp__scheduled-tasks__list_scheduled_tasks`, never from
+> this file** — any statement here is a claim about the past.
+> **2026-08-02 ~22:56 CDT (record CN):** found live at **`0 18 1 * *`** — day 1
+> of the month ONLY, `nextRunAt` 2026-09-01. Since 2026-08-01 was a **Saturday**,
+> the entire August rebalance (29 sleeves + all LLM decisions + `alpaca_sync
+> --execute`, i.e. M6's gate) would have been silently skipped, and would NOT
+> have self-healed. Restored to `0 18 * * *` with Evan's OK; the tool confirmed
+> "At 06:03 PM, every day." The confirming re-`list` was blocked by the
+> permission classifier — **a future session should re-list and confirm.**
+> `verify_run` structurally cannot catch this: an un-rebalanced sleeve has
+> perfectly continuous NAV and perfectly reconciled cash, it just holds a stale
+> book (same blind spot as the record CH biweekly-ladder finding, one layer up). It runs `rebalance.bat`, which now
 dispatches through `scripts/momentum/monthly_rebalance.py` (29 rebalance + 30
 MTM sleeves, all `--broker-realistic`) instead of the old per-sleeve .bat lines
 — the "all 10 paper lines" phrasing here was obsolete as of 2026-07-28. It also
@@ -484,9 +499,13 @@ does the LLM overlay decisions per
 `docs/overlay_decision_runbook.md`, MTMs everything (per-sleeve `paper_mtm
 --force` so the rebalance day is marked despite partial same-day coverage,
 record BS), runs `verify_run --mode monthly`, and fires
-`alpaca_sync --all --execute`. First live fire under this schedule: 2026-08-01.
-If monthly rebalances stop running, confirm the task is enabled (memory
-`monthly_rebalance_trigger_timing_bug.md`).
+`alpaca_sync --all --execute`. ~~First live fire under this schedule:
+2026-08-01.~~ **2026-08-01 was a Saturday and the cron was day-1-only, so
+nothing fired; the first live fire is 2026-08-03** (record CN). That is also the
+first run of the `monthly_rebalance.py` dispatcher and a Monday — record CG's
+flagged collision-risk shape (1st trading day == Monday).
+If monthly rebalances stop running, check the CRON FIRST (it has drifted 3×),
+then that the task is enabled (memory `monthly_rebalance_trigger_timing_bug.md`).
 
 Manual fallback (same steps) if you ever need to run it by hand:
 1. `rebalance.bat` after market close (refresh → rebalance → MTM → Alpaca mirror).

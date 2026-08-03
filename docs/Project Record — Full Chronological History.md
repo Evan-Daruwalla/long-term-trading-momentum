@@ -148,6 +148,7 @@ lives in the dated entry, not the digest.
 - [CK - PRD M7.1 shipped (76/76 exact); M7.2 gate FAILED 94.48% - the ledger replays exactly but historical NAV is NOT reproducible (price_cache is mutable by design)](#appendix-ck---prd-m71-shipped-historical_statepy-7676-exact-m72-gate-failed-at-9448---the-cash-ledger-replays-exactly-but-historical-nav-is-not-reproducible-because-price_cache-is-deliberately-mutable-stop-per-the-prd-recommend-m73-only-2026-08-02-1723-cdt) (08-02)
 - [CL - PRD M7.3 PASSED on a copy: 31 closed KLAC rows repair cleanly, cash reconciles $0.00 on 76/76, ladder spreads compress 1.4-2.8pp with no leader change; live apply BLOCKED-ON-EVAN](#appendix-cl---prd-m73-passed-on-a-copy-the-31-closed-klac-rows-repair-cleanly-cash-reconciles-at-000-on-7676-sleeves-ladder-spreads-compress-14-28pp-but-no-leader-changes-live-apply-blocked-on-evan-separately-verify_run-went-fail-5576-tonight-from-the-ci-backfill-2026-08-02-1750-cdt) (08-02)
 - [CM - **M7 CLOSED**: KLAC repair applied LIVE, verify_run PASS 76/76, frozen d=0.0000pp; the 07-31 re-mark also cured the CI staleness; ladder spreads 7.58/12.93/4.93pp, no leader change](#appendix-cm---m7-closed-klac-repair-applied-live-by-evan-verify_run-pass-7676-frozen-d-00000pp-the-2026-07-31-nav-re-mark-also-cured-the-ci-rate-limit-staleness-ladder-spreads-compress-to-7581293493pp-with-no-leader-change-2026-08-02-2002-cdt) (08-02)
+- [CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. `\llm rebal` jiggler decoded, `hellohello` confirmed real](#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt) (08-02)
 
 ---
 
@@ -6965,3 +6966,180 @@ syntax; Evan's shell is PowerShell 5.1, where `^` is not a continuation and the 
 have broken. The record is append-only so CL stands as written - the correct form is a single
 line per command, as actually run and as shown in CM.1. Noted here so a future session copying
 from CL does not inherit the bug.
+
+# Appendix CN - The August monthly rebalance would have been SKIPPED: the live cron had drifted to day-1-of-month and 2026-08-01 was a Saturday. Restored to daily self-gating. The undocumented llm rebal jiggler decoded and hellohello confirmed real (2026-08-02, ~22:56 CDT)
+
+A fresh session opened to do exactly what CM.4/CM.5 said to do next - watch the 2026-08-03
+monthly rebalance and open M6 if it produced Alpaca fills. The orientation pass found that the
+rebalance was never going to fire, and the doc that said it would (including CM itself, at
+CM.4) was asserting a cron that had not been live for some time.
+
+**Nothing was wrong with the data.** Independently re-verified at session start, before the
+finding: live `verify_run --mode daily` **PASS (76/76 sleeves OK)** (2026-08-02 20:30, via
+`TradingLadderRebalance`); frozen tests **4/4 d=+/-0.0000pp** (v1 +14.5547%/70 & +1.8792%/156,
+v2 +14.4062%/38 & +10.2194%/87); `price_cache` complete through Fri 2026-07-31 at 5,165 closes
+(07-30: 5,167), so the record CI rate-limit hole is fully backfilled and no trading day is
+missing; `paper_nav` 76 sleeves x through 07-31; working tree clean at `134944e` == `origin/master`.
+
+## CN.1 The finding
+
+`mcp__scheduled-tasks__list_scheduled_tasks` reported, for `monthy-llm-rebalance`:
+
+    cronExpression: "0 18 1 * *"        <- day 1 of the month ONLY
+    schedule:       "At 06:00 PM, on day 1 of the month"
+    nextRunAt:      2026-09-01T23:03:03Z
+    enabled:        true
+
+Three independent sources said it should be `0 18 * * *` (daily, self-gating):
+
+| source | claim |
+|---|---|
+| `HANDOFF.md` (Monthly operations) | "cron `0 18 * * *`, ~6:03pm local ... self-gates on `rebalance_log.md`" |
+| memory `monthly_rebalance_trigger_timing_bug.md` | "APPLIED 2026-07-11 with Evan's OK: shifted to `0 18 * * *`" (record BS) |
+| the task's own `SKILL.md`:9 | "It fires **daily** at 5:30pm local ... every other day is a no-op via the gate below" |
+
+The design *depends* on daily firing. The `rebalance_log.md` gate (SKILL.md Step 0) is what makes
+it a monthly job: fire every evening, do real work only when the logged last-rebalance date is
+from a prior month. A day-1-only cron removes the gate's whole reason to exist and replaces
+"first TRADING day of the month" with "the 1st, trading day or not."
+
+**2026-08-01 was a Saturday.** So:
+
+- the 08-01 fire was a non-trading day (and the machine was off - see CN.3),
+- `rebalance_log.md` still reads `Last rebalance: 2026-07-01`,
+- the scheduler's own next fire was **2026-09-01**.
+
+August's rebalance - 29 rebalance sleeves, every LLM overlay/cascade decision, and
+`alpaca_sync --all --execute` - would simply not have happened. It would not have self-healed
+either: 09-01 would have found a prior-month date in the gate and run, a full month late, with
+August missing from the live record. And because `alpaca_sync --execute` is the only thing that
+generates Alpaca fills, **PRD M6's gate would have stayed shut for another month** without
+anyone knowing why.
+
+`verify_run` cannot catch this. It checks NAV continuity, cash recon, position counts and
+pre-inception rows. A sleeve that is never rebalanced has perfectly continuous NAV and perfectly
+reconciled cash - it is just holding July's book. This is the same blind spot record CH found in
+the biweekly ladder ("`verify_run` never caught it - it checks NAV continuity and cash, nothing
+about cadence"), now recurring one layer up, at the scheduler.
+
+## CN.2 Fix applied
+
+`mcp__scheduled-tasks__update_scheduled_task(taskId="monthy-llm-rebalance",
+cronExpression="0 18 * * *")` -> tool confirmed **"At 06:03 PM, every day."** (the ~3-min
+deterministic dispatch jitter puts it at 6:03pm, matching what HANDOFF documents). Evan approved
+the change explicitly before it was made; a scheduled-task edit is persistent configuration and
+is not something the model does on its own initiative.
+
+Verification honesty note: the confirming re-`list` call was refused by the permission
+classifier. It was not worked around. The evidence that the change took is the update tool's own
+returned confirmation string, and nothing stronger is claimed here. **A future session should
+re-list and confirm `0 18 * * *` / `nextRunAt` on the next calendar day.**
+
+Expected next behaviour: fires ~6:03pm daily; on 2026-08-03 the gate reads `2026-07-01` (prior
+month) -> proceeds and does the real August rebalance; 08-04 onward reads `2026-08-03` (current
+month) -> no-ops. 2026-08-03 is also the first live run of the `monthly_rebalance.py` dispatcher
+and a Monday, which record CG flagged as a collision-risk month (1st trading day == Monday).
+
+## CN.3 Why 08-01 was doubly lost: the machine was off
+
+Independent of the cron, the machine was asleep or off from ~2026-07-29 evening until
+**2026-08-02 ~15:39 CDT**. Evidence, all from `schtasks /query /v` last-run times plus the ops logs:
+
+    TradingMorningMTM     Last Run 8/2 3:39:17 PM   (scheduled 7:45 AM)
+    TradingWeeklyBackup   Last Run 8/2 3:39:17 PM   (scheduled Sun 9:00 AM)
+    \llm rebal            Last Run 8/2 3:39:17 PM   (scheduled 1st, 5:59 PM)
+    var/ops_status.log    ... 07-29, then jumps straight to 08-02
+
+Every `StartWhenAvailable` task caught up in the same second, which is the signature of a wake,
+not of five independent schedules. So even a correct `0 18 * * *` cron would have missed 08-01 -
+but it would have caught 08-03. The cron is the load-bearing defect; the sleep is why there was
+no second chance.
+
+## CN.4 The undocumented `\llm rebal` task, decoded
+
+Carried into this session as an open question ("reads as a deliberate keep-awake shim, but it's
+in no repo doc"). It is a mouse jiggler:
+
+    TaskName:   \llm rebal
+    Task To Run: powershell.exe -command "(Add-Type '[DllImport(\"user32.dll\")]public static
+                 extern void mouse_event(int a,int b,int c,int d,int e);' -Name u -PassThru)
+                 ::mouse_event(1,0,0,0,0)"
+    Next Run:   9/1/2026 5:59:00 PM
+    Last Result: -2147020576
+
+Two facts settle its purpose. Its schedule is **monthly on the 1st at 5:59 PM** - one minute
+before an 18:00 fire, on the same day-of-month axis as the drifted `0 18 1 * *` cron. That is not
+coincidence and it is not drift: **both were deliberately set to day-1**, by someone or some
+earlier session, and the pair is internally consistent. The bug is the shared premise that
+"day 1" and "first trading day" are the same thing.
+
+And it does not work anyway. `-2147020576` is **0x800710E0** - the identical
+`DisallowStartIfOnBatteries` / `StopIfGoingOnBatteries` error code that silently killed
+`TradingWeeklyBackup` for 19 days (record CH). It returns before cmd/powershell ever launches.
+
+**Deliberately NOT "fixed" this session, and this is a reversal of what this session first
+offered.** Clearing its battery flags was proposed and Evan approved the plan that mentioned it;
+on inspection the fix is close to worthless and was withdrawn rather than executed for the sake
+of having done what was offered. Reasons: (a) with the cron restored to daily self-gating, a
+day-1-only jiggler no longer guards anything - the rebalance day is now whatever the first
+trading day is; (b) `mouse_event` prevents *idle sleep on an already-awake machine*, it cannot
+wake a sleeping one, so it was never a defence against the CN.3 failure; (c) it is an
+undocumented task nobody in the repo record created, and changing its behaviour on inference
+about its purpose is worse than leaving it and documenting it, which is what this entry does.
+The real exposure is "machine asleep at 6pm on the first trading day," and a jiggler is not the
+control for that. Left enabled, unmodified, now on the record.
+
+## CN.5 `\hellohello` confirmed real
+
+Also carried in as unconfirmed ("I never confirmed the claimed `\hellohello` task exists"). It
+exists - as a **Claude** scheduled task, not a Windows one, which is why a `schtasks` sweep would
+never have found it:
+
+    taskId: hellohello   description: "hello"   cron: 0 8 * * *   enabled: true
+
+Harmless as far as its description goes, but it is live and firing daily at ~8:08am. Full Claude
+task inventory found this session, for the record: `daily-trade-check` (`0 8 * * 1-5`),
+`daily-trade-check-2` (`0 18 * * 1-5`), `monthy-llm-rebalance` (now `0 18 * * *`),
+`cohort-0706-deploy` (disabled, one-time, last ran 07-07), `hellohello` (`0 8 * * *`).
+
+**Flagged, not concluded:** `daily-trade-check-2` occupies `0 18 * * 1-5` - the same 6pm slot the
+monthly rebalance now uses again. Whether the monthly was moved to day-1 to dodge that collision
+is a hypothesis this session could not verify and is recorded as a hypothesis only. Both are
+Claude agent tasks; if `daily-trade-check-2` only reads, there is no two-writer hazard, but that
+was not audited here.
+
+## CN.6 Two stale red flags that are NOT live failures
+
+Both will mislead the next reader of the 08-03 run, so they are named here:
+
+- `var/ops_status.log`'s last line reads `[OPS 2026-08-02] coverage=PASS verify=FAIL`. That is
+  the 17:18 daily run from **before** the M7 repair (record CL.6). The 20:30 ladder run verified
+  **PASS 76/76**, but `ladder_rebalance.bat` writes no ops stamp, so the tail of that file stays
+  permanently misleading until the next `daily.bat`.
+- `TradingDailyMTM`'s `Last Result` is `1` in Windows task history, same cause, same resolution.
+
+Neither is a live failure. Per record CM's own warning: read the per-sleeve lines, not the banner.
+
+## CN.7 Corrections to prior entries (append-only, so noted here)
+
+- **CM.4** states "the first live fire of `monthy-llm-rebalance` under the current schedule is
+  2026-08-03." False when written - the live cron at that moment was `0 18 1 * *` and the next
+  fire was 2026-09-01. CM was reasoning from HANDOFF's documented cron, not from the scheduler.
+- **memory `monthly_rebalance_trigger_timing_bug.md`** was titled RESOLVED and asserted a live
+  cron of `0 18 * * *`. Updated this session. This is the **third** time this task's schedule has
+  been found diverged from its documentation (`0 8 * * *` -> record AP; `30 17 * * *` -> record
+  BS; `0 18 1 * *` -> here). The pattern is now strong enough to state as a standing rule:
+  **read the cron from `list_scheduled_tasks`, never from a doc.** Any doc statement about this
+  task's schedule is a claim about the past.
+
+## CN.8 What this changes for 2026-08-03
+
+Unchanged: do not run anything that trades. The rebalance is the scheduled task's job and Evan's.
+The next session's job is still to read `var/last_daily_run.log`, `var/verify_report.log` and
+`rebalance_log.md` after ~6:03pm and report what happened - but it should now expect the run to
+occur, and should treat `rebalance_log.md` still reading `2026-07-01` on the morning of 08-04 as
+a FAILURE signal, not as a no-op day.
+
+M6 remains gated. If 08-03 produces Alpaca fills, the gate opens and M6.1
+(`fetch_alpaca_fills.py`) starts. If it does not, the gate is still shut and the reason is now a
+known one rather than a mystery.
