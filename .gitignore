@@ -26,4 +26,9 @@ graphify-out/
 *.bak_*
 scratch_*.csv
 # format-spec junk files leaked by scheduled runs (record Appendix AW), e.g. "10.2f}"
-*}
+# NOTE: the brace MUST stay escaped. A bare `*}` is a malformed glob to
+# ripgrep (braces are alternation syntax there), which makes its ignore
+# matcher fail closed and silently hide THE ENTIRE REPO from ripgrep-based
+# search tools. Verified 2026-08-05: bare `*}` -> 0 hits repo-wide;
+# escaped -> correct. git ignores the junk file identically either way.
+*\}
