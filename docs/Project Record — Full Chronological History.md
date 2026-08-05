@@ -150,6 +150,7 @@ lives in the dated entry, not the digest.
 - [CM - **M7 CLOSED**: KLAC repair applied LIVE, verify_run PASS 76/76, frozen d=0.0000pp; the 07-31 re-mark also cured the CI staleness; ladder spreads 7.58/12.93/4.93pp, no leader change](#appendix-cm---m7-closed-klac-repair-applied-live-by-evan-verify_run-pass-7676-frozen-d-00000pp-the-2026-07-31-nav-re-mark-also-cured-the-ci-rate-limit-staleness-ladder-spreads-compress-to-7581293493pp-with-no-leader-change-2026-08-02-2002-cdt) (08-02)
 - [CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. `\llm rebal` jiggler decoded, `hellohello` confirmed real](#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt) (08-02)
 - [CO - verify_run gains check (e) rebalance cadence: a stale `rebalance_log.md` now FAILs loudly instead of passing silently; closes the blind spot CN found](#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt) (08-02)
+- [CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix](#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt) (08-03)
 
 ---
 
@@ -7243,3 +7244,75 @@ the following evening's fire is the actual repair - it makes the miss impossible
 Scope note: this is an ops guardrail on an existing verifier, consistent with the PRD's M3 theme
 (unattended-automation safety). No strategy, factor, universe, sleeve or decision logic was
 touched; no DB write of any kind.
+
+---
+
+# Appendix CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix (2026-08-03, ~18:25 CDT)
+
+**WHAT.** The `monthy-llm-rebalance` scheduled task fired for August (first trading
+day = Mon 2026-08-03; Aug 1 was a Saturday). Gate check: `rebalance_log.md` read
+`Last rebalance: 2026-07-01` (prior month) → stale → proceeded. This is the first
+live monthly rebalance since Appendix CN restored the cron from its day-1-only
+drift, so it also confirms that fix works end-to-end.
+
+Ran the runbook in order: `overlay_prep` (gather) → data-integrity guardrail →
+12 LLM decisions (live web research) → `rebalance.bat` (execute) → verify. All
+decisions and fills dated 2026-08-03.
+
+**Data-integrity guardrail (passed).** Universe populated with real technicals as
+of 2026-08-03; momentum sane (largest was ATEX 3m +92.9% / %>200DMA +113%, an
+aggressive small-cap, nowhere near the >1000% split-artifact tell). Daily MTM had
+already landed (17:17, verify PASS 76/76) so no two-writer overlap on `trades.db`
+despite the run falling at ~18:15 (inside the 5-6:30pm MTM window — the 5:15pm
+writer was long done).
+
+**Macro backdrop (drove the sector risk-vetoes).** Live research: Fed held at
+3.50-3.75%, market now pricing a ~63% chance of a SEPTEMBER HIKE (cuts fully
+priced out); 10Y ~4.7%, near an 18-month high; Aug-2 tape showed rotation OUT of
+tech/healthcare INTO cyclicals (XLY led +3.29%). Hawkish regime, rising long
+yields.
+
+**Decisions — STOCK overlay/cascade** (`llm_overlay_ops decide`, shared log; cash
+overlay goes to cash on a veto, cascade walks the top-10 to the first BUY):
+- MU  VETO (3, inval 800) - post-earnings unwind, -28%/30d from $1145 (Jun29) to ~$820, below 5/20/50 EMAs, RSI40, -10.6% last wk on memory-pricing buyer pushback. Cheap fwd P/E~12x but 1m-fwd setup broken.
+- WDC VETO (4, inval 500) - Q4 earnings Aug5 = 2-day binary catalyst on a name below its 50DMA amid the memory/storage valuation correction. Veto on catalyst risk despite Citi/Wells PTs 800/730.
+- VICR VETO (2, inval 195) - momentum rolling over hard: 1m -24.5%, 3m -20.4%, ~25% below 50DMA.
+- BE  VETO (3, inval 200) - momentum blow-off unwinding: 1m -19.4%, 3m -24.9%, below 50DMA.
+- STX BUY  (6, inval 730) - fresh Q4 beat-and-raise (EPS 5.71 vs 5.09, +12%) Jul28, +$100 post-earnings, Argus PT 900 / Barclays 1250, 25-analyst Strong Buy; HDD duopoly pricing power, catalyst behind it, 1m +1.3% recovering while peers fell. Below-50DMA the main caveat.
+
+**Decisions — SECTOR overlay/cascade** (`sector_overlay_ops decide`; macro
+RISK-veto; cascade needs 4 HOLD):
+- XLK  VETO (4, inval 175) - below 50DMA, RSI43 fading; rotation out of tech, stretched valuations, hawkish-Fed pressure on long-duration growth. Fading + headwind.
+- XLV  HOLD (7, inval 156) - above 50DMA, RSI60, -3% off highs; State Street upgraded healthcare to positive for Q3-2026, low-beta defensive fits the regime. Trending + macro-supported.
+- XLE  HOLD (6, inval 56.50) - strongest 1m mover (+10.5%), above 50DMA, RSI61; cyclical-rotation beneficiary. Watch: Brent cut to ~$74 3Q26 (Iran/Hormuz de-escalation), soft into 2027. Momentum NOT fading.
+- XLI  HOLD (6, inval 178) - above 50DMA, near highs; AI-datacenter + aerospace/defense demand, cyclical tailwind.
+- XLB  VETO (3, inval 49) - below 5/20/50 EMAs, strongly bearish; hawkish-Fed/firm-USD headwind (cascade #5).
+- XLRE VETO (3, inval 41) - most rate-sensitive sector into an 18-mo-high 10Y + Sept-hike risk; macro risk-veto despite a technical uptrend (cascade #6).
+- XLU  HOLD (6, inval 44.50) - above 50DMA and 200DMA, RSI56; rate-proxy headwind offset by structural AI-datacenter power demand + defensive bid (cascade's 4th HOLD).
+
+**Execution results (`rebalance.bat`, EXITCODE=0).**
+- Dispatcher: 29 rebalance + 30 MTM sleeves, 0 failures, 43s.
+- Stock control `mom_roa_top1_paper`: SELL BE, BUY MU (rotated to new #1).
+- Stock overlay `llm_overlay_mom_roa_top1_paper`: VETO MU -> already CASH, no change.
+- Stock cascade `llm_cascade_top1_paper`: pick=STX (first LLM-approved BUY) - SELL WDC, BUY STX.
+- Sector overlay `llm_overlay_sector_top4_paper`: held XLE/XLI/XLV, XLK slot -> cash (1/4 cash).
+- Sector cascade `llm_cascade_sector4_paper`: held XLV/XLE/XLI/XLU (all 4 HOLD-approved, 0 momentum-fill).
+- Alpaca PAPER sync (`--all --execute`): residual_roa_6535_0701 submitted 62 / rejected 0; mom_roa_6535_0701 submitted 69 / rejected 0; spy_benchmark_0701 submitted 1 / rejected 0. Total 132 orders, 0 rejects.
+- `rebalance_log.md` stamped 2026-08-03; verify_run --mode monthly RESULT: **PASS (76/76 sleeves OK)**, rebalance-cadence check now reads `last_rebalance(2026-08-03)`.
+
+**WHY the vetoes clustered.** The entire memory/semis complex (MU/WDC/VICR/BE/INTC/
+AAOI) is in a sharp valuation-driven unwind off June highs, so the stock overlay
+correctly sat in cash and the cascade had to walk to #5 (STX) — the one name in
+the top-10 with a fresh positive catalyst rather than a broken chart. On the
+sector side the hawkish/rising-yield regime justified vetoing the two rate-proxy
+laggards (XLB, XLRE) and tech (XLK, below its 50DMA), leaving a defensive+cyclical
+HOLD set (XLV/XLE/XLI, plus XLU for the cascade). Honest prior stands: both
+overlays are still expected to fail their kill switches; a veto-heavy month with
+one lean-hold BUY is a legitimate data point, not a tuned result.
+
+Scope note: this was the sanctioned monthly automation run (the task file is the
+authorizing instruction; paper + Alpaca-PAPER only). Decisions are logged data,
+not code — no strategy/factor/universe logic was touched, so the frozen
+regression tests (a code-change guard) were not triggered; ops integrity was
+verified instead by verify_run --mode monthly PASS 76/76. Full run log:
+`var/monthly_rebalance_2026-08-03.log`.

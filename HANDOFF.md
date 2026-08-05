@@ -89,7 +89,9 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > unattended `cohort-0706-deploy` scheduled task; 3 of them are mirrored to
 > Evan's real Alpaca PAPER accounts (99 orders submitted, 0 rejections); and the
 > monthly `monthy-llm-rebalance` scheduled task was re-enabled (first live fire
-> 2026-08-01). This sits alongside — not replacing — the continuous May family.
+> actually 2026-08-03 — 08-01 was a Saturday and the cron had drifted; the August
+> run executed cleanly, 132 Alpaca paper orders / 0 rejects, verify PASS 76/76,
+> see record CN/CP). This sits alongside — not replacing — the continuous May family.
 
 > **2026-07-08**: Alpaca mirror sizing now carries a 1% cash buffer
 > (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY).
