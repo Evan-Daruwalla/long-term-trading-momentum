@@ -32,17 +32,28 @@ def test_read() -> None:
 
     real = tmp / "rebalance_log.md"
     real.write_text(
-        "# Rebalance Log\n\n**Last rebalance:** 2026-07-01\n\n"
+        "# Rebalance Log\n\n**Last rebalance:** 2026-08-03\n\n**Status:** OK\n\n"
         "_Auto-stamped by `scripts/momentum/rebalance.bat` (last step) on each run._\n",
         encoding="utf-8")
-    assert read_last_rebalance(real) == "2026-07-01", read_last_rebalance(real)
+    assert read_last_rebalance(real) == ("2026-08-03", "OK"), read_last_rebalance(real)
+
+    partial = tmp / "partial.md"
+    partial.write_text("**Last rebalance:** 2026-08-03\n\n**Status:** PARTIAL\n",
+                       encoding="utf-8")
+    assert read_last_rebalance(partial) == ("2026-08-03", "PARTIAL")
+
+    # Pre---status log shape: date parses, status is None (treated as OK).
+    legacy = tmp / "legacy.md"
+    legacy.write_text("# Rebalance Log\n\n**Last rebalance:** 2026-07-01\n",
+                      encoding="utf-8")
+    assert read_last_rebalance(legacy) == ("2026-07-01", None)
 
     unstamped = tmp / "empty.md"
     unstamped.write_text("# Rebalance Log\n\nnothing here yet\n", encoding="utf-8")
-    assert read_last_rebalance(unstamped) is None
+    assert read_last_rebalance(unstamped) == (None, None)
 
-    assert read_last_rebalance(tmp / "does_not_exist.md") is None
-    print("  [OK  ] read_last_rebalance: real format, unstamped file, missing file")
+    assert read_last_rebalance(tmp / "does_not_exist.md") == (None, None)
+    print("  [OK  ] read_last_rebalance: OK/PARTIAL/legacy/unstamped/missing")
 
 
 def test_cadence() -> None:
@@ -71,7 +82,23 @@ def test_cadence() -> None:
     # Unreadable log is reported, never assumed fine.
     assert len(check_rebalance_cadence(None, "2026-08-03")) == 1
 
-    print("  [OK  ] check_rebalance_cadence: 4 quiet cases, 3 fail cases")
+    # E4: a forward-dated stamp satisfies every month comparison forever, so the
+    # month rule alone would silently void this gate AND the task's Step 0 retry.
+    fails = check_rebalance_cadence("2099-01-01", "2026-08-04", "OK", today="2026-08-04")
+    assert len(fails) == 1 and "FUTURE" in fails[0], fails
+    # ...and today itself is not "the future".
+    assert check_rebalance_cadence("2026-08-04", "2026-08-04", "OK",
+                                   today="2026-08-04") == []
+
+    # Finding 1: a run that failed a step stamps PARTIAL and must not read clean.
+    fails = check_rebalance_cadence("2026-08-03", "2026-08-03", "PARTIAL",
+                                    today="2026-08-04")
+    assert len(fails) == 1 and "PARTIAL" in fails[0], fails
+    # Legacy log (no Status line) is not treated as a failure.
+    assert check_rebalance_cadence("2026-08-03", "2026-08-03", None,
+                                   today="2026-08-04") == []
+
+    print("  [OK  ] check_rebalance_cadence: 6 quiet cases, 5 fail cases")
 
 
 def main() -> int:

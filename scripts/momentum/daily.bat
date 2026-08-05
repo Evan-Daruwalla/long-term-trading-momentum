@@ -44,8 +44,12 @@ echo === Enforce overlay invalidation stops (as-of last settled trading day) ===
 echo.
 echo === Catch-up MTM: mark every settled missing trading day (incl today), all sleeves ===
 .venv\Scripts\python.exe -m scripts.momentum.mtm_catchup
-if errorlevel 2 goto catchup_ok
-if errorlevel 1 goto catchup_error
+set CATCHUP_RC=%errorlevel%
+REM Audit 2026-08-04, finding 10 / E5: `if errorlevel 2` is GREATER-OR-EQUAL, so
+REM ANY code >=2 took the SUCCESS branch -- argparse's 2, and cmd's 9009 for a
+REM missing interpreter. Only 2 means "today is still pending".
+if "%CATCHUP_RC%"=="2" goto catchup_ok
+if not "%CATCHUP_RC%"=="0" goto catchup_error
 
 :catchup_ok
 echo.

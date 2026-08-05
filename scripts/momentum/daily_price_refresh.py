@@ -207,6 +207,16 @@ def main() -> int:
     # batches to come back empty keeps normal partial publication from aborting the
     # rebalance, while still catching a real rate-limit (2026-08-02: 6 of 30 batches
     # empty, two full trading days lost, exit still 0).
+    # `total > 0` (audit 2026-08-04, finding 11 / E7): a TOTAL outage - every
+    # batch empty, so total == 0 - skipped this guard entirely and returned 0.
+    # The partial case (2026-08-02, record CI) was caught; the complete one was
+    # classified as success. If nothing at all came back, that is never normal.
+    if total == 0:
+        log.error("REFRESH INCOMPLETE: NOT ONE ticker returned data across %d "
+                  "batch(es). That is a total feed/rate-limit outage, not a "
+                  "market holiday (a holiday still returns rows for prior days).",
+                  len(batches))
+        return 1
     if empty_sizes and total > 0:
         frac = len(empty_sizes) / len(batches)
         msg = ("%d of %d batch(es) returned NO data (%d ticker(s)) while other "

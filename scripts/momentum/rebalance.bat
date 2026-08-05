@@ -13,6 +13,12 @@ REM Idempotent: re-running same day is a no-op (target set unchanged).
 
 cd /d D:\ClaudeCode\Trading
 
+REM Audit 2026-08-04, finding 4: this batch used to discard 14 of its 16
+REM python exit codes -- including alpaca_sync --execute, which submits real
+REM broker orders. RC_FAIL accumulates any non-zero step; it decides the
+REM stamp's --status and this batch's own exit code.
+set RC_FAIL=0
+
 echo === Daily price refresh ===
 .venv\Scripts\python.exe -m scripts.momentum.daily_price_refresh
 if errorlevel 1 (
@@ -48,17 +54,26 @@ REM seed stay below (they depend on their own ops/seed steps). Sleeve roster liv
 REM in the module + HANDOFF.md. A failed sleeve is logged and skipped, not fatal.
 .venv\Scripts\python.exe -m scripts.momentum.monthly_rebalance
 if errorlevel 1 (
-    echo WARNING: monthly_rebalance reported a sleeve failure. See output above; verify_run will re-check.
+    echo STEP FAIL: monthly_rebalance reported a sleeve failure. See output above.
+    set RC_FAIL=1
 )
 
 echo.
 echo === Seed/MTM: spy_benchmark_0701_paper (S^&P 500 control aligned with the 7/1 cohort; reset to 07-06) ===
 echo Idempotent buy-and-hold SPY at the 07-06 close; no-op stub until that close lands.
 .venv\Scripts\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve spy_benchmark_0701_paper --inception 2026-07-06
+if errorlevel 1 (
+    echo STEP FAIL: seed_spy_benchmark
+    set RC_FAIL=1
+)
 
 echo.
 echo === LLM-experiment CONTROL rebalance: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode control
+if errorlevel 1 (
+    echo STEP FAIL: llm_overlay control
+    set RC_FAIL=1
+)
 
 echo.
 echo === LLM-experiment TREATMENT rebalance: llm_overlay_mom_roa_top1_paper ===
@@ -69,14 +84,26 @@ echo errors with "no decision logged", run candidate + decide by hand, re-run:
 echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops decide --ticker X --score N --verdict BUY^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode overlay
+if errorlevel 1 (
+    echo STEP FAIL: llm_overlay treatment
+    set RC_FAIL=1
+)
 
 echo.
 echo === Mark-to-market: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_top1_paper --force
+if errorlevel 1 (
+    echo STEP FAIL: mtm mom_roa_top1
+    set RC_FAIL=1
+)
 
 echo.
 echo === Mark-to-market: llm_overlay_mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_mom_roa_top1_paper --force
+if errorlevel 1 (
+    echo STEP FAIL: mtm llm_overlay_top1
+    set RC_FAIL=1
+)
 
 echo.
 echo === SECTOR-overlay TREATMENT rebalance: llm_overlay_sector_top4_paper ===
@@ -85,10 +112,18 @@ echo Requires a HOLD/VETO decision for ALL 4 candidate sectors FIRST, else refus
 echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops decide --ticker XLK --score N --verdict HOLD^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops rebalance
+if errorlevel 1 (
+    echo STEP FAIL: sector_overlay treatment
+    set RC_FAIL=1
+)
 
 echo.
 echo === Mark-to-market: llm_overlay_sector_top4_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_sector_top4_paper --force
+if errorlevel 1 (
+    echo STEP FAIL: mtm llm_overlay_sector4
+    set RC_FAIL=1
+)
 
 echo.
 echo === LLM-CASCADE (always-invested 3rd pair) rebalance: stock + sector ===
@@ -99,12 +134,28 @@ echo   sector = first 4 HOLD sectors (else momentum-fill to 4)
 echo Log decisions DEEPER in the ranking (llm_overlay_ops / sector_overlay_ops
 echo decide) for the cascade to differ from the control. See overlay_prep.
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-stock
+if errorlevel 1 (
+    echo STEP FAIL: cascade stock
+    set RC_FAIL=1
+)
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-sector
+if errorlevel 1 (
+    echo STEP FAIL: cascade sector
+    set RC_FAIL=1
+)
 
 echo.
 echo === Mark-to-market: LLM-cascade sleeves ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_top1_paper --force
+if errorlevel 1 (
+    echo STEP FAIL: mtm cascade_top1
+    set RC_FAIL=1
+)
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_sector4_paper --force
+if errorlevel 1 (
+    echo STEP FAIL: mtm cascade_sector4
+    set RC_FAIL=1
+)
 
 REM NOTE: the volume cache is kept fresh by daily_price_refresh (top of this
 REM script) which now persists volume alongside closes - so the old per-rebalance
@@ -117,18 +168,41 @@ echo Submits market orders to reconcile each Alpaca paper account to its sleeve'
 echo weights (scaled to that account's equity). PAPER only; needs alpaca_keys.env filled.
 echo Skips cleanly if keys are missing or a sleeve hasn't deployed yet.
 .venv\Scripts\python.exe -m trading_bot.execution.alpaca_sync --all --execute
+if errorlevel 1 (
+    echo STEP FAIL: alpaca_sync --execute
+    set RC_FAIL=1
+)
 
 echo.
 echo === Stamp rebalance_log.md (records when this rebalance happened) ===
-.venv\Scripts\python.exe -m scripts.momentum.stamp_rebalance_log
+REM The stamp is the ONLY proof this run happened: verify_run's cadence check
+REM reads it and the monthly task's Step 0 gate STOPs on it. Stamping OK after
+REM a failed run hid the failure AND locked out the retry (audit finding 1).
+if "%RC_FAIL%"=="1" (
+    .venv\Scripts\python.exe -m scripts.momentum.stamp_rebalance_log --status PARTIAL
+) else (
+    .venv\Scripts\python.exe -m scripts.momentum.stamp_rebalance_log --status OK
+)
+if errorlevel 1 (
+    echo STEP FAIL: stamp_rebalance_log
+    set RC_FAIL=1
+)
 
 echo.
 echo === Post-run verification (monthly) ===
 .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode monthly
-if errorlevel 1 (
-    echo VERIFY FAIL - monthly rebalance left an inconsistency. See var\verify_report.log.
-    exit /b 1
-)
+set VERIFY_RC=%errorlevel%
+if not "%VERIFY_RC%"=="0" echo VERIFY FAIL - monthly rebalance left an inconsistency. See var\verify_report.log.
 
 echo.
+REM Exit code must reflect BOTH the step failures and verify, same pattern as
+REM ladder_rebalance.bat (record CH). Before this, verify_run was effectively the
+REM only gate, so a failed rebalance step that left the DB self-consistent -- a
+REM sleeve that never traded is perfectly consistent -- exited 0.
+if "%RC_FAIL%"=="1" (
+    echo Rebalance INCOMPLETE - at least one step failed; rebalance_log.md stamped PARTIAL.
+    exit /b 1
+)
+if not "%VERIFY_RC%"=="0" exit /b %VERIFY_RC%
+
 echo Rebalance complete (systematic + ladder via dispatcher; 3 LLM-experiment pairs; 3 mirrored to Alpaca paper).

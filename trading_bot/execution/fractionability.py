@@ -16,11 +16,25 @@ Design:
 """
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 
 from trading_bot.db import connect
 
+log = logging.getLogger(__name__)
+
 STALE_DAYS = 30  # re-query an asset's flags at most monthly
+
+
+def _is_not_found(e: Exception) -> bool:
+    """True ONLY for Alpaca's 'no such asset' (404).
+
+    Everything else - 429 rate limit, 5xx, auth failure, connection reset - is
+    transient, and caching it as a verdict would pin a real name untradable for
+    STALE_DAYS. Lazy import matches this module's no-hard-dependency stance.
+    """
+    from trading_bot.execution.alpaca_client import AlpacaError
+    return isinstance(e, AlpacaError) and getattr(e, "status", None) == 404
 
 
 def _ensure_table(conn) -> None:
@@ -61,7 +75,20 @@ def refresh(tickers, client) -> None:
             a = client.get_asset(t)
             rows.append((t, int(bool(a.get("tradable"))),
                          int(bool(a.get("fractionable"))), now.isoformat()))
-        except Exception:  # unknown/removed symbol -> treat as untradable
+        except Exception as e:
+            # Only a genuine "this symbol does not exist" may be cached as
+            # untradable (audit 2026-08-04, finding 9 / E3). Caching a transient
+            # 429/5xx/auth blip as (0,0) pins the name untradable for STALE_DAYS
+            # (30), and paper_rebalance silently drops untradable names from the
+            # buy list - so one bad minute on a rebalance evening quietly changes
+            # the strategy for a month. Transport errors are re-raised: better a
+            # loud failed rebalance than a silently thinned one.
+            if not _is_not_found(e):
+                log.error("alpaca_asset_meta: transport error on %s (%s) - "
+                          "NOT caching a verdict; aborting the refresh so this "
+                          "cannot silently thin a rebalance", t, e)
+                raise
+            log.info("alpaca_asset_meta: %s unknown to Alpaca -> untradable", t)
             rows.append((t, 0, 0, now.isoformat()))
     with connect() as conn:
         _ensure_table(conn)

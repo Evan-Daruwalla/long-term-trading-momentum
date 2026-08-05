@@ -156,8 +156,15 @@ def sync_account(account: Account, *, execute: bool) -> int:
         for o in client.list_orders(status="open"):
             try:
                 client.cancel_order(o["id"])
-            except AlpacaError:
-                pass
+            except AlpacaError as e:
+                # Was `pass` with no artifact at all (audit 2026-08-04, finding
+                # 7). The whole order plan below assumes open orders were
+                # cancelled; a surviving one still fills, ON TOP of what we are
+                # about to submit. Count it so the return code reflects it.
+                failed += 1
+                log.warning("  cancel FAILED for order %s (%s %s): %s - a stale "
+                            "order may still fill on top of this sync",
+                            o.get("id"), o.get("side"), o.get("symbol"), e)
         for sym, qty, side in sells + buys:  # sells first frees buying power
             try:
                 client.submit_order(symbol=sym, qty=qty, side=side,

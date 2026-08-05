@@ -19,7 +19,8 @@ sleeve:
 
 Plus one run-level (not per-sleeve) check:
   (e) rebalance cadence — rebalance_log.md's "Last rebalance:" date must be in
-      the same calendar month as the last SETTLED trading day, or later. Checks
+      the same calendar month as the last SETTLED trading day or later, must not
+      be in the future, and its "Status:" must not be PARTIAL. Checks
       (a)-(d) structurally CANNOT catch a missed monthly rebalance: a sleeve
       that never rebalanced has perfectly continuous NAV and cent-perfect cash
       recon, it just holds a stale book. That is how the 2026-08 rebalance
@@ -86,19 +87,29 @@ POSITION_TARGETS = {
 
 REBALANCE_LOG = PROJECT_ROOT / "rebalance_log.md"
 _LAST_REBALANCE_RE = re.compile(r"Last rebalance:\**\s*(\d{4}-\d{2}-\d{2})")
+_STATUS_RE = re.compile(r"Status:\**\s*(OK|PARTIAL)")
 
 
-def read_last_rebalance(path: Path = REBALANCE_LOG) -> str | None:
-    """The 'Last rebalance: YYYY-MM-DD' date stamped by rebalance.bat, or None."""
+def read_last_rebalance(path: Path = REBALANCE_LOG) -> tuple[str | None, str | None]:
+    """(date, status) from rebalance_log.md; either element None if absent.
+
+    status is None for a log written before --status existed (audit 2026-08-04,
+    finding 1); that legacy shape is treated as OK by check_rebalance_cadence,
+    since the next real run re-stamps it either way.
+    """
     try:
-        m = _LAST_REBALANCE_RE.search(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     except OSError:
-        return None
-    return m.group(1) if m else None
+        return None, None
+    d = _LAST_REBALANCE_RE.search(text)
+    s = _STATUS_RE.search(text)
+    return (d.group(1) if d else None), (s.group(1) if s else None)
 
 
-def check_rebalance_cadence(logged: str | None, last_settled: str) -> list[str]:
-    """(e) Has this month's rebalance run? Pure logic — see the module docstring.
+def check_rebalance_cadence(logged: str | None, last_settled: str,
+                            status: str | None = None,
+                            today: str | None = None) -> list[str]:
+    """(e) Has this month's rebalance run, and did it succeed? Pure logic.
 
     Anchoring on last_settled's MONTH is what makes this correct without a
     holiday calendar: last_settled falling in month M is itself proof that M's
@@ -107,14 +118,29 @@ def check_rebalance_cadence(logged: str | None, last_settled: str) -> list[str]:
     July stamp is right and this stays quiet. '>=' not '==' so the evening of
     the rebalance itself passes, when the stamp is already 08-03 but coverage
     has not settled past 07-31 yet.
+
+    The future-date guard exists because the month comparison alone accepts any
+    forward-dated stamp: a log reading 2099-01-01 would satisfy every month
+    check forever, silently disabling this gate AND the rebalance task's own
+    Step 0 retry gate (audit 2026-08-04, E4). The stamp is written with
+    date.today(), so it can never legitimately exceed today.
     """
+    today = today or date.today().isoformat()
     if logged is None:
         return [f"rebalance cadence: no parseable 'Last rebalance:' date in "
                 f"{REBALANCE_LOG.name}"]
+    if logged > today:
+        return [f"rebalance cadence: stamp {logged} is in the FUTURE (today "
+                f"{today}) - the stamp is written with date.today(), so this is "
+                f"corrupt or was written under a wrong clock; the gate is void"]
     if logged[:7] < last_settled[:7]:
         return [f"rebalance cadence: last rebalance {logged} predates the settled "
                 f"month {last_settled[:7]} - this month's monthly rebalance has "
                 f"NOT run (check the monthy-llm-rebalance cron, record CN)"]
+    if status == "PARTIAL":
+        return [f"rebalance cadence: last rebalance {logged} stamped PARTIAL - at "
+                f"least one step of that run returned non-zero; the run is NOT "
+                f"trustworthy and no retry will fire (see the run log)"]
     return []
 
 
@@ -276,9 +302,10 @@ def main() -> int:
         else:
             out.append(f"[PASS] {s:32s} {info}")
     # (e) run-level cadence check — not per-sleeve, so it sits after the loop.
-    logged = read_last_rebalance()
-    cadence_fails = check_rebalance_cadence(logged, last_settled)
-    cadence_info = f"last_rebalance({logged or 'unreadable'}) settled_month({last_settled[:7]})"
+    logged, rb_status = read_last_rebalance()
+    cadence_fails = check_rebalance_cadence(logged, last_settled, rb_status)
+    cadence_info = (f"last_rebalance({logged or 'unreadable'}/{rb_status or 'nostatus'}) "
+                    f"settled_month({last_settled[:7]})")
     out.append(f"[{'FAIL' if cadence_fails else 'PASS'}] {'(rebalance cadence)':32s} "
                f"{cadence_info}")
     for f in cadence_fails:

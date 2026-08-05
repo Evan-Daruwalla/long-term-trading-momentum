@@ -68,10 +68,13 @@ def _strategy_config(strategy_name: str):
                     (residual_momentum.residual_momentum_score, residual_roa_6535.W_RESID),
                     (roa.roa_score, residual_roa_6535.W_ROA)]),
                 tradeable_universe)
-    if base.startswith("sector_top4"):
+    if base in ("sector_top4_paper", "sector_top4_full_paper"):
         # sector strategy uses 11 SPDR ETFs, ignores tradeable_universe filter.
-        # Prefix match covers both sector_top4_paper (07-01 LLM-experiment control)
-        # and sector_top4_full_paper (full 05-01 systematic control) — identical config.
+        # EXACT match on both real names — sector_top4_paper (07-01 LLM-experiment
+        # control) and sector_top4_full_paper (full 05-01 systematic control),
+        # identical config. Was `startswith("sector_top4")` until the 2026-08-04
+        # audit (finding 20): an unanchored prefix silently handed the 11-ETF
+        # universe to ANY future sector_top4* sleeve, whatever it was meant to be.
         return (sector_momentum.rank_universe,
                 lambda as_of: list(sector_momentum.SECTOR_UNIVERSE))
     if base.startswith("residual_w") and base.endswith("_paper"):
@@ -115,7 +118,12 @@ def _alpaca_client_or_none():
         from trading_bot.execution.alpaca_accounts import configured_accounts
         accts = configured_accounts()
         return accts[0].client() if accts else None
-    except Exception:
+    except Exception as e:
+        # Was a silent `return None` (audit 2026-08-04, finding 9). Returning
+        # None skips fractionability.refresh() entirely, so the rebalance runs
+        # on whatever stale verdicts the cache holds - with no trace of why.
+        log.warning("Alpaca client unavailable (%s); rebalance will use CACHED "
+                    "tradability verdicts only", e)
         return None
 
 
@@ -138,8 +146,12 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
     rank_fn, universe_fn = _strategy_config(strategy_name)
     universe = universe_fn(as_of)
     if not universe:
-        log.error("Empty universe at %s for %s. Aborting.", as_of, strategy_name)
-        return 0
+        # RAISE, don't `return 0`: 0 is also the legitimate "nothing needed to
+        # change" result, so returning it made an abort indistinguishable from a
+        # healthy no-op at every call site (audit 2026-08-04, finding 3). Both
+        # dispatchers already wrap this call in try/except and count failures.
+        raise RuntimeError(
+            f"Empty universe at {as_of} for {strategy_name}. Aborting.")
     # Stale-data guard (added 2026-05-30 per audit C2): if universe is
     # suspiciously small (e.g., only ETFs survive freshness filter), the
     # script would otherwise liquidate all stock holdings into whatever's
@@ -147,11 +159,11 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
     # size; everything else needs at least 2x top_n with a floor of 200.
     min_universe = 11 if strategy_name.startswith("sector_top4") else max(2 * top_n, 200)
     if len(universe) < min_universe:
-        log.error("Universe size %d < required %d for %s at %s. "
-                  "Likely stale price_cache. ABORTING (would otherwise "
-                  "liquidate holdings catastrophically).",
-                  len(universe), min_universe, strategy_name, as_of)
-        return 0
+        # RAISE for the same reason as the empty-universe guard above.
+        raise RuntimeError(
+            f"Universe size {len(universe)} < required {min_universe} for "
+            f"{strategy_name} at {as_of}. Likely stale price_cache. ABORTING "
+            f"(would otherwise liquidate holdings catastrophically).")
     log.info("Universe at %s for %s: %d eligible tickers",
              as_of, strategy_name, len(universe))
 

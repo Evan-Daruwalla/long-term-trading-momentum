@@ -20,7 +20,7 @@ Or use pytest (works without configuration).
 from __future__ import annotations
 
 import sys
-from datetime import date
+from datetime import date, datetime
 
 from trading_bot.strategies import momentum_v1, momentum_v2
 
@@ -119,7 +119,39 @@ def _check(strategy_name: str, mod) -> list[str]:
     return failures
 
 
+def _busy_window_guard(argv: list[str], now: datetime | None = None) -> str | None:
+    """Refuse to run inside a scheduled-task window unless --force.
+
+    These tests are a WRITE path (audit 2026-08-04, finding 2): every run goes
+    through factor_backtest._wipe_state(), which does DELETE FROM positions /
+    portfolio_state and then re-inserts, holding a write lock on the 5 GB live
+    DB for the duration. CLAUDE.md mandates running them after ANY Python change
+    AND separately forbids concurrent factor_backtest -- so the mandated check
+    was itself the thing the rule forbids, with nothing enforcing it. This is
+    that enforcement; it is NOT the full fix (see the module docstring).
+    """
+    if "--force" in argv:
+        return None
+    now = now or datetime.now()
+    hm = now.hour * 60 + now.minute
+    for lo, hi, label in ((17 * 60, 18 * 60 + 30, "TradingDailyMTM / monthly rebalance"),
+                          (19 * 60 + 45, 21 * 60, "TradingLadderRebalance"),
+                          (7 * 60 + 30, 8 * 60 + 15, "TradingMorningMTM")):
+        if lo <= hm < hi:
+            return (f"{now:%H:%M} falls in the {label} window "
+                    f"({lo // 60:02d}:{lo % 60:02d}-{hi // 60:02d}:{hi % 60:02d}).")
+    return None
+
+
 def main(argv: list[str]) -> int:
+    busy = _busy_window_guard(argv)
+    if busy:
+        print(f"REFUSING to run: {busy}\n"
+              f"These tests WRITE the live DB (positions/portfolio_state are wiped\n"
+              f"and rebuilt) and would be a second writer against a 5 GB SQLite file.\n"
+              f"Re-run outside the window, or pass --force if you know it is idle.")
+        return 2
+
     if "--capture" in argv:
         print("CAPTURING new baseline (will overwrite EXPECTED).")
         print("Copy these values into EXPECTED in this file:\n")
