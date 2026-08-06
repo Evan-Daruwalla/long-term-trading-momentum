@@ -393,6 +393,25 @@ as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
    ET in July and at the next open in August, while the sim's reference is a CLOSE. The number
    is intraday/overnight DRIFT, not execution quality. Unblock per record CT.5: pin the basis
    first (cheap, read-only), then bring the design question to Evan.]**
+   **[UPDATE 2026-08-05 ~23:12 CDT, record CU — CT.5 step 1 DONE, and the news is worse.
+   Basis PINNED exactly: buy = `last_close_on_or_before(ticker, rebalance) * (1+5bps)`, sell =
+   `* (1-5bps)`, reading `price_cache` raw. Proven on the 2-day-old 08-03 batch: 34/34 buys and
+   33/35 sells exact to 1e-6, and 0/35 sells against the +5bps sign, so the formula is measured
+   rather than assumed. But the 29-day-old 07-07 batch is 0/98 exact, and backing out the
+   implied close and searching EVERY cached date 06-25..07-10 finds zero exact matches anywhere
+   — a wrong `as_of` would have given 50/50 on one date. **The July reference prices were
+   overwritten and are not recoverable from this DB** (mean abs divergence 1.384%, up to 5.92%,
+   79/98 names moved >0.5%). Consistent with record CK's rolling INSERT OR REPLACE window,
+   though the magnitude is unexplained and is NOT asserted.
+   **CONSEQUENCE: M6 has ZERO clean measurement windows** — July has good timing but no
+   surviving reference data, August has intact data but next-open fills (CS.4). Also a shelf
+   life nothing in this PRD anticipated: a rebalance's reference prices are only reliably
+   recoverable for about a month.
+   **FORWARD FIX (small, additive, not yet done):** persist `(reference_close,
+   reference_close_date)` alongside each fill in `paper_rebalance` — the exact value is already
+   in hand at `paper_rebalance.py:199,209,246` and only the spread-adjusted price is kept. That
+   makes every FUTURE rebalance measurable without touching strategy logic or any history. It
+   does not recover July; nothing does. The remaining timing question stays Evan's call.]**
 3. **Recalibration memo — REPORT ONLY.** If measured slippage differs materially from the 5 bps
    assumption, write `docs/slippage_memo_<date>.md` stating the finding and the option to
    recalibrate `HALF_SPREAD_BPS`. **Do not change the assumption** — that's a strategy-affecting

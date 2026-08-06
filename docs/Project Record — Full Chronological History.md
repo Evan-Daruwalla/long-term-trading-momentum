@@ -155,6 +155,7 @@ lives in the dated entry, not the digest.
 - [CR - The 15 deferred CQ.7 findings closed: cascade sleeves unstopped BY DESIGN (Evan's call; the audit's own example was the wrong position - XLU, not STX), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, 6 doc-drift fixes](#appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt) (08-05)
 - [CS - PRD M6.1 SHIPPED: 231/231 mirrored orders reconcile filled; Alpaca's `submitted_at` is a queue-release time, and the August batch was HELD TO THE NEXT SESSION OPEN so M6.2 must not call it slippage](#appendix-cs---prd-m61-shipped-all-231-mirrored-orders-reconcile-231231-filled-and-the-august-batch-turns-out-to-have-been-held-to-the-next-session-open---so-m62-must-not-call-it-slippage-2026-08-05-2152-cdt) (08-05)
 - [CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not slippage, and M6.3 run off it would have moved HALF_SPREAD_BPS 5 -> 100bps and corrupted every backtest](#appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt) (08-05)
+- [CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows](#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt) (08-05)
 
 ---
 
@@ -7993,3 +7994,109 @@ Evan rather than picking for him.
 - Frozen tests **4/4 d=+/-0.0000pp** — v1 +14.5547%/70 & +1.8792%/156,
   v2 +14.4062%/38 & +10.2194%/87.
 - Commit `33911f7`.
+
+# Appendix CU - CT.5 step 1 done: the sim's fill basis is PINNED exactly (close x 1+/-5bps, proven 34/34 and 33/35 on a 2-day-old batch), and the July reference prices are GONE - price_cache was rewritten under them. M6 currently has ZERO clean measurement windows (2026-08-05, ~23:12 CDT)
+
+CT.5 named two candidate causes for the M6.2 blocker and did not choose between
+them: an `as_of` that could not be recovered, or `price_cache` revised underneath
+the rows. Step 1 was to settle it. It is settled, and it is the second.
+
+## CU.1 The sim's fill-price basis, pinned
+
+    BUY  entry_price = last_close_on_or_before(ticker, rebalance_date) * (1 + 5bps)
+    SELL exit_price  = last_close_on_or_before(ticker, rebalance_date) * (1 - 5bps)
+
+`last_close_on_or_before` (`trading_bot/execution/market_data.py:292-311`) reads
+`price_cache` **directly and raw** — no in-memory mirror, no adjustment layer —
+which is what makes the comparison below valid rather than assumed.
+
+Proven against the **2026-08-03** rebalance, two days old at time of test:
+
+| leg | match | result |
+|---|---|---|
+| buys | `close x 1.0005` | **34 / 34 exact** (within 1e-6 relative) |
+| sells | `close x 0.9995` | **33 / 35 exact** |
+| sells | `close x 1.0005` | 0 / 35 — the sign is real, not assumed |
+
+So the formula and the 5 bps half-spread are confirmed, not inferred. The two
+non-matching sells are unexplained and are left as such rather than rounded away.
+
+## CU.2 The July reference prices no longer exist
+
+The same test against the **2026-07-07** deploy, 29 days old:
+
+| entry_date | age | exact `close x 1.0005` | mean abs divergence | range | moved >0.5% |
+|---|---:|---:|---:|---|---:|
+| 2026-08-03 | 2 days | **34/34** | 0.000% | 0.000% | 0/34 |
+| 2026-07-07 | 29 days | **0/98** | **1.384%** | −5.92% .. +5.20% | **79/98** |
+
+And this is the part that rules out the alternative: backing out
+`implied_close = entry_price / 1.0005` for all 50 `mom_roa_6535_0701_paper`
+entries and searching **every** cached close from 2026-06-25 to 2026-07-10
+returns **zero exact matches on any date**. A wrong `as_of` would have produced
+50/50 exact matches on one date. Instead the nearest neighbours scatter across
+ten different dates — the signature of a series that has drifted underneath the
+positions, not of an off-by-one date.
+
+**Conclusion: the `price_cache` closes the sim read on 2026-07-07 have been
+overwritten, and the prices those fills were actually computed from are not
+recoverable from this database.**
+
+Cause NOT fully established, and deliberately not asserted. It is consistent with
+record CK's mechanism — `daily_price_refresh` re-downloads the last 30 days for
+every ticker with `INSERT OR REPLACE` **by design**, and 2026-07-07 sat inside
+that rolling window until roughly now — but a plain re-download of the same close
+does not obviously move a price 5.9%, and 79 of 98 names moved more than 0.5%.
+The KLAC back-adjustment (CJ), the 614 spike-nulls and the CI rate-limit backfill
+each touched specific rows, not eighty percent of a basket. **What is proven is
+that the values changed; why they changed by this much is open.**
+
+## CU.3 What this means for M6, and it is worse than CT thought
+
+CT.4 established that neither batch compares like with like on TIMING. CU adds
+that one of them cannot be compared at all, on DATA:
+
+| batch | reference prices | fill timing | usable for slippage? |
+|---|---|---|---|
+| 2026-07-07 | **gone** — cache rewritten | intraday 14:20 ET vs a CLOSE reference | **no** |
+| 2026-08-03 | intact, exact | next-session OPEN vs a CLOSE reference (CS.4) | **no** |
+
+**M6 currently has zero clean measurement windows.** Not one of the 231 fills
+supports a defensible execution-slippage number: the batch with good data has bad
+timing, and the batch with better-behaved timing has no surviving reference data.
+
+This also puts a shelf life on the whole exercise that nothing in the PRD
+anticipated: **a rebalance's reference prices are only reliably recoverable for
+about a month.** Any slippage measurement not taken within days of the rebalance
+is measuring against a cache that has since moved.
+
+## CU.4 The fix, which is forward-looking and small
+
+Stop re-deriving the sim's reference price from a mutable cache after the fact.
+**Capture it at rebalance time**, when it is still the number the fill actually
+used — `paper_rebalance` already has the exact value in hand at
+`paper_rebalance.py:199,209,246` and currently only persists the spread-adjusted
+`entry_price`/`exit_price`, not the underlying close or the date it came from.
+
+Persisting `(reference_close, reference_close_date)` alongside each fill makes
+every FUTURE rebalance measurable and is additive — no existing column changes,
+no history rewritten, and it does not touch strategy logic. It does not recover
+July; nothing recovers July.
+
+That still leaves the timing problem (CS.4), which is a live-behaviour decision
+and Evan's: market-on-close mirror orders, an in-session monthly slot, or
+redefining M6 as **implementation shortfall** — sim reference vs realised mirror
+price, drift included — which is a real and defensible metric but is not the one
+the PRD named. Renaming the goal to fit the available data is a choice worth
+making deliberately rather than by drift.
+
+## CU.5 Status and verification
+
+- All queries read-only (`mode=ro`). No writes, no `slippage_log` rows, no
+  `HALF_SPREAD_BPS` change. No code changed in this entry's work, so the frozen
+  tests stand from `33911f7` at 4/4 d=+/-0.0000pp.
+- M6.2 remains PARTIAL. Its first blocker (basis unknown) is now CLOSED; its
+  second (nothing left to measure cleanly) is open and is a design decision.
+- M6.3 remains NOT STARTED and still dangerous for the reason in CT.4 — the
+  ~+100bps figure is drift, and CU makes it additionally untrustworthy for July
+  because the reference leg of that comparison no longer exists.
