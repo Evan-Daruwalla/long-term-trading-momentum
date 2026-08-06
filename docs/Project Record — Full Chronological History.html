@@ -189,7 +189,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cm---m7-closed-klac-repair-applied-live-by-evan-verify_run-pass-7676-frozen-d-00000pp-the-2026-07-31-nav-re-mark-also-cured-the-ci-rate-limit-staleness-ladder-spreads-compress-to-7581293493pp-with-no-leader-change-2026-08-02-2002-cdt">CM - <strong>M7 CLOSED</strong>: KLAC repair applied LIVE, verify_run PASS 76/76, frozen d=0.0000pp; the 07-31 re-mark also cured the CI staleness; ladder spreads 7.58/12.93/4.93pp, no leader change</a> (08-02)<br />
 - <a href="#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt">CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. <code>\llm rebal</code> jiggler decoded, <code>hellohello</code> confirmed real</a> (08-02)<br />
 - <a href="#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt">CO - verify_run gains check (e) rebalance cadence: a stale <code>rebalance_log.md</code> now FAILs loudly instead of passing silently; closes the blind spot CN found</a> (08-02)<br />
-- <a href="#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt">CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix</a> (08-03)</p>
+- <a href="#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt">CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix</a> (08-03)<br />
+- <a href="#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt">CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred</a> (08-05)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -8014,6 +8015,204 @@ not code — no strategy/factor/universe logic was touched, so the frozen<br />
 regression tests (a code-change guard) were not triggered; ops integrity was<br />
 verified instead by verify_run --mode monthly PASS 76/76. Full run log:<br />
 <code>var/monthly_rebalance_2026-08-03.log</code>.</p>
+<h1 id="appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt">Appendix CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed plus 8 more findings; 15 findings deferred to a fresh session (2026-08-05, ~19:50 CDT)</h1>
+<p>Evan ran <code>/audit</code> with no scope narrowing. This session had already shipped CN and<br />
+CO, so per the skill's step 0 the audit was run by a <strong>cold general-purpose<br />
+subagent</strong> given only the project path, the scope, the safety constraints, and the<br />
+docs as <em>claims under test</em> — no conversation history, no "this part is known<br />
+good." That mattered: the audit's top finding lands directly on the code CO<br />
+shipped three days earlier.</p>
+<h2 id="cq1-the-headline-check-e-could-be-defeated-one-layer-down">CQ.1 The headline: check (e) could be defeated one layer down</h2>
+<p>CO added <code>verify_run</code> check (e) so a missed monthly rebalance FAILs loudly. The<br />
+audit found the artifact it reads is written unconditionally, so the check could<br />
+be satisfied by a run that did nothing. Three defects compounded:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Defect</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td><code>paper_rebalance.rebalance()</code> returned <strong>0</strong> on both abort paths — the same value as "nothing needed to change"</td>
+<td><code>paper_rebalance.py:141,154</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>rebalance_log.md</code> stamped unconditionally at the end of the batch</td>
+<td><code>rebalance.bat:123</code>, <code>stamp_rebalance_log.py</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>rebalance.bat</code> discarded <strong>14 of 16</strong> python exit codes, including <code>alpaca_sync --all --execute</code></td>
+<td><code>rebalance.bat:119</code></td>
+</tr>
+</tbody>
+</table>
+<p>Chained: an empty universe aborts every sleeve, each abort returns 0, the batch<br />
+echoes a warning and continues, the stamp writes today's date, check (e) reads a<br />
+current-month date and PASSes, and the <code>monthy-llm-rebalance</code> Step 0 gate then<br />
+STOPs for the rest of the month — so the retry the CN cron fix restored never<br />
+fires. Every sleeve holds a stale book, and <code>verify_run</code> (a)-(d) still report<br />
+PASS 76/76, because a sleeve that never traded is perfectly self-consistent.</p>
+<p><strong>Fixed.</strong> Both <code>return 0</code> are now <code>raise RuntimeError</code> (both dispatchers already<br />
+wrap the call in try/except and count failures). <code>stamp_rebalance_log</code> takes<br />
+<code>--status OK|PARTIAL</code>, anchors to <code>PROJECT_ROOT</code> (finding 19), and exits 1 rather<br />
+than swallowing its own write failure. <code>rebalance.bat</code> accumulates <code>RC_FAIL</code> over<br />
+every step, which drives both the stamp status and the batch's own exit code —<br />
+the pattern <code>ladder_rebalance.bat</code> already used since record CH.<br />
+<code>check_rebalance_cadence</code> FAILs on <code>PARTIAL</code>.</p>
+<p><strong>Verified by execution, not reading.</strong> <code>rebalance.bat</code> cannot be run (it trades),<br />
+so every python invocation was replaced with <code>cmd /c exit N</code> in a scratch copy and<br />
+the real control flow was run three ways: all-OK -&gt; <strong>exit 0</strong> "Rebalance<br />
+complete"; alpaca_sync fails -&gt; <strong>exit 1</strong> + <code>STEP FAIL: alpaca_sync --execute</code> +<br />
+PARTIAL; dispatcher fails -&gt; <strong>exit 1</strong> + <code>STEP FAIL: monthly_rebalance</code> + PARTIAL.</p>
+<h2 id="cq2-finding-2---the-mandated-check-is-the-forbidden-operation">CQ.2 Finding 2 - the mandated check is the forbidden operation</h2>
+<p><code>CLAUDE.md</code> mandates the frozen regression tests after ANY python change, and<br />
+separately forbids concurrent <code>factor_backtest</code>. The frozen tests <strong>are</strong> a<br />
+factor_backtest: <code>test_strategies</code> -&gt; <code>momentum_v1.run()</code> -&gt;<br />
+<code>run_factor_backtest()</code> -&gt; <code>_wipe_state()</code> -&gt;<br />
+<code>DELETE FROM positions</code> / <code>DELETE FROM portfolio_state</code><br />
+(<code>trading_bot/execution/factor_backtest.py:64-69</code>) through a read-WRITE<br />
+<code>connect()</code> that commits. Every mandated run is a second writer holding a lock on<br />
+the 5 GB live DB.</p>
+<p>Confirmed from live data, not inferred: <code>positions</code> holds <strong>137 rows</strong> stamped<br />
+<code>entry_time</code> 2026-08-03T04:36:36Z (= 08-02 23:36 CDT, this session's own frozen<br />
+run) with <code>entry_date</code> 2025-01-02, i.e. the <code>2025_H1</code> frozen window;<br />
+<code>portfolio_state.cash = $39.26</code>. <code>paper_positions</code> is untouched at 3,222 open<br />
+rows — the paper track record was never at risk.</p>
+<p><strong>The auditor's proposed fix does not hold and was not applied.</strong> Pointing the<br />
+backtest at a scratch DB is not surgical: <code>positions</code>/<code>portfolio_state</code> are shared<br />
+by <code>broker.py</code>, <code>monitor.py</code>, <code>portfolio.py</code>, <code>multi_backtest.py</code>,<br />
+<code>reporting/dashboard.py</code>, <code>reporting/report.py</code> and <code>form4/optimize_r15_wf.py</code>,<br />
+all through one <code>db.connect()</code> — and redirecting them also redirects<br />
+<code>price_cache</code>, which the backtest reads. A real separation is a DB-layer change.</p>
+<p><strong>What was done instead:</strong> a busy-window guard in <code>test_strategies.main()</code> that<br />
+refuses to run inside 17:00-18:30, 19:45-21:00 and 07:30-08:15 unless <code>--force</code>.<br />
+That makes the "never two writers" rule mechanically enforceable for the first<br />
+time (the audit's M1 pass had classed it UNENFORCEABLE). <strong>It does not stop the<br />
+tests writing the live DB, and the 137 residue rows are still there.</strong> Sized<br />
+honestly rather than patched to look closed.</p>
+<h2 id="cq3-the-rest-of-what-landed">CQ.3 The rest of what landed</h2>
+<ul>
+<li><strong>7</strong> — <code>alpaca_sync</code> swallowed order-CANCEL failures with a bare <code>pass</code> and no<br />
+  artifact of any kind. The order plan assumes open orders were cancelled; a<br />
+  survivor still fills on top of the new one. Now logged and counted into the<br />
+  return code.</li>
+<li><strong>9 / E3</strong> — <code>fractionability.refresh()</code> cached ANY exception as<br />
+<code>tradable=0, fractionable=0</code> for <code>STALE_DAYS = 30</code>, and <code>paper_rebalance</code><br />
+  silently drops untradable names. One Alpaca 429 on a rebalance evening would<br />
+  have quietly thinned every sleeve for a month, and <code>UNDERFILL_FRACTION = 0.5</code><br />
+  lets 25 of 50 names vanish while still reporting PASS. Only a genuine 404 is<br />
+  cached now; transport errors re-raise. The sibling silent <code>except: return None</code><br />
+  on client construction now logs.</li>
+<li><strong>10 / E5</strong> — <code>if errorlevel 2</code> is GREATER-OR-EQUAL, so any code &gt;=2 took the<br />
+  SUCCESS branch, including cmd's 9009 for a missing interpreter.</li>
+<li><strong>11 / E7</strong> — the rate-limit guard was gated on <code>total &gt; 0</code>, so the partial<br />
+  outage of record CI was caught while a TOTAL outage returned 0.</li>
+<li><strong>20 / E10</strong> — <code>base.startswith("sector_top4")</code> gave the 11-ETF universe to any<br />
+  future <code>sector_top4*</code> sleeve.</li>
+<li><strong>E4</strong> — a forward-dated stamp (<code>2099-01-01</code>) satisfies every month comparison<br />
+  forever, silently voiding check (e) AND the task's Step 0 retry. Now bounded by<br />
+<code>date.today()</code>.</li>
+<li><strong>E2</strong> — <code>daily-trade-check-2</code> fired <code>0 18 * * 1-5</code>, reading <code>paper_nav</code> and<br />
+<code>paper_positions</code> while the 18:03 rebalance was mid-write; commit <code>4caba7e</code><br />
+  shows the 08-03 report committed and pushed at 18:16 from a mid-rebalance<br />
+  snapshot. Moved to <strong><code>0 19 * * 1-5</code></strong> with Evan's OK (08-03's rebalance finished<br />
+  18:24; the ladder starts 20:30).</li>
+</ul>
+<h2 id="cq4-a-near-miss-worth-recording">CQ.4 A near-miss worth recording</h2>
+<p>The first attempt at finding 20 replaced the prefix match with<br />
+<code>base in ("sector_top4", "sector_top4_full")</code> and <strong>broke both real sector<br />
+sleeves</strong> — <code>base</code> retains the <code>_paper</code> suffix. It was caught immediately because<br />
+the done-check was "resolve all 76 live sleeve names through <code>_strategy_config</code>"<br />
+rather than "read the diff": 65/76 resolved, and the two sector sleeves were in<br />
+the failures. Corrected to the <code>_paper</code> forms; that 76/76 resolution check is now<br />
+the permanent guard for this function. Recording it because the audit's own step 5<br />
+makes this exact point — a fix that was never fed its trigger is unverified.</p>
+<h2 id="cq5-verification">CQ.5 Verification</h2>
+<ul>
+<li>Frozen tests <strong>4/4 d=+/-0.0000pp</strong> — v1 +14.5547%/70 &amp; +1.8792%/156,<br />
+  v2 +14.4062%/38 &amp; +10.2194%/87.</li>
+<li><code>test_rebalance_cadence</code> extended to 6 quiet + 5 fail cases; passes.</li>
+<li>Busy-window guard unit-checked at 17:15, 18:03, 18:30 (exclusive upper bound),<br />
+  20:30, 07:45, 13:00, 23:00, plus <code>--force</code> override.</li>
+<li><code>_strategy_config</code> resolves 76/76 live sleeve names to expected support.</li>
+<li><code>daily.bat</code>, <code>rebalance.bat</code>, <code>ladder_rebalance.bat</code> re-verified pure ASCII with<br />
+  internally consistent line endings (<code>rebalance.bat</code> all-CRLF, the other two<br />
+  all-LF as they already were).</li>
+</ul>
+<p>Commit <code>d7ff027</code>.</p>
+<h2 id="cq6-a-tooling-warning-that-outranks-any-single-finding">CQ.6 A tooling warning that outranks any single finding</h2>
+<p>The cold auditor reports the <strong>Grep tool returns 0 matches on DIRECTORY paths in<br />
+this repo</strong> while GNU <code>grep -rn</code> returns many — <code>auto_adjust</code> 0 vs 29, <code>except</code><br />
+under <code>scripts/momentum</code> 0 vs 36. It works on file paths. Cause undiagnosed. The<br />
+<code>/audit</code> skill already carried a note of the same behaviour observed 2026-08-03<br />
+(0 vs 21 on <code>auto_adjust</code>), so this is the second independent sighting.</p>
+<p><strong>Consequence: any "no matches / clean" conclusion drawn from a directory-scoped<br />
+Grep call in this repo is unproven.</strong> Two prior audits ran here. Every enumeration<br />
+behind this entry came from GNU <code>grep -rn</code> via Bash.</p>
+<h2 id="cq7-still-open--15-findings-deferred-to-a-fresh-session">CQ.7 STILL OPEN — 15 findings, deferred to a fresh session</h2>
+<p>Evan's call, made explicitly: finish the remainder in a fresh session rather than<br />
+push edits that could not be verified in the one that ran the audit. Fix order,<br />
+highest value first:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Sev</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>E1 / 6</strong></td>
+<td>high</td>
+<td>The two cascade sleeves have <strong>no stop enforcement at all</strong> — <code>llm_cascade_ops.py:151-159</code> has no <code>check-invalidation</code> subcommand and <code>daily.bat:41-42</code> covers only the two overlay modules, while the runbook claims daily enforcement. <code>llm_cascade_top1_paper</code> holds <strong>STX with a logged invalidation of $730</strong> right now. Flagged twice in <code>daily_report.md</code> and never promoted to a spec doc. <strong>Decide first:</strong> implementing this changes a live experiment arm's behaviour mid-flight (a PRD scope-guard question), so either implement AND date the changeover here, or document "cascade runs unstopped by design" in HANDOFF + the runbook</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>high</td>
+<td><code>paper_trader.buy()/sell()</code> are documented atomic but are two independent commits (<code>paper_trader.py:172-175</code>); a failure between legs closes a position without crediting cash, and <code>verify_run</code> recon recomputes from the same corrupted cash so it reports <code>delta $0.00</code> <strong>forever</strong>. Fix: one <code>with connect()</code>, thread <code>conn</code> through</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td>high</td>
+<td>HANDOFF still says M6 is GATED on Alpaca fills. 231 fills exist (99 on 07-07 + 132 on 08-03, record CP). <code>fetch_alpaca_fills.py</code> does not exist. Mark UNGATED; next task is M6.1</td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td>med</td>
+<td><code>paper_mtm</code> computes <code>missing_count</code>/<code>aged_count</code>/<code>median_age_days</code> and the daily path discards them — <code>mtm_catchup</code> calls <code>compute_nav</code>/<code>write_nav</code> directly, never <code>main()</code>. Carry-forward has no age bound, so a delisted holding marks at its last-ever close indefinitely and recon still says <code>$0.00</code></td>
+</tr>
+<tr>
+<td><strong>E6</strong></td>
+<td>P2</td>
+<td><code>backup_trades_db.py:71-72,82</code> rotates over a <strong>directory scan</strong>, so a truncated <code>VACUUM INTO</code> counts as a generation and evicts a good backup. Fix: write <code>.part</code>, <code>PRAGMA integrity_check</code>, rename, rotate only over validated files</td>
+</tr>
+<tr>
+<td><strong>15,16,13,14,17,22</strong></td>
+<td>med/low</td>
+<td>Doc drift: HANDOFF cites an <strong>FN position that does not exist</strong> (0 open FN rows anywhere); three enabled Claude tasks (<code>daily-trade-check</code>, <code>daily-trade-check-2</code>, <code>hellohello</code>) are in no inventory that claims to be complete — <strong>two of them <code>git commit</code> and <code>git push</code> to this repo</strong>; <code>MOMENTUM_DESIGN.md:35</code> specifies a $1M liquidity filter that has never existed (<code>universe.py:53</code> <code>MIN_DOLLAR_VOL = 0</code>) and its §3/§10 disagree on top-N; <code>docs/paper_trading_ops.md</code> is last in the PRD's mandated read-first chain and describes a 2-sleeve hand-run system; <code>sector_cache</code> (6,113 rows, live) vs <code>sectors_cache</code> (1,493 rows, research-only) both exist and HANDOFF lists only the latter; HANDOFF header still says "Last updated: 2026-07-17"</td>
+</tr>
+<tr>
+<td><strong>E9 / 18</strong></td>
+<td>low</td>
+<td><code>backadjust_split.py:71-74,127-129</code>'s UNKNOWN-kind detector cannot fire — it is <code>log.info</code> text in a dry-run survey, not a gate. <code>above_ma_200</code> already sits outside all three constant tuples. Harmless today (booleans are scale-invariant); a future price-like <code>kind</code> would be silently left un-adjusted, which is the KLAC class</td>
+</tr>
+<tr>
+<td><strong>21</strong></td>
+<td>low</td>
+<td><code>requirements.txt</code> pins 9 packages, 97 are installed; yfinance's transitive deps are unpinned so a clean rebuild can change adjustment behaviour. <strong>CVE status could not be determined</strong> — <code>pip-audit</code> absent, installing tools was not permitted</td>
+</tr>
+</tbody>
+</table>
+<p>Two things the audit could not verify and did not assert: the CVE status of the<br />
+dependency set, and the frozen-test deltas (the auditor was read-only and finding<br />
+2 proves the tests write).</p>
 </div>
 </body>
 </html>

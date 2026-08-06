@@ -151,6 +151,7 @@ lives in the dated entry, not the digest.
 - [CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. `\llm rebal` jiggler decoded, `hellohello` confirmed real](#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt) (08-02)
 - [CO - verify_run gains check (e) rebalance cadence: a stale `rebalance_log.md` now FAILs loudly instead of passing silently; closes the blind spot CN found](#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt) (08-02)
 - [CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix](#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt) (08-03)
+- [CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred](#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt) (08-05)
 
 ---
 
@@ -7316,3 +7317,162 @@ not code — no strategy/factor/universe logic was touched, so the frozen
 regression tests (a code-change guard) were not triggered; ops integrity was
 verified instead by verify_run --mode monthly PASS 76/76. Full run log:
 `var/monthly_rebalance_2026-08-03.log`.
+
+# Appendix CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed plus 8 more findings; 15 findings deferred to a fresh session (2026-08-05, ~19:50 CDT)
+
+Evan ran `/audit` with no scope narrowing. This session had already shipped CN and
+CO, so per the skill's step 0 the audit was run by a **cold general-purpose
+subagent** given only the project path, the scope, the safety constraints, and the
+docs as *claims under test* — no conversation history, no "this part is known
+good." That mattered: the audit's top finding lands directly on the code CO
+shipped three days earlier.
+
+## CQ.1 The headline: check (e) could be defeated one layer down
+
+CO added `verify_run` check (e) so a missed monthly rebalance FAILs loudly. The
+audit found the artifact it reads is written unconditionally, so the check could
+be satisfied by a run that did nothing. Three defects compounded:
+
+| # | Defect | File |
+|---|---|---|
+| 3 | `paper_rebalance.rebalance()` returned **0** on both abort paths — the same value as "nothing needed to change" | `paper_rebalance.py:141,154` |
+| 1 | `rebalance_log.md` stamped unconditionally at the end of the batch | `rebalance.bat:123`, `stamp_rebalance_log.py` |
+| 4 | `rebalance.bat` discarded **14 of 16** python exit codes, including `alpaca_sync --all --execute` | `rebalance.bat:119` |
+
+Chained: an empty universe aborts every sleeve, each abort returns 0, the batch
+echoes a warning and continues, the stamp writes today's date, check (e) reads a
+current-month date and PASSes, and the `monthy-llm-rebalance` Step 0 gate then
+STOPs for the rest of the month — so the retry the CN cron fix restored never
+fires. Every sleeve holds a stale book, and `verify_run` (a)-(d) still report
+PASS 76/76, because a sleeve that never traded is perfectly self-consistent.
+
+**Fixed.** Both `return 0` are now `raise RuntimeError` (both dispatchers already
+wrap the call in try/except and count failures). `stamp_rebalance_log` takes
+`--status OK|PARTIAL`, anchors to `PROJECT_ROOT` (finding 19), and exits 1 rather
+than swallowing its own write failure. `rebalance.bat` accumulates `RC_FAIL` over
+every step, which drives both the stamp status and the batch's own exit code —
+the pattern `ladder_rebalance.bat` already used since record CH.
+`check_rebalance_cadence` FAILs on `PARTIAL`.
+
+**Verified by execution, not reading.** `rebalance.bat` cannot be run (it trades),
+so every python invocation was replaced with `cmd /c exit N` in a scratch copy and
+the real control flow was run three ways: all-OK -> **exit 0** "Rebalance
+complete"; alpaca_sync fails -> **exit 1** + `STEP FAIL: alpaca_sync --execute` +
+PARTIAL; dispatcher fails -> **exit 1** + `STEP FAIL: monthly_rebalance` + PARTIAL.
+
+## CQ.2 Finding 2 - the mandated check is the forbidden operation
+
+`CLAUDE.md` mandates the frozen regression tests after ANY python change, and
+separately forbids concurrent `factor_backtest`. The frozen tests **are** a
+factor_backtest: `test_strategies` -> `momentum_v1.run()` ->
+`run_factor_backtest()` -> `_wipe_state()` ->
+`DELETE FROM positions` / `DELETE FROM portfolio_state`
+(`trading_bot/execution/factor_backtest.py:64-69`) through a read-WRITE
+`connect()` that commits. Every mandated run is a second writer holding a lock on
+the 5 GB live DB.
+
+Confirmed from live data, not inferred: `positions` holds **137 rows** stamped
+`entry_time` 2026-08-03T04:36:36Z (= 08-02 23:36 CDT, this session's own frozen
+run) with `entry_date` 2025-01-02, i.e. the `2025_H1` frozen window;
+`portfolio_state.cash = $39.26`. `paper_positions` is untouched at 3,222 open
+rows — the paper track record was never at risk.
+
+**The auditor's proposed fix does not hold and was not applied.** Pointing the
+backtest at a scratch DB is not surgical: `positions`/`portfolio_state` are shared
+by `broker.py`, `monitor.py`, `portfolio.py`, `multi_backtest.py`,
+`reporting/dashboard.py`, `reporting/report.py` and `form4/optimize_r15_wf.py`,
+all through one `db.connect()` — and redirecting them also redirects
+`price_cache`, which the backtest reads. A real separation is a DB-layer change.
+
+**What was done instead:** a busy-window guard in `test_strategies.main()` that
+refuses to run inside 17:00-18:30, 19:45-21:00 and 07:30-08:15 unless `--force`.
+That makes the "never two writers" rule mechanically enforceable for the first
+time (the audit's M1 pass had classed it UNENFORCEABLE). **It does not stop the
+tests writing the live DB, and the 137 residue rows are still there.** Sized
+honestly rather than patched to look closed.
+
+## CQ.3 The rest of what landed
+
+- **7** — `alpaca_sync` swallowed order-CANCEL failures with a bare `pass` and no
+  artifact of any kind. The order plan assumes open orders were cancelled; a
+  survivor still fills on top of the new one. Now logged and counted into the
+  return code.
+- **9 / E3** — `fractionability.refresh()` cached ANY exception as
+  `tradable=0, fractionable=0` for `STALE_DAYS = 30`, and `paper_rebalance`
+  silently drops untradable names. One Alpaca 429 on a rebalance evening would
+  have quietly thinned every sleeve for a month, and `UNDERFILL_FRACTION = 0.5`
+  lets 25 of 50 names vanish while still reporting PASS. Only a genuine 404 is
+  cached now; transport errors re-raise. The sibling silent `except: return None`
+  on client construction now logs.
+- **10 / E5** — `if errorlevel 2` is GREATER-OR-EQUAL, so any code >=2 took the
+  SUCCESS branch, including cmd's 9009 for a missing interpreter.
+- **11 / E7** — the rate-limit guard was gated on `total > 0`, so the partial
+  outage of record CI was caught while a TOTAL outage returned 0.
+- **20 / E10** — `base.startswith("sector_top4")` gave the 11-ETF universe to any
+  future `sector_top4*` sleeve.
+- **E4** — a forward-dated stamp (`2099-01-01`) satisfies every month comparison
+  forever, silently voiding check (e) AND the task's Step 0 retry. Now bounded by
+  `date.today()`.
+- **E2** — `daily-trade-check-2` fired `0 18 * * 1-5`, reading `paper_nav` and
+  `paper_positions` while the 18:03 rebalance was mid-write; commit `4caba7e`
+  shows the 08-03 report committed and pushed at 18:16 from a mid-rebalance
+  snapshot. Moved to **`0 19 * * 1-5`** with Evan's OK (08-03's rebalance finished
+  18:24; the ladder starts 20:30).
+
+## CQ.4 A near-miss worth recording
+
+The first attempt at finding 20 replaced the prefix match with
+`base in ("sector_top4", "sector_top4_full")` and **broke both real sector
+sleeves** — `base` retains the `_paper` suffix. It was caught immediately because
+the done-check was "resolve all 76 live sleeve names through `_strategy_config`"
+rather than "read the diff": 65/76 resolved, and the two sector sleeves were in
+the failures. Corrected to the `_paper` forms; that 76/76 resolution check is now
+the permanent guard for this function. Recording it because the audit's own step 5
+makes this exact point — a fix that was never fed its trigger is unverified.
+
+## CQ.5 Verification
+
+- Frozen tests **4/4 d=+/-0.0000pp** — v1 +14.5547%/70 & +1.8792%/156,
+  v2 +14.4062%/38 & +10.2194%/87.
+- `test_rebalance_cadence` extended to 6 quiet + 5 fail cases; passes.
+- Busy-window guard unit-checked at 17:15, 18:03, 18:30 (exclusive upper bound),
+  20:30, 07:45, 13:00, 23:00, plus `--force` override.
+- `_strategy_config` resolves 76/76 live sleeve names to expected support.
+- `daily.bat`, `rebalance.bat`, `ladder_rebalance.bat` re-verified pure ASCII with
+  internally consistent line endings (`rebalance.bat` all-CRLF, the other two
+  all-LF as they already were).
+
+Commit `d7ff027`.
+
+## CQ.6 A tooling warning that outranks any single finding
+
+The cold auditor reports the **Grep tool returns 0 matches on DIRECTORY paths in
+this repo** while GNU `grep -rn` returns many — `auto_adjust` 0 vs 29, `except`
+under `scripts/momentum` 0 vs 36. It works on file paths. Cause undiagnosed. The
+`/audit` skill already carried a note of the same behaviour observed 2026-08-03
+(0 vs 21 on `auto_adjust`), so this is the second independent sighting.
+
+**Consequence: any "no matches / clean" conclusion drawn from a directory-scoped
+Grep call in this repo is unproven.** Two prior audits ran here. Every enumeration
+behind this entry came from GNU `grep -rn` via Bash.
+
+## CQ.7 STILL OPEN — 15 findings, deferred to a fresh session
+
+Evan's call, made explicitly: finish the remainder in a fresh session rather than
+push edits that could not be verified in the one that ran the audit. Fix order,
+highest value first:
+
+| # | Sev | What |
+|---|---|---|
+| **E1 / 6** | high | The two cascade sleeves have **no stop enforcement at all** — `llm_cascade_ops.py:151-159` has no `check-invalidation` subcommand and `daily.bat:41-42` covers only the two overlay modules, while the runbook claims daily enforcement. `llm_cascade_top1_paper` holds **STX with a logged invalidation of $730** right now. Flagged twice in `daily_report.md` and never promoted to a spec doc. **Decide first:** implementing this changes a live experiment arm's behaviour mid-flight (a PRD scope-guard question), so either implement AND date the changeover here, or document "cascade runs unstopped by design" in HANDOFF + the runbook |
+| **5** | high | `paper_trader.buy()/sell()` are documented atomic but are two independent commits (`paper_trader.py:172-175`); a failure between legs closes a position without crediting cash, and `verify_run` recon recomputes from the same corrupted cash so it reports `delta $0.00` **forever**. Fix: one `with connect()`, thread `conn` through |
+| **8** | high | HANDOFF still says M6 is GATED on Alpaca fills. 231 fills exist (99 on 07-07 + 132 on 08-03, record CP). `fetch_alpaca_fills.py` does not exist. Mark UNGATED; next task is M6.1 |
+| **12** | med | `paper_mtm` computes `missing_count`/`aged_count`/`median_age_days` and the daily path discards them — `mtm_catchup` calls `compute_nav`/`write_nav` directly, never `main()`. Carry-forward has no age bound, so a delisted holding marks at its last-ever close indefinitely and recon still says `$0.00` |
+| **E6** | P2 | `backup_trades_db.py:71-72,82` rotates over a **directory scan**, so a truncated `VACUUM INTO` counts as a generation and evicts a good backup. Fix: write `.part`, `PRAGMA integrity_check`, rename, rotate only over validated files |
+| **15,16,13,14,17,22** | med/low | Doc drift: HANDOFF cites an **FN position that does not exist** (0 open FN rows anywhere); three enabled Claude tasks (`daily-trade-check`, `daily-trade-check-2`, `hellohello`) are in no inventory that claims to be complete — **two of them `git commit` and `git push` to this repo**; `MOMENTUM_DESIGN.md:35` specifies a $1M liquidity filter that has never existed (`universe.py:53` `MIN_DOLLAR_VOL = 0`) and its §3/§10 disagree on top-N; `docs/paper_trading_ops.md` is last in the PRD's mandated read-first chain and describes a 2-sleeve hand-run system; `sector_cache` (6,113 rows, live) vs `sectors_cache` (1,493 rows, research-only) both exist and HANDOFF lists only the latter; HANDOFF header still says "Last updated: 2026-07-17" |
+| **E9 / 18** | low | `backadjust_split.py:71-74,127-129`'s UNKNOWN-kind detector cannot fire — it is `log.info` text in a dry-run survey, not a gate. `above_ma_200` already sits outside all three constant tuples. Harmless today (booleans are scale-invariant); a future price-like `kind` would be silently left un-adjusted, which is the KLAC class |
+| **21** | low | `requirements.txt` pins 9 packages, 97 are installed; yfinance's transitive deps are unpinned so a clean rebuild can change adjustment behaviour. **CVE status could not be determined** — `pip-audit` absent, installing tools was not permitted |
+
+Two things the audit could not verify and did not assert: the CVE status of the
+dependency set, and the frozen-test deltas (the auditor was read-only and finding
+2 proves the tests write).
