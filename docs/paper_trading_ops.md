@@ -2,6 +2,22 @@
 
 Built 2026-05-27. **Updated 2026-05-28 after data audit + v1-v2 parallel decision.**
 
+> ⚠️ **STALE AS AN OPERATIONS GUIDE — 2026-08-05 (audit finding 14, record CR).**
+> This describes the **2-sleeve, hand-run** system of 2026-05-28. Reality since:
+> **76 sleeves**, and the daily/monthly/ladder cycles run **unattended** from
+> Windows scheduled tasks (`daily.bat`, `rebalance.bat`, `ladder_rebalance.bat`)
+> plus the `monthy-llm-rebalance` Claude task — not from the commands below.
+> Following this file by hand would MTM two sleeves out of 76 and miss every
+> guardrail built since (coverage gate, catch-up MTM, anomaly scan, `verify_run`).
+>
+> **`PRD_ROADMAP.md` §7 lists this file last in its mandated read-first chain.**
+> That is why the drift is worth a banner rather than a silent deletion: an
+> executing model is told to read it. Read it for the *reasoning* — why v1 and v2
+> run in parallel, what the failure modes look like — and take current procedure
+> from `HANDOFF.md` (live roster, scripts, scheduled tasks) and
+> `docs/overlay_decision_runbook.md` (the LLM decisions). Nothing below has been
+> rewritten; correcting it properly is a separate task, not a drive-by.
+
 ## Strategies running in parallel
 1. **mom_v1_paper** (top-100, more diversified) — inceptioned 2026-05-01
 2. **mom_v2_paper** (top-50, more concentrated) — inceptioned 2026-05-01

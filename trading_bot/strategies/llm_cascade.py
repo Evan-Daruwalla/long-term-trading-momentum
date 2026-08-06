@@ -27,6 +27,29 @@ ALWAYS-INVESTED FALLBACKS (so a sleeve is never idle):
           are approved, fill the remaining slots with the highest-momentum
           sectors (regardless of veto).
 
+NO STOP ENFORCEMENT — BY DESIGN (decided by Evan 2026-08-05, record CR):
+  These two sleeves have no `check-invalidation` path and `daily.bat` does not
+  run one for them. That is deliberate, not an omission. The invalidation stop
+  exits a position to CASH; "always invested" is this arm's entire distinction
+  from the cash overlays, so bolting a stop-to-cash onto it would make it a
+  hybrid of the two treatments and destroy the clean three-way comparison
+  (control / veto-to-cash / cascade-to-next-name). The decisions these sleeves
+  read DO carry an `invalidation_level` — it is written for, and consumed by,
+  the cash-overlay sleeve only; the cascade ignores that column.
+
+  THE COST, STATED PLAINLY: these sleeves have no downside control of any kind.
+  A cascade pick rides to zero. Their drawdowns are therefore NOT comparable to
+  the cash overlays' on a risk-adjusted basis, and any read of the experiment
+  must say so. A stop-to-CASCADE (stop fires, walk to the next candidate) would
+  preserve always-invested AND add downside control, but it is a new strategy
+  rule mid-experiment and needs a mid-month re-pick rule that does not exist —
+  considered and NOT taken on 2026-08-05.
+
+  This was found by the 2026-08-05 audit (finding E1/6) as an undocumented gap,
+  after being flagged twice in `daily_report.md` and never promoted to a spec.
+  It is documented here, in `HANDOFF.md`, and in `docs/overlay_decision_runbook.md`
+  so it can never again read as an oversight.
+
 Honest prior: the bar is HIGH. Control already holds the momentum #1 / top-4, so
 the cascade can only differ by replacing a high-momentum name with a LOWER one
 the LLM prefers — i.e. it must out-PICK raw momentum, a harder claim than the

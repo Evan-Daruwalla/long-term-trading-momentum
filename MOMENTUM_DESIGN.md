@@ -1,5 +1,21 @@
 # Momentum Factor Portfolio — Phase 1 Design
 
+> ⚠️ **HISTORICAL DESIGN DOC — not a description of the running system.**
+> Written for Phase 1; the project is on Phase 2d with 76 sleeves. Kept for the
+> reasoning trail, NOT as a spec. `HANDOFF.md` is the live snapshot and the code
+> is the spec. Two claims in here were verified WRONG against the code on
+> 2026-08-05 (audit finding 13, record CR) and are annotated inline where they
+> appear:
+> 1. **§1 line 35's $1M dollar-volume liquidity floor has never existed.**
+>    `trading_bot/factors/universe.py:53` is `MIN_DOLLAR_VOL = 0`. Every
+>    backtest and every live sleeve has run with NO liquidity filter. This
+>    matters for reading old results: the universe is wider, and thinner names
+>    than this doc describes could rank and be bought.
+> 2. **§3 and §10 contradict each other on top-N** — §3 says "Top N = 50 (2% per
+>    name)", §10 "Decisions — locked" says "top 100 (1% per name)". Both shipped,
+>    as SEPARATE sleeves: `mom_v1_paper` = top-100, `mom_v2_paper` = top-50.
+>    Neither section is the answer; the sleeve you are looking at is.
+
 **Goal:** A long-only US equity portfolio that ranks stocks by 12-1 month
 momentum each month, holds the top N equal-weighted, and rebalances. The
 *first* thing the user builds after Form 4 was definitively refuted by
@@ -32,8 +48,13 @@ At each rebalance date D, a ticker is in the universe iff:
   the momentum calc + minimum quality threshold)
 - Close on D ≥ $5/share (excludes penny stocks where bid-ask spreads
   eat the factor and reverse-splits distort momentum signals)
-- 30-day median dollar volume on D ≥ $1M (liquidity floor — at top-50
-  with $100K NAV that's $2K/position, well under 1% of ADV)
+- ~~30-day median dollar volume on D ≥ $1M (liquidity floor — at top-50
+  with $100K NAV that's $2K/position, well under 1% of ADV)~~
+  **[NEVER IMPLEMENTED — verified 2026-08-05, audit finding 13:
+  `universe.py:53` is `MIN_DOLLAR_VOL = 0`, so there is no liquidity floor
+  at all. The parameter exists and threads through `tradeable_universe`; its
+  value has always been 0. Turning it on would change every backtest and every
+  live sleeve's universe, so it is a strategy decision, not a doc fix.]**
 
 This is **not** survivorship-bias-free in the academic sense (we still
 only know about tickers yfinance kept), but the day-by-day membership
@@ -171,6 +192,9 @@ realistic best case). Fail bar: held-out Sharpe < 0 or held-out CAGR
 ## 10. Decisions — locked
 
 1. **Universe size:** top **100** equal-weighted (1% per name).
+   **[CONTRADICTS §3's "Top N = 50 ... 2% of NAV" — flagged 2026-08-05, audit
+   finding 13. Resolved in practice by shipping BOTH: `mom_v1_paper` top-100,
+   `mom_v2_paper` top-50. Read the sleeve's spec file, not this line.]**
 2. **Rebalance frequency:** **monthly** (first trading day of each
    calendar month).
 3. **Universe inclusivity:** include **ADRs + dual-class** listings —

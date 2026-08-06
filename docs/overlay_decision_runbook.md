@@ -57,10 +57,19 @@ tells you exactly what is owed, so a "0 owed" run means go straight to step 3.
   in, VETO to move that slot to cash. A genuine all-HOLD month is a valid data
   point — do **not** manufacture a veto for the sake of having one.
 - **Invalidation** = an exact close level at which the thesis is broken -> exit
-  to cash. `daily.bat` enforces it automatically every day. Convention: just
+  to cash. `daily.bat` enforces it automatically every day **for the two CASH
+  overlays only** — the cascade sleeves are UNSTOPPED BY DESIGN (see below).
+  Convention: just
   below the 50-DMA or the nearest real support; give a name already sitting on
   its 50-DMA a little room so it isn't stopped on day one. For a VETO there is no
   position to stop, so invalidation is optional/documentary.
+- **The invalidation level a decision logs is consumed by the cash overlay
+  sleeve only.** The cascade sleeves read the same `llm_overlay_log` /
+  `sector_overlay_log` rows for their BUY/HOLD/VETO verdicts, but ignore the
+  invalidation column. Setting a level therefore constrains one arm, not both —
+  and a level set for a name that only the cascade ends up holding binds
+  nothing. Decided 2026-08-05 (record CR); rationale in
+  `trading_bot/strategies/llm_cascade.py`.
 
 ## Decision discipline (applies to both overlays)
 
@@ -176,7 +185,8 @@ periodically. The in-session Option A remains the lower-risk default.
 | `scripts/momentum/overlay_prep.py` / `.bat` | one-command read-only gather (both overlays) |
 | `scripts/momentum/llm_overlay_ops.py` | stock overlay: candidate / decide / rebalance / check-invalidation |
 | `scripts/momentum/sector_overlay_ops.py` | sector overlay: same subcommands |
+| `scripts/momentum/llm_cascade_ops.py` | BOTH cascade sleeves: init / rebalance-stock / rebalance-sector. **No `check-invalidation` — unstopped by design (2026-08-05, record CR)** |
 | `trading_bot/strategies/llm_overlay.py` | stock overlay design + kill switch |
 | `trading_bot/strategies/sector_overlay.py` | sector overlay design + kill switch |
 | `scripts/momentum/rebalance.bat` | monthly execution (refuses overlays until decided) |
-| `scripts/momentum/daily.bat` | daily MTM + both overlays' stop enforcement (auto 5:15pm) |
+| `scripts/momentum/daily.bat` | daily MTM + the two CASH overlays' stop enforcement (auto 5:15pm). Deliberately does NOT enforce stops on the cascade sleeves |

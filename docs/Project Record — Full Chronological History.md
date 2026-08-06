@@ -152,6 +152,7 @@ lives in the dated entry, not the digest.
 - [CO - verify_run gains check (e) rebalance cadence: a stale `rebalance_log.md` now FAILs loudly instead of passing silently; closes the blind spot CN found](#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt) (08-02)
 - [CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix](#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt) (08-03)
 - [CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred](#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt) (08-05)
+- [CR - The 15 deferred CQ.7 findings closed: cascade sleeves unstopped BY DESIGN (Evan's call; the audit's own example was the wrong position - XLU, not STX), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, 6 doc-drift fixes](#appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt) (08-05)
 
 ---
 
@@ -7476,3 +7477,278 @@ highest value first:
 Two things the audit could not verify and did not assert: the CVE status of the
 dependency set, and the frozen-test deltas (the auditor was read-only and finding
 2 proves the tests write).
+
+# Appendix CR - The 15 deferred CQ.7 findings closed: the cascade sleeves are unstopped BY DESIGN (Evan's call, and the audit's own example was the wrong one), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, plus six doc-drift corrections (2026-08-05, ~21:05 CDT)
+
+Fresh session, per Evan's CQ.7 instruction to finish the remainder somewhere the
+fixes could actually be verified. All 15 open findings are closed. Order below is
+CQ.7's own priority order.
+
+Three verification rules were applied throughout, and each one caught something:
+feed a fix its trigger rather than reading the patch; use GNU `grep -rn` for any
+enumeration (CQ.6); check the audit's factual claims before acting on them.
+
+## CR.1 E1/6 - cascade stops: DECIDED, and the audit pointed at the wrong position
+
+CQ.7 flagged that `llm_cascade_ops.py` has no `check-invalidation` subcommand and
+`daily.bat:41-42` covers only the two CASH overlay modules, while the runbook
+claimed daily enforcement - and cited `llm_cascade_top1_paper` holding **STX with
+a logged invalidation of $730 right now** as the live exposure.
+
+**Checked against the DB before acting. STX was never at risk**: closes 08-03
+$831.06, 08-04 $845.35, 08-05 $837.66 against a $730 stop - 13% clear.
+
+**The real exposure was XLU, which the audit did not name.**
+`llm_cascade_sector4_paper` bought XLU on 2026-08-03 at **$44.38** against a
+logged HOLD invalidation of **$44.50** - a stop set ABOVE its own entry price.
+Its closes since: 44.36 / 44.11 / 43.66. It has been below its stop on **every
+close it has ever had**. Had the cascade carried enforcement, XLU would have
+exited on the 08-03 evening run.
+
+Two further facts that shaped the decision:
+- The 08-03 XLU rationale reads "Above 50DMA (44.96)" while that day's close was
+  44.36. The invalidation level rests on an internally inconsistent decision.
+- Enforcement demonstrably works on the arm that has it: the DB's ONLY
+  `exit_reason='invalidation'` row is `llm_overlay_sector_top4_paper` exiting XLK
+  on 2026-07-28.
+
+**Presented to Evan as three options, not two.** CQ.7 framed it as implement-or-
+document, but `trading_bot/strategies/llm_cascade.py` defines the arm as ALWAYS
+INVESTED with never-idle fallbacks - that is its whole distinction from the cash
+overlay. A stop exits to CASH, so bolting one on makes the arm a hybrid of the
+two treatments and destroys the clean three-way comparison. The third option
+(stop -> cascade to the next candidate) preserves always-invested AND adds
+downside control, but is a new strategy rule mid-experiment, which the PRD scope
+guard forbids outright, and needs a mid-month re-pick rule that does not exist.
+
+**Evan chose: document unstopped by design.** No code change. Written into three
+places so it can never again read as an oversight:
+- `llm_cascade.py`'s docstring - the rationale, plus **the cost stated plainly:
+  these sleeves have no downside control of any kind, a cascade pick rides to
+  zero, and their drawdowns are NOT risk-comparable to the cash overlays'.**
+- `HANDOFF.md` - a new "Cascade arm (always-invested)" subsection. The LLM
+  Overlay Experiments section had documented only the two cash overlays.
+- `docs/overlay_decision_runbook.md` - the invalidation convention now says "for
+  the two CASH overlays only", plus a new bullet: the `invalidation_level` a
+  decision logs is consumed by the cash-overlay sleeve only, so a level set for a
+  name that only the cascade ends up holding **binds nothing**. `llm_cascade_ops.py`
+  added to the Files table (it was absent).
+
+XLU is **reported, not fixed** - recorded in HANDOFF as a decision-quality
+datapoint for the kill-switch review, not a data bug. Nothing was traded.
+
+## CR.2 Finding 5 - buy()/sell() were "atomic" in the docstring only
+
+`paper_trader.buy()` and `sell()` each ran their position leg and their cash leg
+through two separate `with connect()` blocks - two independent commits. A failure
+in between committed one leg and dropped the other: a buy that inflates NAV
+forever, or (worse) a sell that closes a position and never credits the proceeds.
+The corruption is invisible to `verify_run`, whose cash recon recomputes from the
+same `paper_portfolio.cash` it corrupted, so it reports delta $0.00 in perpetuity.
+
+`db.connect()` hands back a REUSED thread-local connection that commits on exit,
+so nesting `with connect()` would have committed the outer block's half-finished
+work at the inner exit. Fixed as CQ.7 prescribed - one transaction, `conn`
+threaded down through a small `_tx()` helper that joins the caller's transaction
+when given one and owns its own otherwise. `open_position` / `close_position` /
+`adjust_cash` take an optional `conn`; their default path is byte-identical to
+before. Confirmed by GNU grep that those three primitives have **no callers
+outside buy()/sell()**, and that no caller wraps buy/sell in its own
+`with connect()` block.
+
+New regression test `scripts/momentum/test_trade_atomicity.py`, 11 checks, all
+passing. It opens by proving the trigger is real rather than asserting current
+behaviour: the OLD split-leg shape, fed the same injected failure, **leaks a
+position row with no cash debit** (open=1, cash untouched at $100,000). The new
+buy() rolls back to zero rows, the new sell() leaves the position OPEN, and both
+happy paths still move exactly the right cash.
+
+## CR.3 Finding 8 - M6 is ungated
+
+The gate condition has been met since 2026-08-03. **231 Alpaca PAPER orders, 0
+rejects**: 99 on 07-07 (record AV) + 132 on 08-03 (record CP - residual_roa_6535_0701
+62, mom_roa_6535_0701 69, spy_benchmark_0701 1). `scripts/momentum/fetch_alpaca_fills.py`
+does not exist (verified). Marked UNGATED in `HANDOFF.md` (four separate stale
+claims) and `PRD_ROADMAP.md` (five), striking in place with dated reasons per the
+roadmap-history rule rather than rewriting the dated blockquotes that were true
+when written.
+
+**One honest caveat carried into the PRD**: the record logs orders SUBMITTED and
+REJECTED, never orders FILLED. They were DAY orders expected to fill at the next
+open, but confirming that is precisely M6.1's own done-check ("CSV rows match the
+order counts the record logged"). 231 is the submitted count to reconcile
+AGAINST, not a fill count to assume. **M6.1 is now the next open PRD task; it was
+not started here** - this session's scope was the 15 findings.
+
+## CR.4 Finding 12 - the daily path threw the staleness numbers away
+
+`compute_nav` computes `missing_count` / `aged_count` / `median_age_days`, and
+only `paper_mtm.main()` ever printed them. `daily.bat` has not gone through
+`main()` since M3.5. Enumerating the callers turned the finding out to be wider
+than reported: **six** write paths call `compute_nav`/`write_nav` directly and
+every one discarded the metrics - `mtm_catchup`, `ladder_forward_rebalance`,
+`monthly_rebalance`, `remark_nav_day` and two seeders.
+
+So the fix went into the shared function rather than the reported call site
+(CLAUDE.md's root-cause rule): reporting now happens **inside `compute_nav`**, so
+all six paths get it and a seventh caller cannot forget it. `main()`'s now-
+duplicate block was removed.
+
+Added `MAX_CARRY_FORWARD_DAYS = 10` and a `stale_tickers` list, so the message
+NAMES the offending ticker and its age instead of counting. Carry-forward itself
+is deliberately left UNBOUNDED - refusing to mark would tear a hole in NAV
+continuity, and re-valuing on a heuristic is exactly what record CK ruled out.
+The bound is a **reporting** bound: report loudly, never refuse, never re-value.
+The error text says why recon cannot catch it.
+
+New regression test `scripts/momentum/test_carry_forward_bound.py`, 8 checks, all
+passing: a 1-day-old price is not flagged, a 30-day-old one IS (named, with its
+age), the sleeve is **still marked** at the fossil price, and a never-priced name
+still falls back to `entry_price`. Checked for false positives against the live
+DB: **0 of 192 distinct held tickers** would trigger it as of 2026-08-04. The flag
+is silent today and speaks only when something is genuinely wrong.
+
+## CR.5 E6 - a torn backup could evict a good one
+
+`backup_trades_db.py` rotated over a directory glob, so a truncated `VACUUM INTO`
+counted as a generation - and because its filename carries today's date it sorted
+NEWEST, so the junk was RETAINED while good copies aged out. Three Sundays and all
+three generations are junk, discovered during a restore. A second, independent
+defect: the same-day rerun path `unlink()`ed the existing backup BEFORE starting
+the new VACUUM, so a failure there destroyed a good generation and produced nothing.
+
+Now write-validate-rename: VACUUM into `<name>.db.part` (which the `trades_*.db`
+glob **cannot match**, so a failed write is invisible to rotation by construction
+rather than by a filter), validate, then `os.replace`. Validation is
+`PRAGMA integrity_check` **plus** a `paper_nav` row-count match against the
+source - they fail differently: a torn write trips integrity_check, while a VACUUM
+against the wrong source produces a perfectly valid database with the wrong rows.
+On any failure: delete the `.part`, exit 1, and **do not rotate**.
+
+New regression test `scripts/test_backup_validation.py`, 11 checks, all passing -
+including the structural proof (the glob cannot see `.part`, and CAN see a junk
+`trades_*.db`, which is the old bug) and the one that matters: a run whose
+validation fails exits 1 and leaves **all three** pre-existing generations on
+disk. `integrity_check` is O(db size); marked with its upgrade trigger
+(switch to `quick_check` if this ever runs more often than daily).
+
+## CR.6 E9/18 - the UNKNOWN-kind detector could not fire
+
+It was `log.info` text inside a dry-run survey, not a gate. Confirmed the standing
+false positive from live data: `price_cache` holds **`above_ma_200`**, which sits
+outside all three classification tuples. Two fixes - `above_ma_200` classified
+into `UNTOUCHED_KINDS` (a boolean IS scale-invariant, so this is a correct
+classification, not a silencer), and the detector promoted to a real gate that
+returns 1, with `--allow-unknown-kinds` as the deliberate escape hatch. Harmless
+today; a future price-like `kind` would otherwise be left pre-split while `close`
+was divided, which is the KLAC failure shape this script exists to repair.
+
+Verified against fixture DBs (the subject is an operator-run one-off that is
+dry-run by default, so this got a scratch check rather than a permanent test):
+an unclassified kind halts with exit 1, `--allow-unknown-kinds` proceeds, and the
+real live kind vocabulary including `above_ma_200` passes clean.
+
+## CR.7 Finding 21 - environment pinned; CVE status honestly UNDETERMINED
+
+`requirements.txt` pinned 9 packages against 97 installed, leaving yfinance's
+entire transitive chain - `curl_cffi`, `requests`, `urllib3`, `lxml`,
+`beautifulsoup4`, `peewee`, `frozendict`, `multitasking`, `platformdirs` - unpinned.
+Those are exactly the libraries that fetch and parse the prices this project
+treats as ground truth, so a clean rebuild could change adjustment behaviour
+behind an unchanged `yfinance==1.3.0` pin.
+
+Added **`requirements.lock.txt`** - 96 packages, full transitive snapshot of the
+known-good venv, pure ASCII, with a documented header. `requirements.txt` keeps
+its curated direct list and now points at the lock. All 9 direct pins cross-checked
+against the lock: identical.
+
+**CVE status: UNDETERMINED, and no claim is made in either direction.** Neither
+`pip-audit` nor `safety` is installed; installing one would perturb the venv the
+frozen tests are the contract for. The exact commands to settle it (preferably in
+a throwaway venv) are written into the lock file's header.
+
+## CR.8 Doc drift - findings 15, 16, 13, 14, 17, 22
+
+Each verified against reality first, not taken from the audit.
+
+- **15 - the FN position does not exist.** `HANDOFF.md` listed the single-name LLM
+  sleeves as "deep underwater (FN position, both -19%)". **Zero open FN rows** in
+  the DB; the 2 that exist are closed and pre-date the 07-01 reset. The claim
+  survived two re-inceptions. Corrected to the real holdings: control
+  `mom_roa_top1_paper` = **MU**, treatment = **cash** (BE vetoed), cascade =
+  **STX**. The general point (single-name sleeves can be deep underwater, n is
+  noise) was kept because it is still true.
+- **16 - three enabled Claude tasks were in no inventory.** They run on Claude's
+  scheduler, not `schtasks`, so they appear in NO `schtasks /query` output and
+  nothing in this repo listed them. New "Claude agent scheduled tasks" table in
+  `HANDOFF.md` covering all six (3 enabled, 3 disabled), read live from
+  `list_scheduled_tasks`. **Two of them `git commit` and `git push` to this repo**
+  (`daily-trade-check` 8:07am weekdays, `daily-trade-check-2` 7:00pm weekdays);
+  both are narrowly scoped to `git add daily_report.md daily_report.html` with an
+  explicit "NEVER `git add -A`", so an in-progress tree is not swept in.
+  **`hellohello` is a stray enabled test task** firing daily at ~8:08am whose
+  entire prompt is `hello (Just say "hi" back)` - **flagged for Evan, not
+  deleted.**
+  - **Bonus, and the reason this mattered: the record CN cron re-check is DONE.**
+    HANDOFF asked a future session to re-list `monthy-llm-rebalance` because CN's
+    confirming call was blocked by the permission classifier. It reads
+    **`0 18 * * *`, "At 06:03 PM, every day", enabled**, `lastRunAt` 2026-08-05.
+    **The CN fix HELD.** The CQ.3/E2 move of `daily-trade-check-2` to `0 19` held too.
+- **13 - `MOMENTUM_DESIGN.md` specifies a filter that has never existed.** Its §1
+  claims a "30-day median dollar volume >= $1M (liquidity floor)";
+  `trading_bot/factors/universe.py:53` is `MIN_DOLLAR_VOL = 0`. Every backtest and
+  every live sleeve has run with **no liquidity filter at all**. Separately, §3
+  ("Top N = 50, 2% per name") contradicts §10 "Decisions - locked" ("top 100, 1%
+  per name"); both shipped, as the separate `mom_v2_paper` / `mom_v1_paper`
+  sleeves. Annotated in place with a HISTORICAL-DESIGN-DOC banner. **Turning the
+  liquidity floor on is a strategy change and was NOT done.**
+- **14 - `docs/paper_trading_ops.md` describes a 2-sleeve hand-run system** while
+  76 sleeves run unattended. It is **last in `PRD_ROADMAP.md` §7's mandated
+  read-first chain**, so an executing model is told to read it - which is why it
+  got a banner rather than a quiet deletion. Body deliberately not rewritten.
+- **17 - `sector_cache` vs `sectors_cache` are different tables and both are
+  live.** `sector_cache` (6,113 rows) is what the running system reads and writes
+  (`market_data`); `sectors_cache` (1,493 rows) is research-only
+  (`warm/warm_sectors.py`). HANDOFF listed only the latter, so anyone trusting it
+  would query the wrong table. HANDOFF also claimed "18 tables" and then named 10;
+  **all 18 are now enumerated.**
+- **22 - `HANDOFF.md` said "Last updated: 2026-07-17"** through the CE/CH/CJ-CN/CP/CQ
+  work. Now 2026-08-05.
+
+## CR.9 Verification
+
+- Frozen tests **4/4 d=+/-0.0000pp**, run 2026-08-05 21:01 CDT, matching the CQ.5
+  baselines exactly: v1 2023_Q4 +14.5547%/70 trades, v1 2025_H1 +1.8792%/156,
+  v2 2023_Q4 +14.4062%/38, v2 2025_H1 +10.2194%/87.
+- `test_trade_atomicity.py` - 11/11 pass (incl. the old-shape leak demonstration).
+- `test_carry_forward_bound.py` - 8/8 pass; **0 false positives across all 192
+  distinct held tickers** on the live DB.
+- `test_backup_validation.py` - 11/11 pass.
+- `backadjust_split` unknown-kind gate - 4/4 fixture checks pass.
+- Live DB touched **read-only** throughout. Nothing traded, no NAV row written, no
+  live-DB write attempted.
+- Frozen tests were deliberately DEFERRED to 21:01 CDT: the CQ busy-window guard
+  refuses 19:45-21:00, which is exactly the `TradingLadderRebalance` 20:30 slot.
+  The guard did its job on its first real encounter.
+
+## CR.10 Noticed and deliberately NOT acted on
+
+Reported per the standing rule that data/design questions are Evan's call:
+
+1. **`dividends_total` is classified scale-invariant in `backadjust_split`.** A
+   per-share dividend is price-like and arguably needs dividing by N after a
+   split. Pre-existing classification; changing it would alter the KLAC repair's
+   semantics, and it is outside the finding (which was about the detector not
+   firing). Flagged only.
+2. **`price_cache` and `sector_cache` are not in `trading_bot/db.py`'s `SCHEMA`**
+   despite its docstring calling SCHEMA "the authoritative definition of every
+   table" - `market_data._ensure_cache_schema()` owns their DDL. Found while
+   fixturing a test. Noted in HANDOFF; not one of the 15 findings.
+3. **`hellohello`** - Evan's to delete.
+4. **The XLU stop above its own entry price** (CR.1) - a decision-quality
+   datapoint, logged for the kill-switch review.
+5. **Finding 2 from CQ.2 remains open by design**: the frozen tests still write
+   the live DB, and the 137 residue rows in `positions` are still there. The
+   busy-window guard bounds WHEN, not WHETHER. A real fix is a DB-layer change.
+
+Committed together with the code and doc changes it describes.

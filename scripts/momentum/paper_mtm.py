@@ -22,6 +22,14 @@ NAV components:
 When a ticker has no cached close on as_of (delisted, halted, weekend),
 it's marked-to-market using the most recent prior close (carry-forward).
 This matches how factor_backtest's _mark_to_market handles it.
+
+Carry-forward is UNBOUNDED by design — refusing to mark would tear a hole in
+NAV continuity, which is worse. What it is NOT allowed to be is SILENT: a
+delisted holding would otherwise mark at its last-ever close forever, and
+`verify_run`'s cash recon cannot catch it (recon recomputes positions_value the
+same carry-forward way, so it reconciles to $0.00 against a fossil price).
+`compute_nav` therefore reports price health itself — see MAX_CARRY_FORWARD_DAYS
+and the audit-2026-08-05 note on it.
 """
 from __future__ import annotations
 
@@ -38,15 +46,55 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("paper_mtm")
 
+# A held name whose newest close is older than this is NOT a publication lag —
+# it is a delisting, a ticker change, or a broken cache row. Calendar days, so
+# ~7 trading days. Chosen against the observed lag distribution in this project:
+# the routine same-day gap heals within 24h (record BH/BI) and the worst real
+# outage, the 2026-07-09 hole, settled the next afternoon (record BO/BP).
+MAX_CARRY_FORWARD_DAYS = 10
+
+
+def log_price_health(strategy_name: str, as_of: date, nav: dict) -> None:
+    """Report carry-forward staleness for one marked sleeve.
+
+    Lives here, and is called by compute_nav itself, because SIX write paths
+    call compute_nav/write_nav directly and every one of them used to discard
+    these numbers — mtm_catchup (the daily path), ladder_forward_rebalance,
+    monthly_rebalance, remark_nav_day and the seeders. Only paper_mtm.main()
+    ever printed them, and daily.bat has not gone through main() since M3.5
+    (audit 2026-08-05, finding 12). Reporting at the point of computation is
+    the one place that cannot be forgotten by a new caller.
+    """
+    if nav["missing_count"]:
+        log.warning("  %s: missing prices (used entry_price): %d / %d positions",
+                    strategy_name, nav["missing_count"], nav["n_open"])
+    if nav["stale_tickers"]:
+        named = ", ".join(f"{t} {a}d" for t, a in nav["stale_tickers"][:10])
+        more = "" if len(nav["stale_tickers"]) <= 10 else \
+            f" (+{len(nav['stale_tickers']) - 10} more)"
+        log.error("  STALE CARRY-FORWARD: %s is marking %d / %d positions at a "
+                  "close older than %dd as-of %s: %s%s. Cash recon CANNOT catch "
+                  "this - it recomputes the same carry-forward value. Check for a "
+                  "delisting/ticker change, then run daily_price_refresh.py.",
+                  strategy_name, len(nav["stale_tickers"]), nav["n_open"],
+                  MAX_CARRY_FORWARD_DAYS, as_of, named, more)
+    elif nav["aged_count"]:
+        level = log.error if nav["median_age_days"] > 7 else log.warning
+        level("  PRICE STALENESS: %s has %d / %d positions with prices >3d old "
+              "(median age %dd). Run daily_price_refresh.py.",
+              strategy_name, nav["aged_count"], nav["n_open"],
+              nav["median_age_days"])
+
 
 def compute_nav(strategy_name: str, as_of: date) -> dict:
     """Returns {cash, positions_value, total_nav, n_open, missing_count,
-    aged_count, median_age_days}."""
+    aged_count, median_age_days, stale_tickers}."""
     pf = paper_trader.get(strategy_name)
     open_positions = paper_trader.list_open(strategy_name)
     positions_value = 0.0
     missing = 0
     ages: list[int] = []
+    stale: list[tuple[str, int]] = []
     for p in open_positions:
         px, px_date = market_data.last_close_on_or_before(p["ticker"], as_of)
         if px is None:
@@ -55,11 +103,14 @@ def compute_nav(strategy_name: str, as_of: date) -> dict:
             px = p["entry_price"]
             missing += 1
         else:
-            ages.append((as_of - px_date).days)
+            age = (as_of - px_date).days
+            ages.append(age)
+            if age > MAX_CARRY_FORWARD_DAYS:
+                stale.append((p["ticker"], age))
         positions_value += px * p["qty"]
     aged = sum(1 for a in ages if a > 3)
     median_age = sorted(ages)[len(ages) // 2] if ages else 0
-    return {
+    nav = {
         "cash": pf.cash,
         "positions_value": positions_value,
         "total_nav": pf.cash + positions_value,
@@ -67,7 +118,10 @@ def compute_nav(strategy_name: str, as_of: date) -> dict:
         "missing_count": missing,
         "aged_count": aged,
         "median_age_days": median_age,
+        "stale_tickers": sorted(stale, key=lambda t: -t[1]),
     }
+    log_price_health(strategy_name, as_of, nav)
+    return nav
 
 
 def inception_date(strategy_name: str) -> date:
@@ -163,14 +217,8 @@ def main() -> int:
     log.info("  Positions value: $%12.2f", nav["positions_value"])
     log.info("  TOTAL NAV:       $%12.2f  (%+.3f%% vs start)", nav["total_nav"], pct)
     log.info("  Open positions:  %d", nav["n_open"])
-    if nav["missing_count"]:
-        log.warning("  Missing prices (used entry_price): %d / %d positions",
-                    nav["missing_count"], nav["n_open"])
-    if nav["aged_count"]:
-        level = log.error if nav["median_age_days"] > 7 else log.warning
-        level("  PRICE STALENESS: %d / %d positions have prices >3d old "
-              "(median age %dd). Run daily_price_refresh.py.",
-              nav["aged_count"], nav["n_open"], nav["median_age_days"])
+    # Price-health reporting moved INTO compute_nav (audit 2026-08-05, finding
+    # 12) so the five other write paths that never call main() get it too.
     return 0
 
 

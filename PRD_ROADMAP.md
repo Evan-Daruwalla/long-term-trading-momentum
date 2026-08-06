@@ -100,7 +100,9 @@ record.
 
 ## 3. SUCCESS CRITERIA
 
-*(Status ticked 2026-07-28 from HANDOFF + record BB–BN; M1–M5 are complete, M6 remains gated.)*
+*(Status ticked 2026-07-28 from HANDOFF + record BB–BN; M1–M5 are complete, ~~M6 remains gated~~
+**[2026-08-05: M6 is UNGATED and is the next open task — see the M6 section]**. M7 was added
+2026-08-02 and CLOSED the same day, record CM.)*
 
 - [x] `HANDOFF.md` ~~and a new `docs/state_2026-07-XX.md`~~ accurately reflect the 07-06 cohort,
       Alpaca mirroring, cascades, and automation (M1); the record has entries for all work done
@@ -142,8 +144,9 @@ record.
       **[2026-07-28: `scripts/backup_trades_db.py` (VACUUM INTO, keep 3, disk-guard) +
       `TradingWeeklyBackup` Sun 9am + restore drill passed — M5.1–M5.3, record BM.]**
 - [ ] Alpaca PAPER fills can be pulled and paired against sim fills; after the August rebalance
-      generates fills, a slippage report (bps, per-sleeve) is produced (M6 — gated on fills
-      existing).
+      generates fills, a slippage report (bps, per-sleeve) is produced (M6 — ~~gated on fills
+      existing~~ **UNGATED 2026-08-05: the August rebalance ran 08-03 and generated them,
+      record CP. The criterion itself is still open — nothing has been pulled or paired yet**).
 
 ## 4. CONSTRAINTS
 
@@ -184,7 +187,7 @@ record.
 | M3 | Unattended-automation safety | The daily/monthly tasks verify themselves; pre-inception pollution is impossible. | Before 2026-08-01 |
 | M4 | Experiment-integrity reporting | LLM experiment kill-switch metrics and control-vs-treatment divergence are one command away. | August |
 | M5 | Backup hygiene | trades.db has rotating backups and a proven restore path. | August |
-| M6 | Slippage measurement (Alpaca) | Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills. | Gated: needs fills from the 2026-08-01+ rebalances |
+| M6 | Slippage measurement (Alpaca) | Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills. | ~~Gated: needs fills from the 2026-08-01+ rebalances~~ **UNGATED 2026-08-05 (audit finding 8, record CR): 231 orders / 0 rejects exist — 99 on 07-07 (record AV) + 132 on 08-03 (record CP). This is now the next open task, starting at M6.1** |
 | M7 | Historical NAV reconstruction | The 31 closed KLAC rows (−$55,343.70) are repairable, making cross-rung ladder comparison trustworthy again. | Added 2026-08-02 (record CJ). **CLOSED 2026-08-02 ~20:00 CDT (record CM)** — M7.1/M7.3/M7.5 done, M7.2's gate failed and produced the key finding (historical NAV is not reproducible), M7.4 correctly NOT executed. Live `verify_run` PASS 76/76 |
 
 M2 and M3 are the deadline items: the first unattended monthly rebalance fires 2026-08-01, and
@@ -329,11 +332,21 @@ entry, commit. Read the target script fully before editing it — these scripts 
    Record the drill (time taken, checks passed) in the record. Done: drill documented with real
    output.
 
-### M6 — Slippage measurement via Alpaca PAPER (GATED)
+### M6 — Slippage measurement via Alpaca PAPER (~~GATED~~ **OPEN — this is the next task**)
 
-**Gate: do not start until the 2026-08-01 monthly rebalance has produced Alpaca fills** (the
+~~**Gate: do not start until the 2026-08-01 monthly rebalance has produced Alpaca fills**~~ (the
 07-06 deploy's 99 DAY orders filled at the next open are the first data; the August rebalance
-adds more). If the gate isn't met, report and stop at M5.
+adds more). ~~If the gate isn't met, report and stop at M5.~~
+
+**[GATE MET 2026-08-05 — audit finding 8, record CR.** The August rebalance ran **2026-08-03**,
+not 08-01 (08-01 was a Saturday and the cron had drifted to day-1-only — record CN), and
+submitted **132 orders / 0 rejects** (record CP: residual_roa_6535_0701 62, mom_roa_6535_0701 69,
+spy_benchmark_0701 1). With the 07-07 deploy's 99, that is **231 orders, 0 rejects**.
+`scripts/momentum/fetch_alpaca_fills.py` does not exist (verified 2026-08-05), so **M6.1 below is
+the next open task in this roadmap.** One caveat to carry into M6.1: the record logs orders
+SUBMITTED and REJECTED, never orders FILLED — task 1's done-check ("CSV rows match the order
+counts the record logged") is exactly what settles whether all 231 actually filled, so treat 231
+as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
 
 1. **Fill fetcher.** Read `trading_bot/execution/alpaca_client.py` and `alpaca_accounts.py`;
    new `scripts/momentum/fetch_alpaca_fills.py`: pull filled orders per mirrored account
@@ -470,8 +483,8 @@ live snapshot. Still defer to the record on any disagreement.]** → record Appe
 `docs/paper_trading_ops.md`. The record is
 append-only ground truth; when anything disagrees with it, the record wins.
 
-**Work order:** M1 → M2 → M3 (hard target: before 2026-08-01) → M4 → M5 → M6 (gated on August
-fills). One task per sitting: implement → frozen tests → verify per the task's done-check →
+**Work order:** M1 → M2 → M3 (hard target: before 2026-08-01) → M4 → M5 → M6 ~~(gated on August
+fills)~~ **[UNGATED 2026-08-05 — M1–M5 and M7 are done; M6.1 is the next open task]**. One task per sitting: implement → frozen tests → verify per the task's done-check →
 record entry → commit.
 
 **Gotchas that will bite you:**

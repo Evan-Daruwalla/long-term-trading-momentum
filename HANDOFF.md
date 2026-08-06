@@ -10,13 +10,28 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-07-17** — this file is the only live snapshot (state-doc
-tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
+**Last updated: 2026-08-05 ~20:15 CDT** — this file is the only live snapshot
+(state-doc tier retired 2026-07-08; historical snapshots archived in record
+Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
+itself an audit finding (22).
 
+> ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
+> statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
+> when written and is now HISTORY. The gate condition is met: **231 Alpaca PAPER
+> orders exist, 0 rejects** — 99 on 2026-07-07 (record AV) + 132 on 2026-08-03
+> (record CP: residual_roa_6535_0701 62, mom_roa_6535_0701 69, spy_benchmark_0701 1).
+> **M6 is the next open PRD task, starting at M6.1** — `scripts/momentum/fetch_alpaca_fills.py`,
+> which does not exist yet (verified 2026-08-05). Honest scoping note: the record
+> logs orders SUBMITTED and REJECTED, not orders FILLED. They were DAY orders
+> expected to fill at the next open, but confirming that is precisely M6.1's own
+> done-check ("CSV rows match the order counts the record logged") — so the fill
+> count is an open question M6.1 answers, not a number to assert here.
+>
 > **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
 > (record Appendices BB–BN); the two before-2026-08-01 deadline milestones (M2/M3)
-> plus M4 + M5 are in place, and the daily pipeline is now self-healing (M3.5). **M6 (slippage) is the only remaining task and is GATED on the
-> 2026-08-01+ Alpaca PAPER fills — it cannot start until those exist.** M5 (backup
+> plus M4 + M5 are in place, and the daily pipeline is now self-healing (M3.5). **M6 (slippage) is the only remaining task and is ~~GATED on the
+> 2026-08-01+ Alpaca PAPER fills — it cannot start until those exist~~ UNGATED as of
+> 2026-08-05, see the note above.** M5 (backup
 > hygiene): `scripts/backup_trades_db.py` (rotating `VACUUM INTO` backups, keep 3,
 > disk-guard), weekly `TradingWeeklyBackup` task (Sun 9am → `var/backup.log`),
 > restore drill passed. M2 (data-quality guardrails): read-only `check_coverage` +
@@ -55,10 +70,12 @@ tier retired 2026-07-08; historical snapshots archived in record Appendix AZ).
 > correct only by luck of held-names-present) — **CLOSED 2026-07-10 (record
 > Appendix BQ): `paper_mtm.main()` now runs the shared `coverage_status()` gate
 > and refuses a sub-floor `--as-of` day (exit 2, no write) unless `--force`.**
-> Next PRD work: only M6 (slippage), gated on the 2026-08-01+ Alpaca fills.
+> Next PRD work: only M6 (slippage), ~~gated on the 2026-08-01+ Alpaca fills~~
+> **[UNGATED 2026-08-05 — the fills exist; M6.1 is the next open task]**.
 >
 > **2026-07-11 health check (record Appendix BR):** roadmap is complete through
-> M5; M6 stays gated (no Alpaca fills until 2026-08-01+). Read-only `verify_run
+> M5; ~~M6 stays gated (no Alpaca fills until 2026-08-01+)~~ **[M6 UNGATED
+2026-08-05 — the 08-03 rebalance produced them]**. Read-only `verify_run
 > --mode daily` -> PASS 17/17 (continuity, cent-perfect cash recon, 0
 > pre-inception, 07-10 correctly PENDING); working tree clean, all work committed
 > through BQ. Friday 2026-07-10 17:15 `TradingDailyMTM` was the first live run of
@@ -330,6 +347,29 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   nightly as-of the last settled close from 2026-07-16.
 - **Code**: `trading_bot/strategies/sector_overlay.py`, `scripts/momentum/sector_overlay_ops.py`
 
+### Cascade arm (always-invested) — **UNSTOPPED BY DESIGN**
+- **Sleeves**: `llm_cascade_top1_paper` (stock) / `llm_cascade_sector4_paper`
+  (sector). A VETO cascades to the next-best candidate instead of going to cash,
+  so the sleeve is never idle. Controls are shared with the cash overlays.
+- **These two sleeves have NO stop enforcement, and that is deliberate**
+  (Evan's decision 2026-08-05, record CR; audit finding E1/6). `llm_cascade_ops.py`
+  has no `check-invalidation` subcommand and `daily.bat` runs one only for the two
+  CASH overlay modules. A stop exits to CASH, and always-invested is this arm's
+  entire distinction from the cash overlays — a stop-to-cash would make it a
+  hybrid of the two treatments and destroy the three-way comparison.
+  **Cost, stated plainly: these sleeves have no downside control of any kind, so
+  their drawdowns are NOT risk-comparable to the cash overlays'.** Rationale in
+  `trading_bot/strategies/llm_cascade.py`'s docstring.
+- The `invalidation_level` on a logged decision is consumed by the **cash overlay
+  sleeve only**. The cascade reads the same rows for their verdicts and ignores
+  that column.
+- ⚠️ **Reported, not fixed (record CR):** the 2026-08-03 XLU decision logged a HOLD
+  with an invalidation of **$44.50 while that day's close was $44.36** — a stop set
+  *above* its own entry price, on a rationale whose own text says "Above 50DMA
+  (44.96)". XLU has closed below $44.50 every day since (44.36 / 44.11 / 43.66).
+  Only the cascade holds XLU, so the level binds nothing today. It is a
+  decision-quality datapoint for the kill-switch review, not a data bug.
+
 ---
 
 ## Infrastructure
@@ -337,11 +377,28 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 ### Database
 - `var/trades.db` (~5 GB) — all paper positions, NAVs, price cache, XBRL
 - Backup: `var/trades.db.bak_pre_spike_cleanup` — DO NOT DELETE
-- Tables (18 total, verified 2026-07-28): `price_cache`, `paper_portfolio`,
-  `paper_positions`, `paper_nav`, `xbrl_facts`, `sectors_cache`,
-  `fundamentals_cache`, `signals`, `llm_overlay_log`, `sector_overlay_log`
-  — **there is no `paper_transactions` table** (listed here in error until
-  2026-07-28; fills live in `paper_positions`)
+- Tables — **all 18, enumerated 2026-08-05** (the previous list said "18 total"
+  and then named only 10, audit finding 17): `alpaca_asset_meta`, `delistings`,
+  `fundamentals_cache`, `ingest_state`, `llm_overlay_log`, `paper_nav`,
+  `paper_portfolio`, `paper_positions`, `portfolio_state`, `positions`,
+  `price_cache`, `sector_cache`, `sector_overlay_log`, `sectors_cache`,
+  `signals`, `slippage_log`, `sqlite_sequence`, `xbrl_facts`
+  - ⚠️ **`sector_cache` and `sectors_cache` are DIFFERENT tables and both are
+    live.** `sector_cache` (6,113 rows) is the one the running system reads and
+    writes — `market_data._ensure_cache_schema` creates it, ticker→sector.
+    `sectors_cache` (1,493 rows) is the research-only one. Only the latter was
+    listed here before, so anyone trusting this file would have queried the
+    wrong table.
+  - `positions` / `portfolio_state` are the **BACKTEST** tables that
+    `factor_backtest._wipe_state()` truncates on every frozen-test run. Nothing
+    paper-trade lives there (record CQ.2).
+  - **There is no `paper_transactions` table** (listed here in error until
+    2026-07-28; fills live in `paper_positions`).
+  - `price_cache` and `sector_cache` are NOT in `trading_bot/db.py`'s `SCHEMA`
+    despite its docstring calling SCHEMA "the authoritative definition of every
+    table" — `market_data._ensure_cache_schema()` owns their DDL. Noticed
+    2026-08-05 while fixturing a test; left as-is, it is not one of the audit's
+    findings.
 - **CRITICAL**: never run concurrent `factor_backtest` against same DB — silent corruption
 
 ### Key scripts
@@ -401,6 +458,36 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   whether today is a weekly/biweekly rebalance day (holiday-aware; biweekly parity is
   ordinal-weeks-since-2026-04-27, immune to 53-ISO-week years). Ends with its own
   `verify_run --mode daily`. Logs: `var/last_ladder_run.log`
+
+### Claude agent scheduled tasks (SEPARATE from the Windows tasks above)
+
+**Added 2026-08-05 (audit finding 16).** These run through Claude's own
+scheduler, not `schtasks`, so they appear in NO `schtasks /query` output and were
+in no inventory in this repo — three of them enabled and firing daily, two of
+them **committing and pushing to this repo**. Read the live list with
+`mcp__scheduled-tasks__list_scheduled_tasks`; prompts live in
+`C:\Users\evan.EVANFREDY\.claude\scheduled-tasks\<id>\SKILL.md`.
+
+| Task | Cron | State | What it does |
+|---|---|---|---|
+| `monthy-llm-rebalance` | `0 18 * * *` (~6:03pm daily) | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
+| `daily-trade-check` | `0 8 * * 1-5` (~8:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then `git add` (those 2 files only) + `commit` + **`push`** |
+| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + commit + **push**. Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance |
+| `hellohello` | `0 8 * * *` (~8:08am daily) | **enabled** | ⚠️ **Stray test task.** Its entire prompt is `hello (Just say "hi" back)`. Harmless, but it fires every morning forever. **Evan's to delete — flagged, not removed.** |
+| `cohort-0706-deploy` | manual | disabled | One-time 07-06 cohort deploy, fired 2026-07-07 |
+| `check-0803-rebalance` | one-time | disabled | Post-mortem of the 08-03 rebalance, fired 2026-08-04 |
+
+> ✅ **Cron re-confirmed 2026-08-05 20:13 CDT** — the record CN note asked a future
+> session to re-list `monthy-llm-rebalance` because the confirming call was
+> blocked by the permission classifier. Done: it reads **`0 18 * * *`, "At 06:03
+> PM, every day", enabled**, `lastRunAt` 2026-08-05. The CN fix HELD. Per the
+> standing rule this cron has drifted 3× — keep reading it from the tool, never
+> from this table.
+>
+> **Two writers to `daily_report.md`**: `daily-trade-check` and
+> `daily-trade-check-2` both append and push. Their windows are 11 hours apart,
+> and both are explicitly scoped to `git add daily_report.md daily_report.html`
+> (never `-A`), so an in-progress working tree is not swept in.
 
 Manual control:
 ```
@@ -464,9 +551,18 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
   universe of names ever traded. Cannot fix without a paid PIT data source.
 - **In-sample validation is marginal** (+2.72%/yr mom_v2, clean data).
   Strategy rests on 2.4yr held-out + forward paper trade only.
-- **Single-name LLM sleeves are deep underwater** (FN position, both
-  −19%). The experiment is designed for 12mo/30 picks — current n=1 is noise.
-- **No slippage realism check yet** — deferred until ~20 real fills (post-Aug 2026).
+- ~~**Single-name LLM sleeves are deep underwater** (FN position, both
+  −19%).~~ **[WRONG — corrected 2026-08-05, audit finding 15. There are ZERO
+  open FN rows in the DB (2 closed ones, both pre-dating the 07-01 reset). The
+  stock arm currently holds: control `mom_roa_top1_paper` = **MU**, treatment
+  `llm_overlay_mom_roa_top1_paper` = **cash** (BE vetoed), cascade
+  `llm_cascade_top1_paper` = **STX**. The FN claim survived two re-inceptions.]**
+  The standing point does hold: the experiment is designed for 12mo/30 picks —
+  current n is noise, and a single-name sleeve can be deep underwater at any time.
+- **No slippage realism check yet** — ~~deferred until ~20 real fills (post-Aug
+  2026)~~. **[2026-08-05: the fills now exist (231 orders, 0 rejects — 07-07 and
+  08-03), so this is no longer blocked on data; it is blocked on M6.1
+  `fetch_alpaca_fills.py` being built. Still a real limitation until then.]**
 - **No short support** in `paper_trader` — blocks deploying L/S vol-target
   even as paper trade. Not building until the strategy passes in-sample.
 

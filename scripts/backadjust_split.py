@@ -70,9 +70,24 @@ log = logging.getLogger("backadjust_split")
 
 PRICE_KINDS = ("close", "next_open", "next_open_range")
 VOLUME_KINDS = ("volume", "next_open_vol")
-# atr_pct_20 is a percentage and above_ma_50 a boolean: both are scale-invariant.
-UNTOUCHED_KINDS = ("atr_pct_20", "above_ma_50", "splits_json", "dividends_json",
-                   "split_ratio", "dividends_total")
+# atr_pct_20 is a percentage and the above_ma_* flags are booleans: all
+# scale-invariant. above_ma_200 was MISSING from this tuple until 2026-08-05
+# (audit finding E9/18) -- harmless in itself, but it meant the UNKNOWN-kind
+# detector below had a standing false positive that nobody ever saw, because
+# the detector was log text in a survey rather than a gate.
+UNTOUCHED_KINDS = ("atr_pct_20", "above_ma_50", "above_ma_200", "splits_json",
+                   "dividends_json", "split_ratio", "dividends_total")
+
+
+def unknown_kinds(kinds) -> list[str]:
+    """Kinds this script has no adjustment rule for.
+
+    A new price-like `kind` added to price_cache later would otherwise be left
+    un-adjusted by a split repair while `close` was divided -- the same shape as
+    the KLAC bug this whole script exists to fix, and just as silent.
+    """
+    known = set(PRICE_KINDS) | set(VOLUME_KINDS) | set(UNTOUCHED_KINDS)
+    return sorted(set(kinds) - known)
 
 
 def main() -> int:
@@ -84,6 +99,10 @@ def main() -> int:
                     help="ISO date of the FIRST post-split close.")
     ap.add_argument("--db", default=None, help="DB path (default: the live DB).")
     ap.add_argument("--execute", action="store_true", help="Apply (default: dry run).")
+    ap.add_argument("--allow-unknown-kinds", action="store_true",
+                    help="Proceed even if price_cache holds a `kind` this script "
+                         "has no rule for, leaving those rows untouched. Default "
+                         "is to REFUSE (audit finding E9/18).")
     ap.add_argument("--include-closed", action="store_true",
                     help="ALSO repair CLOSED positions that exited on/after --effective "
                          "(exit_value * N, realized_pnl restated) and correct each "
@@ -127,6 +146,24 @@ def main() -> int:
         else:
             tag = "scale-invariant" if k in UNTOUCHED_KINDS else "UNKNOWN KIND"
             log.info("  %-18s %6d rows -> untouched (%s)", k, c, tag)
+
+    # GATE (audit 2026-08-05, finding E9/18). The line above used to be the
+    # entire "detector": a string in a survey nobody diffed, which could not
+    # stop anything. An unclassified kind is now a hard stop, because the
+    # failure it guards is exactly this script's own reason to exist -- half the
+    # cache adjusted, half left pre-split, silently.
+    unknown = unknown_kinds(row["kind"] for row in rows)
+    if unknown:
+        log.error("UNKNOWN price_cache kind(s) for %s: %s. This script has no "
+                  "adjustment rule for them, so a repair would divide `close` "
+                  "and leave these pre-split -- the KLAC failure shape. "
+                  "Classify each one into PRICE_KINDS / VOLUME_KINDS / "
+                  "UNTOUCHED_KINDS, or pass --allow-unknown-kinds to proceed "
+                  "leaving them untouched on purpose.", t, ", ".join(unknown))
+        if not args.allow_unknown_kinds:
+            return 1
+        log.warning("--allow-unknown-kinds: proceeding, leaving %s untouched.",
+                    ", ".join(unknown))
 
     pos = conn.execute(
         "SELECT id, strategy_name, qty, entry_price, entry_value FROM paper_positions "

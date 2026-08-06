@@ -8,6 +8,18 @@ backup) — it lives in ``var/``, not ``var/backups/``, and does not match the
 ``trades_*.db`` glob, so it is safe by construction; the guard below is belt-and-
 suspenders. Aborts if free disk is under 2x the DB size.
 
+WRITE-VALIDATE-RENAME (audit 2026-08-05, finding E6). Rotation counts files by
+NAME, so a half-written backup used to count as a good generation and evict a
+real one — and because its name carries today's date it sorted NEWEST, so it
+would be retained while the good copies aged out. Two more Sundays of that and
+all three generations are junk, discovered only during a restore. Worse, the
+same-day-rerun path unlinked the existing backup BEFORE starting the new VACUUM,
+so a failure there destroyed a good generation and produced nothing.
+Now: VACUUM into ``<name>.db.part`` (which the ``trades_*.db`` glob cannot
+match), validate it, and only then atomically replace the target. A failed or
+invalid write leaves every existing generation untouched and exits nonzero
+WITHOUT rotating.
+
 Usage:
   python -m scripts.backup_trades_db
   python -m scripts.backup_trades_db --keep 3
@@ -17,10 +29,12 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import shutil
 import sqlite3
 import sys
 from datetime import date
+from pathlib import Path
 
 from trading_bot.config import DB_PATH, VAR_DIR
 
@@ -30,6 +44,37 @@ log = logging.getLogger("backup_trades_db")
 
 BACKUP_DIR = VAR_DIR / "backups"
 FROZEN_BACKUP = "trades.db.bak_pre_spike_cleanup"  # never delete this
+# Cheapest content check that proves the snapshot holds the track record and not
+# just a structurally-valid empty file. paper_nav is the sacred table.
+VALIDATE_TABLE = "paper_nav"
+
+
+def validate_backup(path: Path, expect_rows: int) -> str | None:
+    """Return None if `path` is a sound backup, else a reason string.
+
+    Structural check + a content check, because they fail differently: a torn
+    write trips integrity_check, while a VACUUM that ran against the wrong
+    source produces a perfectly valid database with the wrong rows in it.
+    """
+    # shortcut: full integrity_check is O(db size) (~minutes on the 5 GB live
+    # DB). Fine for a weekly Sunday-9am task with nothing else scheduled; switch
+    # to PRAGMA quick_check if this ever runs more often than daily.
+    try:
+        conn = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    except sqlite3.Error as e:
+        return f"cannot open: {e}"
+    try:
+        row = conn.execute("PRAGMA integrity_check").fetchone()
+        if not row or row[0] != "ok":
+            return f"integrity_check: {row[0] if row else 'no result'}"
+        n = conn.execute(f"SELECT COUNT(*) FROM {VALIDATE_TABLE}").fetchone()[0]
+    except sqlite3.Error as e:
+        return f"unreadable: {e}"
+    finally:
+        conn.close()
+    if n != expect_rows:
+        return f"{VALIDATE_TABLE} row count {n} != source {expect_rows}"
+    return None
 
 
 def main() -> int:
@@ -55,19 +100,45 @@ def main() -> int:
 
     log.info("DB %.2f GB, free %.1f GB. Target: %s", db_size / 1e9, free / 1e9, out.name)
 
+    # `.part` cannot match the trades_*.db rotation glob, so a failed write is
+    # invisible to rotation by construction rather than by a filter.
+    part = out.parent / (out.name + ".part")
+
     if args.dry_run:
-        log.info("[dry-run] would VACUUM INTO %s", out)
+        log.info("[dry-run] would VACUUM INTO %s, validate, then rename to %s",
+                 part.name, out.name)
     else:
-        if out.exists():
-            out.unlink()  # VACUUM INTO fails if the target exists; same-day rerun overwrites
         src = sqlite3.connect(f"file:{DB_PATH.as_posix()}?mode=ro", uri=True)
         try:
-            src.execute(f"VACUUM INTO '{out.as_posix()}'")
+            expect_rows = src.execute(
+                f"SELECT COUNT(*) FROM {VALIDATE_TABLE}").fetchone()[0]
+            if part.exists():
+                part.unlink()  # leftover from an earlier failed run
+            src.execute(f"VACUUM INTO '{part.as_posix()}'")
+        except sqlite3.Error as e:
+            log.error("ABORT: VACUUM INTO failed: %s. Existing backups untouched.", e)
+            part.unlink(missing_ok=True)
+            return 1
         finally:
             src.close()
-        log.info("Wrote %s (%.2f GB)", out, out.stat().st_size / 1e9)
 
-    # Rotation: keep the newest --keep daily backups, delete older ones.
+        reason = validate_backup(part, expect_rows)
+        if reason is not None:
+            log.error("ABORT: %s is not a sound backup (%s). Deleting it and "
+                      "leaving every existing generation in place — NOT rotating.",
+                      part.name, reason)
+            part.unlink(missing_ok=True)
+            return 1
+
+        # Only now is it safe to displace the same-day target: os.replace is
+        # atomic within a volume, so `out` is never absent nor half-written.
+        os.replace(part, out)
+        log.info("Wrote %s (%.2f GB), validated: integrity ok, %s %d rows",
+                 out, out.stat().st_size / 1e9, VALIDATE_TABLE, expect_rows)
+
+    # Rotation: keep the newest --keep daily backups, delete older ones. Reached
+    # ONLY after a validated write, so it can never evict a good generation in
+    # favour of a truncated one.
     backups = sorted(BACKUP_DIR.glob("trades_*.db"))
     to_delete = backups[:-args.keep] if len(backups) > args.keep else []
     for b in to_delete:

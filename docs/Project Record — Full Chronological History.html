@@ -190,7 +190,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cn---the-august-monthly-rebalance-would-have-been-skipped-the-live-cron-had-drifted-to-day-1-of-month-and-2026-08-01-was-a-saturday-restored-to-daily-self-gating-the-undocumented-llm-rebal-jiggler-decoded-and-hellohello-confirmed-real-2026-08-02-2256-cdt">CN - The August rebalance would have been SKIPPED: live cron had drifted to day-1-of-month and 08-01 was a Saturday; restored to daily self-gating. <code>\llm rebal</code> jiggler decoded, <code>hellohello</code> confirmed real</a> (08-02)<br />
 - <a href="#appendix-co---verify_run-gains-check-e-rebalance-cadence-a-stale-rebalance_logmd-now-fails-loudly-instead-of-passing-silently-closes-the-blind-spot-cn-found-2026-08-02-2337-cdt">CO - verify_run gains check (e) rebalance cadence: a stale <code>rebalance_log.md</code> now FAILs loudly instead of passing silently; closes the blind spot CN found</a> (08-02)<br />
 - <a href="#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt">CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix</a> (08-03)<br />
-- <a href="#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt">CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred</a> (08-05)</p>
+- <a href="#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt">CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred</a> (08-05)<br />
+- <a href="#appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt">CR - The 15 deferred CQ.7 findings closed: cascade sleeves unstopped BY DESIGN (Evan's call; the audit's own example was the wrong position - XLU, not STX), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, 6 doc-drift fixes</a> (08-05)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -8213,6 +8214,244 @@ highest value first:</p>
 <p>Two things the audit could not verify and did not assert: the CVE status of the<br />
 dependency set, and the frozen-test deltas (the auditor was read-only and finding<br />
 2 proves the tests write).</p>
+<h1 id="appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt">Appendix CR - The 15 deferred CQ.7 findings closed: the cascade sleeves are unstopped BY DESIGN (Evan's call, and the audit's own example was the wrong one), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, plus six doc-drift corrections (2026-08-05, ~21:05 CDT)</h1>
+<p>Fresh session, per Evan's CQ.7 instruction to finish the remainder somewhere the<br />
+fixes could actually be verified. All 15 open findings are closed. Order below is<br />
+CQ.7's own priority order.</p>
+<p>Three verification rules were applied throughout, and each one caught something:<br />
+feed a fix its trigger rather than reading the patch; use GNU <code>grep -rn</code> for any<br />
+enumeration (CQ.6); check the audit's factual claims before acting on them.</p>
+<h2 id="cr1-e16---cascade-stops-decided-and-the-audit-pointed-at-the-wrong-position">CR.1 E1/6 - cascade stops: DECIDED, and the audit pointed at the wrong position</h2>
+<p>CQ.7 flagged that <code>llm_cascade_ops.py</code> has no <code>check-invalidation</code> subcommand and<br />
+<code>daily.bat:41-42</code> covers only the two CASH overlay modules, while the runbook<br />
+claimed daily enforcement - and cited <code>llm_cascade_top1_paper</code> holding <strong>STX with<br />
+a logged invalidation of $730 right now</strong> as the live exposure.</p>
+<p><strong>Checked against the DB before acting. STX was never at risk</strong>: closes 08-03<br />
+$831.06, 08-04 $845.35, 08-05 $837.66 against a $730 stop - 13% clear.</p>
+<p><strong>The real exposure was XLU, which the audit did not name.</strong><br />
+<code>llm_cascade_sector4_paper</code> bought XLU on 2026-08-03 at <strong>$44.38</strong> against a<br />
+logged HOLD invalidation of <strong>$44.50</strong> - a stop set ABOVE its own entry price.<br />
+Its closes since: 44.36 / 44.11 / 43.66. It has been below its stop on <strong>every<br />
+close it has ever had</strong>. Had the cascade carried enforcement, XLU would have<br />
+exited on the 08-03 evening run.</p>
+<p>Two further facts that shaped the decision:<br />
+- The 08-03 XLU rationale reads "Above 50DMA (44.96)" while that day's close was<br />
+  44.36. The invalidation level rests on an internally inconsistent decision.<br />
+- Enforcement demonstrably works on the arm that has it: the DB's ONLY<br />
+<code>exit_reason='invalidation'</code> row is <code>llm_overlay_sector_top4_paper</code> exiting XLK<br />
+  on 2026-07-28.</p>
+<p><strong>Presented to Evan as three options, not two.</strong> CQ.7 framed it as implement-or-<br />
+document, but <code>trading_bot/strategies/llm_cascade.py</code> defines the arm as ALWAYS<br />
+INVESTED with never-idle fallbacks - that is its whole distinction from the cash<br />
+overlay. A stop exits to CASH, so bolting one on makes the arm a hybrid of the<br />
+two treatments and destroys the clean three-way comparison. The third option<br />
+(stop -&gt; cascade to the next candidate) preserves always-invested AND adds<br />
+downside control, but is a new strategy rule mid-experiment, which the PRD scope<br />
+guard forbids outright, and needs a mid-month re-pick rule that does not exist.</p>
+<p><strong>Evan chose: document unstopped by design.</strong> No code change. Written into three<br />
+places so it can never again read as an oversight:<br />
+- <code>llm_cascade.py</code>'s docstring - the rationale, plus <strong>the cost stated plainly:<br />
+  these sleeves have no downside control of any kind, a cascade pick rides to<br />
+  zero, and their drawdowns are NOT risk-comparable to the cash overlays'.</strong><br />
+- <code>HANDOFF.md</code> - a new "Cascade arm (always-invested)" subsection. The LLM<br />
+  Overlay Experiments section had documented only the two cash overlays.<br />
+- <code>docs/overlay_decision_runbook.md</code> - the invalidation convention now says "for<br />
+  the two CASH overlays only", plus a new bullet: the <code>invalidation_level</code> a<br />
+  decision logs is consumed by the cash-overlay sleeve only, so a level set for a<br />
+  name that only the cascade ends up holding <strong>binds nothing</strong>. <code>llm_cascade_ops.py</code><br />
+  added to the Files table (it was absent).</p>
+<p>XLU is <strong>reported, not fixed</strong> - recorded in HANDOFF as a decision-quality<br />
+datapoint for the kill-switch review, not a data bug. Nothing was traded.</p>
+<h2 id="cr2-finding-5---buysell-were-atomic-in-the-docstring-only">CR.2 Finding 5 - buy()/sell() were "atomic" in the docstring only</h2>
+<p><code>paper_trader.buy()</code> and <code>sell()</code> each ran their position leg and their cash leg<br />
+through two separate <code>with connect()</code> blocks - two independent commits. A failure<br />
+in between committed one leg and dropped the other: a buy that inflates NAV<br />
+forever, or (worse) a sell that closes a position and never credits the proceeds.<br />
+The corruption is invisible to <code>verify_run</code>, whose cash recon recomputes from the<br />
+same <code>paper_portfolio.cash</code> it corrupted, so it reports delta $0.00 in perpetuity.</p>
+<p><code>db.connect()</code> hands back a REUSED thread-local connection that commits on exit,<br />
+so nesting <code>with connect()</code> would have committed the outer block's half-finished<br />
+work at the inner exit. Fixed as CQ.7 prescribed - one transaction, <code>conn</code><br />
+threaded down through a small <code>_tx()</code> helper that joins the caller's transaction<br />
+when given one and owns its own otherwise. <code>open_position</code> / <code>close_position</code> /<br />
+<code>adjust_cash</code> take an optional <code>conn</code>; their default path is byte-identical to<br />
+before. Confirmed by GNU grep that those three primitives have <strong>no callers<br />
+outside buy()/sell()</strong>, and that no caller wraps buy/sell in its own<br />
+<code>with connect()</code> block.</p>
+<p>New regression test <code>scripts/momentum/test_trade_atomicity.py</code>, 11 checks, all<br />
+passing. It opens by proving the trigger is real rather than asserting current<br />
+behaviour: the OLD split-leg shape, fed the same injected failure, <strong>leaks a<br />
+position row with no cash debit</strong> (open=1, cash untouched at $100,000). The new<br />
+buy() rolls back to zero rows, the new sell() leaves the position OPEN, and both<br />
+happy paths still move exactly the right cash.</p>
+<h2 id="cr3-finding-8---m6-is-ungated">CR.3 Finding 8 - M6 is ungated</h2>
+<p>The gate condition has been met since 2026-08-03. <strong>231 Alpaca PAPER orders, 0<br />
+rejects</strong>: 99 on 07-07 (record AV) + 132 on 08-03 (record CP - residual_roa_6535_0701<br />
+62, mom_roa_6535_0701 69, spy_benchmark_0701 1). <code>scripts/momentum/fetch_alpaca_fills.py</code><br />
+does not exist (verified). Marked UNGATED in <code>HANDOFF.md</code> (four separate stale<br />
+claims) and <code>PRD_ROADMAP.md</code> (five), striking in place with dated reasons per the<br />
+roadmap-history rule rather than rewriting the dated blockquotes that were true<br />
+when written.</p>
+<p><strong>One honest caveat carried into the PRD</strong>: the record logs orders SUBMITTED and<br />
+REJECTED, never orders FILLED. They were DAY orders expected to fill at the next<br />
+open, but confirming that is precisely M6.1's own done-check ("CSV rows match the<br />
+order counts the record logged"). 231 is the submitted count to reconcile<br />
+AGAINST, not a fill count to assume. <strong>M6.1 is now the next open PRD task; it was<br />
+not started here</strong> - this session's scope was the 15 findings.</p>
+<h2 id="cr4-finding-12---the-daily-path-threw-the-staleness-numbers-away">CR.4 Finding 12 - the daily path threw the staleness numbers away</h2>
+<p><code>compute_nav</code> computes <code>missing_count</code> / <code>aged_count</code> / <code>median_age_days</code>, and<br />
+only <code>paper_mtm.main()</code> ever printed them. <code>daily.bat</code> has not gone through<br />
+<code>main()</code> since M3.5. Enumerating the callers turned the finding out to be wider<br />
+than reported: <strong>six</strong> write paths call <code>compute_nav</code>/<code>write_nav</code> directly and<br />
+every one discarded the metrics - <code>mtm_catchup</code>, <code>ladder_forward_rebalance</code>,<br />
+<code>monthly_rebalance</code>, <code>remark_nav_day</code> and two seeders.</p>
+<p>So the fix went into the shared function rather than the reported call site<br />
+(CLAUDE.md's root-cause rule): reporting now happens <strong>inside <code>compute_nav</code></strong>, so<br />
+all six paths get it and a seventh caller cannot forget it. <code>main()</code>'s now-<br />
+duplicate block was removed.</p>
+<p>Added <code>MAX_CARRY_FORWARD_DAYS = 10</code> and a <code>stale_tickers</code> list, so the message<br />
+NAMES the offending ticker and its age instead of counting. Carry-forward itself<br />
+is deliberately left UNBOUNDED - refusing to mark would tear a hole in NAV<br />
+continuity, and re-valuing on a heuristic is exactly what record CK ruled out.<br />
+The bound is a <strong>reporting</strong> bound: report loudly, never refuse, never re-value.<br />
+The error text says why recon cannot catch it.</p>
+<p>New regression test <code>scripts/momentum/test_carry_forward_bound.py</code>, 8 checks, all<br />
+passing: a 1-day-old price is not flagged, a 30-day-old one IS (named, with its<br />
+age), the sleeve is <strong>still marked</strong> at the fossil price, and a never-priced name<br />
+still falls back to <code>entry_price</code>. Checked for false positives against the live<br />
+DB: <strong>0 of 192 distinct held tickers</strong> would trigger it as of 2026-08-04. The flag<br />
+is silent today and speaks only when something is genuinely wrong.</p>
+<h2 id="cr5-e6---a-torn-backup-could-evict-a-good-one">CR.5 E6 - a torn backup could evict a good one</h2>
+<p><code>backup_trades_db.py</code> rotated over a directory glob, so a truncated <code>VACUUM INTO</code><br />
+counted as a generation - and because its filename carries today's date it sorted<br />
+NEWEST, so the junk was RETAINED while good copies aged out. Three Sundays and all<br />
+three generations are junk, discovered during a restore. A second, independent<br />
+defect: the same-day rerun path <code>unlink()</code>ed the existing backup BEFORE starting<br />
+the new VACUUM, so a failure there destroyed a good generation and produced nothing.</p>
+<p>Now write-validate-rename: VACUUM into <code>&lt;name&gt;.db.part</code> (which the <code>trades_*.db</code><br />
+glob <strong>cannot match</strong>, so a failed write is invisible to rotation by construction<br />
+rather than by a filter), validate, then <code>os.replace</code>. Validation is<br />
+<code>PRAGMA integrity_check</code> <strong>plus</strong> a <code>paper_nav</code> row-count match against the<br />
+source - they fail differently: a torn write trips integrity_check, while a VACUUM<br />
+against the wrong source produces a perfectly valid database with the wrong rows.<br />
+On any failure: delete the <code>.part</code>, exit 1, and <strong>do not rotate</strong>.</p>
+<p>New regression test <code>scripts/test_backup_validation.py</code>, 11 checks, all passing -<br />
+including the structural proof (the glob cannot see <code>.part</code>, and CAN see a junk<br />
+<code>trades_*.db</code>, which is the old bug) and the one that matters: a run whose<br />
+validation fails exits 1 and leaves <strong>all three</strong> pre-existing generations on<br />
+disk. <code>integrity_check</code> is O(db size); marked with its upgrade trigger<br />
+(switch to <code>quick_check</code> if this ever runs more often than daily).</p>
+<h2 id="cr6-e918---the-unknown-kind-detector-could-not-fire">CR.6 E9/18 - the UNKNOWN-kind detector could not fire</h2>
+<p>It was <code>log.info</code> text inside a dry-run survey, not a gate. Confirmed the standing<br />
+false positive from live data: <code>price_cache</code> holds <strong><code>above_ma_200</code></strong>, which sits<br />
+outside all three classification tuples. Two fixes - <code>above_ma_200</code> classified<br />
+into <code>UNTOUCHED_KINDS</code> (a boolean IS scale-invariant, so this is a correct<br />
+classification, not a silencer), and the detector promoted to a real gate that<br />
+returns 1, with <code>--allow-unknown-kinds</code> as the deliberate escape hatch. Harmless<br />
+today; a future price-like <code>kind</code> would otherwise be left pre-split while <code>close</code><br />
+was divided, which is the KLAC failure shape this script exists to repair.</p>
+<p>Verified against fixture DBs (the subject is an operator-run one-off that is<br />
+dry-run by default, so this got a scratch check rather than a permanent test):<br />
+an unclassified kind halts with exit 1, <code>--allow-unknown-kinds</code> proceeds, and the<br />
+real live kind vocabulary including <code>above_ma_200</code> passes clean.</p>
+<h2 id="cr7-finding-21---environment-pinned-cve-status-honestly-undetermined">CR.7 Finding 21 - environment pinned; CVE status honestly UNDETERMINED</h2>
+<p><code>requirements.txt</code> pinned 9 packages against 97 installed, leaving yfinance's<br />
+entire transitive chain - <code>curl_cffi</code>, <code>requests</code>, <code>urllib3</code>, <code>lxml</code>,<br />
+<code>beautifulsoup4</code>, <code>peewee</code>, <code>frozendict</code>, <code>multitasking</code>, <code>platformdirs</code> - unpinned.<br />
+Those are exactly the libraries that fetch and parse the prices this project<br />
+treats as ground truth, so a clean rebuild could change adjustment behaviour<br />
+behind an unchanged <code>yfinance==1.3.0</code> pin.</p>
+<p>Added <strong><code>requirements.lock.txt</code></strong> - 96 packages, full transitive snapshot of the<br />
+known-good venv, pure ASCII, with a documented header. <code>requirements.txt</code> keeps<br />
+its curated direct list and now points at the lock. All 9 direct pins cross-checked<br />
+against the lock: identical.</p>
+<p><strong>CVE status: UNDETERMINED, and no claim is made in either direction.</strong> Neither<br />
+<code>pip-audit</code> nor <code>safety</code> is installed; installing one would perturb the venv the<br />
+frozen tests are the contract for. The exact commands to settle it (preferably in<br />
+a throwaway venv) are written into the lock file's header.</p>
+<h2 id="cr8-doc-drift---findings-15-16-13-14-17-22">CR.8 Doc drift - findings 15, 16, 13, 14, 17, 22</h2>
+<p>Each verified against reality first, not taken from the audit.</p>
+<ul>
+<li><strong>15 - the FN position does not exist.</strong> <code>HANDOFF.md</code> listed the single-name LLM<br />
+  sleeves as "deep underwater (FN position, both -19%)". <strong>Zero open FN rows</strong> in<br />
+  the DB; the 2 that exist are closed and pre-date the 07-01 reset. The claim<br />
+  survived two re-inceptions. Corrected to the real holdings: control<br />
+<code>mom_roa_top1_paper</code> = <strong>MU</strong>, treatment = <strong>cash</strong> (BE vetoed), cascade =<br />
+<strong>STX</strong>. The general point (single-name sleeves can be deep underwater, n is<br />
+  noise) was kept because it is still true.</li>
+<li><strong>16 - three enabled Claude tasks were in no inventory.</strong> They run on Claude's<br />
+  scheduler, not <code>schtasks</code>, so they appear in NO <code>schtasks /query</code> output and<br />
+  nothing in this repo listed them. New "Claude agent scheduled tasks" table in<br />
+<code>HANDOFF.md</code> covering all six (3 enabled, 3 disabled), read live from<br />
+<code>list_scheduled_tasks</code>. <strong>Two of them <code>git commit</code> and <code>git push</code> to this repo</strong><br />
+  (<code>daily-trade-check</code> 8:07am weekdays, <code>daily-trade-check-2</code> 7:00pm weekdays);<br />
+  both are narrowly scoped to <code>git add daily_report.md daily_report.html</code> with an<br />
+  explicit "NEVER <code>git add -A</code>", so an in-progress tree is not swept in.<br />
+<strong><code>hellohello</code> is a stray enabled test task</strong> firing daily at ~8:08am whose<br />
+  entire prompt is <code>hello (Just say "hi" back)</code> - <strong>flagged for Evan, not<br />
+  deleted.</strong></li>
+<li><strong>Bonus, and the reason this mattered: the record CN cron re-check is DONE.</strong><br />
+    HANDOFF asked a future session to re-list <code>monthy-llm-rebalance</code> because CN's<br />
+    confirming call was blocked by the permission classifier. It reads<br />
+<strong><code>0 18 * * *</code>, "At 06:03 PM, every day", enabled</strong>, <code>lastRunAt</code> 2026-08-05.<br />
+<strong>The CN fix HELD.</strong> The CQ.3/E2 move of <code>daily-trade-check-2</code> to <code>0 19</code> held too.</li>
+<li><strong>13 - <code>MOMENTUM_DESIGN.md</code> specifies a filter that has never existed.</strong> Its §1<br />
+  claims a "30-day median dollar volume &gt;= $1M (liquidity floor)";<br />
+<code>trading_bot/factors/universe.py:53</code> is <code>MIN_DOLLAR_VOL = 0</code>. Every backtest and<br />
+  every live sleeve has run with <strong>no liquidity filter at all</strong>. Separately, §3<br />
+  ("Top N = 50, 2% per name") contradicts §10 "Decisions - locked" ("top 100, 1%<br />
+  per name"); both shipped, as the separate <code>mom_v2_paper</code> / <code>mom_v1_paper</code><br />
+  sleeves. Annotated in place with a HISTORICAL-DESIGN-DOC banner. <strong>Turning the<br />
+  liquidity floor on is a strategy change and was NOT done.</strong></li>
+<li><strong>14 - <code>docs/paper_trading_ops.md</code> describes a 2-sleeve hand-run system</strong> while<br />
+  76 sleeves run unattended. It is <strong>last in <code>PRD_ROADMAP.md</code> §7's mandated<br />
+  read-first chain</strong>, so an executing model is told to read it - which is why it<br />
+  got a banner rather than a quiet deletion. Body deliberately not rewritten.</li>
+<li><strong>17 - <code>sector_cache</code> vs <code>sectors_cache</code> are different tables and both are<br />
+  live.</strong> <code>sector_cache</code> (6,113 rows) is what the running system reads and writes<br />
+  (<code>market_data</code>); <code>sectors_cache</code> (1,493 rows) is research-only<br />
+  (<code>warm/warm_sectors.py</code>). HANDOFF listed only the latter, so anyone trusting it<br />
+  would query the wrong table. HANDOFF also claimed "18 tables" and then named 10;<br />
+<strong>all 18 are now enumerated.</strong></li>
+<li><strong>22 - <code>HANDOFF.md</code> said "Last updated: 2026-07-17"</strong> through the CE/CH/CJ-CN/CP/CQ<br />
+  work. Now 2026-08-05.</li>
+</ul>
+<h2 id="cr9-verification">CR.9 Verification</h2>
+<ul>
+<li>Frozen tests <strong>4/4 d=+/-0.0000pp</strong>, run 2026-08-05 21:01 CDT, matching the CQ.5<br />
+  baselines exactly: v1 2023_Q4 +14.5547%/70 trades, v1 2025_H1 +1.8792%/156,<br />
+  v2 2023_Q4 +14.4062%/38, v2 2025_H1 +10.2194%/87.</li>
+<li><code>test_trade_atomicity.py</code> - 11/11 pass (incl. the old-shape leak demonstration).</li>
+<li><code>test_carry_forward_bound.py</code> - 8/8 pass; <strong>0 false positives across all 192<br />
+  distinct held tickers</strong> on the live DB.</li>
+<li><code>test_backup_validation.py</code> - 11/11 pass.</li>
+<li><code>backadjust_split</code> unknown-kind gate - 4/4 fixture checks pass.</li>
+<li>Live DB touched <strong>read-only</strong> throughout. Nothing traded, no NAV row written, no<br />
+  live-DB write attempted.</li>
+<li>Frozen tests were deliberately DEFERRED to 21:01 CDT: the CQ busy-window guard<br />
+  refuses 19:45-21:00, which is exactly the <code>TradingLadderRebalance</code> 20:30 slot.<br />
+  The guard did its job on its first real encounter.</li>
+</ul>
+<h2 id="cr10-noticed-and-deliberately-not-acted-on">CR.10 Noticed and deliberately NOT acted on</h2>
+<p>Reported per the standing rule that data/design questions are Evan's call:</p>
+<ol>
+<li><strong><code>dividends_total</code> is classified scale-invariant in <code>backadjust_split</code>.</strong> A<br />
+   per-share dividend is price-like and arguably needs dividing by N after a<br />
+   split. Pre-existing classification; changing it would alter the KLAC repair's<br />
+   semantics, and it is outside the finding (which was about the detector not<br />
+   firing). Flagged only.</li>
+<li><strong><code>price_cache</code> and <code>sector_cache</code> are not in <code>trading_bot/db.py</code>'s <code>SCHEMA</code></strong><br />
+   despite its docstring calling SCHEMA "the authoritative definition of every<br />
+   table" - <code>market_data._ensure_cache_schema()</code> owns their DDL. Found while<br />
+   fixturing a test. Noted in HANDOFF; not one of the 15 findings.</li>
+<li><strong><code>hellohello</code></strong> - Evan's to delete.</li>
+<li><strong>The XLU stop above its own entry price</strong> (CR.1) - a decision-quality<br />
+   datapoint, logged for the kill-switch review.</li>
+<li><strong>Finding 2 from CQ.2 remains open by design</strong>: the frozen tests still write<br />
+   the live DB, and the 137 residue rows in <code>positions</code> are still there. The<br />
+   busy-window guard bounds WHEN, not WHETHER. A real fix is a DB-layer change.</li>
+</ol>
+<p>Committed together with the code and doc changes it describes.</p>
 </div>
 </body>
 </html>
