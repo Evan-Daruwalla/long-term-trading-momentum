@@ -353,6 +353,27 @@ as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
    (read-only API calls; keys from `alpaca_keys.env` loaded however `alpaca_sync` loads them —
    never print keys), normalize to CSV: ticker, side, qty, fill price, fill timestamp, account.
    Done: CSV rows match the order counts the record logged (e.g. 99 for the 07-06 deploy).
+   **[DONE 2026-08-05 ~21:52 CDT, record CS. Done-check PASSES exactly: 231 filled rows vs
+   231 orders submitted per the record — 48+62 / 50+69 / 1+1 across the three accounts,
+   every order `status='filled'`, no cancels/rejects/partials. Exit 0. Output
+   `var/alpaca_fills_2026-07-01_2026-08-06.csv`.**
+   **THREE THINGS THIS TASK ASSUMED THAT WERE FALSE, all now handled:**
+   (1) `alpaca_client.list_orders` could NOT do this — `(status="open", limit=100)` with no
+   date range and no paging cannot reach 2026-07-07 at all, and 100 truncates two of the
+   three accounts (110 and 119 orders) newest-first, so the OLDEST silently vanish. Extended
+   with `after`/`until`/`direction`; default signature unchanged so `alpaca_sync`'s cancel
+   sweep is untouched. (2) Alpaca's `submitted_at` is a QUEUE-RELEASE time, not our
+   submission time: our own `alpaca_request_ids.log` shows all 132 August POSTs in a 6-second
+   burst at 2026-08-03T23:24:48Z, while Alpaca stamps them 2026-08-04T08:00-13:23Z — keying
+   reconciliation off that field alone mis-dates a whole batch by a day. (3) The CSV needed
+   `order_id` and `qty_filled` beyond the six columns named above, or re-fetching is
+   non-idempotent and a partial fill is invisible.
+   **CARRIES A HARD CAVEAT INTO M6.2 — read record CS.4 before computing any bps.** The two
+   batches are NOT comparable: July filled intraday in a median 2.0s, August was POSTed after
+   the close and HELD to the next session open (median lag 5.5h, filled 09:30-09:36 ET on
+   08-04). The sim books August at the 08-03 CLOSE, the mirror filled at the 08-04 OPEN, so
+   that difference is dominated by the OVERNIGHT GAP, not execution quality. Do not pool them
+   into one slippage number.]**
 2. **Pair and report.** Extend `slippage_tracker.py`'s existing pairing flow (read it first —
    the CSV ingest + `slippage_log` schema already exist) to accept the fetched Alpaca CSV,
    pairing each fill to the sim `entry_price` in `paper_positions` for the same

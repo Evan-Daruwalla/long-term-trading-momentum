@@ -115,9 +115,31 @@ class AlpacaClient:
         """Asset reference data — tradable / fractionable / status / exchange."""
         return self._request("GET", f"/v2/assets/{symbol}")
 
-    def list_orders(self, *, status: str = "open", limit: int = 100) -> list[dict]:
-        return self._request("GET", "/v2/orders",
-                             params={"status": status, "limit": limit}) or []
+    def list_orders(self, *, status: str = "open", limit: int = 100,
+                    after: str | None = None, until: str | None = None,
+                    direction: str | None = None) -> list[dict]:
+        """One page of /v2/orders.
+
+        The default signature is unchanged (alpaca_sync's cancel sweep calls it
+        as list_orders(status="open")). The extra params exist for M6.1: without
+        a date range this endpoint cannot reach the 2026-07-07 deploy orders at
+        all, and the 100 default silently truncates an account that took more
+        than 100 orders across both rebalances -- newest-first, so the OLDEST
+        orders are the ones that vanish, with nothing in the response saying so.
+
+        status: "open" | "closed" | "all". A filled order is "closed".
+        after/until: RFC3339 timestamps, EXCLUSIVE bounds.
+        This returns ONE page; callers that need a full window must page (see
+        scripts/momentum/fetch_alpaca_fills.py) and dedupe by order id.
+        """
+        params: dict[str, Any] = {"status": status, "limit": limit}
+        if after:
+            params["after"] = after
+        if until:
+            params["until"] = until
+        if direction:
+            params["direction"] = direction
+        return self._request("GET", "/v2/orders", params=params) or []
 
     # ---- order entry (caller-driven; defaults to paper via base_url) ----
     def submit_order(self, *, symbol: str, qty: float | None = None,

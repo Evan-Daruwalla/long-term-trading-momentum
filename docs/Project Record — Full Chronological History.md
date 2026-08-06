@@ -153,6 +153,7 @@ lives in the dated entry, not the digest.
 - [CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix](#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt) (08-03)
 - [CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred](#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt) (08-05)
 - [CR - The 15 deferred CQ.7 findings closed: cascade sleeves unstopped BY DESIGN (Evan's call; the audit's own example was the wrong position - XLU, not STX), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, 6 doc-drift fixes](#appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt) (08-05)
+- [CS - PRD M6.1 SHIPPED: 231/231 mirrored orders reconcile filled; Alpaca's `submitted_at` is a queue-release time, and the August batch was HELD TO THE NEXT SESSION OPEN so M6.2 must not call it slippage](#appendix-cs---prd-m61-shipped-all-231-mirrored-orders-reconcile-231231-filled-and-the-august-batch-turns-out-to-have-been-held-to-the-next-session-open---so-m62-must-not-call-it-slippage-2026-08-05-2152-cdt) (08-05)
 
 ---
 
@@ -7752,3 +7753,115 @@ Reported per the standing rule that data/design questions are Evan's call:
    busy-window guard bounds WHEN, not WHETHER. A real fix is a DB-layer change.
 
 Committed together with the code and doc changes it describes.
+
+# Appendix CS - PRD M6.1 SHIPPED: all 231 mirrored orders reconcile 231/231 filled, and the August batch turns out to have been HELD TO THE NEXT SESSION OPEN - so M6.2 must not call it slippage (2026-08-05, ~21:52 CDT)
+
+First task after M6 was ungated (record CR). New `scripts/momentum/fetch_alpaca_fills.py`
+pulls FILLED orders from the three mirrored Alpaca PAPER accounts to CSV, read-only
+(`GET /v2/orders` only), and reconciles them against what the record logged.
+
+## CS.1 The client could not do the job as written
+
+`alpaca_client.list_orders` took only `(status="open", limit=100)` — no date range,
+no paging. Three separate ways that silently produces a wrong answer:
+
+- **It cannot reach 2026-07-07 at all.** No `after`/`until` meant no way to ask
+  for the deploy batch.
+- **`limit=100` truncates, newest-first.** `residual_roa_6535_0701_paper` has 110
+  orders in the M6 window and `mom_roa_6535_0701_paper` has 119 — both over 100.
+  The OLDEST orders are the ones dropped, and nothing in the response says so.
+- **A filled order is not `status="open"`.** Called as-is it returns `[]`, and the
+  existing `or []` makes that indistinguishable from a successful empty fetch.
+
+Extended with `after`/`until`/`direction`, default signature unchanged so
+`alpaca_sync`'s cancel sweep (`list_orders(status="open")`) is untouched. Paging
+lives in the fetch script (one consumer), walking `after` = the page's newest
+`submitted_at` and deduping by order id.
+
+## CS.2 Result: 231/231, clean
+
+    ACCT1 residual_roa_6535_0701_paper  110 orders  ->  48 (07-07) + 62 (08-03), all filled
+    ACCT2 mom_roa_6535_0701_paper       119 orders  ->  50 (07-07) + 69 (08-03), all filled
+    ACCT3 spy_benchmark_0701_paper        2 orders  ->   1 (07-07) +  1 (08-03), all filled
+    ALL: 231 filled vs 231 submitted per the record (AV=99, CP=132). Exit 0.
+
+Every order in the window has `status='filled'`; there are no canceled, expired,
+rejected or partially-filled orders. The done-check as the PRD wrote it — "CSV
+rows match the order counts the record logged" — passes exactly, and it passes
+because the fills genuinely are all there, not because the query was shaped to
+agree. Output: `var/alpaca_fills_2026-07-01_2026-08-06.csv`.
+
+## CS.3 The finding: Alpaca's `submitted_at` is a QUEUE-RELEASE time
+
+The first run reported 0 filled for 2026-08-03 on all three accounts while the
+totals reconciled perfectly — the signature of a wrong key, not missing data.
+Chased rather than explained away, and it is a real property of the venue:
+
+| source | when the 132 August orders were "submitted" |
+|---|---|
+| `var/alpaca_request_ids.log` (ours, authoritative for OUR side) | **132 POSTs in a 6-second burst, 2026-08-03T23:24:48-23:24:54Z = 18:24 CDT** |
+| Alpaca's `submitted_at` field | **2026-08-04T08:00:16 - 13:23:01Z**, spread over 5.4 hours |
+
+So `submitted_at` is when Alpaca's simulator released the order to its market,
+8.5-14 hours after we sent it. Keying reconciliation off that field alone
+mis-dates an entire batch by a day. `BATCHES` in the script now carries both
+`rebalance` (local, what the record logs) and `alpaca_date`, with the discrepancy
+documented at the constant rather than hidden. A window-total check was added too,
+so a batch landing on an unexpected date is a finding rather than a silent miss.
+
+## CS.4 The finding that matters more: the two batches are NOT comparable
+
+Measured submit->fill lag, straight from the fetched data:
+
+| batch | n | min | median | max | what it is |
+|---|---:|---:|---:|---:|---|
+| 2026-07-07 | 99 | 0.3s | **2.0s** | 5.6s | intraday, immediate |
+| 2026-08-04 (the 08-03 rebalance) | 132 | 418.6s | **19,797s (5.5h)** | 20,086s | **held to the next session open** |
+
+The July deploy ran mid-session (13:20 CDT) and filled in seconds. The August
+rebalance POSTed at 18:24 CDT, after the close, so Alpaca held all 132 orders and
+filled them at the next open — 13:30-13:36Z on 08-04, i.e. 09:30-09:36 ET.
+
+**Consequence for M6.2, and it is not a detail:** the sim books its August fills at
+the **2026-08-03 close**, while the mirror filled at the **2026-08-04 open**. The
+price difference between them is dominated by the **overnight gap**, not by
+execution quality. Calling that number "slippage" would be wrong, and it is exactly
+the sort of plausible-looking figure that would then get cited. The July batch is a
+genuine intraday execution comparison; the August batch is not. **They must not be
+pooled into one slippage number.** The script prints this classification on every
+run (`report_execution_timing`) so M6.2 cannot miss it.
+
+This also raises a design question for Evan, deliberately NOT actioned here (it
+would change live trading behaviour): the monthly rebalance fires at 18:03 CDT by
+design — after the 17:15 daily MTM, per record BS — which guarantees every future
+monthly mirror batch fills at the next open. Either that is accepted and M6.2
+reports monthly mirroring as open-to-close-gap-inclusive, or the Alpaca sync moves
+to an in-session slot. Not a bug; a tradeoff that was never stated.
+
+## CS.5 Verification
+
+- Live done-check: **231/231, exit 0** (output above).
+- New `scripts/momentum/test_fetch_alpaca_fills.py`, offline (no network, no keys,
+  no DB), 7 checks passing. It covers what a live run structurally cannot: each
+  account took fewer than 500 orders, so **the paging loop never executes against
+  real data**. Cases: 1,200 orders across 3 pages with no loss and no dupes; a
+  short page terminating in one call; 600 orders sharing one timestamp
+  terminating instead of spinning (the exclusive `after` cursor cannot advance —
+  the code now logs INCOMPLETE if a full page yields nothing new, since that
+  would silently truncate); a partial fill staying visible as qty 10 vs
+  qty_filled 4; a shortfall producing a finding; a batch on an unexpected date
+  producing a finding; and the clean 48+62 case staying silent.
+- Frozen tests **4/4 d=+/-0.0000pp** — v1 +14.5547%/70 & +1.8792%/156,
+  v2 +14.4062%/38 & +10.2194%/87.
+
+## CS.6 Notes for M6.2
+
+- The price column is named `filled_avg_price` because that is what Alpaca returns
+  — an average across every print of that order, not a single fill price. Do not
+  relabel it downstream.
+- The CSV carries `order_id`, so re-fetching is idempotent and any future partial
+  fill is traceable. It also carries `qty` and `qty_filled` separately, which is
+  the only way a partial fill is visible at all.
+- `price_cache` is dividend-UNadjusted and split-adjusted; Alpaca fills are raw
+  traded prices. Same-day comparison is fine, which is what M6.2 does — but the
+  July/August split above governs what the comparison MEANS.
