@@ -192,7 +192,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cp---august-monthly-rebalance-executed-12-llm-overlay-and-cascade-decisions-logged-all-sleeves-rebalanced-verify_run-pass-7676-alpaca-paper-132-orders-0-rejects-first-live-monthly-fire-since-the-cn-cron-drift-fix-2026-08-03-1825-cdt">CP - August monthly rebalance EXECUTED: 12 LLM overlay and cascade decisions logged, all sleeves rebalanced, verify_run PASS 76/76, Alpaca paper 132 orders 0 rejects; first live monthly fire since the CN cron-drift fix</a> (08-03)<br />
 - <a href="#appendix-cq---third-full-audit-cold-subagent-the-rebalance-failure-visibility-chain-fixed-plus-8-more-findings-15-findings-deferred-to-a-fresh-session-2026-08-05-1950-cdt">CQ - Third full audit (cold subagent): the rebalance failure-visibility chain fixed (a failed rebalance stamped success and blocked its own retry, defeating CO's check (e)) + 8 more; 15 findings deferred</a> (08-05)<br />
 - <a href="#appendix-cr---the-15-deferred-cq7-findings-closed-the-cascade-sleeves-are-unstopped-by-design-evans-call-and-the-audits-own-example-was-the-wrong-one-buysell-made-genuinely-atomic-m6-ungated-carry-forward-staleness-surfaced-backups-validated-before-rotation-plus-six-doc-drift-corrections-2026-08-05-2105-cdt">CR - The 15 deferred CQ.7 findings closed: cascade sleeves unstopped BY DESIGN (Evan's call; the audit's own example was the wrong position - XLU, not STX), buy/sell made genuinely atomic, M6 ungated, carry-forward staleness surfaced, backups validated before rotation, 6 doc-drift fixes</a> (08-05)<br />
-- <a href="#appendix-cs---prd-m61-shipped-all-231-mirrored-orders-reconcile-231231-filled-and-the-august-batch-turns-out-to-have-been-held-to-the-next-session-open---so-m62-must-not-call-it-slippage-2026-08-05-2152-cdt">CS - PRD M6.1 SHIPPED: 231/231 mirrored orders reconcile filled; Alpaca's <code>submitted_at</code> is a queue-release time, and the August batch was HELD TO THE NEXT SESSION OPEN so M6.2 must not call it slippage</a> (08-05)</p>
+- <a href="#appendix-cs---prd-m61-shipped-all-231-mirrored-orders-reconcile-231231-filled-and-the-august-batch-turns-out-to-have-been-held-to-the-next-session-open---so-m62-must-not-call-it-slippage-2026-08-05-2152-cdt">CS - PRD M6.1 SHIPPED: 231/231 mirrored orders reconcile filled; Alpaca's <code>submitted_at</code> is a queue-release time, and the August batch was HELD TO THE NEXT SESSION OPEN so M6.2 must not call it slippage</a> (08-05)<br />
+- <a href="#appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt">CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not slippage, and M6.3 run off it would have moved HALF_SPREAD_BPS 5 -&gt; 100bps and corrupted every backtest</a> (08-05)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -8588,6 +8589,206 @@ to an in-session slot. Not a bug; a tradeoff that was never stated.</p>
 <li><code>price_cache</code> is dividend-UNadjusted and split-adjusted; Alpaca fills are raw<br />
   traded prices. Same-day comparison is fine, which is what M6.2 does — but the<br />
   July/August split above governs what the comparison MEANS.</li>
+</ul>
+<h1 id="appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt">Appendix CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not execution slippage, and M6.3 run off it would have recalibrated HALF_SPREAD_BPS 5bps -&gt; 100bps and corrupted every backtest (2026-08-05, ~22:25 CDT)</h1>
+<p>Immediately after M6.1 (record CS). The pairing machinery is finished, tested and<br />
+read-only; what is blocked is the <strong>interpretation</strong>. <code>slippage_log</code> was<br />
+deliberately left empty — writing rows whose basis is undefined is worse than<br />
+writing none, because a populated table reads as a settled measurement.</p>
+<h2 id="ct1-what-was-built">CT.1 What was built</h2>
+<p>New <code>--alpaca-csv</code> path in <code>scripts/momentum/slippage_tracker.py</code>. The existing<br />
+<code>--csv</code> path is untouched: it is the deferred real-brokerage flow for 18, and<br />
+three things in it could not be reused.</p>
+<table>
+<thead>
+<tr>
+<th>legacy behaviour</th>
+<th>why it fails here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pairs by <code>ORDER BY ABS(julianday(entry_time) - ?) LIMIT 1</code></td>
+<td>always returns <em>something</em>, so it can never report an unpaired fill — and with a ticker held across two rebalances it silently picks the wrong leg</td>
+</tr>
+<tr>
+<td><code>direction = "buy" if qty &gt; 0 else "sell"</code></td>
+<td><code>paper_positions.qty</code> is always positive in a long-only sim, so every fill is labelled a buy</td>
+</tr>
+<tr>
+<td>pairs every fill against <code>entry_price</code></td>
+<td>a SELL must pair against <code>exit_price</code>; comparing a sell to an entry compares two unrelated trades</td>
+</tr>
+</tbody>
+</table>
+<p>The new path joins on <strong>(sleeve, ticker, rebalance date)</strong> explicitly, takes<br />
+<code>side</code> from the Alpaca CSV, pairs buys to <code>entry_price</code> and sells to<br />
+<code>exit_price</code>, and maps Alpaca's queue-release date back to the sim rebalance date<br />
+per CS.3. Read-only by default (<code>mode=ro</code>), <code>--execute</code> to write — matching<br />
+<code>backadjust_split</code> and <code>remark_nav_day</code>.</p>
+<h2 id="ct2-structural-finding-the-sim-and-the-mirror-are-not-11">CT.2 Structural finding: the sim and the mirror are not 1:1</h2>
+<table>
+<thead>
+<tr>
+<th>sleeve</th>
+<th>Alpaca buys / sells</th>
+<th>sim entries / exits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mom_roa_6535_0701_paper</td>
+<td>69 / <strong>50</strong></td>
+<td>69 / <strong>19</strong></td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper</td>
+<td>63 / <strong>47</strong></td>
+<td>63 / <strong>16</strong></td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper</td>
+<td>1 / <strong>1</strong></td>
+<td>1 / <strong>0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Buys match exactly. Sells do not, and it is not an error: <code>alpaca_sync</code><br />
+reconciles each account to <strong>target weights</strong>, so it trims or tops up names the<br />
+sim merely holds at a different quantity. Those fills have no sim leg by<br />
+construction. <strong>166 of 231 paired; the 65 unpaired are reported with that reason<br />
+rather than dropped</strong>, so the count is never quietly explained away.</p>
+<h2 id="ct3-the-numbers-and-why-they-were-not-believed">CT.3 The numbers, and why they were not believed</h2>
+<p>Per (sleeve x batch x side), never pooled:</p>
+<table>
+<thead>
+<tr>
+<th>rebalance</th>
+<th>sleeve</th>
+<th>side</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mean bps</th>
+<th style="text-align: right;">median bps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-07-07</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;"><strong>+156.0</strong></td>
+<td style="text-align: right;">+122.9</td>
+</tr>
+<tr>
+<td>2026-07-07</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;"><strong>+42.0</strong></td>
+<td style="text-align: right;">+39.0</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">+396.2</td>
+<td style="text-align: right;">+463.1</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>sell</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">−156.8</td>
+<td style="text-align: right;">−285.9</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">+183.4</td>
+<td style="text-align: right;">+162.0</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>sell</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">−44.0</td>
+<td style="text-align: right;">+23.0</td>
+</tr>
+</tbody>
+</table>
+<p>Whole-batch: 07-07 n=98 mean <strong>+100.2</strong>, median +83.6; 08-03 n=68 mean +97.6,<br />
+median +148.2.</p>
+<p>A ~+100 bps median against the sim's <strong>5 bps</strong> half-spread assumption is a 20x<br />
+gap. That is the shape of a result that is wrong, not a result that is<br />
+interesting, so it was checked before being reported. It did not survive:</p>
+<pre><code>ticker  sim_entry  close_2026-07-07   sim/close
+AAOI     115.9179          114.4100    1.013180
+AEHR      65.3577           66.9400    0.976362
+AGX      655.4126          663.1800    0.988288
+AMD      515.8578          516.1100    0.999511
+APLD      31.4057           30.7100    1.022654
+</code></pre>
+<p><code>sim entry_price / price_cache close for the same date</code> ranges <strong>0.976 to 1.023</strong><br />
+— not the <strong>1.0005</strong> a 5 bps half-spread implies. The sim prices via<br />
+<code>market_data.last_close_on_or_before(ticker, as_of) * (1 +/- spread)</code><br />
+(<code>paper_rebalance.py:199,209,246</code>), so one of two things is true and this session<br />
+could not determine which: the 07-06 cohort deploy used an <code>as_of</code> that is not<br />
+recoverable from here, <strong>or</strong> <code>price_cache</code> has been revised underneath those<br />
+rows since. The second is not speculation — <code>daily_price_refresh</code> re-downloads<br />
+the last 30 days for every ticker with <code>INSERT OR REPLACE</code> <strong>by design</strong> (record<br />
+CK), and 2026-07-07 sat inside that rolling window until approximately now.</p>
+<h2 id="ct4-why-this-is-not-slippage-and-why-that-stops-m63">CT.4 Why this is not slippage, and why that stops M6.3</h2>
+<p>Even setting the basis question aside, neither batch compares like with like:</p>
+<ul>
+<li><strong>July</strong>: the mirror filled at <strong>14:20 ET</strong>, mid-session. The sim's reference is<br />
+  a <strong>close</strong>. The difference is ~1h40m of intraday drift.</li>
+<li><strong>August</strong>: the mirror filled at the <strong>next session's open</strong> (record CS.4). The<br />
+  difference is an overnight gap.</li>
+</ul>
+<p>The sim never books at a price the mirror ever transacted at. So ~+100 bps is<br />
+<strong>intraday and overnight drift wearing a slippage label</strong>, and the per-name<br />
+extremes (+1470.9 / −1364.9 bps) are single-name moves, exactly what drift<br />
+produces and what a spread cannot.</p>
+<p><strong>M6.3 was therefore NOT started.</strong> Its task text says to write a memo if measured<br />
+slippage differs materially from the 5 bps assumption. Run off these figures it<br />
+would recommend moving <code>HALF_SPREAD_BPS</code> from 5 to ~100 — a <strong>20x</strong> change to the<br />
+transaction-cost assumption underlying every backtest, every held-out validation,<br />
+and every sleeve comparison in this project. Nothing was written to<br />
+<code>slippage_log</code>; <code>HALF_SPREAD_BPS</code> is unchanged. This is the same failure mode the<br />
+M6.1 handoff was written to guard against, one milestone further down and with<br />
+far worse blast radius.</p>
+<h2 id="ct5-what-unblocks-it">CT.5 What unblocks it</h2>
+<ol>
+<li><strong>Pin the sim's fill-price basis for the 07-06 cohort.</strong> Recover the <code>as_of</code><br />
+   the deploy actually used (record AV / the <code>cohort-0706-deploy</code> task log) and<br />
+   compare against a price snapshot from that date, not today's mutated cache.<br />
+   If they still disagree, the cache has drifted under the positions and that is<br />
+   its own finding.</li>
+<li><strong>Then decide what M6 can honestly measure.</strong> If the mirror never fills at the<br />
+   sim's reference price, execution slippage is not measurable with the current<br />
+   design at all. Options, all Evan's call because they change live behaviour:<br />
+   have <code>alpaca_sync</code> submit market-on-close orders; or move the monthly slot<br />
+   in-session (CS.4 already raised that the 18:03 slot guarantees next-open<br />
+   fills); or redefine M6 as measuring <strong>implementation shortfall</strong> — sim<br />
+   reference price vs realised mirror price, drift included — which is a real and<br />
+   defensible metric, just not the one the PRD named.</li>
+</ol>
+<p>Recommendation: (1) first, since it is cheap and read-only, then bring (2) to<br />
+Evan rather than picking for him.</p>
+<h2 id="ct6-verification">CT.6 Verification</h2>
+<ul>
+<li>Pairing run live, read-only: 166/231 paired, 65 unpaired with reasons, exit 0.</li>
+<li>No <code>slippage_log</code> rows written. No <code>HALF_SPREAD_BPS</code> change. No live-DB write<br />
+  of any kind this session.</li>
+<li>Frozen tests <strong>4/4 d=+/-0.0000pp</strong> — v1 +14.5547%/70 &amp; +1.8792%/156,<br />
+  v2 +14.4062%/38 &amp; +10.2194%/87.</li>
+<li>Commit <code>33911f7</code>.</li>
 </ul>
 </div>
 </body>

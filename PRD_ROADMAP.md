@@ -381,10 +381,28 @@ as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
    (mean/median/p95, n). Label the report clearly: PAPER-venue fills, indicative not proof.
    Done: report generated from real fills; `slippage_log` populated; frozen tests ±0.0000pp;
    record entry with the actual numbers (never rounded into a nicer story).
+   **[PARTIAL 2026-08-05 ~22:25 CDT, record CT. Pairing BUILT, TESTED and RUN (166 of 231
+   fills paired; the 65 unpaired are mirror weight-trims with no sim leg, reported as such).
+   `slippage_log` deliberately left EMPTY and this task is NOT closed.** Measured ~+100bps
+   median against the sim's 5bps assumption — a 20x gap, so it was checked rather than
+   reported: `sim entry_price / price_cache close for the same date` ranges 0.976-1.023, not
+   the 1.0005 a 5bps half-spread implies, so the sim's fill-price basis is UNESTABLISHED
+   (either an unrecoverable `as_of` from the 07-06 deploy, or `price_cache` revised underneath
+   those rows — `daily_price_refresh` re-downloads 30 days with INSERT OR REPLACE by design,
+   record CK). Independently, neither batch compares like with like: the mirror filled 14:20
+   ET in July and at the next open in August, while the sim's reference is a CLOSE. The number
+   is intraday/overnight DRIFT, not execution quality. Unblock per record CT.5: pin the basis
+   first (cheap, read-only), then bring the design question to Evan.]**
 3. **Recalibration memo — REPORT ONLY.** If measured slippage differs materially from the 5 bps
    assumption, write `docs/slippage_memo_<date>.md` stating the finding and the option to
    recalibrate `HALF_SPREAD_BPS`. **Do not change the assumption** — that's a strategy-affecting
    change and is Evan's decision. Done: memo exists (or a "no material difference" entry).
+   **[NOT STARTED 2026-08-05, BLOCKED BY M6.2 — and this task is actively DANGEROUS to run
+   until M6.2's basis question is settled (record CT.4). Run against M6.2's current figures it
+   would report a "material difference" and recommend moving `HALF_SPREAD_BPS` from 5bps to
+   ~100bps — a 20x change to the transaction-cost assumption underlying every backtest, every
+   held-out validation and every sleeve comparison in this project. Those figures measure
+   intraday/overnight DRIFT, not spread. Do not write this memo off them.]**
 
 ### M7 — Historical NAV reconstruction (added 2026-08-02, record CJ)
 
