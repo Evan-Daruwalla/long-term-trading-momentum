@@ -125,24 +125,34 @@ def open_position(*, strategy_name: str = DEFAULT_STRATEGY,
                   ticker: str, qty: float, fill_price: float,
                   as_of: date, entry_score: float | None = None,
                   sector: str | None = None,
+                  ref_close: float | None = None,
+                  ref_date: date | None = None,
                   conn: sqlite3.Connection | None = None) -> int:
     """Insert a new open position. Returns the position id.
-    Caller is responsible for calling adjust_cash(-qty*fill_price) separately."""
+    Caller is responsible for calling adjust_cash(-qty*fill_price) separately.
+
+    ref_close/ref_date record the RAW close this fill was derived from and the
+    date it came from (record CU). Optional so every existing caller keeps
+    working unchanged; they are provenance only and affect no arithmetic.
+    """
     entry_value = qty * fill_price
     with _tx(conn) as conn:
         cur = conn.execute(
             "INSERT INTO paper_positions "
             "(strategy_name, ticker, status, qty, entry_price, entry_value, "
-            " entry_date, entry_score, sector) "
-            "VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?)",
+            " entry_date, entry_score, sector, entry_ref_close, entry_ref_date) "
+            "VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?, ?, ?)",
             (strategy_name, ticker, qty, fill_price, entry_value,
-             as_of.isoformat(), entry_score, sector),
+             as_of.isoformat(), entry_score, sector,
+             ref_close, ref_date.isoformat() if ref_date else None),
         )
         return cur.lastrowid
 
 
 def close_position(*, position_id: int, fill_price: float, as_of: date,
                    reason: str = "rebalance",
+                   ref_close: float | None = None,
+                   ref_date: date | None = None,
                    conn: sqlite3.Connection | None = None) -> float:
     """Close one open position at fill_price. Returns realized $ P&L.
     Caller is responsible for calling adjust_cash(+qty*fill_price) separately."""
@@ -160,17 +170,20 @@ def close_position(*, position_id: int, fill_price: float, as_of: date,
             "UPDATE paper_positions SET "
             "  status='closed', exit_price=?, exit_value=?, "
             "  exit_date=?, exit_reason=?, "
-            "  realized_pnl=?, realized_pnl_pct=? "
+            "  realized_pnl=?, realized_pnl_pct=?, "
+            "  exit_ref_close=?, exit_ref_date=? "
             "WHERE id=?",
             (fill_price, fill_price * qty, as_of.isoformat(), reason,
-             realized, realized_pct, position_id),
+             realized, realized_pct,
+             ref_close, ref_date.isoformat() if ref_date else None, position_id),
         )
     return realized
 
 
 def buy(*, strategy_name: str = DEFAULT_STRATEGY, ticker: str, qty: float,
         fill_price: float, as_of: date, entry_score: float | None = None,
-        sector: str | None = None) -> int:
+        sector: str | None = None,
+        ref_close: float | None = None, ref_date: date | None = None) -> int:
     """Open a position AND debit cash atomically. Returns the position id.
 
     Wraps open_position + adjust_cash so callers can't forget the cash leg
@@ -187,6 +200,7 @@ def buy(*, strategy_name: str = DEFAULT_STRATEGY, ticker: str, qty: float,
         pos_id = open_position(strategy_name=strategy_name, ticker=ticker,
                                qty=qty, fill_price=fill_price, as_of=as_of,
                                entry_score=entry_score, sector=sector,
+                               ref_close=ref_close, ref_date=ref_date,
                                conn=conn)
         adjust_cash(-qty * fill_price, strategy_name=strategy_name, conn=conn)
     return pos_id
@@ -194,7 +208,8 @@ def buy(*, strategy_name: str = DEFAULT_STRATEGY, ticker: str, qty: float,
 
 def sell(*, position_id: int, qty: float, fill_price: float, as_of: date,
          strategy_name: str = DEFAULT_STRATEGY,
-         reason: str = "rebalance") -> float:
+         reason: str = "rebalance",
+         ref_close: float | None = None, ref_date: date | None = None) -> float:
     """Close a position AND credit cash atomically. Returns realized $ P&L.
 
     Counterpart to buy(); `qty` is the position's share count (credited as
@@ -207,7 +222,8 @@ def sell(*, position_id: int, qty: float, fill_price: float, as_of: date,
     with connect() as conn:
         realized = close_position(position_id=position_id,
                                   fill_price=fill_price, as_of=as_of,
-                                  reason=reason, conn=conn)
+                                  reason=reason, ref_close=ref_close,
+                                  ref_date=ref_date, conn=conn)
         adjust_cash(qty * fill_price, strategy_name=strategy_name, conn=conn)
     return realized
 

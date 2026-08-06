@@ -164,7 +164,20 @@ CREATE TABLE IF NOT EXISTS paper_positions (
   exit_date TEXT,
   exit_reason TEXT,                    -- 'rebalance' for now
   realized_pnl REAL,
-  realized_pnl_pct REAL
+  realized_pnl_pct REAL,
+  -- Fill provenance (record CU, 2026-08-05). The RAW close each fill was derived
+  -- from, before the half-spread, plus the date that close came from -- which is
+  -- NOT always the rebalance date, because last_close_on_or_before carries
+  -- forward. Captured at fill time on purpose: price_cache is deliberately
+  -- mutable (daily_price_refresh re-downloads 30 days with INSERT OR REPLACE,
+  -- record CK), so re-deriving a fill's reference price later silently fails.
+  -- Measured: 29-day-old fills match NO stored close on any date; 2-day-old
+  -- fills match 34/34. Without these columns a rebalance is unmeasurable for
+  -- slippage after about a month. NULL on every row written before this change.
+  entry_ref_close REAL,
+  entry_ref_date TEXT,
+  exit_ref_close REAL,
+  exit_ref_date TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_paper_positions_strategy ON paper_positions(strategy_name);
 CREATE INDEX IF NOT EXISTS idx_paper_positions_status ON paper_positions(strategy_name, status);

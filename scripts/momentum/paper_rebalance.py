@@ -206,14 +206,16 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
     spread = half_spread_bps / 10_000.0
     n_sells_done = 0
     for p in sells:
-        px = market_data.last_close_on_or_before(p["ticker"], as_of)[0]
+        # Keep the reference DATE, not just the price (record CU): this lookup
+        # carries forward, so the close a fill used is not always as_of's.
+        px, ref_dt = market_data.last_close_on_or_before(p["ticker"], as_of)
         if px is None or px <= 0:
             log.warning("  Skip sell %s: no price at %s", p["ticker"], as_of)
             continue
         fill = px * (1.0 - spread)
         realized = paper_trader.sell(
             position_id=p["id"], qty=p["qty"], fill_price=fill, as_of=as_of,
-            strategy_name=strategy_name)
+            strategy_name=strategy_name, ref_close=px, ref_date=ref_dt)
         n_sells_done += 1
         log.info("  SELL  %s  qty=%.2f  fill=$%.2f  pnl=$%+.2f",
                  p["ticker"], p["qty"], fill, realized)
@@ -243,7 +245,7 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
         log.info("Buying %d new positions, ~$%.2f each (from avail $%.2f)",
                  len(buys), dollar_per, pf_after_sells.cash)
         for t in buys:
-            px = market_data.last_close_on_or_before(t, as_of)[0]
+            px, ref_dt = market_data.last_close_on_or_before(t, as_of)
             if px is None or px <= 0:
                 log.warning("  Skip buy %s: no price at %s", t, as_of)
                 continue
@@ -264,7 +266,8 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
             paper_trader.buy(
                 strategy_name=strategy_name, ticker=t,
                 qty=qty, fill_price=fill, as_of=as_of,
-                entry_score=target_score.get(t), sector=sector)
+                entry_score=target_score.get(t), sector=sector,
+                ref_close=px, ref_date=ref_dt)
             n_buys_done += 1
             log.info("  BUY   %s  qty=%.2f  fill=$%.2f  sector=%s",
                      t, qty, fill, sector or "?")
