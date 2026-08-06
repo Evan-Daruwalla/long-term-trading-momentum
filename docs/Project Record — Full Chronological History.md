@@ -156,6 +156,7 @@ lives in the dated entry, not the digest.
 - [CS - PRD M6.1 SHIPPED: 231/231 mirrored orders reconcile filled; Alpaca's `submitted_at` is a queue-release time, and the August batch was HELD TO THE NEXT SESSION OPEN so M6.2 must not call it slippage](#appendix-cs---prd-m61-shipped-all-231-mirrored-orders-reconcile-231231-filled-and-the-august-batch-turns-out-to-have-been-held-to-the-next-session-open---so-m62-must-not-call-it-slippage-2026-08-05-2152-cdt) (08-05)
 - [CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not slippage, and M6.3 run off it would have moved HALF_SPREAD_BPS 5 -> 100bps and corrupted every backtest](#appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt) (08-05)
 - [CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows](#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt) (08-05)
+- [CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)](#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt) (08-05)
 
 ---
 
@@ -8100,3 +8101,110 @@ making deliberately rather than by drift.
 - M6.3 remains NOT STARTED and still dangerous for the reason in CT.4 — the
   ~+100bps figure is drift, and CU makes it additionally untrustworthy for July
   because the reference leg of that comparison no longer exists.
+
+# Appendix CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (2026-08-05, ~23:34 CDT)
+
+CU proved a fill's reference price is unrecoverable after roughly a month. This
+closes that going forward. It recovers nothing historical — July is still gone —
+but from the next rebalance on, slippage stops having a shelf life.
+
+## CV.1 What was added
+
+Four nullable columns on `paper_positions`: `entry_ref_close`, `entry_ref_date`,
+`exit_ref_close`, `exit_ref_date`.
+
+The **date** is stored alongside the price on purpose.
+`last_close_on_or_before` CARRIES FORWARD, so the close a fill used is not always
+the rebalance date's — and that is exactly the distinction a later re-derivation
+gets wrong while looking perfectly plausible. Storing only the price would leave
+the same ambiguity in a new place.
+
+Threaded through `paper_trader.open_position` / `close_position` / `buy` / `sell`
+as **optional** keyword arguments, so every existing caller keeps working
+unchanged and simply stores NULL. `paper_rebalance` now keeps the `(price, date)`
+tuple it was already discarding with `[0]` at both call sites
+(`paper_rebalance.py`, the sell loop and the buy loop).
+
+**Purely additive.** No existing column touched, no row rewritten, no arithmetic
+changed. These are provenance; if they altered any price, qty, cash or P&L they
+would be a defect, and the tests below assert exactly that.
+
+## CV.2 Migration, and the live apply
+
+`scripts/add_fill_reference_columns.py` — dry-run by default, probes with
+`mode=ro` first so a dry run never opens the live DB for writing, idempotent on
+re-run. `ALTER TABLE ADD COLUMN` is metadata-only in SQLite, so the 5 GB file is
+not rewritten.
+
+**Evan ran the live apply himself** (Claude's live-DB writes are refused by the
+permission classifier — the standing pattern since record CH):
+
+    scripts.add_fill_reference_columns            -> dry run: 7,192 rows, 16 cols, 4 WILL ADD
+    scripts.add_fill_reference_columns --execute  -> ADDED x4
+
+Live state verified read-only immediately after:
+
+| check | result |
+|---|---|
+| `paper_positions` columns | **20** (was 16), all four present |
+| rows / open | **7,192 / 3,222** — unchanged |
+| non-null provenance on existing rows | **0** — expected; nothing was backfilled |
+| `PRAGMA quick_check` on the 5 GB file | **ok** |
+| `verify_run --mode daily` | **PASS (76/76 sleeves OK)** |
+
+One note on the cadence line, which reads
+`last_rebalance(2026-08-03/nostatus)`: the 08-03 rebalance predates the
+`--status` flag added in the 2026-08-04 audit, and a missing status is
+deliberately treated as OK rather than as a failure. Working as designed, not a
+gap.
+
+## CV.3 A timing hazard that was real for about ten minutes
+
+Between the code landing and the migration being applied, the new INSERT
+referenced columns that did not yet exist — so any rebalance in that window would
+have **errored**, and `TradingLadderRebalance` runs the same `paper_rebalance`
+path nightly at 20:30. The window closed the same evening (the 20:30 run had
+already passed, the next monthly is 2026-09-01), so nothing was hit. Recorded
+because the general shape recurs: **a schema-dependent code change and its
+migration are not independently safe, and the code half is the one that ships
+first.** Apply the migration in the same sitting.
+
+## CV.4 Verification
+
+New `scripts/momentum/test_fill_reference.py`, fixture DBs only, live DB never
+touched. It tests the two halves separately:
+
+- **Migration**: dry run writes nothing; apply adds exactly 4 columns; a
+  pre-existing row survives intact with NULL provenance; re-running is a clean
+  no-op.
+- **Capture**: a real `buy()` and `sell()` store provenance while
+  `entry_price` / `entry_value` / cash / realized P&L stay bit-identical; the
+  round-trip `ref_close * (1 + 5bps)` reproduces `entry_price` exactly and
+  `* (1 - 5bps)` reproduces `exit_price` exactly; `entry_ref_date` is the
+  CLOSE's date and `entry_date` the fill's, asserted as different values; and a
+  legacy call omitting the new arguments still works and stores NULL.
+
+All seven suites touching the fill path pass: `test_fill_reference`,
+`test_inception_guard`, `test_trade_atomicity`, `test_carry_forward_bound`,
+`test_rebalance_cadence`, `test_fetch_alpaca_fills`, `test_backup_validation`.
+Frozen tests **4/4 d=+/-0.0000pp** — v1 +14.5547%/70 & +1.8792%/156,
+v2 +14.4062%/38 & +10.2194%/87. Commit `f48d4b7`.
+
+## CV.5 Where M6 stands now
+
+- **M6.1** — done (record CS).
+- **M6.2** — PARTIAL. Pairing machinery works. Both blockers are now understood:
+  the basis question is CLOSED (CU), and the remaining one is that no existing
+  batch is cleanly measurable. **The first rebalance whose fills carry provenance
+  will be the first one that can produce a real number** — next monthly
+  2026-09-01, or sooner via the nightly ladder, though the ladder is not
+  Alpaca-mirrored so it yields provenance without a mirror to compare against.
+- **M6.3** — NOT STARTED and still dangerous per CT.4. Nothing here changes that:
+  provenance fixes the DATA half, not the TIMING half. The mirror still fills at
+  the next open on a monthly rebalance (CS.4), so a September number would still
+  be gap-contaminated unless Evan changes the mirror's order type or slot.
+
+**Still Evan's decision, unchanged and now the only thing blocking M6:**
+market-on-close mirror orders, an in-session monthly slot, or redefine M6 as
+implementation shortfall — defensible, but a different metric than the PRD named,
+and worth choosing deliberately rather than by drift.
