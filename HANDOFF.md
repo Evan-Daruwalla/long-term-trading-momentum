@@ -10,10 +10,19 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-05 ~20:15 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-11 ~23:20 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
+
+> **2026-08-11 (record CY) — PRD M6 is REDEFINED to IMPLEMENTATION SHORTFALL and
+> is done on the code side.** M6.1 (fetch) and M6.2 (pair + report) are built,
+> tested and run; M6.3's memo is written and recommends **no change** to
+> `HALF_SPREAD_BPS`. **One thing is outstanding and it is Evan's:** the live
+> `slippage_log` write (Claude's live-DB writes are classifier-refused). Proven
+> on a copy — 166 rows, re-run appends 0. One line, from the repo root:
+> `.venv\Scripts\python.exe -m scripts.momentum.slippage_tracker --alpaca-csv var\alpaca_fills_2026-07-01_2026-08-06.csv --execute`
+> Details and the full numbers in the Known-limitations entry below.
 
 > ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
 > statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
@@ -591,9 +600,23 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
   The standing point does hold: the experiment is designed for 12mo/30 picks —
   current n is noise, and a single-name sleeve can be deep underwater at any time.
 - **No slippage realism check yet** — ~~deferred until ~20 real fills (post-Aug
-  2026)~~. **[2026-08-05: the fills now exist (231 orders, 0 rejects — 07-07 and
+  2026)~~. ~~**[2026-08-05: the fills now exist (231 orders, 0 rejects — 07-07 and
   08-03), so this is no longer blocked on data; it is blocked on M6.1
-  `fetch_alpaca_fills.py` being built. Still a real limitation until then.]**
+  `fetch_alpaca_fills.py` being built. Still a real limitation until then.]**~~
+  **[2026-08-11, record CY — this limitation is now PERMANENT under the current
+  design, and it is not a to-do. Execution slippage is NOT MEASURABLE here: the
+  sim books at a CLOSE, the mirror filled intraday (July) and at the next
+  session's OPEN (August), and Alpaca rejects market-on-close orders 15:50–19:00
+  ET and queues them to the following close after 19:00 ET, so the 18:03-local
+  monthly slot cannot reach the same day's auction at all. **Evan therefore
+  REDEFINED M6 to measure IMPLEMENTATION SHORTFALL** (sim booked reference price
+  vs realised mirror fill, drift INCLUDED, per batch, never pooled): 07-07 n=98
+  mean **+100.15bps**, 08-03 n=68 mean **+97.64bps**.
+  **The true half-spread is UNMEASURED — not 5bps confirmed, not 100bps.
+  `HALF_SPREAD_BPS` stays at 5.0 and must NOT be recalibrated off shortfall
+  (`docs/slippage_memo_2026-08-11.md`).** Getting a real spread number needs a
+  batch where the sim's reference and the mirror's fill are contemporaneous,
+  which is a live-behaviour change and Evan's call.]**
 - **No short support** in `paper_trader` — blocks deploying L/S vol-target
   even as paper trade. Not building until the strategy passes in-sample.
 

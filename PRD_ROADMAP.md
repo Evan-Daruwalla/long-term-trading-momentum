@@ -144,9 +144,13 @@ record.
       **[2026-07-28: `scripts/backup_trades_db.py` (VACUUM INTO, keep 3, disk-guard) +
       `TradingWeeklyBackup` Sun 9am + restore drill passed — M5.1–M5.3, record BM.]**
 - [ ] Alpaca PAPER fills can be pulled and paired against sim fills; after the August rebalance
-      generates fills, a slippage report (bps, per-sleeve) is produced (M6 — ~~gated on fills
+      generates fills, a ~~slippage~~ **implementation-shortfall** report (bps, per-sleeve) is
+      produced (M6 — ~~gated on fills
       existing~~ **UNGATED 2026-08-05: the August rebalance ran 08-03 and generated them,
-      record CP. The criterion itself is still open — nothing has been pulled or paired yet**).
+      record CP.** **2026-08-11: fills pulled (M6.1) and paired (M6.2); the metric was
+      REDEFINED to implementation shortfall the same day because execution slippage is not
+      measurable here — see the M6 banner. Left unticked until `slippage_log` is populated on
+      the LIVE DB, which is Evan's command to run, not the model's**).
 
 ## 4. CONSTRAINTS
 
@@ -187,7 +191,7 @@ record.
 | M3 | Unattended-automation safety | The daily/monthly tasks verify themselves; pre-inception pollution is impossible. | Before 2026-08-01 |
 | M4 | Experiment-integrity reporting | LLM experiment kill-switch metrics and control-vs-treatment divergence are one command away. | August |
 | M5 | Backup hygiene | trades.db has rotating backups and a proven restore path. | August |
-| M6 | Slippage measurement (Alpaca) | Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills. | ~~Gated: needs fills from the 2026-08-01+ rebalances~~ **UNGATED 2026-08-05 (audit finding 8, record CR): 231 orders / 0 rejects exist — 99 on 07-07 (record AV) + 132 on 08-03 (record CP). This is now the next open task, starting at M6.1** |
+| M6 | ~~Slippage~~ **Implementation-shortfall** measurement (Alpaca) | ~~Sim-vs-Alpaca-PAPER fill slippage measured from real mirror fills.~~ **REDEFINED 2026-08-11 (Evan): sim booked reference price vs realised mirror fill price, drift INCLUDED, per batch, never pooled. Execution slippage is not measurable with this architecture — see the banner on the M6 section.** | ~~Gated: needs fills from the 2026-08-01+ rebalances~~ **UNGATED 2026-08-05 (audit finding 8, record CR): 231 orders / 0 rejects exist — 99 on 07-07 (record AV) + 132 on 08-03 (record CP). This is now the next open task, starting at M6.1** |
 | M7 | Historical NAV reconstruction | The 31 closed KLAC rows (−$55,343.70) are repairable, making cross-rung ladder comparison trustworthy again. | Added 2026-08-02 (record CJ). **CLOSED 2026-08-02 ~20:00 CDT (record CM)** — M7.1/M7.3/M7.5 done, M7.2's gate failed and produced the key finding (historical NAV is not reproducible), M7.4 correctly NOT executed. Live `verify_run` PASS 76/76 |
 
 M2 and M3 are the deadline items: the first unattended monthly rebalance fires 2026-08-01, and
@@ -332,7 +336,41 @@ entry, commit. Read the target script fully before editing it — these scripts 
    Record the drill (time taken, checks passed) in the record. Done: drill documented with real
    output.
 
-### M6 — Slippage measurement via Alpaca PAPER (~~GATED~~ **OPEN — this is the next task**)
+### M6 — ~~Slippage measurement~~ **Implementation-shortfall measurement** via Alpaca PAPER (~~GATED~~ **OPEN — this is the next task**)
+
+> 🔁 **REDEFINED 2026-08-11 (Evan's decision, delegated to the executing session —
+> do not re-open it). M6 measures IMPLEMENTATION SHORTFALL, not execution
+> slippage.**
+>
+> **Shortfall = the sim's booked reference price vs the realised mirror fill
+> price, drift INCLUDED**, signed so positive = the mirror did worse than the sim.
+> Reported **per batch (rebalance × sleeve × side) and NEVER pooled across
+> batches**, because the batches differ in fill mechanics, not in execution
+> quality.
+>
+> **Why the original goal was abandoned: execution slippage is not measurable
+> with this architecture.** The mirror never fills at the price the sim books at.
+> - The sim books at a **CLOSE** (`last_close_on_or_before(ticker, rebalance) ×
+>   (1 ± 5bps)`, pinned exactly in record CU.1).
+> - **July 2026-07-07** filled **intraday, 14:20 ET** (record CT.4).
+> - **August 2026-08-03** filled at the **NEXT session's open**, 09:30–09:36 ET on
+>   08-04 (record CS.4).
+> - Alpaca **rejects market-on-close orders between 15:50 and 19:00 ET** and
+>   **queues them to the FOLLOWING close after 19:00 ET** (Evan, 2026-08-11), so the
+>   `monthy-llm-rebalance` slot **cannot reach the same day's closing auction** —
+>   not by adding an order type, not by any flag. The task fires 18:03 local and
+>   the 08-03 orders actually POSTed at **2026-08-03T23:24:48Z = 19:24 ET**
+>   (measured, record CS.3): past the cutoff, so MOC would have queued to 08-04's
+>   close — a full extra day, worse than the open fill it got. Closing that gap means
+>   re-architecting *when the sim prices* relative to *when the mirror submits*,
+>   which is a live-behaviour change outside this PRD's scope guard.
+>
+> So the difference between the two prices is real and it is a real cost, but it
+> is **drift** (intraday for July, an overnight gap for August), not spread and
+> not execution quality. Shortfall is the honest name for what the data supports.
+> See CT.4, CU.3 and CV.5 for the full derivation.
+>
+> **This redefinition does NOT license a `HALF_SPREAD_BPS` change — see M6.3.**
 
 ~~**Gate: do not start until the 2026-08-01 monthly rebalance has produced Alpaca fills**~~ (the
 07-06 deploy's 99 DAY orders filled at the next open are the first data; the August rebalance
@@ -412,6 +450,40 @@ as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
    in hand at `paper_rebalance.py:199,209,246` and only the spread-adjusted price is kept. That
    makes every FUTURE rebalance measurable without touching strategy logic or any history. It
    does not recover July; nothing does. The remaining timing question stays Evan's call.]**
+   **[SHIPPED 2026-08-05 ~23:34 CDT, record CV: the forward fix is live —
+   `paper_positions` carries `entry_ref_close`/`entry_ref_date`/`exit_ref_close`/`exit_ref_date`.
+   Only fills written AFTER 2026-08-05 have them; the 07-07 and 08-03 batches are NULL and
+   always will be.]**
+   **[REDEFINED + CLOSED 2026-08-11 — the task now reads: pair each mirror fill to its sim leg
+   and report IMPLEMENTATION SHORTFALL (sim booked reference price vs realised mirror price,
+   drift INCLUDED), per (rebalance × sleeve × side), NEVER pooled across batches. Populate
+   `slippage_log`. Label the output PAPER-venue, indicative not proof.**
+   **What changed vs the original text: nothing about the pairing, which was already built,
+   tested and run (166/231 paired, record CT.1/CT.2). What changed is the NAME and therefore the
+   permitted USE of the number. The metric was always shortfall; calling it slippage is what made
+   M6.3 dangerous.**
+   **The measurement does NOT depend on the CU data loss.** Shortfall needs the sim's BOOKED
+   price (`paper_positions.entry_price`/`exit_price`), which is persisted at fill time and has
+   never been rewritten. What CU proved unrecoverable is the underlying `price_cache` close those
+   prices were DERIVED from — needed to decompose shortfall into spread + drift, not to measure
+   shortfall itself. So both batches are measurable as shortfall and neither is measurable as
+   slippage.
+   **Done-check: report generated from real fills, per batch; `slippage_log` populated; frozen
+   tests ±0.0000pp; record entry with the actual numbers.**
+   **RESULT 2026-08-11 ~23:15 CDT (record CY): report regenerated under the new labelling —
+   07-07 n=98 mean +100.15bps median +83.58, 08-03 n=68 mean +97.64 median +148.16, per
+   (batch × sleeve × side), never pooled. Write proven on a `VACUUM INTO` copy: 166 rows
+   written, re-run appends 0 and skips 166. New `test_shortfall_pairing.py` (fixture DB only)
+   covers the sign convention, buy→`entry_price`/sell→`exit_price`, the three unpaired causes,
+   and write idempotency. Frozen tests 4/4 d=±0.0000pp.
+   ONE CORRECTION FOUND WHILE DOING THIS: the unpaired bucket gave ONE canned reason ("mirror
+   weight adjustment") to all 65 fills; it is true for 64 and FALSE for the `spy_benchmark_0701`
+   07-07 buy, whose sim leg exists on **2026-07-06** (cohort inception) — a date mismatch, not a
+   weight trim. The reason string now distinguishes them; the fill is still deliberately NOT
+   paired across dates. No number changed.
+   **STILL OPEN: the LIVE `slippage_log` write. Claude's live-DB writes are refused by the
+   permission classifier (standing since record CH), so it is Evan's one command to run — see
+   record CY. Until he runs it, live `slippage_log` is 0 rows.]**
 3. **Recalibration memo — REPORT ONLY.** If measured slippage differs materially from the 5 bps
    assumption, write `docs/slippage_memo_<date>.md` stating the finding and the option to
    recalibrate `HALF_SPREAD_BPS`. **Do not change the assumption** — that's a strategy-affecting
@@ -422,6 +494,32 @@ as the submitted count to reconcile AGAINST, not as a fill count to assume.**]**
    ~100bps — a 20x change to the transaction-cost assumption underlying every backtest, every
    held-out validation and every sleeve comparison in this project. Those figures measure
    intraday/overnight DRIFT, not spread. Do not write this memo off them.]**
+   **[REDEFINED 2026-08-11 — the memo is now an IMPLEMENTATION-SHORTFALL memo, and its single
+   most important sentence is a NEGATIVE one that it MUST state explicitly:**
+   > **`HALF_SPREAD_BPS` IS NOT TO BE RECALIBRATED OFF SHORTFALL. Drift is not spread.**
+   **The measured shortfall is dominated by the time between when the sim prices (a CLOSE) and
+   when the mirror fills (intraday in July, the next session's open in August). A spread
+   assumption models the cost of crossing the bid-ask at the moment of trading; it does not and
+   must not absorb the price movement over hours or overnight. Moving `HALF_SPREAD_BPS` from 5 to
+   ~100 off this number would be a 20x change to the transaction-cost assumption under every
+   backtest, every held-out validation and every sleeve comparison in this project — a
+   strategy-affecting change, on evidence that does not support it, made by an executing model
+   rather than by Evan.**
+   **The correct recalibration input is a batch where the sim's reference price and the mirror
+   fill are contemporaneous. No such batch exists (record CU.3), and producing one requires the
+   live-behaviour change named in the M6 banner. Until then the memo's recommendation is: change
+   nothing.**
+   **Done-check: `docs/slippage_memo_<date>.md` exists, carries the real per-batch numbers
+   un-rounded, states the negative above verbatim, and recommends no change.**
+   **DONE 2026-08-11 ~23:20 CDT — `docs/slippage_memo_2026-08-11.md` (record CY). Recommends
+   NO change; `HALF_SPREAD_BPS` stays 5.0. It does not merely assert that shortfall is drift, it
+   MEASURES it three ways: cross-sectional sd 192.1bps (Jul) / 498.7bps (Aug) around means near
+   +100 (a half-spread is near-constant per name); 20/98 and 26/68 fills came out BETTER than the
+   sim (a spread cost is one-signed by construction); and per-name August shortfall correlates
+   **+0.7668** with that same name's own overnight close-to-close move (a spread does not know
+   which way a stock moved). July cannot be decomposed at all — its reference closes are gone
+   (record CU.2). Memo's standing conclusion: the true spread is **unmeasured**, not 5 and not
+   100, which is exactly why 5.0 should not be touched.]**
 
 ### M7 — Historical NAV reconstruction (added 2026-08-02, record CJ)
 

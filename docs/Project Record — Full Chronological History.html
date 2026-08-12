@@ -197,7 +197,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt">CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows</a> (08-05)<br />
 - <a href="#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt">CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)</a> (08-05)<br />
 - <a href="#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt">CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)</a> (08-07)<br />
-- <a href="#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it</a> (08-11)</p>
+- <a href="#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it</a> (08-11)<br />
+- <a href="#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt">CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65</a> (08-11)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -9764,6 +9765,230 @@ prompt is not evidence of an accident.</p>
   records CT/CU/CV) and CQ.2 finding 2 (the frozen tests still write the live DB;<br />
   the busy-window guard bounds WHEN, not WHETHER).</li>
 </ul>
+<h1 id="appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt">Appendix CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): the +100bps is MEASURED to be drift three independent ways rather than asserted, so HALF_SPREAD_BPS stays at 5.0 - plus a canned unpaired-reason that was true 64 times out of 65 (2026-08-11, ~23:25 CDT)</h1>
+<p>Records CT/CU/CV left M6 stalled on one question that was not the executing<br />
+model's to answer: if the mirror never fills at the sim's reference price,<br />
+execution slippage is not measurable, so is the goal wrong or is the plumbing<br />
+wrong? Evan decided on 2026-08-11: <strong>the goal. M6 measures implementation<br />
+shortfall.</strong> This entry executes that decision and closes M6.2/M6.3 on the code<br />
+side.</p>
+<h2 id="cy1-what-the-redefinition-actually-is">CY.1 What the redefinition actually is</h2>
+<pre><code>shortfall = the sim's BOOKED reference price  vs  the realised mirror fill
+            price, drift INCLUDED
+            signed so positive = the mirror did worse than the sim
+            reported per (rebalance x sleeve x side), NEVER pooled
+</code></pre>
+<p>The arithmetic did not change one character. The <em>claim being made about the<br />
+number</em> changed, and that is the whole content of the fix: CT.4 stopped M6.3 from<br />
+recalibrating <code>HALF_SPREAD_BPS</code> 5 -&gt; 100 precisely because a number labelled<br />
+"slippage" invites exactly that use. A number labelled shortfall does not.</p>
+<p>Why slippage is unmeasurable here, stated once for the future reader:</p>
+<ul>
+<li>The sim books at a <strong>CLOSE</strong> (<code>last_close_on_or_before x (1 +/- 5bps)</code>, pinned<br />
+  exactly in CU.1).</li>
+<li>2026-07-07 filled <strong>intraday, 14:20 ET</strong>.</li>
+<li>2026-08-03 filled at the <strong>next session's open</strong>, 09:30-09:36 ET on 08-04.</li>
+<li>Alpaca <strong>rejects market-on-close orders 15:50-19:00 ET</strong> and queues them to the<br />
+  FOLLOWING close after 19:00 ET (Evan). The 08-03 orders POSTed at<br />
+<code>2026-08-03T23:24:48Z</code> = <strong>19:24 ET</strong> - past the cutoff, so MOC would have<br />
+  bought an extra day of delay, not removed it. There is no order-type flag that<br />
+  reaches the same day's auction from an 18:03-local slot; it takes changing when<br />
+  the sim prices relative to when the mirror submits.</li>
+</ul>
+<p><strong>One thing worth being explicit about, because CU could easily be read the wrong<br />
+way: the CU data loss does NOT block shortfall.</strong> Shortfall needs<br />
+<code>paper_positions.entry_price</code>/<code>exit_price</code>, which are persisted at fill time and<br />
+have never been rewritten. What CU proved unrecoverable is the <code>price_cache</code><br />
+close those prices were DERIVED from - which is needed to DECOMPOSE shortfall<br />
+into spread plus drift, not to measure shortfall. So both batches are measurable<br />
+as shortfall and neither is measurable as slippage.</p>
+<h2 id="cy2-the-numbers-per-batch-never-pooled">CY.2 The numbers, per batch, never pooled</h2>
+<table>
+<thead>
+<tr>
+<th>rebalance</th>
+<th>sleeve</th>
+<th>side</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">median</th>
+<th style="text-align: right;">p95</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-07-07</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">+156.0060</td>
+<td style="text-align: right;">+122.9452</td>
+<td style="text-align: right;">+381.8753</td>
+<td style="text-align: right;">-125.7624</td>
+<td style="text-align: right;">+1470.9289</td>
+</tr>
+<tr>
+<td>2026-07-07</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">+41.9696</td>
+<td style="text-align: right;">+39.0369</td>
+<td style="text-align: right;">+324.7726</td>
+<td style="text-align: right;">-228.0287</td>
+<td style="text-align: right;">+337.5104</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">+396.2302</td>
+<td style="text-align: right;">+463.1425</td>
+<td style="text-align: right;">+942.4410</td>
+<td style="text-align: right;">-830.9591</td>
+<td style="text-align: right;">+954.2990</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>mom_roa_6535_0701_paper</td>
+<td>sell</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">-156.8307</td>
+<td style="text-align: right;">-285.8599</td>
+<td style="text-align: right;">+990.9768</td>
+<td style="text-align: right;">-1364.9059</td>
+<td style="text-align: right;">+1344.3888</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>buy</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">+183.3875</td>
+<td style="text-align: right;">+162.0426</td>
+<td style="text-align: right;">+484.7587</td>
+<td style="text-align: right;">-74.0111</td>
+<td style="text-align: right;">+561.7445</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>residual_roa_6535_0701_paper</td>
+<td>sell</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">-43.9853</td>
+<td style="text-align: right;">+23.0228</td>
+<td style="text-align: right;">+270.6131</td>
+<td style="text-align: right;">-945.9971</td>
+<td style="text-align: right;">+316.9342</td>
+</tr>
+</tbody>
+</table>
+<p>Whole batch: <strong>07-07 n=98 mean +100.1514 median +83.5756 sd 192.1</strong>;<br />
+<strong>08-03 n=68 mean +97.6415 median +148.1563 sd 498.7</strong>. 166 of 231 fills paired<br />
+(unchanged from CT). All bps.</p>
+<h2 id="cy3-the-part-that-matters-most-drift-is-measured-not-argued">CY.3 The part that matters most: drift is MEASURED, not argued</h2>
+<p>CT.4 asserted these numbers are drift. An assertion is what a future session<br />
+overrides. The M6.3 memo now measures it three independent ways, and the third<br />
+one is decisive:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>measurement</th>
+<th>why a spread cannot produce it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>cross-sectional <strong>sd 192.1bps (Jul) / 498.7bps (Aug)</strong> around means near +100</td>
+<td>a half-spread is near-constant per name; it would show sd of a few bps</td>
+</tr>
+<tr>
+<td>b</td>
+<td><strong>20/98 (Jul) and 26/68 (Aug)</strong> fills came out BETTER than the sim</td>
+<td>a spread cost is one-signed by construction - you always pay it</td>
+</tr>
+<tr>
+<td>c</td>
+<td>per-name August shortfall vs that same name's overnight close-to-close move (sign-matched to side): <strong>corr = +0.7668, n=68</strong></td>
+<td>a bid-ask spread does not know which direction the stock moved. A timing gap does, by definition</td>
+</tr>
+</tbody>
+</table>
+<p>Two limits stated in the memo rather than smoothed over: the fill was at the<br />
+<strong>open</strong> while (c) compares to the next <strong>close</strong>, so the +148.2bps residual is<br />
+the open-to-close move and is NOT a spread estimate; and (c) is impossible for<br />
+July, whose reference closes are gone (CU.2).</p>
+<p><strong>Conclusion carried into the memo: the true spread is UNMEASURED - not 5, not<br />
+100.</strong> That is the actual reason 5.0 should not be touched. "We measured 100" and<br />
+"we cannot measure it" lead to opposite actions, and only the second is true.</p>
+<h2 id="cy4-a-canned-reason-that-was-true-64-times-out-of-65">CY.4 A canned reason that was true 64 times out of 65</h2>
+<p>Found while writing the memo, not by an audit. The unpaired bucket gave ONE<br />
+explanation to all 65 unpaired fills - "mirror weight adjustment on a name the sim<br />
+did not open/close at this rebalance." Checked instead of trusted: for each<br />
+unpaired fill, does a sim leg of that side exist on ANY date?</p>
+<ul>
+<li><strong>64</strong> - no leg of that side at any date. Reason correct: <code>alpaca_sync</code><br />
+  reconciles to target WEIGHTS, so it trims and tops up names the sim merely holds<br />
+  at a different quantity.</li>
+<li><strong>1</strong> - <code>spy_benchmark_0701_paper</code> SPY buy. Its sim entry is dated<br />
+<strong>2026-07-06</strong> (the cohort inception) while the mirror bought 07-07. That is a<br />
+<strong>date mismatch</strong>, not a weight trim.</li>
+</ul>
+<p>The tracker now tells the two apart and names the dates. It still does NOT pair<br />
+across the date boundary - loose date matching is the legacy path's defect<br />
+(CT.1), and relaxing it to gain one fill would reintroduce it. No number moved;<br />
+what changed is that the report no longer explains a finding wrongly. Small, but<br />
+it is the same class as CX.3: a plausible one-line explanation that nobody had<br />
+fed its own trigger.</p>
+<h2 id="cy5-what-shipped">CY.5 What shipped</h2>
+<ul>
+<li><code>slippage_tracker.py</code>: <code>slippage_bps</code> -&gt; <code>shortfall_bps</code> (no external caller,<br />
+  verified by <code>grep -rn</code>); report header, per-batch composition notes and a<br />
+  never-pool warning; the legacy <code>--report</code> view now warns when it is pooling<br />
+  shortfall rows; <code>write_slippage_log</code> labels every row<br />
+<code>implementation-shortfall ...</code> in <code>note</code> and <strong>skips duplicates</strong> on<br />
+  (strategy, ticker, direction, broker_filled_at). The dedupe exists because this<br />
+  is a live write Evan runs by hand: a second run is a realistic accident, and<br />
+  duplicated rows would distort every later mean without failing anything.</li>
+<li>The step-4 comment block in the module docstring - the deferred real-brokerage<br />
+  path at 18 that literally says "bump HALF_SPREAD_BPS to recalibrate" - now<br />
+  carries the contemporaneity condition. Same trap, one venue over.</li>
+<li>New <code>scripts/momentum/test_shortfall_pairing.py</code>, fixture DB only: sign<br />
+  convention both sides, buy-&gt;<code>entry_price</code> / sell-&gt;<code>exit_price</code> with the two<br />
+  prices set far apart so a wrong-leg pairing cannot pass, the three unpaired<br />
+  causes told apart, and write idempotency.</li>
+<li><code>docs/slippage_memo_2026-08-11.md</code> (M6.3). Recommends <strong>no change</strong>.</li>
+<li><code>PRD_ROADMAP.md</code>: M6 section banner, milestone row, success criterion, M6.2 and<br />
+  M6.3 amended. M6.3's amendment carries the negative in a blockquote so it<br />
+  cannot be skimmed past.</li>
+</ul>
+<h2 id="cy6-verification">CY.6 Verification</h2>
+<ul>
+<li>Report regenerated read-only; the six per-group rows reproduce CT.3 exactly, so<br />
+  the rename moved no number.</li>
+<li>Write proven on a <code>VACUUM INTO</code> copy (5,086,871,552 bytes, 1m42s):<br />
+<strong>166 rows written, re-run appends 0 and skips 166</strong>, all 166 labelled. Copy vs<br />
+  live row counts identical for <code>paper_positions</code> 7,271 / <code>paper_nav</code> 4,740 /<br />
+<code>paper_portfolio</code> 76 / <code>price_cache</code> 37,685,844.</li>
+<li><code>test_shortfall_pairing</code> 6/6 checks pass.</li>
+<li>Frozen tests <strong>4/4 d=+/-0.0000pp</strong> - v1 +14.5547%/70 &amp; +1.8792%/156,<br />
+  v2 +14.4062%/38 &amp; +10.2194%/87. Run twice: after the first code batch and again<br />
+  after the unpaired-reason fix.</li>
+<li>
+<p><strong>Live <code>slippage_log</code> is still 0 rows.</strong> The <code>--execute</code> run against the live DB<br />
+  was attempted and <strong>refused by the permission classifier</strong> (standing behaviour<br />
+  since record CH). It is Evan's single command, from <code>D:\ClaudeCode\Trading</code>:</p>
+<p>.venv\Scripts\python.exe -m scripts.momentum.slippage_tracker --alpaca-csv var\alpaca_fills_2026-07-01_2026-08-06.csv --execute</p>
+</li>
+</ul>
+<p>One line, no cmd.exe caret continuations (record CM's note). Re-running it is<br />
+  safe: the second run appends 0. Until he runs it, M6.2's done-check is met on a<br />
+  copy and NOT on live, and the PRD success criterion stays unticked.</p>
 </div>
 </body>
 </html>
