@@ -1,25 +1,3 @@
-# GENERATED -- do not hand-edit. Full transitive snapshot of the known-good
-# .venv, produced 2026-08-05 by `.venv\Scripts\python.exe -m pip freeze`
-# (audit 2026-08-05, finding 21; record CR).
-#
-# WHY THIS EXISTS: requirements.txt pins only the 9 DIRECT dependencies, but 97
-# packages are installed. yfinance's transitive chain (curl_cffi, requests,
-# urllib3, lxml, beautifulsoup4, peewee, ...) was unpinned, and that chain is
-# what fetches and parses the prices this project treats as ground truth -- so a
-# clean rebuild could change adjustment behaviour behind an unchanged yfinance
-# pin. This file makes the environment reproducible.
-#
-# Rebuild:  .venv\Scripts\python.exe -m pip install -r requirements.lock.txt
-# Regenerate after any deliberate upgrade, in the same commit as the frozen-test
-# output (d=+/-0.0000pp) that cleared it.
-#
-# CVE STATUS OF THIS SET: UNDETERMINED as of 2026-08-05. Neither `pip-audit` nor
-# `safety` is installed and installing one was out of scope, so NO vulnerability
-# claim -- clean or dirty -- is made about these 96 packages. To settle it:
-#     .venv\Scripts\python.exe -m pip install pip-audit
-#     .venv\Scripts\python.exe -m pip_audit -r requirements.lock.txt
-# Install into a THROWAWAY venv if you would rather not perturb this one; the
-# frozen tests are the contract this venv has to keep passing.
 altair==6.1.0
 anyio==4.13.0
 attrs==26.1.0
@@ -34,7 +12,7 @@ colorama==0.4.6
 curl_cffi==0.15.0
 frozendict==2.4.7
 gitdb==4.0.12
-GitPython==3.1.49
+GitPython==3.1.59
 graphifyy==0.8.50
 h11==0.16.0
 h2==4.3.0
