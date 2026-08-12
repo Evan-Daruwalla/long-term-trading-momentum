@@ -122,13 +122,23 @@ def _check(strategy_name: str, mod) -> list[str]:
 def _busy_window_guard(argv: list[str], now: datetime | None = None) -> str | None:
     """Refuse to run inside a scheduled-task window unless --force.
 
-    These tests are a WRITE path (audit 2026-08-04, finding 2): every run goes
-    through factor_backtest._wipe_state(), which does DELETE FROM positions /
-    portfolio_state and then re-inserts, holding a write lock on the 5 GB live
-    DB for the duration. CLAUDE.md mandates running them after ANY Python change
-    AND separately forbids concurrent factor_backtest -- so the mandated check
-    was itself the thing the rule forbids, with nothing enforcing it. This is
-    that enforcement; it is NOT the full fix (see the module docstring).
+    HISTORY, because the reason changed and the old one is now false. These
+    tests USED to be a WRITE path (audit 2026-08-04, finding CQ.2 #2): every run
+    went through factor_backtest._wipe_state(), which did DELETE FROM positions /
+    portfolio_state and re-inserted, holding a write lock on the 5 GB live DB --
+    so the check CLAUDE.md mandates after any Python change was itself the
+    concurrent factor_backtest it separately forbids. This guard was the partial
+    enforcement, bounding WHEN rather than WHETHER.
+
+    That write path is CLOSED as of 2026-08-12 (record CZ): the backtest state
+    tables are shadowed into per-connection TEMP tables, and a full frozen run
+    now leaves the live DB's `PRAGMA data_version` unmoved -- it writes nothing.
+
+    The guard is KEPT anyway, on a weaker but real justification: a run still
+    reads hard against the same 5 GB file with a 500 MB page cache and a 256 MB
+    mmap, and there is no reason to do that inside the daily-MTM / rebalance /
+    ladder windows. It is now an I/O-contention guard, not a correctness one --
+    which means dropping it would be a judgement call, not a bug fix.
     """
     if "--force" in argv:
         return None
@@ -147,8 +157,9 @@ def main(argv: list[str]) -> int:
     busy = _busy_window_guard(argv)
     if busy:
         print(f"REFUSING to run: {busy}\n"
-              f"These tests WRITE the live DB (positions/portfolio_state are wiped\n"
-              f"and rebuilt) and would be a second writer against a 5 GB SQLite file.\n"
+              f"These tests no longer WRITE the live DB (backtest state is shadowed\n"
+              f"into TEMP tables, record CZ), but they still read a 5 GB SQLite file\n"
+              f"hard while a scheduled task is using it.\n"
               f"Re-run outside the window, or pass --force if you know it is idle.")
         return 2
 

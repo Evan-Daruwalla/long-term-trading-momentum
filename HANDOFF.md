@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-11 ~23:20 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-12 ~07:25 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
@@ -23,6 +23,18 @@ itself an audit finding (22).
 > on a copy — 166 rows, re-run appends 0. One line, from the repo root:
 > `.venv\Scripts\python.exe -m scripts.momentum.slippage_tracker --alpaca-csv var\alpaca_fills_2026-07-01_2026-08-06.csv --execute`
 > Details and the full numbers in the Known-limitations entry below.
+
+> **2026-08-12 (record CZ) — the frozen regression tests no longer write the live
+> DB.** `CLAUDE.md` mandates them after any Python change and separately forbids
+> concurrent `factor_backtest`; the tests ARE a factor_backtest, so the mandated
+> check was the forbidden operation (audit finding CQ.2 #2, open since 08-04).
+> Fixed at the name-resolution layer: `positions`/`portfolio_state` are shadowed
+> into per-connection TEMP tables, `price_cache` is not. A full frozen run now
+> leaves `PRAGMA data_version` unmoved — it writes nothing. **The busy-window
+> guard (17:00–18:30 / 19:45–21:00 / 07:30–08:15) is KEPT** but is now an
+> I/O-contention guard, not a correctness one; dropping it is a judgement call.
+> See the `positions` note under Database for the 137 residue rows this leaves
+> permanent.
 
 > ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
 > statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
@@ -429,9 +441,21 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
     `sectors_cache` (1,493 rows) is the research-only one. Only the latter was
     listed here before, so anyone trusting this file would have queried the
     wrong table.
-  - `positions` / `portfolio_state` are the **BACKTEST** tables that
-    `factor_backtest._wipe_state()` truncates on every frozen-test run. Nothing
-    paper-trade lives there (record CQ.2).
+  - `positions` / `portfolio_state` are the **BACKTEST** tables. ~~that
+    `factor_backtest._wipe_state()` truncates on every frozen-test run.~~ Nothing
+    paper-trade lives there (record CQ.2). **[2026-08-12, record CZ: the frozen
+    tests NO LONGER WRITE THESE — or anything else in the live DB. `_wipe_state()`
+    now shadows both tables into per-connection TEMP tables first, so a full
+    frozen run leaves `PRAGMA data_version` unmoved. `price_cache` is
+    deliberately NOT shadowed, which is why a scratch-DB redirect was the wrong
+    fix.
+    CONSEQUENCE: the **137 residue rows** in `positions` (+ `portfolio_state.cash
+    = $39.262514`) from the last pre-fix run are now **PERMANENT** — the next
+    frozen run used to clear them and no longer does, and nothing else deletes
+    them. `main.py report` / `dashboard` / `positions` will render them forever as
+    a stale portfolio. Cosmetic, not integrity: `paper_positions` is untouched at
+    7,271 rows / 3,222 open. Deleting them is Evan's one-line command — record
+    CZ.5.]**
   - **There is no `paper_transactions` table** (listed here in error until
     2026-07-28; fills live in `paper_positions`).
   - `price_cache` and `sector_cache` are NOT in `trading_bot/db.py`'s `SCHEMA`

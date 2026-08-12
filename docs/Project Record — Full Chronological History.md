@@ -160,6 +160,7 @@ lives in the dated entry, not the digest.
 - [CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)](#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt) (08-07)
 - [CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it](#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt) (08-11)
 - [CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65](#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt) (08-11)
+- [CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted](#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt) (08-12)
 
 ---
 
@@ -8801,3 +8802,165 @@ fed its own trigger.
   One line, no cmd.exe caret continuations (record CM's note). Re-running it is
   safe: the second run appends 0. Until he runs it, M6.2's done-check is met on a
   copy and NOT on live, and the PRD success criterion stays unticked.
+
+# Appendix CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state), not by redirecting the connection - which would have taken price_cache with it (2026-08-12, ~07:20 CDT)
+
+Work spans 2026-08-11 ~23:20 CDT to 2026-08-12 ~07:20 CDT (the session crossed
+midnight; code comments are dated 08-12 to match this entry).
+
+CQ.2 finding 2 has been open since the 2026-08-04 audit and was the last item on
+CX.5's still-open list. `CLAUDE.md` mandates the frozen regression tests after
+ANY python change and separately forbids concurrent `factor_backtest` against the
+live DB. The frozen tests **are** a factor_backtest: `test_strategies` ->
+`momentum_v1.run()` -> `run_factor_backtest()` -> `_wipe_state()` ->
+`DELETE FROM positions` / `DELETE FROM portfolio_state` through a read-WRITE
+`connect()` that commits. **The mandated check was the forbidden operation.**
+
+CQ.2 shipped a busy-window guard and said so plainly: it bounds WHEN, not
+WHETHER, and 137 residue rows were still sitting in the live DB. This closes the
+WHETHER.
+
+## CZ.1 Why the obvious fix does not work
+
+The auditor proposed pointing the backtest at a scratch DB. CQ.2 already rejected
+it and the reason is worth restating, because it is what makes this a DB-layer
+problem rather than a one-line one:
+
+- `positions`/`portfolio_state` are read and written by `broker.py`,
+  `monitor.py`, `portfolio.py`, `multi_backtest.py`, `reporting/dashboard.py`,
+  `reporting/report.py` and `scripts/form4/optimize_r15_wf.py`, all through one
+  `db.connect()`.
+- Redirecting that connection also redirects **`price_cache`** - 37,685,844 rows
+  the backtest must read. A scratch DB does not have it.
+
+So the seam cannot be the connection.
+
+## CZ.2 The seam is name resolution
+
+SQLite resolves an **unqualified** table name `temp -> main -> attached`. A TEMP
+table named `positions` therefore shadows the real one for every
+`... FROM positions ...` already written anywhere in this codebase - **no query
+rewritten, no call site touched, no connection redirected** - while `price_cache`
+has no shadow and still resolves to `main`.
+
+New in `trading_bot/db.py`:
+
+    shadow_backtest_state()     -> creates the TEMP shadows (idempotent)
+    unshadow_backtest_state()   -> drops them, restoring the live view
+    BACKTEST_STATE_TABLES        = ("positions", "portfolio_state")
+
+Called from `factor_backtest._wipe_state()`, which already runs first in every
+`run_factor_backtest()` - the natural chokepoint, so every momentum path and
+every research script inherits the fix without opting in.
+
+**The mechanism was canaried before anything was built on it** (a fixture DB,
+main row 'LIVE' + temp row 'TEMP'): unqualified SELECT returned the temp row,
+`main.positions` kept its own, `DELETE FROM positions` emptied temp and left main
+at 1 row, and reopening the file showed the main row intact.
+
+**One non-obvious detail.** The shadow DDL is copied from the live table's own
+`sqlite_master.sql`, NOT from `db.SCHEMA`. `init_db()` adds `entry_date`,
+`exit_date`, `peak_close_price`, `split_ratio_at_exit` and `dividends_received`
+by defensive `ALTER TABLE`, and `SCHEMA` does not declare them - a shadow built
+from `SCHEMA` would be silently missing five columns. The function asserts the
+live and temp column lists are equal before returning, so that drift fails loudly
+instead of at a random INSERT.
+
+## CZ.3 Verification - including the negative control
+
+Copy-first per `CLAUDE.md`. A `VACUUM INTO` copy (5,086,871,552 bytes) was made,
+`trading_bot.db.DB_PATH` repointed at it, and the whole frozen suite run against
+it.
+
+| check | result |
+|---|---|
+| frozen suite on the COPY | 4/4 **d=+/-0.0000pp**, exit 0 |
+| temp tables on the connection | `portfolio_state`, `positions`, `sqlite_sequence` |
+| `temp.positions` after the run | **137 rows** - the backtest's own state |
+| copy's `positions` before -> after | **137 -> 137**, id-sum `97,299,592` unchanged, entry_value-sum `259,234.8099` unchanged |
+| copy's `portfolio_state.cash` | `39.26251401921501` unchanged |
+
+A row COUNT alone would have proved nothing here - a wipe-and-rebuild lands on
+137 rows again - so the check fingerprints `SUM(id)` too, which moves because
+AUTOINCREMENT does not reuse ids.
+
+**NEGATIVE CONTROL (the CQ.4 lesson: a fix never fed its trigger is unverified).**
+`shadow_backtest_state` was monkeypatched to a no-op to simulate the pre-fix
+code, and one backtest run against the same copy moved it
+**(137, 97,299,592, 259,234.8099) -> (170, 120,762,815, 169,143.5573)**. The
+check can see a live write. The PASS above is therefore a result, not a
+tautology.
+
+**Then live.** Frozen suite against `var/trades.db`:
+
+- 4/4 **d=+/-0.0000pp** - v1 +14.5547%/70 & +1.8792%/156, v2 +14.4062%/38 &
+  +10.2194%/87.
+- `positions` **(137, 97,477,966, 259,234.8099)** before and after, identical;
+  `portfolio_state.cash` `39.262514` both times.
+- **`PRAGMA data_version` on an independent read-only connection: 2 before, 2
+  after.** SQLite bumps that counter when any other connection commits to the
+  file, so this is the strongest available statement: the run wrote **nothing**,
+  not merely nothing to those two tables. That instrument was itself canaried on
+  the copy - a known one-row UPDATE moved it 2 -> 3.
+
+New `scripts/momentum/test_backtest_state_isolation.py` (fixture DB only) locks
+it in: live rows survive a real `_wipe_state()`, a backtest INSERT lands in temp,
+nothing persists to the file, **`price_cache` is not shadowed and still reads**,
+the shadow is idempotent, its columns match the live table INCLUDING the
+ALTER-added ones, and `unshadow` restores the live view. 7/7.
+
+All eight sibling suites re-run green: `test_shortfall_pairing`,
+`test_fill_reference`, `test_inception_guard`, `test_trade_atomicity`,
+`test_carry_forward_bound`, `test_rebalance_cadence`, `test_fetch_alpaca_fills`.
+
+## CZ.4 What deliberately did NOT change
+
+- **`backtest.py` (the Form-4 walk-forward) is untouched.** `main.py backtest`
+  uses it, and `main.py report` / `dashboard` / `positions` read what it leaves
+  behind in a LATER process. Shadowing there would break that flow. Checked
+  rather than assumed: `grep -rn` finds no reader of `positions` /
+  `portfolio_state` under `scripts/momentum/`, and the one hit under `scripts/`
+  (`form4/optimize_r15_wf.py:53`) reads it in the SAME process, immediately after
+  a `backtest.py` run.
+- **The busy-window guard stays**, with its docstring and refusal message
+  corrected. It said "These tests WRITE the live DB", which is now false and
+  would have been read as truth by the next session. Its justification is
+  downgraded from correctness to I/O contention: a run still reads a 5 GB file
+  hard with a 500 MB page cache and 256 MB mmap, and there is no reason to do
+  that during a scheduled task. Removing it is now a judgement call for Evan, not
+  a bug fix.
+
+## CZ.5 The 137 residue rows - REPORTED, not deleted
+
+`positions` holds **137 rows** stamped `entry_time` 2026-08-03T04:36:36Z with
+`entry_date` 2025-01-02 (the `2025_H1` frozen window), and
+`portfolio_state.cash = $39.262514`. They are the last pre-fix frozen run's
+output.
+
+Two consequences, stated rather than fixed:
+
+1. **They are now permanent.** The only thing that used to clear them was the
+   next frozen run's `_wipe_state()`, and that no longer reaches the file. Nothing
+   else deletes them.
+2. **`main.py report` / `dashboard` / `positions` will keep rendering them
+   forever** as if they were a current portfolio. They were already stale; now
+   they are frozen stale.
+
+Nothing paper-trade lives in these tables (`paper_positions` is untouched at
+7,271 rows / 3,222 open), so this is cosmetic, not a data-integrity issue.
+**Deleting them is Evan's call and his command** - Claude's live-DB writes are
+classifier-refused (standing since record CH). From `D:\ClaudeCode\Trading`, one
+line, after a backup:
+
+    .venv\Scripts\python.exe -c "import sqlite3; from trading_bot.config import DB_PATH; c=sqlite3.connect(DB_PATH); print('deleted', c.execute('DELETE FROM positions').rowcount, c.execute('DELETE FROM portfolio_state').rowcount); c.commit(); c.close()"
+
+It is safe to skip entirely. It is also safe to run: a factor backtest no longer
+depends on anything in those tables, and re-running it changes nothing.
+
+## CZ.6 Status
+
+- **CQ.2 finding 2: CLOSED.** The mandated check is no longer the forbidden
+  operation, and it is proven by `data_version` rather than argued.
+- Frozen tests **4/4 d=+/-0.0000pp**, live DB unmodified.
+- Still open from CX.5: nothing. M6.2's LIVE `slippage_log` write (record CY.6)
+  and these 137 rows are both Evan's commands, not open engineering.

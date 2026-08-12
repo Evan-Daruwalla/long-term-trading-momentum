@@ -198,7 +198,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt">CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)</a> (08-05)<br />
 - <a href="#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt">CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)</a> (08-07)<br />
 - <a href="#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it</a> (08-11)<br />
-- <a href="#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt">CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65</a> (08-11)</p>
+- <a href="#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt">CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65</a> (08-11)<br />
+- <a href="#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt">CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted</a> (08-12)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -9989,6 +9990,168 @@ fed its own trigger.</p>
 <p>One line, no cmd.exe caret continuations (record CM's note). Re-running it is<br />
   safe: the second run appends 0. Until he runs it, M6.2's done-check is met on a<br />
   copy and NOT on live, and the PRD success criterion stays unticked.</p>
+<h1 id="appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt">Appendix CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state), not by redirecting the connection - which would have taken price_cache with it (2026-08-12, ~07:20 CDT)</h1>
+<p>Work spans 2026-08-11 ~23:20 CDT to 2026-08-12 ~07:20 CDT (the session crossed<br />
+midnight; code comments are dated 08-12 to match this entry).</p>
+<p>CQ.2 finding 2 has been open since the 2026-08-04 audit and was the last item on<br />
+CX.5's still-open list. <code>CLAUDE.md</code> mandates the frozen regression tests after<br />
+ANY python change and separately forbids concurrent <code>factor_backtest</code> against the<br />
+live DB. The frozen tests <strong>are</strong> a factor_backtest: <code>test_strategies</code> -&gt;<br />
+<code>momentum_v1.run()</code> -&gt; <code>run_factor_backtest()</code> -&gt; <code>_wipe_state()</code> -&gt;<br />
+<code>DELETE FROM positions</code> / <code>DELETE FROM portfolio_state</code> through a read-WRITE<br />
+<code>connect()</code> that commits. <strong>The mandated check was the forbidden operation.</strong></p>
+<p>CQ.2 shipped a busy-window guard and said so plainly: it bounds WHEN, not<br />
+WHETHER, and 137 residue rows were still sitting in the live DB. This closes the<br />
+WHETHER.</p>
+<h2 id="cz1-why-the-obvious-fix-does-not-work">CZ.1 Why the obvious fix does not work</h2>
+<p>The auditor proposed pointing the backtest at a scratch DB. CQ.2 already rejected<br />
+it and the reason is worth restating, because it is what makes this a DB-layer<br />
+problem rather than a one-line one:</p>
+<ul>
+<li><code>positions</code>/<code>portfolio_state</code> are read and written by <code>broker.py</code>,<br />
+<code>monitor.py</code>, <code>portfolio.py</code>, <code>multi_backtest.py</code>, <code>reporting/dashboard.py</code>,<br />
+<code>reporting/report.py</code> and <code>scripts/form4/optimize_r15_wf.py</code>, all through one<br />
+<code>db.connect()</code>.</li>
+<li>Redirecting that connection also redirects <strong><code>price_cache</code></strong> - 37,685,844 rows<br />
+  the backtest must read. A scratch DB does not have it.</li>
+</ul>
+<p>So the seam cannot be the connection.</p>
+<h2 id="cz2-the-seam-is-name-resolution">CZ.2 The seam is name resolution</h2>
+<p>SQLite resolves an <strong>unqualified</strong> table name <code>temp -&gt; main -&gt; attached</code>. A TEMP<br />
+table named <code>positions</code> therefore shadows the real one for every<br />
+<code>... FROM positions ...</code> already written anywhere in this codebase - <strong>no query<br />
+rewritten, no call site touched, no connection redirected</strong> - while <code>price_cache</code><br />
+has no shadow and still resolves to <code>main</code>.</p>
+<p>New in <code>trading_bot/db.py</code>:</p>
+<pre><code>shadow_backtest_state()     -&gt; creates the TEMP shadows (idempotent)
+unshadow_backtest_state()   -&gt; drops them, restoring the live view
+BACKTEST_STATE_TABLES        = ("positions", "portfolio_state")
+</code></pre>
+<p>Called from <code>factor_backtest._wipe_state()</code>, which already runs first in every<br />
+<code>run_factor_backtest()</code> - the natural chokepoint, so every momentum path and<br />
+every research script inherits the fix without opting in.</p>
+<p><strong>The mechanism was canaried before anything was built on it</strong> (a fixture DB,<br />
+main row 'LIVE' + temp row 'TEMP'): unqualified SELECT returned the temp row,<br />
+<code>main.positions</code> kept its own, <code>DELETE FROM positions</code> emptied temp and left main<br />
+at 1 row, and reopening the file showed the main row intact.</p>
+<p><strong>One non-obvious detail.</strong> The shadow DDL is copied from the live table's own<br />
+<code>sqlite_master.sql</code>, NOT from <code>db.SCHEMA</code>. <code>init_db()</code> adds <code>entry_date</code>,<br />
+<code>exit_date</code>, <code>peak_close_price</code>, <code>split_ratio_at_exit</code> and <code>dividends_received</code><br />
+by defensive <code>ALTER TABLE</code>, and <code>SCHEMA</code> does not declare them - a shadow built<br />
+from <code>SCHEMA</code> would be silently missing five columns. The function asserts the<br />
+live and temp column lists are equal before returning, so that drift fails loudly<br />
+instead of at a random INSERT.</p>
+<h2 id="cz3-verification---including-the-negative-control">CZ.3 Verification - including the negative control</h2>
+<p>Copy-first per <code>CLAUDE.md</code>. A <code>VACUUM INTO</code> copy (5,086,871,552 bytes) was made,<br />
+<code>trading_bot.db.DB_PATH</code> repointed at it, and the whole frozen suite run against<br />
+it.</p>
+<table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>frozen suite on the COPY</td>
+<td>4/4 <strong>d=+/-0.0000pp</strong>, exit 0</td>
+</tr>
+<tr>
+<td>temp tables on the connection</td>
+<td><code>portfolio_state</code>, <code>positions</code>, <code>sqlite_sequence</code></td>
+</tr>
+<tr>
+<td><code>temp.positions</code> after the run</td>
+<td><strong>137 rows</strong> - the backtest's own state</td>
+</tr>
+<tr>
+<td>copy's <code>positions</code> before -&gt; after</td>
+<td><strong>137 -&gt; 137</strong>, id-sum <code>97,299,592</code> unchanged, entry_value-sum <code>259,234.8099</code> unchanged</td>
+</tr>
+<tr>
+<td>copy's <code>portfolio_state.cash</code></td>
+<td><code>39.26251401921501</code> unchanged</td>
+</tr>
+</tbody>
+</table>
+<p>A row COUNT alone would have proved nothing here - a wipe-and-rebuild lands on<br />
+137 rows again - so the check fingerprints <code>SUM(id)</code> too, which moves because<br />
+AUTOINCREMENT does not reuse ids.</p>
+<p><strong>NEGATIVE CONTROL (the CQ.4 lesson: a fix never fed its trigger is unverified).</strong><br />
+<code>shadow_backtest_state</code> was monkeypatched to a no-op to simulate the pre-fix<br />
+code, and one backtest run against the same copy moved it<br />
+<strong>(137, 97,299,592, 259,234.8099) -&gt; (170, 120,762,815, 169,143.5573)</strong>. The<br />
+check can see a live write. The PASS above is therefore a result, not a<br />
+tautology.</p>
+<p><strong>Then live.</strong> Frozen suite against <code>var/trades.db</code>:</p>
+<ul>
+<li>4/4 <strong>d=+/-0.0000pp</strong> - v1 +14.5547%/70 &amp; +1.8792%/156, v2 +14.4062%/38 &amp;<br />
+  +10.2194%/87.</li>
+<li><code>positions</code> <strong>(137, 97,477,966, 259,234.8099)</strong> before and after, identical;<br />
+<code>portfolio_state.cash</code> <code>39.262514</code> both times.</li>
+<li><strong><code>PRAGMA data_version</code> on an independent read-only connection: 2 before, 2<br />
+  after.</strong> SQLite bumps that counter when any other connection commits to the<br />
+  file, so this is the strongest available statement: the run wrote <strong>nothing</strong>,<br />
+  not merely nothing to those two tables. That instrument was itself canaried on<br />
+  the copy - a known one-row UPDATE moved it 2 -&gt; 3.</li>
+</ul>
+<p>New <code>scripts/momentum/test_backtest_state_isolation.py</code> (fixture DB only) locks<br />
+it in: live rows survive a real <code>_wipe_state()</code>, a backtest INSERT lands in temp,<br />
+nothing persists to the file, <strong><code>price_cache</code> is not shadowed and still reads</strong>,<br />
+the shadow is idempotent, its columns match the live table INCLUDING the<br />
+ALTER-added ones, and <code>unshadow</code> restores the live view. 7/7.</p>
+<p>All eight sibling suites re-run green: <code>test_shortfall_pairing</code>,<br />
+<code>test_fill_reference</code>, <code>test_inception_guard</code>, <code>test_trade_atomicity</code>,<br />
+<code>test_carry_forward_bound</code>, <code>test_rebalance_cadence</code>, <code>test_fetch_alpaca_fills</code>.</p>
+<h2 id="cz4-what-deliberately-did-not-change">CZ.4 What deliberately did NOT change</h2>
+<ul>
+<li><strong><code>backtest.py</code> (the Form-4 walk-forward) is untouched.</strong> <code>main.py backtest</code><br />
+  uses it, and <code>main.py report</code> / <code>dashboard</code> / <code>positions</code> read what it leaves<br />
+  behind in a LATER process. Shadowing there would break that flow. Checked<br />
+  rather than assumed: <code>grep -rn</code> finds no reader of <code>positions</code> /<br />
+<code>portfolio_state</code> under <code>scripts/momentum/</code>, and the one hit under <code>scripts/</code><br />
+  (<code>form4/optimize_r15_wf.py:53</code>) reads it in the SAME process, immediately after<br />
+  a <code>backtest.py</code> run.</li>
+<li><strong>The busy-window guard stays</strong>, with its docstring and refusal message<br />
+  corrected. It said "These tests WRITE the live DB", which is now false and<br />
+  would have been read as truth by the next session. Its justification is<br />
+  downgraded from correctness to I/O contention: a run still reads a 5 GB file<br />
+  hard with a 500 MB page cache and 256 MB mmap, and there is no reason to do<br />
+  that during a scheduled task. Removing it is now a judgement call for Evan, not<br />
+  a bug fix.</li>
+</ul>
+<h2 id="cz5-the-137-residue-rows---reported-not-deleted">CZ.5 The 137 residue rows - REPORTED, not deleted</h2>
+<p><code>positions</code> holds <strong>137 rows</strong> stamped <code>entry_time</code> 2026-08-03T04:36:36Z with<br />
+<code>entry_date</code> 2025-01-02 (the <code>2025_H1</code> frozen window), and<br />
+<code>portfolio_state.cash = $39.262514</code>. They are the last pre-fix frozen run's<br />
+output.</p>
+<p>Two consequences, stated rather than fixed:</p>
+<ol>
+<li><strong>They are now permanent.</strong> The only thing that used to clear them was the<br />
+   next frozen run's <code>_wipe_state()</code>, and that no longer reaches the file. Nothing<br />
+   else deletes them.</li>
+<li><strong><code>main.py report</code> / <code>dashboard</code> / <code>positions</code> will keep rendering them<br />
+   forever</strong> as if they were a current portfolio. They were already stale; now<br />
+   they are frozen stale.</li>
+</ol>
+<p>Nothing paper-trade lives in these tables (<code>paper_positions</code> is untouched at<br />
+7,271 rows / 3,222 open), so this is cosmetic, not a data-integrity issue.<br />
+<strong>Deleting them is Evan's call and his command</strong> - Claude's live-DB writes are<br />
+classifier-refused (standing since record CH). From <code>D:\ClaudeCode\Trading</code>, one<br />
+line, after a backup:</p>
+<pre><code>.venv\Scripts\python.exe -c "import sqlite3; from trading_bot.config import DB_PATH; c=sqlite3.connect(DB_PATH); print('deleted', c.execute('DELETE FROM positions').rowcount, c.execute('DELETE FROM portfolio_state').rowcount); c.commit(); c.close()"
+</code></pre>
+<p>It is safe to skip entirely. It is also safe to run: a factor backtest no longer<br />
+depends on anything in those tables, and re-running it changes nothing.</p>
+<h2 id="cz6-status">CZ.6 Status</h2>
+<ul>
+<li><strong>CQ.2 finding 2: CLOSED.</strong> The mandated check is no longer the forbidden<br />
+  operation, and it is proven by <code>data_version</code> rather than argued.</li>
+<li>Frozen tests <strong>4/4 d=+/-0.0000pp</strong>, live DB unmodified.</li>
+<li>Still open from CX.5: nothing. M6.2's LIVE <code>slippage_log</code> write (record CY.6)<br />
+  and these 137 rows are both Evan's commands, not open engineering.</li>
+</ul>
 </div>
 </body>
 </html>

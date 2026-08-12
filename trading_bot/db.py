@@ -11,7 +11,13 @@ the backtest `positions`/`portfolio_state`, and the live paper-trade
 `positions`/`portfolio_state` because `factor_backtest._wipe_state()` truncates
 the latter on every run - paper state must survive that - and are keyed by
 `strategy_name` so many sleeves share one DB.
+
+Since 2026-08-12 (record CZ) that truncation no longer reaches the file at all:
+`shadow_backtest_state()` puts `positions`/`portfolio_state` in per-connection
+TEMP tables for the duration of a backtest. See the block above those functions
+for why name resolution, and not a scratch DB, is the right seam.
 """
+import re
 import sqlite3
 import threading
 from contextlib import contextmanager
@@ -236,6 +242,106 @@ CREATE TABLE IF NOT EXISTS sector_overlay_log (
   UNIQUE (decision_date, ticker)
 );
 """
+
+
+# ---------------------------------------------------------------------------
+# Backtest scratch state (record CZ; audit finding CQ.2 #2).
+#
+# `positions` and `portfolio_state` are BACKTEST tables -- nothing paper-trade
+# lives in them. `factor_backtest._wipe_state()` DELETEs both on every run, and
+# `CLAUDE.md` mandates running the frozen tests (which ARE a factor_backtest)
+# after any Python change while separately forbidding concurrent factor_backtest
+# against the live DB. So the mandated check was the forbidden operation: a
+# second writer holding a lock on the live 5 GB file, leaving residue rows behind.
+#
+# The fix is name resolution, not plumbing. SQLite resolves an UNQUALIFIED table
+# name temp -> main -> attached, so a TEMP table named `positions` shadows the
+# real one for every `... FROM positions ...` already written anywhere in this
+# codebase -- broker.py, monitor.py, portfolio.py, multi_backtest.py,
+# reporting/*, form4/optimize_r15_wf.py -- with no query rewritten and no
+# connection redirected. `price_cache` has no shadow, so the backtest still
+# reads the real 37.7M-row cache from `main`. TEMP tables live in the
+# connection's own temp store and are gone when it closes; the live file is
+# never written.
+# ---------------------------------------------------------------------------
+
+BACKTEST_STATE_TABLES = ("positions", "portfolio_state")
+
+_CREATE_TABLE_RE = re.compile(r"^\s*CREATE\s+TABLE\s+", re.IGNORECASE)
+
+
+def _columns(conn: sqlite3.Connection, schema: str, table: str) -> list[str]:
+    return [r[1] for r in conn.execute(f"PRAGMA {schema}.table_info({table})")]
+
+
+def shadow_backtest_state(conn: sqlite3.Connection | None = None) -> tuple[str, ...]:
+    """Shadow the backtest state tables with per-connection TEMP copies.
+
+    Idempotent: a table already shadowed on this connection is left alone.
+    Returns the tables newly shadowed.
+
+    The DDL is copied from the LIVE table's own `sqlite_master.sql` rather than
+    from `SCHEMA` above, so the shadow inherits the defensive ALTER-added columns
+    (`peak_close_price`, `split_ratio_at_exit`, `dividends_received`, ...) that
+    `SCHEMA` does not declare. Copying `SCHEMA` instead would build a shadow
+    missing those columns and the backtest would fail on a column that exists in
+    the real table -- so the column sets are asserted equal before returning.
+
+    NOTE: once shadowed, this connection can no longer see the real
+    `positions` / `portfolio_state` unqualified. Use `main.positions` for that,
+    or `unshadow_backtest_state()`.
+    """
+    own = conn is None
+    if own:
+        ctx = connect()
+        conn = ctx.__enter__()
+    try:
+        shadowed = []
+        temp_tables = {r[0] for r in conn.execute(
+            "SELECT name FROM temp.sqlite_master WHERE type='table'")}
+        for table in BACKTEST_STATE_TABLES:
+            if table in temp_tables:
+                continue
+            row = conn.execute(
+                "SELECT sql FROM main.sqlite_master WHERE type='table' AND name=?",
+                (table,)).fetchone()
+            if row is None or not row[0]:
+                raise RuntimeError(
+                    f"cannot shadow {table!r}: no such table in the live DB. "
+                    "Run init_db() first.")
+            ddl, n = _CREATE_TABLE_RE.subn("CREATE TEMP TABLE ", row[0], count=1)
+            if n != 1:
+                raise RuntimeError(f"unexpected DDL for {table!r}: {row[0][:80]!r}")
+            conn.execute(ddl)
+            live, temp = _columns(conn, "main", table), _columns(conn, "temp", table)
+            if live != temp:
+                raise RuntimeError(
+                    f"shadow of {table!r} does not match the live table: "
+                    f"live={live} temp={temp}")
+            shadowed.append(table)
+        return tuple(shadowed)
+    finally:
+        if own:
+            ctx.__exit__(None, None, None)
+
+
+def unshadow_backtest_state(conn: sqlite3.Connection | None = None) -> tuple[str, ...]:
+    """Drop the TEMP shadows so unqualified names resolve to the live tables again."""
+    own = conn is None
+    if own:
+        ctx = connect()
+        conn = ctx.__enter__()
+    try:
+        dropped = []
+        for table in BACKTEST_STATE_TABLES:
+            if conn.execute("SELECT 1 FROM temp.sqlite_master WHERE type='table' "
+                            "AND name=?", (table,)).fetchone():
+                conn.execute(f"DROP TABLE temp.{table}")
+                dropped.append(table)
+        return tuple(dropped)
+    finally:
+        if own:
+            ctx.__exit__(None, None, None)
 
 
 def init_db() -> None:

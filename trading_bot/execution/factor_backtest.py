@@ -38,6 +38,7 @@ import math
 from datetime import date, datetime, timedelta, timezone
 
 from trading_bot import config
+from trading_bot import db as db_mod
 from trading_bot.db import connect
 from trading_bot.execution import backtest as bt_mod
 from trading_bot.execution import market_data
@@ -62,6 +63,26 @@ _stopped_watch: dict[str, dict] = {}
 
 
 def _wipe_state() -> None:
+    """Reset backtest state. Runs FIRST in every run_factor_backtest().
+
+    Since 2026-08-12 (record CZ) this shadows `positions`/`portfolio_state` with
+    per-connection TEMP tables BEFORE wiping, so the DELETEs below -- and every
+    subsequent read/write of those two tables anywhere in the codebase -- land in
+    the connection's temp store instead of the live 5 GB `var/trades.db`.
+
+    Why it matters: `CLAUDE.md` mandates the frozen tests after any Python change
+    and separately forbids concurrent `factor_backtest` against the live DB. The
+    frozen tests ARE a factor_backtest, so the mandated check was itself a second
+    writer on the live file (audit finding CQ.2 #2). It is not any more.
+
+    `price_cache` is deliberately NOT shadowed -- the backtest still reads the
+    real cache from `main`, which is the whole reason a scratch-DB redirect was
+    the wrong fix.
+    """
+    shadowed = db_mod.shadow_backtest_state()
+    if shadowed:
+        log.info("Factor backtest state shadowed to TEMP: %s (live DB not written)",
+                 ", ".join(shadowed))
     log.info("Factor backtest reset: clearing positions + portfolio_state")
     _stopped_watch.clear()
     with connect() as conn:
