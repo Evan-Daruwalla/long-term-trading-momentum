@@ -20,7 +20,7 @@
 REPO=$(git rev-parse --show-toplevel)
 
 # ── 1. Secret gate ───────────────────────────────────────────────────────────
-SCANNER="D:/ClaudeCode/Skills/skills/history-leak-scan/pm-secretscan.js"
+SCANNER="${HOME}/.claude/skills/history-leak-scan/pm-secretscan.js"
 if [ -f "$SCANNER" ]; then
   node "$SCANNER" --staged "$REPO"
   status=$?

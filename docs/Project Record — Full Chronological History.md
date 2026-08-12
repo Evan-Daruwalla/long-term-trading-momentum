@@ -157,6 +157,7 @@ lives in the dated entry, not the digest.
 - [CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not slippage, and M6.3 run off it would have moved HALF_SPREAD_BPS 5 -> 100bps and corrupted every backtest](#appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt) (08-05)
 - [CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows](#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt) (08-05)
 - [CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)](#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt) (08-05)
+- [CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)](#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt) (08-07)
 
 ---
 
@@ -8208,3 +8209,343 @@ v2 +14.4062%/38 & +10.2194%/87. Commit `f48d4b7`.
 market-on-close mirror orders, an in-session monthly slot, or redefine M6 as
 implementation shortfall — defensible, but a different metric than the PRD named,
 and worth choosing deliberately rather than by drift.
+
+# Appendix CW - The residual-ladder "inversion" DECOMPOSED: it is not cadence, not turnover, not transaction cost, not R1, not one bad name - the ENTIRE gradient is in the 2026-05-01 stock selection, it is market-orthogonal, and it is ONE MONTH (July, when SPY did +0.03% and momentum did -23.5%) (2026-08-07, ~05:41 CDT)
+
+Ordered by Evan after the 08-06 post-close report flagged the ladder slope
+steepening a third day running (monthly -0.0296, weekly -0.0735, biweekly
+-0.1435, biweekly corr **-0.940** across 19 rungs). The task as given: *separate
+the cadence effect from the weight effect.* That turned out to be the easy part,
+and answering it properly exposed that the headline number means something
+almost the opposite of how it reads.
+
+**Read-only throughout.** `var/trades.db` opened `mode=ro` on every query. No
+sleeve, NAV, price, or log row was written. All analysis scripts live in the
+session scratchpad, not the repo.
+
+## CW.0 The claim under test, and the one that was already wrong
+
+The 08-06 post-close report (§6b) said:
+
+> "the cadence and weight effects are confounded in the current design and
+> **cannot be separated from this data**."
+
+~~That is correct.~~ **That is WRONG and is retracted here.** The design is
+fully crossed and the effects separate exactly. Correcting forward per the usual
+convention; the 08-06 report is not edited.
+
+## CW.1 The design is a clean 19x3 crossed factorial, and the three cadences started from IDENTICAL books
+
+Verified against `paper_rebalance.py` `_strategy_config` (the `residual_w`
+branch, lines ~80-105) and against the DB:
+
+- **57 ladder sleeves = 19 weights x 3 cadences.** Weights `{5,10,...,95}`,
+  identical set in all three cadences (checked, not assumed).
+- **The rank function is cadence-independent by construction** - the source
+  comment says so and the code strips the `_wk`/`_2wk` marker before parsing the
+  four weight digits. Only the *schedule* differs.
+- **`starting_cash` = $100,000.00 for all 57.** First `paper_nav` row is
+  2026-05-01 for all 57, at $99,950.07-$99,950.13 (the ~$50 = 5bps one-way entry
+  cost on ~100% deployment; this pins the sim's cost assumption empirically).
+- **At 2026-05-01 the three cadences bought the SAME book at each weight.**
+  Checked per weight: identical ticker sets AND identical `entry_value` to the
+  cent. The buy-and-hold counterfactual computed below differs by
+  **$0.0000** across cadences at every weight - as it must, and now proven
+  rather than assumed.
+
+Rebalance events actually executed (distinct `entry_date` per cadence):
+
+| Cadence | events | dates |
+|---|---:|---|
+| monthly | 4 | 05-01, 06-03, 07-01, 08-03 |
+| weekly | 14 | 05-01, 05-04, 05-11, 05-18, 05-26, 06-01, 06-08, 06-15, 06-22, 06-29, 07-06, 07-13, **07-27**, 08-03 |
+| biweekly | 8 | 05-01, 05-11, 05-26, 06-08, 06-22, 07-06, **07-28**, 08-03 |
+
+**Two schedule gaps are visible and are recorded, not fixed here:** the weekly
+arm has **no 07-20 rebalance** (07-13 -> 07-27), and the biweekly arm's
+07-06 -> 07-28 gap is **22 days, not 14**. Both fall in the record-CH /
+record-CI window where the ladder dispatcher and the rate-limit backfill were
+being repaired, which is the likely cause. Flagged for a later check; it does
+not affect any conclusion below because both gaps are *inside* the July window
+that turns out to carry the whole effect, and the effect is present in the
+monthly arm too, which has no gap.
+
+## CW.2 THE FINDING: the gradient is in the 05-01 selection. Trading did not create it.
+
+Because all three cadences start from an identical book, the decomposition is
+exact:
+
+- **Buy-and-hold (BH)** = hold the 05-01 book untouched to 08-06. One curve per
+  weight, cadence-independent. This is **pure selection**.
+- **Actual - BH** = the entire cumulative contribution of every rebalance. This
+  is **pure trading**.
+
+Computed in dollars as `(100000 - invested) + sum(entry_value_i x px_0806_i /
+px_0501_i)`, so it is split-invariant by construction (see CW.8).
+
+| Series | slope (pp per weight point) | corr | mean |
+|---|---:|---:|---:|
+| **buy-and-hold (selection only)** | **-0.1153** | **-0.927** | +3.46% |
+| actual, monthly | -0.0296 | -0.648 | +5.66% |
+| actual, weekly | -0.0735 | -0.862 | +3.51% |
+| actual, biweekly | -0.1434 | -0.940 | +2.75% |
+| trading contribution, monthly | **+0.0857** | +0.841 | **+2.20pp** |
+| trading contribution, weekly | +0.0418 | +0.658 | +0.05pp |
+| trading contribution, biweekly | -0.0281 | -0.509 | -0.71pp |
+
+**The buy-and-hold slope (-0.1153) is STEEPER than the monthly actual (-0.0296)
+and about as steep as the biweekly actual (-0.1434).** Doing nothing at all
+reproduces essentially the entire headline gradient.
+
+Dollar-weighted, holding the 05-01 book untouched to 08-06: the **low end
+(w05-w45) returned +6.67%** and the **high end (w55-w95) returned +0.23%** - a
+**6.44pp spread from a single day's stock picking**, with zero trading involved.
+
+The corollary is the answer to the question as asked: **monthly rebalancing has
+been net POSITIVE (+2.20pp mean) and helped MORE at high residual weight
+(+0.0857/pt); biweekly rebalancing has been net NEGATIVE (-0.71pp).** The
+monthly arm's shallower slope is not a property of monthly rebalancing being
+better - it is that its three post-inception swaps happened to partially repair
+the bad high-weight picks.
+
+## CW.3 The cadence difference is NOT transaction cost, and it is inside one standard error
+
+Turnover (sum of `exit_value` / $100k base) scales almost perfectly with residual
+weight - the tightest relationship in the whole dataset:
+
+| Cadence | turnover slope (pp per weight pt) | corr | mean turnover | mean round-trips |
+|---|---:|---:|---:|---:|
+| monthly | +1.208 | **+0.975** | 101.7% | 45.2 |
+| weekly | +2.767 | **+0.981** | 185.6% | 83.9 |
+| biweekly | +1.826 | **+0.983** | 134.0% | 60.9 |
+
+**But turnover cannot be the mechanism.** At the empirically-pinned 5bps
+one-way (CW.1), a round trip costs ~10bps. The monthly-to-biweekly turnover
+differential is ~32pp, i.e. **~0.06pp of cost**, against an observed
+trading-contribution differential of **2.91pp**. **Cost explains about 2% of it.**
+Note also that weekly has the *most* turnover and is *not* the worst arm - which
+alone rules out a monotone cost story.
+
+Per-event "swap alpha" (dollar-weighted forward return to 08-06 of what was
+bought minus what was sold at that event; positive = the swap improved the book):
+
+| Cadence | n events | sum | mean | sd | se(mean) |
+|---|---:|---:|---:|---:|---:|
+| monthly | 3 | +5.35pp | +1.78pp | 3.28pp | 1.90pp |
+| weekly | 13 | +0.18pp | +0.01pp | 5.07pp | 1.41pp |
+| biweekly | 7 | -2.10pp | -0.30pp | 5.67pp | 2.14pp |
+
+**Every cadence's mean swap alpha is inside one standard error of zero.** The
+monthly arm's whole +5.35pp comes from a single event - **06-03, +5.93pp** (the
+other two are -2.10 and +1.52). The biweekly arm's two largest events nearly
+cancel (**05-11 +10.04pp, 05-26 -10.68pp**). And **weekly and biweekly SHARE the
+05-11 and 05-26 events**, so they are not independent samples of each other
+either.
+
+**Conclusion on the question as asked: the cadence effect on the ladder slope is
+event-timing noise, not a cost or frequency property.** With 3 / 13 / 7 events
+and a ~5pp per-event standard deviation, this design cannot currently
+distinguish the three cadences at all.
+
+## CW.4 The 19 rungs are not 19 observations
+
+Jaccard overlap of the 05-01 holdings:
+
+- **adjacent rungs (w -> w+5): 0.74 to 0.94.** Neighbours are near-copies.
+- **endpoints w05 vs w95: 0.04 - FOUR shared names out of 47 and 49.**
+- w05 vs w50: 0.24. w50 vs w95: 0.32.
+- Union of all 19 rungs: **114 distinct names**; mean rung size 47.8.
+
+**The ladder is a smooth interpolation between two nearly-disjoint portfolios,
+sampled once.** A correlation of -0.940 across 19 such points is what a
+*dose-response curve* looks like, not what 19 independent confirmations look
+like. **The effective sample is closer to two portfolios in one window than to
+19 observations,** and every r-value in this appendix (including the headline
+-0.940) must be read that way.
+
+That is not a criticism of the ladder - a dose-response curve is exactly what it
+was built to produce. It is a criticism of reading its r-value as significance.
+
+## CW.5 It is one month. And that month was a market-flat momentum unwind.
+
+Weight-slope by sub-period, computed on **stored `paper_nav` rows only** (window
+ends 08-05, the last marked day):
+
+| Window | monthly | weekly | biweekly |
+|---|---:|---:|---:|
+| May (05-01 -> 05-29) | +0.0084 (r +0.20) | +0.0095 (r +0.19) | -0.0071 (r -0.16) |
+| Jun (05-29 -> 06-30) | -0.0031 (r -0.07) | +0.0168 (r +0.41) | +0.0165 (r +0.44) |
+| **Jul (06-30 -> 07-31)** | **-0.0243 (r -0.40)** | **-0.0934 (r -0.93)** | **-0.1437 (r -0.98)** |
+| Aug MTD (07-31 -> 08-05) | -0.0057 (r -0.39) | +0.0098 (r +0.59) | +0.0148 (r +0.74) |
+| FULL (05-01 -> 08-05) | -0.0273 (r -0.63) | -0.0666 (r -0.82) | -0.1351 (r -0.94) |
+
+**Everything is July.** May, June and August-to-date are flat-to-positive in
+essentially every cell.
+
+**It is not the R1 anomaly.** Excluding the R1 window (07-24..07-30) entirely and
+measuring 06-30 -> 07-23, July still slopes negative but far weaker:
+**-0.0050 (r -0.11) / -0.0462 (r -0.74) / -0.0666 (r -0.88)**. So the R1 leg is
+the single largest contributor but removing it does not remove the effect.
+
+July decomposed into legs, with the high-vs-low spread (mean of w05-45 minus mean
+of w55-95, all 57 sleeves):
+
+| July leg | ladder mean | w05-45 | w55-95 | spread |
+|---|---:|---:|---:|---:|
+| 07-01 -> 07-08 | -4.36% | -2.69% | -5.91% | **+3.22pp** |
+| 07-08 -> 07-15 | -0.01% | +0.44% | -0.47% | +0.91pp |
+| 07-15 -> 07-23 | -0.55% | -1.62% | +0.53% | **-2.14pp** |
+| 07-23 -> 07-29 (R1) | -5.40% | -3.20% | -7.45% | **+4.25pp** |
+| 07-29 -> 07-31 (R1) | +4.77% | +3.55% | +5.82% | **-2.27pp** |
+
+**The spread REVERSES SIGN in both rally legs.** The gradient is not a persistent
+tilt; it opens in drawdown legs and closes in recovery legs.
+
+And the regime itself, from the sleeves' own stored NAV:
+
+| July 2026 (06-30 -> 07-31) | return |
+|---|---:|
+| `spy_benchmark_paper` | **+0.03%** |
+| `qqq_benchmark_paper` | -6.57% |
+| `mom_v1_paper` | **-23.52%** |
+| `mom_v2_paper` | **-24.17%** |
+| `mom_roa_6535_paper` | **-23.50%** |
+| `residual_roa_6535_paper` | -8.88% |
+| residual ladder, mean of 57 | -5.77% |
+
+**July was a dead-flat index month in which pure momentum lost a quarter of its
+value.** That is a factor unwind, not a market drawdown. The ladder's gradient is
+the dose-response curve of that one event: the more residual-momentum weight a
+rung carried, the more of the -23.5% it ate.
+
+## CW.6 It survives beta adjustment - and the daily up/down asymmetry runs the FAVOURABLE way
+
+Daily returns, 67 observations (05-01..08-05), regressed on `spy_benchmark_paper`:
+
+| Cadence | beta slope/wt | r | **alpha slope/wt** | **r** | vol slope/wt | r |
+|---|---:|---:|---:|---:|---:|---:|
+| monthly | +0.00308 | +0.47 | **-0.0929** | **-0.89** | +0.00721 | +0.74 |
+| weekly | +0.00600 | +0.79 | **-0.1435** | **-0.91** | +0.00949 | +0.90 |
+| biweekly | +0.00684 | +0.80 | **-0.2110** | **-0.96** | +0.01095 | +0.91 |
+
+**Beta does NOT explain it.** Beta is hump-shaped, not monotone - 0.84 at w05,
+peaking ~1.53-1.62 around w50-w70, falling back to 1.19-1.47 at w95 - while the
+return gradient is monotone. **The CAPM alpha slope is monotone and stronger than
+the raw slope (biweekly r -0.96).** The loss is market-orthogonal, which is the
+same statement as CW.5's "SPY +0.03%".
+
+The up-day / down-day split (36 SPY up days, 29 down) is the result that most
+constrains the interpretation:
+
+| Weight | monthly up / down | weekly up / down | biweekly up / down |
+|---|---|---|---|
+| w05 | 0.61 / 0.88 | 0.75 / 0.86 | 0.69 / 0.93 |
+| w50 | 1.63 / 0.76 | 1.85 / 0.87 | 1.98 / 0.96 |
+| w95 | 1.28 / 0.41 | 1.77 / 0.59 | 1.85 / 0.64 |
+
+down-beta minus up-beta, slope on weight: **-0.01335 (r -0.859) / -0.01605
+(r -0.919) / -0.01823 (r -0.949)**; the statistic runs from about **+0.25 at w05
+to about -1.2 at w95**.
+
+**High-residual-weight rungs have HIGHER up-beta and LOWER down-beta.** On a
+daily market-conditional basis that is a *desirable* profile, and they still lost
+badly. **Therefore the losses do not arrive on down-market days - they arrive on
+days the index is flat or up and momentum falls on its own.** That is a precise,
+falsifiable description of what happened, and it matches July exactly.
+
+## CW.7 What this does and does not establish
+
+**Established:**
+
+1. The ladder gradient is **selection at inception**, not trading, cadence,
+   turnover, or transaction cost. Buy-and-hold reproduces it (-0.1153, r -0.927).
+2. **Rebalancing has been net positive monthly (+2.20pp), neutral weekly,
+   net negative biweekly (-0.71pp)** - and all three means are inside one
+   standard error of zero over 3/13/7 events.
+3. Transaction cost is **~2% of the observed cadence differential**; the sim's
+   5bps one-way is empirically confirmed by the $99,950 inception NAV.
+4. The effect is **market-orthogonal** (survives CAPM; alpha slope r up to
+   -0.96) and **concentrated in July 2026**, a month in which SPY returned
+   **+0.03%** while momentum sleeves lost **~23.5%**.
+5. Not an artifact of **R1** (survives excluding 07-24..07-30, weakened), not of
+   **FGMC** (slope -0.1154 -> -0.1011 ex-FGMC), not of the **KLAC 10:1 split**
+   (BH computed in dollars from cache price ratios; KLAC is the only split among
+   the 115 distinct 05-01 (ticker, entry_price) pairs and the ratio method is
+   split-invariant).
+
+**NOT established, and explicitly not claimed:**
+
+- **This is NOT evidence that Appendix BV's w80-90 holdout plateau was wrong.**
+  One factor-regime observation cannot refute a holdout result. The live sweep
+  and the backtest disagree; that is a fact about two windows, not a verdict.
+- **This is NOT evidence that low-residual/high-ROA is the better blend.** The
+  spread reverses sign in both July rally legs and in August to date.
+- **The three cadences are NOT distinguishable** in this data. Anyone citing a
+  cadence ranking off these sleeves is reading 3-13 noisy events.
+- **The 19 rungs are NOT 19 observations** (CW.4). No r-value here should be
+  quoted as significance.
+
+**What the ladder IS delivering, and it is genuinely useful:** a live,
+correctly-wired dose-response measurement of the residual-momentum/ROA factor
+spread. Over 05-01 -> 08-06 that spread ran **6.44pp in favour of ROA**, and the
+ladder priced the sensitivity at roughly **0.10-0.14pp of return per weight point
+per adverse month**. That is a real sizing number obtained the honest way. It is
+the answer to "how much does this dial cost me when it goes against me," not to
+"which setting is right."
+
+## CW.8 Method notes and caveats
+
+- **08-06 was UNMARKED** at analysis time (coverage 4,344 < 5,000 floor, sixth
+  consecutive session; latest `paper_nav` = 2026-08-05). All 08-06 figures are
+  **indicative re-marks** (open positions x official 08-06 `price_cache` closes +
+  stored `paper_portfolio.cash`). All 192 held tickers had an 08-06 close, the
+  condition under which the two prior re-marks validated at +$0.07 and +$18.65 on
+  a $7.9M book. **Every sub-period and daily-regression result in CW.5/CW.6 uses
+  stored rows only and ends 08-05**, so those are unaffected either way. DB state
+  re-verified unchanged at 05:41 CDT on 08-07 (before the 07:45 heal).
+- **Split-invariance.** The BH counterfactual uses dollars:
+  `entry_value x (px_0806 / px_0501)`, both prices read from today's
+  consistently split-adjusted `price_cache`, so the ratio is split-clean. Checked
+  all 115 distinct 05-01 `(ticker, entry_price)` pairs against the cached 05-01
+  close: exactly one falls outside [0.99, 1.02] - **KLAC at 10.005x**, the known
+  2026-06-11 10:1 split. No other split or restatement in the set.
+- **FGMC has no 08-06 close** (it is in the coverage tail; last close 08-05
+  $4.44) and is marked there. It was held only at w75-w95 (~$2,039-2,081 each at
+  05-01) and returned -56.4%. Removing it entirely moves the BH slope from
+  -0.1154 to -0.1011 - materially the same.
+- **Dividends.** `price_cache` is dividend-UNadjusted by project convention, and
+  the sim does not credit dividends, so BH and actual are on the same basis. Both
+  understate total return by the same dividend stream.
+- All results reproduce from `var/trades.db` read-only; scripts are in the
+  session scratchpad (`lad1.py` .. `lad12.py`), not committed.
+
+## CW.9 Verification
+
+**Frozen regression tests - run 2026-08-07 ~05:38 CDT, actual output:**
+
+```
+Running strategy regression tests...
+  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+All regression tests passed.
+```
+
+d = +/-0.0000pp on all four pinned configs. **No repo Python was changed by this
+appendix** - the tests are run because the standing rule requires the state to be
+proven, not because anything was touched.
+
+## CW.10 Open items this leaves
+
+1. **The weekly arm is missing a 07-20 rebalance and the biweekly 07-06 -> 07-28
+   gap is 22 days** (CW.1). Both sit in the record CH/CI repair window. Not
+   investigated here; recorded so it is not re-discovered as a surprise.
+2. The 08-06 post-close report's §6b "confounded / cannot be separated" claim is
+   **retracted** (CW.0). It should be corrected forward in the next daily report,
+   not edited in place.
+3. The §6b hypothesis in that same report - that shorter cadence suffers more
+   because it re-buys freshly-run-up names - is **not supported**: the trading
+   contribution is *positive* at monthly and the cadence spread is inside one
+   standard error. The mechanism is inception selection, not re-buying.

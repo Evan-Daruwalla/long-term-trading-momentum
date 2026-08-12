@@ -170,6 +170,37 @@ replay NOISE (BW carried the same caveat), live forward decides. Weekly/biweekly
 rebalance forward via `ladder_forward_rebalance.py` (TradingLadderRebalance, daily
 8:30pm, self-decides due-ness); monthly via `rebalance.bat`.
 
+> **WHAT THE LADDER GRADIENT ACTUALLY MEASURES (2026-08-07, record CW) — read
+> this BEFORE quoting any slope or r-value from these 57 sleeves.**
+> The three cadences bought **identical 05-01 books** (proven, not assumed), so
+> weight and cadence separate exactly — the earlier "confounded" reading is
+> retracted. Decomposed:
+> - **The whole gradient is 05-01 stock selection, not trading.** Buy-and-hold
+>   the 05-01 book untouched reproduces slope **-0.1153 (r -0.927)**, steeper
+>   than the monthly actual (-0.0296). Dollar-weighted BH: w05-45 **+6.67%** vs
+>   w55-95 **+0.23%**.
+> - **Rebalancing is net POSITIVE monthly (+2.20pp), neutral weekly, net
+>   negative biweekly (-0.71pp)** — all three inside one standard error of zero
+>   over 3/13/7 events (per-event sd ~3-6pp). **The cadences are NOT
+>   distinguishable in this data.** Transaction cost explains ~2% of the
+>   difference (5bps one-way, empirically pinned by the $99,950 inception NAV).
+> - **The 19 rungs are NOT 19 observations.** Adjacent-rung Jaccard 0.74-0.94;
+>   **w05 vs w95 = 0.04 (4 shared names of 47/49)**. It is a dose-response curve
+>   between two near-disjoint portfolios sampled once. Never quote r as significance.
+> - **It is ONE MONTH.** May/June/Aug-MTD slopes are flat-to-positive; all of it
+>   is **July**, when `spy_benchmark_paper` returned **+0.03%** while `mom_v1/v2/
+>   mom_roa_6535` lost **~23.5%**. Survives excluding R1 (weaker) and excluding
+>   FGMC; KLAC's 10:1 is the only split in the 05-01 set and the method is
+>   split-invariant.
+> - Market-orthogonal: survives CAPM (alpha slope r to **-0.96**); high-weight
+>   rungs actually have HIGHER up-beta and LOWER down-beta, so the losses arrive
+>   on flat/up index days.
+> **Therefore: this does NOT refute BV's w80-90 holdout plateau and does NOT
+> establish low-residual/high-ROA as better.** What it gives is a live sizing
+> number — roughly **0.10-0.14pp of return per weight point per adverse month**.
+> Two schedule gaps recorded but not fixed: weekly has **no 07-20 rebalance**,
+> biweekly's 07-06→07-28 gap is **22 days**.
+
 > **TWO AUDIT FINDINGS AGAINST THIS LADDER (2026-07-28, record CH) — read before
 > citing any ladder number.**
 > 1. **The BIWEEKLY arm had never live-rebalanced.** Due-ness was day-based ("is
