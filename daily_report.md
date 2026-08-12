@@ -26941,3 +26941,470 @@ The 08-03 veto set, marked to 08-10 closes: **WDC −16.86%** (the rationale exp
 ---
 
 **Entry written 2026-08-11 ~08:2x CDT (UTC−5), before the 08:30 CDT / 09:30 ET open.** Report is **read-only**: no sleeve, NAV, position, or price data was modified. All pre-market quotes are timestamped 07:45–09:16 ET on 2026-08-11 and are computed against official 2026-08-10 closes from `price_cache`, opened `mode=ro`. **The 08-10 NAVs in this entry are official stored rows, not indicative re-marks** — with the documented caveat that the 19 `residual_w*_wk_paper` rows are overstated by a combined $282.88 (§0b) and have been reported, not corrected.
+
+---
+
+## Report: 2026-08-11 (Tuesday) — Post-Market Close Analysis
+
+> **DAILY SUMMARY**
+> **THE BOOK WAS FLAT TO THE CENT ON A DAY THE INDEX FELL — AND THE HEADLINE NUMBER IS A LIE THAT THE LADDER BUG IS TELLING.** Indicative book **2026-08-11: $7,712,341.06**. Against the *stored* 08-10 close of $7,712,688.17 that reads **−$347.11 (−0.0045%)**. But the stored 08-10 number is the one that **19 weekly-ladder sleeves overstate by $282.88** (§0b). Against a *recomputed* 08-10 book of **$7,712,405.29**, today's true mark-to-market change is **−$64.23, or −0.0008%** — and the direct sum of every position's P&L confirms it independently at **−$64.20** (gross gain **+$63,579.71** against gross loss **−$63,643.92**). **The book was flat while SPY fell 0.32% and QQQ fell 0.34%, an outperformance of ~0.32pp** — the exact mirror of yesterday, when it lost 0.74% on a flat tape. **Breadth flipped: 103 of 201 held names advanced, 95 declined, 3 unchanged** (yesterday: 72 up / 120 down). §0d/§1/§3.
+> **THE 19-SLEEVE LADDER BREAK IS UNCHANGED, UNHEALED, AND NOW HAS A FOURTH FAILING RUN.** `verify_run` returned **FAIL (57/76)** at **17:17:43** and again at **20:30:02**, with all 19 deltas **identical to the cent** to yesterday's (−$36.61 to +$0.67). Exactly as predicted: `mtm_catchup` marks *missing* days, and 08-10 is present-and-wrong for these sleeves, so it will keep failing until someone re-marks it. **No data was modified. This remains Evan's call.** §0b.
+> **THE NIGHTLY LADDER DID NOT FIRE TONIGHT, SO NO NEW EXPOSURE WAS ADDED.** At 20:30:02 `ladder_forward_rebalance` logged `weekly: last=2026-08-10 period>=2026-08-10 due=False | biweekly: last=2026-08-03 ... due=False` → *"Both cadences already rebalanced inside their current period; nothing due today."* **The unguarded rebalance path was exposed again tonight and simply had nothing to do.** That is luck of the cadence, not a fix. §0c.
+> **08-11 IS UNMARKED: coverage FAILED at 4,337 closes against a 5,000 floor** — the eleventh consecutive session Yahoo's publication lag beats the 17:15 MTM. `paper_nav` latest remains **2026-08-10, 76 rows**. **Only ONE of 201 held tickers lacks an 08-11 close — DMAA, 4 legs across 4 sleeves, $9,049.95 carried forward at $10.71** — so the indicative is near-clean, but not the zero-stale-mark run of last night. §0a/§0e.
+> **ATEX REPORTED AT 4:05 PM ET TONIGHT — AFTER the close, so today's +0.16% contains none of it. THE EPS "BEAT" IS AN ACCOUNTING GAIN, NOT OPERATIONS.** Spectrum revenue **$1.958M vs ~$1.97M consensus** (a slight *miss*, +38% y/y from $1.418M); EPS **+$0.01 vs a consensus loss of −$0.58**. The swing is a **$10.7M gain on exchange of broadband licenses** — down from $33.9M a year ago, which is why net income fell from **$25.180M to $0.240M**. No forward guidance. $116.0M cash, no debt, $226.7M buyback remaining. **59 sleeves, $121,543.73 — the reaction lands tomorrow.** Call Wed 08-12 09:00 ET. §3a.
+> **SEMI-CAP EQUIPMENT WAS THE ENTIRE UPSIDE: +$14,400.83 on $536,490 held.** KLAC **+4.01%** (+$4,462.49, verified against independent OHLC), TER **+3.96%**, KLIC **+5.23%**, AEHR **+10.34%**, LRCX **+1.64%**, AMAT **+0.67%**. Memory/storage added **+$8,066.63** (STX **+2.44%**/+$5,900.20, MU **+0.87%**, WDC −0.09%). **This fully reversed yesterday's unexplained semi-cap leg.** Driver: sector-wide AI-infrastructure optimism, with Q2-2026 global chip sales cited at **$403.3B, +35.1% q/q**. **CAUTION: the widely-repeated attribution of TER's move to a $1B PNC revolving credit facility is STALE — that 8-K is dated 2026-08-07, four days old.** Recorded as unresolved. §3b.
+> **THE OFFSET WAS ALPHABET. GOOGL −3.84% and GOOG −3.61% cost −$8,518.86 across 116 sleeve-positions — the single largest drag in the book**, on **28.7M shares vs 19.0M (1.51×)**. Dated causes: an **8-K closing a $25B senior-notes offering (maturities 2028–2066) filed 2026-08-10**, 2026 capex guidance raised to **$195–205B** with quarterly capex **$44.9B (+100% y/y)** pushing FCF negative, and appellate filings seeking to overturn search-remedy terms that protect default-placement payments. With AAPL **−1.09%**, the mega-cap trio cost **−$9,714.66**. §3c.
+> **SEZL WAS THE BIGGEST SINGLE WINNER IN THE BOOK: +8.70% to $128.27, +$8,361.22 across 33 sleeves**, on Q2 revenue **$149.7M vs $135.1M consensus**, adjusted EPS **$1.13 vs $1.03**, record GMV **$1.3B (+37.9% y/y)**, revenue **+51.7% y/y**, and a **third** full-year guidance raise. Close verified independently (O 117.92 / H 130.12 / L 115.33 / **C 128.27**). §3d.
+> **A SENIOR-HOUSING REIT LEG BROKE WITH NO DATED CATALYST: VTR −5.43% (−$2,323.59) and WELL −3.84% (−$961.25) on a day XLRE fell only 0.72% and XLU ROSE 1.16%.** This is name-specific, not a rates move — VTR's own close was verified independently (O 90.82 / H 90.89 / L 86.92 / **C 86.96**, vol 4,876,120, **1.70× Monday**). **Searches surfaced nothing dated 2026-08-11. Recorded as unexplained.** Same for **SLGL −8.05%**, **DOCN −6.84%**, **BTSG −5.79%** (the one BTSG explanation found — a Carillon Eagle Small Cap Growth fund Q2 portfolio review — is undated and unverifiable, **not adopted**). §3e.
+> **MACRO — the tape sagged into tomorrow's CPI. S&P 500 7,728.20 (−0.32%), Nasdaq 26,445.45 (−0.6%), Dow 53,791.85 (−184.13 / −0.34%), VIX 15.28 (−1.16%).** Fed H.15 has not yet posted 08-11; its **08-10 figures were REVISED tonight — 10-year 4.70%→4.72%, 30-year 5.23%→5.25%, 3-month 3.91%→3.89%** — so last night's entry cited pre-revision values. **July CPI Wed 2026-08-12 08:30 ET: +0.1% m/m headline, 3.4% y/y expected** (from 3.5%). **Brent is in source conflict for a THIRD straight day** (~$87 falling then recovering to ~$88.7). Neither adopted. §2.
+> **LLM overlay — the treatment's lead narrowed for a second day, and the veto-set scorecard is unchanged in direction.** Treatment `llm_overlay_mom_roa_top1_paper` **$100,000.00, 0.00%, full cash**; control `mom_roa_top1_paper` **−13.47%** on MU (**+0.87%** today); lead **13.47pp**, down from 14.21pp on 08-10. Since the 08-03 decision: **WDC −16.94%**, **BE −3.26%**, **VICR −1.25%** all correctly vetoed; **MU +4.70%**, wrongly vetoed; the cascade's **STX BUY −1.27%**, also wrong. **Equal-weight vetoed basket −4.19% (veto added ~4.19pp); against the pre-registered control, which holds only MU, the treatment lost 4.70pp this cycle.** Both readings recorded, neither adopted. §4a.
+> **CORRECTION TO PRIOR ENTRIES: `llm_overlay_log` holds 13 rows, not 16.** IDs run to 16 with gaps at **4, 5, and 9**; prior entries read the max id as the count. **n = 13 logged stock decisions.** §4a.
+> `llm_cascade_top1_paper` **−1.48%** on STX ($820.52, **−1.32% vs its $831.48 entry**); **its $730 invalidation is intact — 12.4% above.** Sector: control `sector_top4_paper` **+5.34%**, treatment **+0.93% (−4.41pp)**, cascade **+1.11% (−4.23pp)**, systematic twin `sector_top4_full_paper` **+7.10% (treatment −6.17pp)**. §4b/§4c.
+> **XLU closed BELOW its $44.50 invalidation for the SEVENTH consecutive session (08-03 $44.36 → 08-11 $43.63), even though it ROSE 1.16% today.** Six of those seven are marked NAV sessions; 08-11 is a real close on an unmarked day. It was bought at **$44.38 — below its own stop on entry day**. Still no enforcement path in code. §4d.
+> **Critical outstanding items:** (1) **the 19 weekly-ladder sleeves still fail recon on 08-10 and will not self-heal — fourth consecutive failing verify run**; (2) **the rebalance path still has no coverage guard — tonight it was spared only because nothing was due**; (3) **ATEX reported after tonight's close, 59 sleeves, $121,544 — reaction is tomorrow**; (4) **July CPI Wed 08-12 08:30 ET**; (5) **AMAT Thu 08-13 after close, call 16:30 ET** — consensus **$3.39 EPS / ~$9B revenue (+23% y/y)** vs guidance $3.16–$3.56, **56 sleeves / $135,797**; **COHR Wed 08-12**; (6) **XLU stop unenforceable and set above its own entry price, seventh session below**; (7) **DMAA has no 08-11 close** (4 sleeves, $9,050 carried forward); (8) **no dated catalyst** for VTR/WELL, SLGL, DOCN, BTSG, EDRY (+5.52%) or ESEA (−3.77%); (9) **two source conflicts unresolved**: Brent, and the TER credit-facility attribution (stale 08-07 8-K); (10) **H.15 revised its own 08-10 yields** — prior entries cite pre-revision values; (11) **R1 $85,779.95 cash restatement and R2 08-02 verify FAIL→PASS still unexplained**; (12) the `/nostatus` cadence suffix is on its **tenth** session.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Today's run: refresh OK, coverage FAILED, sleeves unmarked, verify FAILED.** From `var/last_daily_run.log`, the 17:15 `TradingDailyMTM` fire:
+
+```
+2026-08-11 17:15:42,340 INFO daily_refresh: Refreshing 5875 tickers, range 2026-07-12 to 2026-08-11
+2026-08-11 17:17:31,025 INFO daily_refresh: Done. 211165 close+volume rows upserted in 1.8 min
+2026-08-11 17:17:32,219 INFO check_coverage: Coverage check: date=2026-08-11  closes=4337
+                                             baseline(median of 10)=5170  floor=5000
+                                             [max(5000, 90%*5170=4653)]
+2026-08-11 17:17:32,219 ERROR check_coverage: COVERAGE FAIL: only 4337 closes on 2026-08-11
+                                              (< floor 5000). Likely incomplete publication
+                                              (record Appendix AU) - do NOT MTM on this data.
+2026-08-11 17:17:35,560 INFO mtm_catchup: PENDING 2026-08-11: coverage 4337 < floor 5000
+                                          -> leaving unmarked (heals later).
+2026-08-11 17:17:35,560 INFO mtm_catchup: catch-up done: marked=0 skipped_pre_rebalance=0
+                                          latest=2026-08-11 coverage_ok=False pending=2026-08-11
+2026-08-11 17:17:43,287 ERROR verify_run: RESULT: FAIL (57/76 sleeves OK)
+```
+
+`var/ops_status.log` now ends:
+
+```
+[OPS 2026-08-08] coverage=PASS    verify=PASS
+[OPS 2026-08-09] coverage=PASS    verify=PASS
+[OPS 2026-08-10] coverage=PENDING verify=PASS
+[OPS 2026-08-11] coverage=PENDING verify=FAIL
+VERIFY FAIL - daily run left a settled-history gap. See var\verify_report.log.
+```
+
+**This is the eleventh consecutive session in which Yahoo's publication lag beats the 17:15 MTM.** `price_cache` close counts, read read-only (`mode=ro`) at 22:2x CDT: 07-31 **5,168** / 08-03 **5,164** / 08-04 **5,170** / 08-05 **5,170** / 08-06 **5,170** / 08-07 **5,168** / 08-10 **5,165** / **08-11 4,337**. `paper_nav` latest remains **2026-08-10, 76 rows, $7,712,688.17**.
+
+**0b. THE LADDER BREAK IS UNCHANGED — same 19 sleeves, same deltas to the cent, fourth consecutive failing run.** I recomputed all 76 sleeves read-only as `cash + Σ(qty × close_2026-08-10)` against `paper_nav.total_nav` and reproduced `verify_run` exactly:
+
+```
+== method validation on 2026-08-10 (recomputed vs stored) ==
+  mismatches: 19 of 76
+  residual_w0595_wk_paper   recomputed   103,742.87  stored   103,768.61  delta   -25.73
+  residual_w1090_wk_paper   recomputed   105,468.20  stored   105,492.03  delta   -23.82
+  residual_w1585_wk_paper   recomputed   105,904.08  stored   105,932.03  delta   -27.95
+  residual_w2080_wk_paper   recomputed   105,915.91  stored   105,952.52  delta   -36.61
+  residual_w2575_wk_paper   recomputed   103,382.02  stored   103,412.51  delta   -30.49
+  residual_w3070_wk_paper   recomputed   104,660.07  stored   104,682.66  delta   -22.59
+  residual_w3565_wk_paper   recomputed   102,874.77  stored   102,906.01  delta   -31.24
+  residual_w4060_wk_paper   recomputed   102,930.59  stored   102,955.60  delta   -25.01
+  residual_w4555_wk_paper   recomputed   101,989.87  stored   102,020.98  delta   -31.11
+  residual_w5050_wk_paper   recomputed   102,901.82  stored   102,935.86  delta   -34.04
+  residual_w5545_wk_paper   recomputed   101,307.59  stored   101,306.92  delta    +0.66
+  residual_w6040_wk_paper   recomputed   101,581.98  stored   101,581.31  delta    +0.67
+  residual_w6535_wk_paper   recomputed    99,453.17  stored    99,452.51  delta    +0.66
+  residual_w7030_wk_paper   recomputed    98,366.78  stored    98,366.12  delta    +0.66
+  residual_w7525_wk_paper   recomputed   100,961.33  stored   100,960.67  delta    +0.66
+  residual_w8020_wk_paper   recomputed    99,824.52  stored    99,823.92  delta    +0.60
+  residual_w8515_wk_paper   recomputed    99,436.74  stored    99,436.14  delta    +0.60
+  residual_w9010_wk_paper   recomputed   100,056.52  stored   100,055.93  delta    +0.60
+  residual_w9505_wk_paper   recomputed   101,821.10  stored   101,820.51  delta    +0.60
+```
+
+**Every figure is identical to yesterday's, to the cent.** Total overstatement **$282.88**. The prediction in yesterday's entry held exactly: `mtm_catchup` marks *missing* days, and 08-10 is not missing for these 19 — it is present and wrong. Today's 17:17 run marked nothing (08-11 pending), so 08-10 was never revisited.
+
+**The failure has now been recorded by four consecutive `verify_run` invocations** — 08-11 07:47 (morning), 08-11 17:17 (daily), 08-11 20:30 (ladder), plus the original detection. It will repeat nightly until those 19 rows are re-marked. **Per the project's standing rule that a NAV row which looks wrong gets reported rather than silently rewritten, no data was modified. This is Evan's call.**
+
+**0c. The unguarded rebalance path was exposed again tonight and was spared by the cadence, not by a fix.** From `var/last_ladder_run.log`:
+
+```
+2026-08-11 20:30:02,315 INFO ladder_forward_rebalance: today=2026-08-11 (+15w from anchor)
+    | weekly: last=2026-08-10 period>=2026-08-10 due=False
+    | biweekly: last=2026-08-03 period>=2026-08-03 due=False
+2026-08-11 20:30:02,315 INFO ladder_forward_rebalance: Both cadences already rebalanced inside
+    their current period; nothing due today.
+```
+
+**`TradingLadderRebalance` fired at 20:30 on a day whose price data `check_coverage` had rejected at 17:17 (4,337 < 5,000), exactly the configuration that broke 19 sleeves last night.** It wrote nothing only because the weekly cadence had already run on 08-10 and the biweekly on 08-03. **The guard is still absent; today's clean outcome is the calendar, not the code.** The weekly cadence is next due within the coming week — that is the next live exposure, not 2026-09-01.
+
+**0d. Today's indicative book, and why the headline number understates it.** Computed read-only as `cash_2026-08-10 + Σ(qty × close_2026-08-11)` over all 3,227 open position legs:
+
+| Basis | 08-10 book | 08-11 indicative | Δ | % |
+|---|---:|---:|---:|---:|
+| vs **stored** `paper_nav` | $7,712,688.17 | **$7,712,341.06** | **−$347.11** | **−0.0045%** |
+| vs **recomputed** (stored less the $282.88 ladder overstatement) | $7,712,405.29 | **$7,712,341.06** | **−$64.23** | **−0.0008%** |
+
+**The second row is the real number.** An independent check confirms it: summing every position's own mark-to-market change (`qty × (close_08-11 − close_08-10)`) across all 201 names gives **−$64.20** — gross gain **+$63,579.71** against gross loss **−$63,643.92**. The 3-cent residual is float rounding across 3,227 legs.
+
+**The practical consequence of the ladder bug is now visible: it corrupts the day-over-day change of the whole book, not just 19 sleeves.** A −0.0045% headline and a −0.0008% reality are the same to a P&L reader and *not* the same to anyone measuring daily tracking error against SPY.
+
+**0e. One stale mark tonight, and no future-dated rows.** Of 201 held tickers, **200 have a 2026-08-11 close**. The exception:
+
+| Ticker | 08-10 close carried forward | Legs | Sleeves | MV carried |
+|---|---:|---:|---:|---:|
+| **DMAA** | $10.71 | 4 | 4 | **$9,049.95** |
+
+That is **0.117% of the book** marked at a one-day-stale price — smaller than 08-07's VPG/VSAT channel, larger than last night's zero. Separately, a scan for `price_cache` rows dated later than 2026-08-11 found **no equity close rows**: only five all-NULL non-close rows for RMCF stamped `2027-07-27` (`next_open`, `next_open_vol`, `next_open_range`, `above_ma_50`, `atr_pct_20`) and the two `key_date='all'` metadata blobs (`dividends_json` 2,302 rows, `splits_json` 5,669 rows). **The future-dated-row artifact logged on the 08-10 and 08-11 mornings did not recur tonight** — though this check runs post-close, when a row dated today is legitimate, so it does not clear the mechanism.
+
+**0f. No position changes today.** `paper_positions` shows the most recent entries and exits both dated **2026-08-10** (79 entries, 74 exits — last night's ladder rebalance) and nothing since. **Today's entire move is mark-to-market, not turnover.** The book holds **201 distinct tickers** across **3,227 open legs**, and the cadence check passed: `last_rebalance(2026-08-03/nostatus) settled_month(2026-08)`. The `/nostatus` suffix is now on its **tenth** session and remains unexplained.
+
+---
+
+### 1. Market summary — 2026-08-11
+
+| Index | Close | Change | % |
+|---|---:|---:|---:|
+| S&P 500 | **7,728.20** | −24.91 | **−0.32%** |
+| Dow Jones Industrial Average | **53,791.85** | −184.13 | **−0.34%** |
+| Nasdaq Composite | **26,445.45** | — | **−0.60%** |
+| SPY (`price_cache`) | **770.56** | −2.47 | **−0.32%** |
+| QQQ (`price_cache`) | **718.45** | −2.42 | **−0.34%** |
+| VIX (`price_cache`) | **15.28** | −0.18 | **−1.16%** |
+
+Index levels from [vittarthi, 2026-08-11](https://vittarthi.com/markets/us) and [CNBC, 2026-08-11](https://www.cnbc.com/amp/2026/08/10/stock-market-today-live-updates.html); ETF and VIX closes from `price_cache`. Per [TheStreet's 2026-08-11 wrap](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-aug-11-2026), the **Russell 2000 eked out a modest gain while large caps fell ahead of the inflation print** — a small-cap-over-large-cap day, which is consistent with this book's positive breadth against a negative index.
+
+Reported drivers: technology weakness overwhelming industrial strength, plus fading optimism on a US–Iran arrangement over the Strait of Hormuz. Cited large-cap losers were **Alphabet, Amazon −1.98%, Berkshire −1.81%**; gainers **Meta +1.56%, JPMorgan +0.77%, Tesla +0.31%**.
+
+**Sector performance, from SPDR sector ETF closes in `price_cache`:**
+
+| Sector ETF | 08-10 | 08-11 | Day |
+|---|---:|---:|---:|
+| **XLE** Energy | 60.18 | **60.93** | **+1.25%** |
+| **XLU** Utilities | 43.13 | **43.63** | **+1.16%** |
+| **XLI** Industrials | 184.60 | **185.70** | **+0.60%** |
+| **XLB** Materials | 53.18 | **53.24** | **+0.11%** |
+| **XLF** Financials | 57.81 | **57.80** | **−0.02%** |
+| **XLK** Technology | 186.32 | **186.09** | **−0.12%** |
+| **XLV** Health Care | 168.44 | **168.01** | **−0.26%** |
+| **XLP** Cons. Staples | 84.95 | **84.69** | **−0.31%** |
+| **XLY** Cons. Discretionary | 119.67 | **119.24** | **−0.36%** |
+| **XLC** Communication Svcs | 111.83 | **111.27** | **−0.50%** |
+| **XLRE** Real Estate | 44.40 | **44.08** | **−0.72%** |
+
+**Note the two reversals from yesterday.** XLU went from the second-worst sector (−1.10%) to the second-best (+1.16%); XLRE stayed at the bottom. And **XLC's −0.50% is almost entirely Alphabet** — the sector's largest constituent fell 3.84% while Meta rose 1.56%, so the sector index masks very wide dispersion. **XLK −0.12% likewise conceals a 4.01% gain in KLAC against a 1.09% fall in AAPL.** Sector ETFs were unusually poor summaries of held-name behavior today; §3 is where the actual dispersion lives.
+
+---
+
+### 2. Macro
+
+**2a. Yields: the Fed revised its own prior-day numbers.** Federal Reserve H.15, [Selected Interest Rates (Daily)](https://www.federalreserve.gov/releases/h15/), read 2026-08-11 evening. **The 08-11 row had not yet posted at read time**; what did change is the 08-10 row:
+
+| Maturity | 08-10 **as cited last night** | 08-10 **as published tonight** | Revision |
+|---|---:|---:|---:|
+| 1-month | 3.79% | **3.79%** | — |
+| 3-month | 3.91% | **3.89%** | **−2bp** |
+| 2-year | 4.25% | **4.25%** | — |
+| 10-year | 4.70% | **4.72%** | **+2bp** |
+| 30-year | 5.23% | **5.25%** | **+2bp** |
+| Fed funds (effective) | 3.63% | **3.63%** | — |
+
+**This is a genuine revision in the authoritative source, not a transcription error** — last night's entry quoted H.15 correctly as it stood then. **Standing note: H.15 same-day figures are provisional; entries citing them should be treated as revisable for at least one business day.**
+
+For 08-11 itself, only unofficial reads are available and they do not agree on a close: [TradingEconomics](https://tradingeconomics.com/united-states/government-bond-yield/news/574475) reports the 10-year "rose above 4.7% on Tuesday, moving closer to its highest level since January as surging oil prices strengthened expectations that the Federal Reserve could raise interest rates"; [Tickmill's 2026-08-11 outlook](https://www.tickmill.com/blog/daily-market-outlook-august-11-2026) gives 4.71% *before the Asian session*, which is not a US close. **No 08-11 yield close is adopted here.**
+
+**2b. July CPI lands tomorrow, 2026-08-12, 08:30 ET.** Consensus per [TradingEconomics](https://tradingeconomics.com/united-states/government-bond-yield/news/574475): **headline +0.1% m/m** (from **−0.4%** in June), **3.4% y/y** (from **3.5%**). The expected deceleration is attributed to easing energy-price pressure following the start of the US war with Iran. **This is the largest scheduled macro event of the week for a book that is 24.82% Technology and 26.25% Healthcare**, both long-duration relative to the index.
+
+**2c. Oil: a third consecutive day of unresolved source conflict.** Per [TradingEconomics](https://tradingeconomics.com/commodity/brent-crude-oil), Brent **"fell toward $87 per barrel on Tuesday, before recovering to $88.7"** after Pakistan signaled the US and Iran could be near an arrangement to reopen the Strait of Hormuz; the same source has Brent **"above $89 on Wednesday after rising for five consecutive sessions."** Set against that, President Trump took a harder line, saying Tehran should pay reparations, in reply to Iranian weekend demands including war compensation. **No single Brent or WTI settle for 2026-08-11 is adopted.** The 08-10 conflict ($87.08 TradingEconomics vs $92.54 Fortune) also remains unresolved.
+
+**What the book's own energy names say is unambiguous, and they are the better read:** XLE **+1.25%**, VLO **+2.85%**, TPL **+4.15%**, EDRY **+5.52%** — but INSW **−1.48%** and ESEA **−3.77%**. **Crude-linked names rose; shipping split.** That pattern is consistent with a firm-but-fading crude tape rather than the hard Hormuz bid of 08-10 (XLE +4.66%).
+
+---
+
+### 3. Key position analysis
+
+Book: **201 distinct tickers, 3,227 open legs, $7,586,075.25 in open positions (98.4% of NAV)**. Breadth **103 advanced / 95 declined / 3 unchanged**.
+
+**Thematic decomposition of today's $64.20 net change** (aggregate across all sleeves, at 08-11 closes):
+
+| Theme | Held MV | Day P&L |
+|---|---:|---:|
+| Semi-cap equipment (AMAT, KLAC, LRCX, TER, KLIC, AEHR, …) | $536,490.23 | **+$14,400.83** |
+| Memory / storage (MU, STX, WDC, …) | $643,279.47 | **+$8,066.63** |
+| Energy (XLE, VLO, FTI, CLMT, EDRY, TPL, INSW, ESEA) | $488,109.34 | **+$4,982.21** |
+| AI optics (CIEN, ALAB, COHR, …) | $83,877.63 | −$311.18 |
+| Healthcare REITs (VTR, WELL, …) | $64,551.85 | **−$3,284.84** |
+| Mega-cap (GOOGL, GOOG, AAPL) | $328,998.46 | **−$9,714.66** |
+
+**Two positions decided the day and they cancelled: semis added $22,467 and mega-cap took $9,715 back, with the rest of the book grinding out the remaining offset.**
+
+**3a. ATEX reported at 4:05 PM ET tonight. The headline EPS beat is an accounting gain.** ATEX closed **$92.94, +0.16%**, on **540,592 shares vs 372,100 Monday (1.45×)** — a wait-and-see session ahead of the print. It is held in **59 sleeves, $121,543.73**, the largest scheduled binary in the book.
+
+Per the release ([Anterix Inc. Reports First Quarter Fiscal Year 2027 Results](https://www.manilatimes.net/2026/08/12/tmt-newswire/globenewswire/anterix-inc-reports-first-quarter-fiscal-year-2027-results/2403444), timing per [StockTitan](https://www.stocktitan.net/news/ATEX/)):
+
+| Metric (3 mo. ended 2026-06-30) | Q1 FY2027 | Q1 FY2026 | Consensus |
+|---|---:|---:|---:|
+| Spectrum revenue | **$1.958M** | $1.418M (+38% y/y) | **~$1.97M** |
+| Net income | **$0.240M** | $25.180M | — |
+| EPS (basic & diluted) | **+$0.01** | $1.35 | **−$0.58** |
+| Gain on exchange of intangibles, net | **$10.7M** | $33.9M | — |
+
+**Read carefully, this is a revenue miss and an EPS beat that comes entirely from a non-operating item.** Revenue landed marginally *below* the ~$1.97M consensus this journal logged yesterday. The +$0.01 EPS against a −$0.58 expectation is produced by a **$10.7M gain on exchange of broadband licenses in 6 counties** — down from $33.9M in the year-ago quarter, which is precisely why net income collapsed from $25.180M to $0.240M. **No forward guidance was issued.** Balance sheet: **$116.0M cash, no debt**, **$226.7M** remaining under the buyback, **~$33.1M contracted proceeds outstanding** with **$15.7M received in Q1** and **~$9.6M expected across the rest of FY2027**; **$6.7M** invested in spectrum clearing. A 10 MHz 900 MHz license sale to Benton PUD was signed 2026-04-16 for **$0.8M**.
+
+**The 08-10 entry's INSW lesson applies directly and is about to be tested again: a correctly-predicted fundamental result is not a predicted price.** ATEX's reaction lands on 08-12, with the call at 09:00 ET. **59 sleeves are exposed and nothing in this book can act on it.**
+
+**3b. Semi-cap equipment was the entire upside, and it fully reversed yesterday's unexplained leg.**
+
+| Ticker | 08-10 | 08-11 | Day | Sleeves | Day P&L |
+|---|---:|---:|---:|---:|---:|
+| **AEHR** | 106.20 | **117.18** | **+10.34%** | 6 | +$1,428.15 |
+| **KLIC** | 86.50 | **91.02** | **+5.23%** | 16 | +$1,473.43 |
+| **KLAC** | 192.74 | **200.47** | **+4.01%** | 48 | **+$4,462.49** |
+| **TER** | 365.10 | **379.56** | **+3.96%** | 27 | +$2,223.19 |
+| **LRCX** | 306.40 | **311.41** | **+1.64%** | 64 | +$2,516.57 |
+| **AMAT** | 522.12 | **525.61** | **+0.67%** | 56 | +$901.68 |
+
+KLAC's close was verified against an independent source rather than trusted from `price_cache` alone — [stockanalysis.com](https://stockanalysis.com/stocks/klac/history/) gives **O 198.67 / H 203.15 / L 195.00 / C 200.47, vol 8,086,155**, an exact match, and confirms 08-10 at **192.74 (−2.71%)**.
+
+**Yesterday's leg is now fully round-tripped**: AMAT −3.16%→+0.67%, KLAC −2.71%→+4.01%, LRCX −1.59%→+1.64%. Per [Benzinga, 2026-08-11](https://www.benzinga.com/markets/tech/26/08/61044773/kla-stock-gains-amid-broad-semiconductor-rally-ai-demand), KLA "gained nearly 4% as optimism around AI infrastructure and booming global chip sales lifted semiconductor equipment makers," with **Q2-2026 global chip sales of $403.3B, +35.1% from Q1**.
+
+**AEHR is the one name with its own dated catalyst**: fiscal Q4 revenue **$18.8M (+33% y/y)**, EPS **+$0.11 vs −$0.01 consensus**, record quarterly bookings **$60.7M**, effective backlog **~$100M**, and FY2027 revenue guidance of **$130–150M against ~$85M Street** — implying 160–200% growth ([StocksToTrade, 2026-08-11](https://stockstotrade.com/news/aehr-test-systems-aehr-news-2026_08_11/); [24/7 Wall St., 2026-08-11](https://247wallst.com/investing/2026/08/11/the-biggest-market-movers-aehr-test-systems-climbs-on-strong-earnings/)).
+
+**SOURCE CONFLICT, NOT ADOPTED.** [AlphaStreet](https://news.alphastreet.com/teradyne-jumps-8-5-amid-sector-wide-rally/) attributes TER's move to "a $1 billion credit line." **The underlying 8-K is dated 2026-08-07** — a five-year, $1.0B senior secured revolver led by PNC Bank, undrawn ([SEC Form 8-K, ter-20260807](https://www.sec.gov/Archives/edgar/data/0000097210/000119312526342367/ter-20260807.htm); [TipRanks](https://www.tipranks.com/news/company-announcements/teradyne-establishes-1-billion-revolving-credit-facility)). **A four-day-old financing filing cannot be today's catalyst.** This is the third instance this week of same-day media attributing a move to stale news (cf. the 08-11 "rate hike fears ease" pieces citing the 08-07 payroll print). **TER's +3.96% is recorded as sector-driven, attribution unresolved.** The same source also quotes TER "+8.5%" and KLAC "+4.6%" against verified closes of +3.96% and +4.01% — the recurring intraday-vs-close divergence logged on 08-10.
+
+**3c. Alphabet was the largest drag in the book, and it has three dated causes.**
+
+| Ticker | 08-10 | 08-11 | Day | Sleeves | Day P&L | Volume |
+|---|---:|---:|---:|---:|---:|---:|
+| **GOOGL** | 357.52 | **343.80** | **−3.84%** | 59 | **−$4,475.66** | 28,664,272 vs 18,991,400 (**1.51×**) |
+| **GOOG** | 355.84 | **343.00** | **−3.61%** | 57 | **−$4,043.20** | 18,199,544 vs 12,789,500 (**1.42×**) |
+| **AAPL** | 308.26 | **304.91** | **−1.09%** | 47 | −$1,195.80 | 34,168,163 vs 44,812,500 |
+
+GOOGL's close was independently verified — [stockanalysis.com](https://stockanalysis.com/stocks/googl/history/) gives **O 355.89 / H 356.81 / L 343.39 / C 343.80, vol 28,678,416, −3.84%**, matching `price_cache` exactly and confirming an **open-to-close slide with the low at the close** (a distribution day, not a gap-down that stabilized).
+
+Per [TradingKey, 2026-08-11](https://www.tradingkey.com/news/market-movers/262096865-market-movers-googl-20260811) and [ts2.tech](https://ts2.tech/en/alphabet-stock-nasdaqgoogl-falls-3-6-before-pixel-11-launch-as-ai-spending-stays-in-focus/), the dated drivers are:
+
+1. **Capex.** 2026 capital expenditure guidance raised to **$195–205B**, with quarterly capex at **$44.9B, +100% y/y**, pushing free cash flow negative for the first time ([Motley Fool, 2026-08-11](https://www.fool.com/investing/2026/08/11/sundar-pichai-alphabet-2026-capex-forecast-buy/)).
+2. **Leverage.** An **SEC Form 8-K filed 2026-08-10** closing a **$25B underwritten senior-notes offering**, maturities **2028 to 2066**, to fund AI data-center buildout.
+3. **Regulatory.** Appellate filings by federal enforcers seeking to overturn search-monopoly remedies that would prohibit multi-billion-dollar default-distribution payments to partners including Apple and Mozilla.
+
+**The third item is why AAPL fell alongside it** — those default payments are Apple services revenue. **This book holds both sides of that trade in 47–59 sleeves each, so the regulatory risk is not diversified away; it is doubled.**
+
+**SOURCE CONFLICT.** One recap lists Alphabet at **−2.87%** on the day ([vittarthi](https://vittarthi.com/markets/us)); the verified close is **−3.84%**. Consistent with the intraday-snapshot pattern. **`price_cache` is correct.**
+
+**3d. SEZL was the single largest winner in the book on a clean earnings beat.** **+8.70% to $128.27, +$8,361.22 across 33 sleeves**, on $104,429.71 held. Independently verified — [stockanalysis.com](https://stockanalysis.com/stocks/sezl/history/) gives **O 117.92 / H 130.12 / L 115.33 / C 128.27, vol 1,192,973**, exact.
+
+Q2 results ([Seeking Alpha](https://seekingalpha.com/news/4628805-sezzle-targets-35-percent-2026-revenue-growth-as-it-raises-adjusted-net-income-to-185m-and); [StocksToTrade, 2026-08-11](https://stockstotrade.com/news/sezzle-inc-sezl-news-2026_08_11/)):
+
+| Metric | Reported | Consensus |
+|---|---:|---:|
+| Revenue | **$149.7M** (+51.7% y/y) | $135.1M |
+| Adjusted EPS | **$1.13** | $1.03 |
+| GMV | **$1.3B** (+37.9% y/y, record) | — |
+
+Full-year guidance was raised for the **third time this year**, adjusted net income to **$185M**, with 35% 2026 revenue growth targeted and **SezzleCash / Sezzle Send** launched. B. Riley and TD Cowen maintained Buy ratings, targets **$165–196**.
+
+**The important context is the volatility, not the beat.** SEZL printed **$178.53 on 2026-08-06**, collapsed to the low $120s, and has now bounced to $128.27 — so today's +8.70% recovers a fraction of a **~28% drawdown inside four sessions**. A source reporting "closed at $129.55, +9.79%" is again an intraday read; the verified close is $128.27. **This is a name where the position's mark is dominated by intra-week noise, and one this book holds in 33 sleeves at $104,430.**
+
+**3e. Four significant declines have NO dated 2026-08-11 catalyst.** Recorded as unexplained rather than fitted to convenient narratives.
+
+| Ticker | 08-10 | 08-11 | Day | Sleeves | Day P&L | Volume vs prior |
+|---|---:|---:|---:|---:|---:|---:|
+| **SLGL** | 84.74 | **77.92** | **−8.05%** | 16 | −$2,714.56 | 49,768 vs 84,300 (**0.59×**) |
+| **DOCN** | 129.73 | **120.86** | **−6.84%** | 12 | −$1,476.18 | 2,362,979 vs 2,141,800 (1.10×) |
+| **BTSG** | 61.45 | **57.89** | **−5.79%** | 36 | **−$3,783.04** | 6,007,839 vs 2,361,900 (**2.54×**) |
+| **VTR** | 91.95 | **86.96** | **−5.43%** | 17 | −$2,323.59 | 4,876,789 vs 2,894,100 (**1.69×**) |
+| **WELL** | 235.04 | **226.01** | **−3.84%** | 10 | −$961.25 | 2,783,829 vs 2,149,500 (1.29×) |
+
+**The senior-housing REIT leg is the most striking.** VTR and WELL fell together on a day **XLRE lost only 0.72% and XLU actually gained 1.16%** — so this is not a rates move, and the sector ETFs would have hidden it entirely. VTR's close was independently verified ([stockanalysis.com](https://stockanalysis.com/stocks/vtr/history/): **O 90.82 / H 90.89 / L 86.92 / C 86.96, vol 4,876,120, −5.43%**), which also **resolves a live source conflict**: an auto-generated page quoted VTR at "$93.51, up 1.73%" and WELL at "$234.44, down 0.51%" dated 2026-08-12 — both irreconcilable with the verified closes and, notably, close to the **08-10** levels. **Those quotes are stale, not next-day. Not adopted.** Searches for a dated 08-11 downgrade, guidance cut or occupancy datum returned nothing; the only substantive VTR material is its **2026-07-29 Q2 release** (10% same-property NOI growth, 18% SHOP NOI growth, FY normalized FFO guidance raised to **$3.85–3.90**), which is twelve days stale and *positive*.
+
+**BTSG's 2.54× volume on a −5.79% day is the strongest single signal of institutional distribution in the book today**, and it is the third-largest dollar loss. The only explanation surfaced — a Carillon Eagle Small Cap Growth Fund Q2 2026 portfolio review ([Yahoo Finance](https://finance.yahoo.com/markets/stocks/articles/why-brightspring-health-services-btsg-053957217.html)) — carries **no date tying it to 2026-08-11** and is **not adopted**. BTSG's own Q2 was strong (revenue **+23% y/y to $3.87B**, non-GAAP EPS **$0.45**, guidance raised) and already produced a sell-the-news reaction earlier. A source reporting BTSG "drops 5.7% to $57.95" ([AlphaStreet](https://news.alphastreet.com/brightspring-health-services-btsg-drops-5-7-to-57-95/)) is again intraday against the verified $57.89 close.
+
+**SLGL fell 8.05% on 0.59× volume** — a decline on *lighter* trading, which argues thin liquidity rather than an information event. **DOCN's −6.84%** follows an 08-04 Q2 beat (EPS **45¢ vs 26¢**, FY26 EPS guided **$1.35–1.40 vs $1.24 consensus**) and continues a slide from a **$181.29 all-time-high close on 2026-06-15** — a **−33% drawdown** with the fundamental news pointing the other way ([MacroTrends](https://www.macrotrends.net/stocks/charts/DOCN/digitalocean-holdings/stock-price-history)).
+
+**3f. AI optics stayed flat waiting for tonight's print.** CIEN **−0.04%** (31 sleeves), ALAB **−1.65%** (17), COHR **+1.05%** — net **−$311.18** on $83,878. **Lumentum (LITE, not held) reported Q4 FY2026 on 2026-08-11** with revenue **more than doubling y/y (+109%)**, Q1 revenue guided to **~$1.25B**, and **~$400M of optical-connectivity revenue expected to ship in H2 CY2026 across three customers** ([Seeking Alpha](https://seekingalpha.com/news/4630922-lumentum-q4-results-feature-109-revenue-surge-with-more-growth-ahead-on-ai-demand); [ts2.tech](https://ts2.tech/en/lumentum-stock-lite-faces-a-13-earnings-swing-as-ai-margins-set-the-test/)). **The held optics names did not move on it today**, which means the read-through — and **COHR's own report on Wed 2026-08-12** — is tomorrow's event. This is a clean, dated setup: yesterday's coordinated optics de-risk (CIEN −5.99%, ALAB −5.07%, COHR −14.24%) was explicitly attributed to positioning into these two prints, and both now resolve.
+
+**3g. Largest exposures at 08-11 closes.**
+
+| Ticker | MV | Sleeves | Day |
+|---|---:|---:|---:|
+| MU | $264,377.06 | 60 | +0.87% |
+| STX | $247,886.47 | 66 | **+2.44%** |
+| SPY | $209,491.97 | 2 | −0.32% |
+| QQQ | $205,966.66 | 2 | −0.34% |
+| LRCX | $156,423.66 | 64 | +1.64% |
+| AMAT | $135,797.09 | 56 | +0.67% |
+| WDC | $131,015.94 | 65 | −0.09% |
+| **ATEX** | **$121,543.73** | **59** | **+0.16%** ← *reported tonight* |
+| KLAC | $115,730.38 | 48 | **+4.01%** |
+| JNJ | $113,314.31 | 50 | −0.77% |
+| **GOOGL** | $112,152.52 | 59 | **−3.84%** |
+| AAPL | $108,838.28 | 47 | −1.09% |
+| **GOOG** | $108,007.66 | 57 | **−3.61%** |
+| XLE | $105,357.26 | 4 | +1.25% |
+| AUPH | $104,757.63 | 49 | −0.52% |
+| **SEZL** | $104,429.71 | 33 | **+8.70%** |
+| XLI | $103,572.25 | 4 | +0.60% |
+| XLV | $102,449.90 | 4 | −0.26% |
+| INSW | $100,479.58 | 41 | −1.48% |
+| PTCT | $98,036.43 | 47 | −1.25% |
+
+STX's close verified independently ([stockanalysis.com](https://stockanalysis.com/stocks/stx/history/)): **O 805.00 / H 826.90 / L 794.01 / C 820.52, vol 3,144,456, +2.44%** — exact.
+
+**Sector concentration** ($7,586,075.25 open MV):
+
+| Sector | MV | Weight |
+|---|---:|---:|
+| Healthcare (incl. "Health Care" $102,449.90) | $1,991,301.55 | **26.25%** |
+| Technology | $1,883,219.70 | **24.82%** |
+| Industrials | $656,255.38 | 8.65% |
+| Financial Services | $646,219.72 | 8.52% |
+| Communication Services | $488,696.27 | 6.44% |
+| Index (SPY/QQQ/XL*) | $415,458.63 | 5.48% |
+| Consumer Cyclical | $372,699.76 | 4.91% |
+| Energy | $367,797.55 | 4.85% |
+| Basic Materials | $309,813.67 | 4.08% |
+| Consumer Defensive | $262,629.29 | 3.46% |
+| Real Estate | $154,558.86 | 2.04% |
+| Utilities | $34,069.62 | 0.45% |
+| Unknown | $3,355.26 | 0.04% |
+
+**Two sectors exceed 20% — Healthcare 26.25% and Technology 24.82%, together 51.07%.** The `Healthcare`/`Health Care` split remains a data-hygiene wart, the latter being entirely the XLV positions. A **`Unknown` bucket ($3,355.26, 0.04%)** appears in tonight's read — small, but it should be traced.
+
+---
+
+### 4. LLM overlay — treatment vs control
+
+**4a. Stock overlay: the treatment's lead narrowed for a second consecutive session.**
+
+| Sleeve | Role | NAV | Since inception (2026-07-06) | Day | Holding |
+|---|---|---:|---:|---:|---|
+| `llm_overlay_mom_roa_top1_paper` | **treatment** | **$100,000.00** | **0.00%** | 0.00% | **100% cash** |
+| `mom_roa_top1_paper` | **control** | $86,533.85 | **−13.47%** | +0.87% | MU, 99.5385 sh @ $829.91 (08-03) |
+| `llm_cascade_top1_paper` | cascade | $98,517.04 | −1.48% | **+2.44%** | STX, 119.9449 sh @ $831.48 (08-03) |
+
+**Treatment lead over control: 13.47pp**, narrowed from 14.21pp on 08-10. MU is now **+4.65% against the control's own $829.91 entry**.
+
+**Scorecard on the 2026-08-03 decision set** (from `llm_overlay_log`, ids 12–16, all timestamped `2026-08-03T23:12`), measured 08-03 close → 08-11 close:
+
+| Ticker | Verdict | Score | Invalidation | 08-03 | 08-11 | Since decision | Veto correct? |
+|---|---|---:|---:|---:|---:|---:|---|
+| **WDC** | VETO | 4 | $500 | 527.22 | **437.93** | **−16.94%** | **YES** |
+| **BE** | VETO | 3 | $200 | 218.32 | **211.21** | **−3.26%** | **YES** |
+| **VICR** | VETO | 2 | $195 | 213.54 | **210.88** | **−1.25%** | **YES** |
+| **MU** | VETO | 3 | $800 | 829.50 | **868.52** | **+4.70%** | **NO** |
+| **STX** | BUY | 6 | $730 | 831.06 | **820.52** | **−1.27%** | **NO** (BUY underwater) |
+
+**Two readings, both recorded, neither adopted:**
+
+- **Equal-weight basket of the four vetoed names: −4.19%.** On that basis the veto set added **~4.19pp** versus holding them.
+- **Against the pre-registered comparator** — the control, which holds **only MU** — the treatment sat in cash while MU rose 4.70%, so it **lost 4.70pp this cycle.**
+
+**The WDC veto remains the single best call in the experiment's history**: it explicitly named the 08-05 earnings as a "2-day binary catalyst" on a name below its 50DMA, and WDC is down 16.94% since. **The MU veto remains the single worst**, and it is the one that governs the pre-registered comparison.
+
+**CORRECTION TO PRIOR ENTRIES.** Yesterday's entry (and earlier ones) reported **n = 16 logged stock decisions**. The table holds **13 rows**; ids run 1, 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16 — **gaps at 4, 5 and 9**. Prior entries read the maximum id as a row count. **The correct figure is n = 13 logged stock decisions**, against a kill-switch threshold of 30 picks / 12 months. **The experiment is 43% of the way to its decision point on count, and 5.4 weeks into 52 on time.**
+
+**4b. Sector overlay: the treatment still trails every comparator.**
+
+| Sleeve | Role | NAV | Since inception | Day | Holdings |
+|---|---|---:|---:|---:|---|
+| `sector_top4_full_paper` | **systematic twin** (05-01) | **$107,099.69** | **+7.10%** | +0.35% | XLI, XLE, XLK, XLV |
+| `sector_top4_paper` | **control** (07-06) | $105,336.47 | **+5.34%** | +0.38% | XLE, XLK, XLI, XLV |
+| `llm_cascade_sector4_paper` | cascade | $101,106.36 | +1.11% | +0.68% | XLI, XLV, XLE, **XLU** |
+| `llm_overlay_sector_top4_paper` | **treatment** | $100,928.68 | **+0.93%** | +0.40% | XLI, XLV, XLE, **23.9% cash** |
+
+**Treatment vs control: −4.41pp. Treatment vs systematic twin: −6.17pp. Cascade vs control: −4.23pp.**
+
+**The gap's entire mechanism is visible in one line.** The control holds **XLE bought at $54.03 on 2026-07-07, now +12.78%**. The treatment vetoed and re-entered XLE only on **2026-08-03 at $58.82**, now **+3.59%**. **The veto did not avoid a loss; it forfeited 9.2pp of a gain in the best-performing sector of the period, and the sleeve has carried $24,158.02 — 23.9% of NAV — in cash ever since.** The 08-03 XLE rationale itself scored the name 6/HOLD and noted momentum was "NOT fading," yet the sleeve still bought back 8.9% higher than the control's basis.
+
+**The cascade's XLK omission is the second leg.** The cascade vetoed XLK on 08-03 (score 4, *"rotation OUT of tech into cyclicals, stretched valuations, hawkish Fed"*) and walked down to XLU. **The control still holds XLK at +3.68% from its $179.49 basis; the systematic twin holds it at +14.91% from $161.95.** XLK is the twin's best position.
+
+**4c. `llm_cascade_top1_paper`'s STX invalidation is intact and comfortable.** STX closed **$820.52**, **−1.32% against its $831.48 entry**, and **12.4% above the $730 invalidation level**. Today's +2.44% moved the sleeve from −3.83% to −1.48%. **Nothing is near a stop.**
+
+**4d. XLU has now closed below its invalidation on SEVEN consecutive sessions — including today, when it rose.**
+
+| Session | XLU close | vs $44.50 invalidation | Marked in `paper_nav`? |
+|---|---:|---|---|
+| 2026-08-03 (entry day, bought $44.38) | **44.36** | **BELOW** | yes |
+| 2026-08-04 | **44.11** | **BELOW** | yes |
+| 2026-08-05 | **43.66** | **BELOW** | yes |
+| 2026-08-06 | **43.38** | **BELOW** | yes |
+| 2026-08-07 | **43.61** | **BELOW** | yes |
+| 2026-08-10 | **43.13** | **BELOW** | yes |
+| **2026-08-11** | **43.63** (**+1.16%**) | **BELOW** | **no — 08-11 unmarked** |
+
+**Six marked sessions, seven actual closes, zero above the stop.** Today XLU was the second-best sector in the market and *still* closed 1.96% under its invalidation. The position is **−1.69% against its $44.38 entry** and worth **$24,268.38**.
+
+**Two distinct defects compound here, and they should not be conflated:**
+1. **No enforcement path in code.** The `sector_overlay_log` records an invalidation level; nothing reads it and exits.
+2. **The level was set above the purchase price.** The 08-03 decision recorded `invalidation_level = 44.5` and the fill was **$44.38**. **The position was in violation of its own stop the instant it was opened.** This is a design defect in how the level is chosen, not an ops gap — and it means that even a working enforcement path would have exited on day one, which is almost certainly not the intent.
+
+---
+
+### 5. Period summary — August 2026 month-to-date
+
+| Date | Book NAV | Δ |
+|---|---:|---:|
+| 2026-07-31 | $7,664,277.95 | — |
+| 2026-08-03 | $7,711,618.89 | +0.6177% |
+| 2026-08-04 | $7,918,418.56 | +2.6817% |
+| 2026-08-05 | $7,876,740.12 | −0.5263% |
+| 2026-08-06 | $7,789,550.35 | −1.1069% |
+| 2026-08-07 | $7,770,986.35 | −0.2383% |
+| 2026-08-10 | $7,712,688.17 | −0.7502% |
+| **2026-08-11 (indicative)** | **$7,712,341.06** | **−0.0045%** (−0.0008% vs recomputed base) |
+
+**Month-to-date: book +0.6271% vs SPY +3.1498% (747.03 → 770.56) and QQQ +4.4274% (687.99 → 718.45).**
+
+**The August gap to SPY narrowed today for the first time this month — from 2.85pp to 2.52pp** — and it narrowed the honest way: the book held its ground while the index fell, rather than by out-rallying it.
+
+**Sleeve families at the 08-11 indicative marks:**
+
+| Family | n | Avg NAV | Avg return | Best | Worst |
+|---|---:|---:|---:|---|---|
+| residual ladder — monthly | 19 | $104,143.80 | **+4.14%** | `residual_w0595_paper` $107,097.58 | `residual_w9010_paper` $101,849.48 |
+| benchmarks | 4 | $103,864.66 | +3.86% | `spy_benchmark_paper` $106,925.69 | `qqq_benchmark_0706_paper` $99,395.42 |
+| sector / LLM | 6 | $102,164.71 | +2.16% | `sector_top4_full_paper` $107,099.69 | `llm_cascade_top1_paper` $98,517.04 |
+| residual ladder — weekly | 19 | $102,134.51 | +2.13% | `residual_w2080_wk_paper` $105,805.67 | `residual_w7030_wk_paper` $98,190.90 |
+| residual ladder — biweekly | 19 | $101,398.59 | +1.40% | `residual_w0595_2wk_paper` $107,895.58 | `residual_w8020_2wk_paper` $94,782.54 |
+| `residual_roa` champs | 2 | $99,744.54 | −0.26% | `residual_roa_6535_paper` $102,361.29 | `residual_roa_6535_0701_paper` $97,127.79 |
+| **`mom_*` (momentum)** | 7 | **$91,220.59** | **−8.78%** | `mom_v1_0701_paper` $95,394.59 | `mom_roa_top1_paper` $86,533.85 |
+
+**Top 5 and bottom 5 sleeves of 76, best to worst since inception:**
+
+| Rank | Sleeve | NAV | Since inception | Day |
+|---:|---|---:|---:|---:|
+| 1 | `residual_w0595_2wk_paper` | $107,895.58 | **+7.90%** | −0.34% |
+| 2 | `sector_top4_full_paper` | $107,099.69 | **+7.10%** | +0.35% |
+| 3 | `residual_w0595_paper` | $107,097.58 | **+7.10%** | −0.37% |
+| 4 | `spy_benchmark_paper` | $106,925.69 | **+6.93%** | −0.32% |
+| 5 | `qqq_benchmark_paper` | $106,571.24 | **+6.57%** | −0.34% |
+| … | | | | |
+| 72 | `mom_v1_0701_paper` | $95,394.59 | −4.61% | +0.71% |
+| 73 | `mom_roa_6535_paper` | $91,168.62 | −8.83% | +0.63% |
+| 74 | `mom_v1_paper` | $88,664.62 | −11.34% | +0.61% |
+| 75 | `mom_v2_paper` | $88,068.61 | −11.93% | +0.59% |
+| 76 | `mom_roa_top1_paper` | $86,533.85 | **−13.47%** | +0.87% |
+
+**Every one of the seven `mom_*` sleeves rose today (+0.59% to +0.87%) — they are the momentum book, and momentum is the semi/memory complex that led.** They remain the only family below inception capital.
+
+---
+
+### 6. Strategic insights
+
+**6a. Today is the first clean read on whether this book's factor tilt is an edge or a liability — and one day says "it is a beta bet on semiconductors."** The book was flat while SPY fell 0.32%. The decomposition is unambiguous: **semi-cap +$14,401 and memory/storage +$8,067 against mega-cap −$9,715**. The residual across the other ~195 names was roughly −$12,800. **The book did not outperform because of stock-selection breadth; it outperformed because it is structurally long semiconductor equipment and the S&P is structurally long Alphabet.** Yesterday the same tilt cost 0.71pp; today it earned 0.32pp. **Over the eight sessions of August, that tilt has produced +0.63% against SPY's +3.15%.** The honest conclusion: **the tilt is a source of tracking error, and so far its sign has been negative.** Two sessions do not change that, and the 2.52pp August gap is the number that matters.
+
+**6b. The momentum-weight gradient is holding, and it is the most durable structural finding in the book.** Within the residual ladder, the *lowest* momentum weight leads all three cadences: monthly **w0595 +7.10% vs w9010 +1.85%**; biweekly **w0595 +7.90% vs w8020 −5.22% (a 13.1pp spread)**; weekly's best is w2080 at +5.81% against w7030 at −1.81%. **The ladder was built precisely to measure this, and it is measuring it consistently across three independent rebalance cadences over 14 weeks.** That is real evidence that the *residual* (idiosyncratic) leg carries the signal and the momentum leg dilutes it — consistent with `residual_roa_6535` beating `mom_roa_6535` since May, and with the `mom_*` family being the only one underwater at −8.78%.
+
+**The corollary is uncomfortable and should be stated: `residual_w0595` is 95% quality / 5% momentum. If the gradient's endpoint is the winner, the ladder is telling you the momentum signal contributes approximately nothing, and the honest next experiment is a 0/100 rung to find out whether momentum's optimal weight is actually zero.** The current grid cannot answer that — it stops at 5%.
+
+**6c. Cadence ordering — monthly (+4.14%) > weekly (+2.13%) > biweekly (+1.40%) — remains unexplained and is now 14 weeks old.** It is not monotonic in turnover (weekly trades most, biweekly least among the two sub-monthly cadences, yet biweekly is worst), which rules out the simplest transaction-cost story. **This is a standing open question, not a finding.** Something a future session could actually test: whether the biweekly ladder's anchor date happens to align with adverse rebalance days, which would be a scheduling artifact rather than a signal-decay result.
+
+**6d. The LLM overlay's failure mode is now legible enough to state as a hypothesis.** Across both arms the pattern is the same: **the vetoes are directionally right on risk and wrong on cost.** The stock overlay vetoed four names, was right on three, and still lost to its control because the control held the one it got wrong. The sector overlay vetoed XLE, was wrong, and forfeited 9.2pp in the period's best sector while parking 23.9% in cash. **The overlay appears to be selecting for "names likely to fall" and being paid in avoided losses that are smaller than the foregone gains — which is what a risk filter with no positive expected return looks like.** That is testable at the kill-switch review: if scores correlate with subsequent returns but the *treatment* still loses, the signal is real and the position sizing / cash drag is the defect. **n = 13 of the 30-pick threshold; do not conclude yet.**
+
+**6e. No new long-term-viable sleeve concept is supported by today's data, and today argues against one specific idea.** A tempting read of today would be "add a semi-cap sleeve." **Reject it.** Today's semi-cap gain is the exact reversal of yesterday's semi-cap loss, neither had a dated ticker-specific catalyst at the index level, and the AEHR/KLIC/TER moves are small-cap high-beta names that moved 4–10% largely on sector sentiment. **A concentrated semi-cap sleeve would be a leveraged bet on the AI-capex cycle wearing a factor costume**, and the book already carries $536,490 of that exposure implicitly. The residual-vs-momentum evidence in §6b is a far better-supported concept and it is already deployed.
+
+**6f. The infrastructure lesson from the ladder bug outranks any strategy insight this week.** A $282.88 bookkeeping error on a $7.7M book is immaterial as P&L and material as a *measurement* failure: it turned a −0.0008% day into a reported −0.0045% day, a factor of 5.6. **A track record's value is precisely its measurement fidelity — that is the whole deliverable here.** The generalizable rule the incident establishes: **every process that writes to `paper_nav` must pass the same coverage gate, not just the MTM path.** One gate on one path is not a guard; it is a guard-shaped hole.
+
+---
