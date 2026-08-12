@@ -196,7 +196,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ct---prd-m62-pairing-built-and-run-then-stopped-before-writing-slippage_log-the-measured-100bps-is-intradayovernight-drift-not-execution-slippage-and-m63-run-off-it-would-have-recalibrated-half_spread_bps-5bps---100bps-and-corrupted-every-backtest-2026-08-05-2225-cdt">CT - PRD M6.2 pairing built and RUN, then STOPPED before writing slippage_log: the measured ~+100bps is intraday/overnight DRIFT, not slippage, and M6.3 run off it would have moved HALF_SPREAD_BPS 5 -&gt; 100bps and corrupted every backtest</a> (08-05)<br />
 - <a href="#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt">CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows</a> (08-05)<br />
 - <a href="#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt">CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)</a> (08-05)<br />
-- <a href="#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt">CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)</a> (08-07)</p>
+- <a href="#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt">CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)</a> (08-07)<br />
+- <a href="#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it</a> (08-11)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -9639,6 +9640,130 @@ proven, not because anything was touched.</p>
    contribution is <em>positive</em> at monthly and the cadence spread is inside one<br />
    standard error. The mechanism is inception selection, not re-buying.</li>
 </ol>
+<h1 id="appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">Appendix CX - Dependency CVE status DETERMINED without adding a dependency (stdlib OSV, canary-verified), gitpython upgraded to close 18 RCE advisories, and two record corrections - the dead-weight claim was a false negative and hellohello is INTENTIONAL (2026-08-11, ~22:48 CDT)</h1>
+<p>The 2026-08-04 audit (record CQ) closed with dependency CVE status as <strong>"could<br />
+not determine"</strong> - <code>pip-audit</code> absent, installing tooling not permitted. That was<br />
+the correct thing to write at the time, and it stayed open. This determines it.</p>
+<h2 id="cx1-why-no-new-dependency-was-added">CX.1 Why no new dependency was added</h2>
+<p><code>pip-audit</code> is a convenience wrapper over public advisory data. The one part that<br />
+genuinely needs a library - deciding whether an installed version falls inside an<br />
+advisory's affected range under PEP 440 - is done <strong>server-side</strong> by OSV's<br />
+<code>/v1/querybatch</code>, which takes a concrete version and returns only the advisories<br />
+affecting it. Nothing left to reimplement. Installing a scanner would also have<br />
+pulled its own dependency tree into the venv, enlarging the surface being<br />
+measured, on a project whose complaint is that 97 packages sat behind 9<br />
+hand-pinned lines.</p>
+<p>New <code>scripts/check_dependency_cves.py</code> - stdlib <code>urllib.request</code> + <code>json</code>, reads<br />
+<code>requirements.lock.txt</code>. Exit codes 0 / 1 / <strong>2 = COULD NOT DETERMINE</strong>; an<br />
+unreachable API is never reported as clean.</p>
+<p>Two things make the answer trustworthy rather than merely produced:</p>
+<ul>
+<li><strong>CANARIES.</strong> <code>urllib3==1.26.4</code> and <code>requests==2.19.1</code>, both with long-standing<br />
+  advisories, ride along in the same query. If a canary comes back clean the<br />
+  pipeline is broken - wrong ecosystem string, bad name normalization, changed<br />
+  API contract - and "no advisories" would be a FALSE NEGATIVE. Both returned<br />
+  hits on every run, so the negatives are verified.</li>
+<li><strong>PEP 503 normalization.</strong> <code>pip freeze</code> emits <code>curl_cffi</code>; PyPI calls it<br />
+<code>curl-cffi</code>. Querying the un-normalized name returns an empty result<br />
+<strong>indistinguishable from clean</strong> - the exact silent-wrong-answer class.</li>
+</ul>
+<h2 id="cx2-the-finding-8-packages-74-advisories-none-reachable">CX.2 The finding: 8 packages, 74 advisories, none reachable</h2>
+<p>OSV cannot know reachability, so it was triaged by hand:</p>
+<table>
+<thead>
+<tr>
+<th>package</th>
+<th style="text-align: right;">n</th>
+<th>reachable?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>urllib3 2.6.3</td>
+<td style="text-align: right;">4</td>
+<td><strong>LOW but real</strong> - decompression bomb is a DoS on the nightly refresh. The cross-origin header leak needs credentials on the urllib3 path, and Alpaca rides <strong>httpx</strong>, not requests</td>
+</tr>
+<tr>
+<td>soupsieve 2.8.3</td>
+<td style="text-align: right;">4</td>
+<td><strong>No</strong> - vector is an attacker-controlled CSS SELECTOR, not attacker-controlled HTML; ours are hardcoded</td>
+</tr>
+<tr>
+<td>gitpython 3.1.49</td>
+<td style="text-align: right;">18</td>
+<td>see CX.3</td>
+</tr>
+<tr>
+<td>pillow 12.2.0</td>
+<td style="text-align: right;">26</td>
+<td><strong>No</strong> - via streamlit/altair/plotly; the dashboard renders charts from the DB, never decodes untrusted images</td>
+</tr>
+<tr>
+<td>starlette 1.0.0 / python-multipart 0.0.27</td>
+<td style="text-align: right;">18</td>
+<td><strong>No</strong> - Streamlit binds 127.0.0.1 only (verified in <code>var/dashboard.log</code>)</td>
+</tr>
+<tr>
+<td>h2 4.3.0</td>
+<td style="text-align: right;">2</td>
+<td>LOW - smuggling needs a hostile intermediary</td>
+</tr>
+<tr>
+<td>idna 3.13</td>
+<td style="text-align: right;">2</td>
+<td><strong>No</strong> - needs attacker-controlled hostnames</td>
+</tr>
+</tbody>
+</table>
+<p>soupsieve is the textbook false positive: flagged because the package sits on the<br />
+untrusted-input path, but the vector points the wrong way.</p>
+<p><strong>No upgrades were made off this.</strong> A yfinance/pandas/urllib3 bump can change<br />
+price-adjustment behaviour and silently move every backtest number - worse than<br />
+any unreachable advisory.</p>
+<h2 id="cx3-a-false-negative-and-the-correction">CX.3 A false negative, and the correction</h2>
+<p>Commit <code>4a1f69f</code> asserted gitpython was <em>"top-level, has no dependents, imported<br />
+nowhere in trading_bot/ or scripts/. Dead weight; removal is the cleanest fix."</em><br />
+<strong>That was wrong.</strong> <code>streamlit</code> declares <code>gitpython!=3.1.19,&lt;4,&gt;=3.0.7</code> and<br />
+<code>streamlit/git_util.py:75</code> imports it at runtime, called from<br />
+<code>app_session.py:837</code>.</p>
+<p>Cause: the reverse-dependency one-liner behind that claim split requirement<br />
+strings on <code>"="</code>, turning <code>GitPython!=3.1.19</code> into <code>GitPython!</code>, which matched<br />
+nothing. <strong>The same commit shipped a scanner canaried specifically so a broken<br />
+query could not report a false clean - and the one-liner it reasoned from was not<br />
+canaried.</strong> It surfaced only because Evan asked for the removal to be verified<br />
+before it was done.</p>
+<p>Removal would also not have been durable: <code>pip install -r requirements.lock.txt</code><br />
+reinstalls it via streamlit, and uninstalling breaks <code>pip check</code>. (It would NOT<br />
+have crashed the dashboard - the import sits in a <code>try:</code>/<code>except Exception:</code> that<br />
+logs at DEBUG and names "GitPython not installed" as an expected cause.)</p>
+<p><strong>Upgraded instead</strong>, Evan running the install: <strong>3.1.49 -&gt; 3.1.59</strong> (OSV gives<br />
+<code>fixed: 3.1.51</code> for the whole cluster). gitpython touches no price path, so the<br />
+backtest-drift objection that blocks the other seven did not apply.</p>
+<p>Verified after: <code>pip check</code> -&gt; <em>No broken requirements found</em>;<br />
+<code>import streamlit.git_util</code> OK with <code>GitRepo</code> importable; CVE re-check <strong>8 -&gt; 7<br />
+packages</strong> with canaries still hitting; frozen tests <strong>4/4 d=+/-0.0000pp</strong>.<br />
+Commits <code>4a1f69f</code>, <code>68eedea</code>. Findings: <code>var/dependency_cves_2026-08-11.json</code>.</p>
+<h2 id="cx4-correction-hellohello-is-intentional---do-not-delete-it">CX.4 Correction: <code>hellohello</code> is INTENTIONAL - do NOT delete it</h2>
+<p>Record CR listed it as <em>"an ENABLED Claude task firing daily ~8:08am, prompt is<br />
+literally <code>hello (Just say "hi" back)</code>. </em><em>Evan's to delete</em><em> - flagged, never<br />
+removed."</em></p>
+<p><strong>That characterisation is wrong and is corrected here.</strong> Per Evan (2026-08-11):<br />
+it is a deliberate lightweight routine whose purpose is to <strong>start the usage-limit<br />
+window</strong> at a predictable time each morning. It is doing exactly what it was<br />
+built to do.</p>
+<p>The record is append-only so CR stands as written. A future session reading CR<br />
+alone would delete a task that is load-bearing for Evan's daily workflow -<br />
+<strong>this entry is the correction; do not remove <code>hellohello</code>.</strong> Same lesson as the<br />
+<code>monthy-llm-rebalance</code> typo (record CN): an odd-looking name or a trivial-looking<br />
+prompt is not evidence of an accident.</p>
+<h2 id="cx5-status">CX.5 Status</h2>
+<ul>
+<li>Dependency CVE status: <strong>DETERMINED</strong>, and re-runnable in one command. The<br />
+  audit's open M9 item is closed.</li>
+<li>Still open and unchanged: M6.2/M6.3 (blocked on Evan's mirror-timing decision,<br />
+  records CT/CU/CV) and CQ.2 finding 2 (the frozen tests still write the live DB;<br />
+  the busy-window guard bounds WHEN, not WHETHER).</li>
+</ul>
 </div>
 </body>
 </html>

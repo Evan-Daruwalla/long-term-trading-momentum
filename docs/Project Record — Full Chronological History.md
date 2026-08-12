@@ -158,6 +158,7 @@ lives in the dated entry, not the digest.
 - [CU - CT.5 step 1 done: sim fill basis PINNED exactly (close x 1+/-5bps, 34/34 and 33/35 on a 2-day-old batch); the July reference prices are GONE - price_cache was rewritten under them, so M6 has ZERO clean measurement windows](#appendix-cu---ct5-step-1-done-the-sims-fill-basis-is-pinned-exactly-close-x-1-5bps-proven-3434-and-3335-on-a-2-day-old-batch-and-the-july-reference-prices-are-gone---price_cache-was-rewritten-under-them-m6-currently-has-zero-clean-measurement-windows-2026-08-05-2312-cdt) (08-05)
 - [CV - CU's forward fix SHIPPED and APPLIED LIVE: every fill now records the raw close it came from, so a rebalance stays measurable after price_cache moves under it (verify_run PASS 76/76, quick_check ok)](#appendix-cv---cus-forward-fix-shipped-and-applied-live-every-fill-now-records-the-raw-close-it-came-from-so-a-rebalance-stays-measurable-after-price_cache-moves-under-it-2026-08-05-2334-cdt) (08-05)
 - [CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)](#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt) (08-07)
+- [CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it](#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt) (08-11)
 
 ---
 
@@ -8549,3 +8550,110 @@ proven, not because anything was touched.
    because it re-buys freshly-run-up names - is **not supported**: the trading
    contribution is *positive* at monthly and the cadence spread is inside one
    standard error. The mechanism is inception selection, not re-buying.
+
+# Appendix CX - Dependency CVE status DETERMINED without adding a dependency (stdlib OSV, canary-verified), gitpython upgraded to close 18 RCE advisories, and two record corrections - the dead-weight claim was a false negative and hellohello is INTENTIONAL (2026-08-11, ~22:48 CDT)
+
+The 2026-08-04 audit (record CQ) closed with dependency CVE status as **"could
+not determine"** - `pip-audit` absent, installing tooling not permitted. That was
+the correct thing to write at the time, and it stayed open. This determines it.
+
+## CX.1 Why no new dependency was added
+
+`pip-audit` is a convenience wrapper over public advisory data. The one part that
+genuinely needs a library - deciding whether an installed version falls inside an
+advisory's affected range under PEP 440 - is done **server-side** by OSV's
+`/v1/querybatch`, which takes a concrete version and returns only the advisories
+affecting it. Nothing left to reimplement. Installing a scanner would also have
+pulled its own dependency tree into the venv, enlarging the surface being
+measured, on a project whose complaint is that 97 packages sat behind 9
+hand-pinned lines.
+
+New `scripts/check_dependency_cves.py` - stdlib `urllib.request` + `json`, reads
+`requirements.lock.txt`. Exit codes 0 / 1 / **2 = COULD NOT DETERMINE**; an
+unreachable API is never reported as clean.
+
+Two things make the answer trustworthy rather than merely produced:
+
+- **CANARIES.** `urllib3==1.26.4` and `requests==2.19.1`, both with long-standing
+  advisories, ride along in the same query. If a canary comes back clean the
+  pipeline is broken - wrong ecosystem string, bad name normalization, changed
+  API contract - and "no advisories" would be a FALSE NEGATIVE. Both returned
+  hits on every run, so the negatives are verified.
+- **PEP 503 normalization.** `pip freeze` emits `curl_cffi`; PyPI calls it
+  `curl-cffi`. Querying the un-normalized name returns an empty result
+  **indistinguishable from clean** - the exact silent-wrong-answer class.
+
+## CX.2 The finding: 8 packages, 74 advisories, none reachable
+
+OSV cannot know reachability, so it was triaged by hand:
+
+| package | n | reachable? |
+|---|---:|---|
+| urllib3 2.6.3 | 4 | **LOW but real** - decompression bomb is a DoS on the nightly refresh. The cross-origin header leak needs credentials on the urllib3 path, and Alpaca rides **httpx**, not requests |
+| soupsieve 2.8.3 | 4 | **No** - vector is an attacker-controlled CSS SELECTOR, not attacker-controlled HTML; ours are hardcoded |
+| gitpython 3.1.49 | 18 | see CX.3 |
+| pillow 12.2.0 | 26 | **No** - via streamlit/altair/plotly; the dashboard renders charts from the DB, never decodes untrusted images |
+| starlette 1.0.0 / python-multipart 0.0.27 | 18 | **No** - Streamlit binds 127.0.0.1 only (verified in `var/dashboard.log`) |
+| h2 4.3.0 | 2 | LOW - smuggling needs a hostile intermediary |
+| idna 3.13 | 2 | **No** - needs attacker-controlled hostnames |
+
+soupsieve is the textbook false positive: flagged because the package sits on the
+untrusted-input path, but the vector points the wrong way.
+
+**No upgrades were made off this.** A yfinance/pandas/urllib3 bump can change
+price-adjustment behaviour and silently move every backtest number - worse than
+any unreachable advisory.
+
+## CX.3 A false negative, and the correction
+
+Commit `4a1f69f` asserted gitpython was *"top-level, has no dependents, imported
+nowhere in trading_bot/ or scripts/. Dead weight; removal is the cleanest fix."*
+**That was wrong.** `streamlit` declares `gitpython!=3.1.19,<4,>=3.0.7` and
+`streamlit/git_util.py:75` imports it at runtime, called from
+`app_session.py:837`.
+
+Cause: the reverse-dependency one-liner behind that claim split requirement
+strings on `"="`, turning `GitPython!=3.1.19` into `GitPython!`, which matched
+nothing. **The same commit shipped a scanner canaried specifically so a broken
+query could not report a false clean - and the one-liner it reasoned from was not
+canaried.** It surfaced only because Evan asked for the removal to be verified
+before it was done.
+
+Removal would also not have been durable: `pip install -r requirements.lock.txt`
+reinstalls it via streamlit, and uninstalling breaks `pip check`. (It would NOT
+have crashed the dashboard - the import sits in a `try:`/`except Exception:` that
+logs at DEBUG and names "GitPython not installed" as an expected cause.)
+
+**Upgraded instead**, Evan running the install: **3.1.49 -> 3.1.59** (OSV gives
+`fixed: 3.1.51` for the whole cluster). gitpython touches no price path, so the
+backtest-drift objection that blocks the other seven did not apply.
+
+Verified after: `pip check` -> *No broken requirements found*;
+`import streamlit.git_util` OK with `GitRepo` importable; CVE re-check **8 -> 7
+packages** with canaries still hitting; frozen tests **4/4 d=+/-0.0000pp**.
+Commits `4a1f69f`, `68eedea`. Findings: `var/dependency_cves_2026-08-11.json`.
+
+## CX.4 Correction: `hellohello` is INTENTIONAL - do NOT delete it
+
+Record CR listed it as *"an ENABLED Claude task firing daily ~8:08am, prompt is
+literally `hello (Just say "hi" back)`. **Evan's to delete** - flagged, never
+removed."*
+
+**That characterisation is wrong and is corrected here.** Per Evan (2026-08-11):
+it is a deliberate lightweight routine whose purpose is to **start the usage-limit
+window** at a predictable time each morning. It is doing exactly what it was
+built to do.
+
+The record is append-only so CR stands as written. A future session reading CR
+alone would delete a task that is load-bearing for Evan's daily workflow -
+**this entry is the correction; do not remove `hellohello`.** Same lesson as the
+`monthy-llm-rebalance` typo (record CN): an odd-looking name or a trivial-looking
+prompt is not evidence of an accident.
+
+## CX.5 Status
+
+- Dependency CVE status: **DETERMINED**, and re-runnable in one command. The
+  audit's open M9 item is closed.
+- Still open and unchanged: M6.2/M6.3 (blocked on Evan's mirror-timing decision,
+  records CT/CU/CV) and CQ.2 finding 2 (the frozen tests still write the live DB;
+  the busy-window guard bounds WHEN, not WHETHER).
