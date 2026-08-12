@@ -199,7 +199,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-cw---the-residual-ladder-inversion-decomposed-it-is-not-cadence-not-turnover-not-transaction-cost-not-r1-not-one-bad-name---the-entire-gradient-is-in-the-2026-05-01-stock-selection-it-is-market-orthogonal-and-it-is-one-month-july-when-spy-did-003-and-momentum-did--235-2026-08-07-0541-cdt">CW - Residual-ladder inversion DECOMPOSED: not cadence/turnover/cost/R1/one-name - the WHOLE gradient is in the 05-01 selection, is market-orthogonal, and is ONE MONTH (July: SPY +0.03% while momentum did -23.5%)</a> (08-07)<br />
 - <a href="#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt">CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it</a> (08-11)<br />
 - <a href="#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt">CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65</a> (08-11)<br />
-- <a href="#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt">CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted</a> (08-12)</p>
+- <a href="#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt">CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted</a> (08-12)<br />
+- <a href="#appendix-da---cold-audit-first-full-sweep-since-cq-15-findings--8-edge-cases-the-two-dailybat-handlers-that-never-reached-the-exit-gate-are-fixed-the-crit-is-not-2026-08-12-1725-cdt">DA - Cold audit, first full sweep since CQ: 15 findings + 8 edge cases; the two daily.bat handlers that never reached the exit gate are fixed, the crit is not (2026-08-12, ~17:25 CDT)</a> (08-12)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -10152,6 +10153,54 @@ depends on anything in those tables, and re-running it changes nothing.</p>
 <li>Still open from CX.5: nothing. M6.2's LIVE <code>slippage_log</code> write (record CY.6)<br />
   and these 137 rows are both Evan's commands, not open engineering.</li>
 </ul>
+<h1 id="appendix-da---cold-audit-first-full-sweep-since-cq-15-findings--8-edge-cases-the-two-dailybat-handlers-that-never-reached-the-exit-gate-are-fixed-the-crit-is-not-2026-08-12-1725-cdt">Appendix DA - Cold audit, first full sweep since CQ: 15 findings + 8 edge cases; the two daily.bat handlers that never reached the exit gate are fixed, the crit is not (2026-08-12, ~17:25 CDT)</h1>
+<p><strong>Trigger.</strong> Evan ran <code>/audit</code> over every active project. Trading was held back<br />
+from the first sweep because another session was editing and running it at<br />
+07:14-07:16; it was audited once the tree went quiet (last write 08:24, clean at<br />
+<code>a5e9e49</code>). This entry records the sweep and the two fixes applied so far.</p>
+<p><strong>The crit is a monitor that retracts a true alarm.</strong> <code>verify_run.py:215</code><br />
+reconciles cash against the <strong>latest <code>paper_nav</code> row only</strong>; the continuity walk<br />
+at <code>:195-202</code> asserts date PRESENCE, not value correctness. So a bad older row<br />
+becomes permanently invisible once a good newer row lands. It already happened:<br />
+<code>var/verify_report.log</code> shows FAIL 57/76 at 08-11 07:47, 17:17 and 20:30, then<br />
+PASS 76/76 at 08-12 07:46 <strong>with nothing repaired between</strong>. The 19 failing<br />
+sleeves are exactly the <code>residual_w*_wk_paper</code> set. The bad 08-10 rows are still<br />
+in the DB and are now unreachable by the only checker that looks. NOT FIXED —<br />
+honest recon needs a ledger replay per date and is sized <strong>M</strong>; a small patch<br />
+would only appear to close it.</p>
+<p><strong>FIXED — two <code>daily.bat</code> handlers whose failure never reached the exit gate.</strong><br />
+- <strong>Finding 3:</strong> the two overlay <code>check-invalidation</code> calls had NO errorlevel<br />
+  check at all. A crash there left stops unfired — positions that should have<br />
+  exited to cash stay open and NAV is wrong — while the run continued to a PASS<br />
+  stamp and Task Scheduler showed green. Before letting this go live I verified<br />
+  both modules' <code>cmd_check_invalidation</code> return 0 on every normal path, so<br />
+  aborting on nonzero cannot fire benignly.<br />
+- <strong>Finding 2:</strong> <code>daily_price_refresh</code> correctly returns 1, but the <code>.bat</code><br />
+  answered with a bare <code>echo WARNING</code> and discarded the code, so a stale-price day<br />
+  still stamped <code>verify=PASS</code>. The code is now captured and threaded into the ops<br />
+  stamp's <code>--note</code>.</p>
+<p>Both use explicit <code>%errorlevel%</code> capture rather than <code>if errorlevel 1</code>, which is<br />
+GREATER-OR-EQUAL and therefore blind to a negative crash code — the same trap this<br />
+file already documents for <code>CATCHUP_RC</code>.</p>
+<p><strong>VERIFICATION, without touching the 5 GB DB.</strong> File is pure ASCII (one non-ASCII<br />
+byte corrupts the whole parse here), every <code>goto</code> resolves to a label, and all<br />
+four control-flow paths were exercised with stubbed subprocesses: success/exit 0<br />
+unchanged; stops-crash/exit 1 with the note; refresh-fail/note threaded; the<br />
+pre-existing <code>mtm_catchup</code> path unchanged.</p>
+<p><strong>FROZEN TESTS NOT RUN.</strong> The attempt at 17:12 was refused by the suite's own<br />
+guard — inside the 17:00-18:30 <code>TradingDailyMTM</code> window. It was <strong>not</strong> forced.<br />
+A <code>d=±0.0000pp</code> run is still owed for this change.</p>
+<p><strong>Commit</strong> <code>b87f247</code>. Not pushed.</p>
+<p><strong>STILL OPEN from this sweep</strong> (13 of 15 findings, 8 edge cases): the crit above;<br />
+finding 4, LLM decisions are never backdated is UNENFORCEABLE and three decisions<br />
+have ALREADY been overwritten (ids 4, 5, 9 missing; id=1 carries<br />
+<code>decision_date=2026-05-29</code> against <code>created_at=2026-05-31</code>); finding 5, <code>TOL_PCT
+= 0.05</code> while CLAUDE.md and the PRD mandate <code>d=±0.0000pp</code>; finding 6, ticker<br />
+normalisation divergence between the two overlay twins; E3, the "monthly" LLM<br />
+rebalance task actually fires DAILY at 18:03 gated only by a natural-language<br />
+check, and <code>check_rebalance_cadence</code> structurally cannot detect a mid-month<br />
+firing. Real executed-line coverage is <strong>1.7%</strong> (254/15,272 statements, 8 of 195<br />
+modules), measured with <code>sys.settrace</code> rather than an import-graph proxy.</p>
 </div>
 </body>
 </html>

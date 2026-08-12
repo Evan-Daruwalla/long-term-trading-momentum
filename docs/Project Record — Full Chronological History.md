@@ -161,6 +161,7 @@ lives in the dated entry, not the digest.
 - [CX - Dependency CVE status DETERMINED with no new dependency (stdlib OSV, canary-verified): 8 packages / 74 advisories, none reachable; gitpython upgraded to close 18 RCE advisories; the dead-weight claim was a FALSE NEGATIVE and hellohello is INTENTIONAL - do not delete it](#appendix-cx---dependency-cve-status-determined-without-adding-a-dependency-stdlib-osv-canary-verified-gitpython-upgraded-to-close-18-rce-advisories-and-two-record-corrections---the-dead-weight-claim-was-a-false-negative-and-hellohello-is-intentional-2026-08-11-2248-cdt) (08-11)
 - [CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65](#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt) (08-11)
 - [CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted](#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt) (08-12)
+- [DA - Cold audit, first full sweep since CQ: 15 findings + 8 edge cases; the two daily.bat handlers that never reached the exit gate are fixed, the crit is not (2026-08-12, ~17:25 CDT)](#appendix-da---cold-audit-first-full-sweep-since-cq-15-findings--8-edge-cases-the-two-dailybat-handlers-that-never-reached-the-exit-gate-are-fixed-the-crit-is-not-2026-08-12-1725-cdt) (08-12)
 
 ---
 
@@ -8964,3 +8965,60 @@ depends on anything in those tables, and re-running it changes nothing.
 - Frozen tests **4/4 d=+/-0.0000pp**, live DB unmodified.
 - Still open from CX.5: nothing. M6.2's LIVE `slippage_log` write (record CY.6)
   and these 137 rows are both Evan's commands, not open engineering.
+
+# Appendix DA - Cold audit, first full sweep since CQ: 15 findings + 8 edge cases; the two daily.bat handlers that never reached the exit gate are fixed, the crit is not (2026-08-12, ~17:25 CDT)
+
+**Trigger.** Evan ran `/audit` over every active project. Trading was held back
+from the first sweep because another session was editing and running it at
+07:14-07:16; it was audited once the tree went quiet (last write 08:24, clean at
+`a5e9e49`). This entry records the sweep and the two fixes applied so far.
+
+**The crit is a monitor that retracts a true alarm.** `verify_run.py:215`
+reconciles cash against the **latest `paper_nav` row only**; the continuity walk
+at `:195-202` asserts date PRESENCE, not value correctness. So a bad older row
+becomes permanently invisible once a good newer row lands. It already happened:
+`var/verify_report.log` shows FAIL 57/76 at 08-11 07:47, 17:17 and 20:30, then
+PASS 76/76 at 08-12 07:46 **with nothing repaired between**. The 19 failing
+sleeves are exactly the `residual_w*_wk_paper` set. The bad 08-10 rows are still
+in the DB and are now unreachable by the only checker that looks. NOT FIXED —
+honest recon needs a ledger replay per date and is sized **M**; a small patch
+would only appear to close it.
+
+**FIXED — two `daily.bat` handlers whose failure never reached the exit gate.**
+- **Finding 3:** the two overlay `check-invalidation` calls had NO errorlevel
+  check at all. A crash there left stops unfired — positions that should have
+  exited to cash stay open and NAV is wrong — while the run continued to a PASS
+  stamp and Task Scheduler showed green. Before letting this go live I verified
+  both modules' `cmd_check_invalidation` return 0 on every normal path, so
+  aborting on nonzero cannot fire benignly.
+- **Finding 2:** `daily_price_refresh` correctly returns 1, but the `.bat`
+  answered with a bare `echo WARNING` and discarded the code, so a stale-price day
+  still stamped `verify=PASS`. The code is now captured and threaded into the ops
+  stamp's `--note`.
+
+Both use explicit `%errorlevel%` capture rather than `if errorlevel 1`, which is
+GREATER-OR-EQUAL and therefore blind to a negative crash code — the same trap this
+file already documents for `CATCHUP_RC`.
+
+**VERIFICATION, without touching the 5 GB DB.** File is pure ASCII (one non-ASCII
+byte corrupts the whole parse here), every `goto` resolves to a label, and all
+four control-flow paths were exercised with stubbed subprocesses: success/exit 0
+unchanged; stops-crash/exit 1 with the note; refresh-fail/note threaded; the
+pre-existing `mtm_catchup` path unchanged.
+
+**FROZEN TESTS NOT RUN.** The attempt at 17:12 was refused by the suite's own
+guard — inside the 17:00-18:30 `TradingDailyMTM` window. It was **not** forced.
+A `d=±0.0000pp` run is still owed for this change.
+
+**Commit** `b87f247`. Not pushed.
+
+**STILL OPEN from this sweep** (13 of 15 findings, 8 edge cases): the crit above;
+finding 4, LLM decisions are never backdated is UNENFORCEABLE and three decisions
+have ALREADY been overwritten (ids 4, 5, 9 missing; id=1 carries
+`decision_date=2026-05-29` against `created_at=2026-05-31`); finding 5, `TOL_PCT
+= 0.05` while CLAUDE.md and the PRD mandate `d=±0.0000pp`; finding 6, ticker
+normalisation divergence between the two overlay twins; E3, the "monthly" LLM
+rebalance task actually fires DAILY at 18:03 gated only by a natural-language
+check, and `check_rebalance_cadence` structurally cannot detect a mid-month
+firing. Real executed-line coverage is **1.7%** (254/15,272 statements, 8 of 195
+modules), measured with `sys.settrace` rather than an import-graph proxy.
