@@ -162,6 +162,9 @@ lives in the dated entry, not the digest.
 - [CY - PRD M6 REDEFINED to implementation shortfall (Evan's call): drift is now MEASURED three ways (sd 192/499bps, 28% of fills BETTER than the sim, corr +0.7668 with each name's own overnight move) instead of asserted, so HALF_SPREAD_BPS stays 5.0; the true spread is UNMEASURED, not 100. Plus an unpaired-reason that was true 64/65](#appendix-cy---prd-m6-redefined-to-implementation-shortfall-evans-call-the-100bps-is-measured-to-be-drift-three-independent-ways-rather-than-asserted-so-half_spread_bps-stays-at-50---plus-a-canned-unpaired-reason-that-was-true-64-times-out-of-65-2026-08-11-2325-cdt) (08-11)
 - [CZ - CQ.2 finding 2 CLOSED: the mandated frozen tests no longer write the live DB. Fixed at the NAME-RESOLUTION layer (TEMP tables shadow positions/portfolio_state) so price_cache still reads from main; proven by PRAGMA data_version unmoved, with a negative control showing the check can see a write. 137 residue rows REPORTED, not deleted](#appendix-cz---cq2-finding-2-closed-the-mandated-frozen-tests-no-longer-write-the-live-db-fixed-at-the-name-resolution-layer-temp-tables-shadow-positionsportfolio_state-not-by-redirecting-the-connection---which-would-have-taken-price_cache-with-it-2026-08-12-0720-cdt) (08-12)
 - [DA - Cold audit, first full sweep since CQ: 15 findings + 8 edge cases; the two daily.bat handlers that never reached the exit gate are fixed, the crit is not (2026-08-12, ~17:25 CDT)](#appendix-da---cold-audit-first-full-sweep-since-cq-15-findings--8-edge-cases-the-two-dailybat-handlers-that-never-reached-the-exit-gate-are-fixed-the-crit-is-not-2026-08-12-1725-cdt) (08-12)
+- [DB - verify_run crit CONFIRMED BY PREDICTION: FAIL 56/76 evening -> PASS 76/76 next morning with nothing repaired, 13 sleeves silently recovered; plus two CZ.5 factual corrections and one wrong call of my own](#appendix-db---the-verify_run-crit-confirmed-by-prediction-fail-5676-on-08-12-evening-pass-7676-on-08-13-morning-with-nothing-repaired-and-13-sleeves-silently-recovered-plus-two-cz5-factual-corrections-and-one-wrong-call-of-my-own-caught-before-it-reached-this-file-2026-08-13-1522-cdt) (08-13)
+- [DC - The verify_run alarm is INVERTED: there are NO bad 08-10 rows; check (b) measures nightly price_cache revision, not the ledger; the 846 per-date cash divergences are the M7.3 KLAC repair to the cent (30/30). Task 1's canary premise falsified, Task 2 answered by the same mechanism](#appendix-dc---the-verify_run-alarm-is-inverted-there-are-no-bad-08-10-rows-check-b-measures-nightly-price_cache-revision-rather-than-the-ledger-and-the-846-per-date-cash-divergences-are-the-m73-klac-repair-to-the-cent-3030-task-1s-canary-premise-is-falsified-task-2-answered-by-the-same-mechanism-2026-08-13-2150-cdt) (08-13)
+- [DD - **DA crit CLOSED**: check (b) split into (b1) per-date ledger cash (hard FAIL, via the existing replayer) and (b2) price drift (INFO); canaried by fault injection - a corrupted OLDER row FAILs while its newest row stays clean at drift($+0.00), which is exactly what navs[-1] could not see](#appendix-dd---the-da-crit-is-closed-verify_run-check-b-split-into-b1-per-date-ledger-cash-as-the-hard-fail-and-b2-price-drift-as-info-canaried-by-fault-injection-on-a-copy---a-corrupted-older-row-now-fails-while-the-newest-row-stays-clean-which-is-exactly-what-the-old-navs-1-check-could-not-see-2026-08-13-2159-cdt) (08-13)
 
 ---
 
@@ -9022,3 +9025,581 @@ rebalance task actually fires DAILY at 18:03 gated only by a natural-language
 check, and `check_rebalance_cadence` structurally cannot detect a mid-month
 firing. Real executed-line coverage is **1.7%** (254/15,272 statements, 8 of 195
 modules), measured with `sys.settrace` rather than an import-graph proxy.
+
+# Appendix DB - The verify_run crit CONFIRMED BY PREDICTION: FAIL 56/76 on 08-12 evening, PASS 76/76 on 08-13 morning with nothing repaired and 13 sleeves silently recovered; plus two CZ.5 factual corrections and one wrong call of my own, caught before it reached this file (2026-08-13, ~15:22 CDT)
+
+Session instruction was two words of real scope: **"Push then /landing-check"**.
+No code was changed. Everything below is either a verification result or a
+correction to a prior appendix.
+
+## DB.1 The push was already spent
+
+`git push origin master` returned **`Everything up-to-date`**. Server-side
+`refs/heads/master` (read with `ls-remote`, not the cached `origin/master` ref)
+already carried the session's HEAD.
+
+This is the "committed does NOT mean unpublished" hazard behaving exactly as
+documented: `daily-trade-check` (~08:07 weekdays) and `daily-trade-check-2`
+(~19:00) commit their reports and `git push` the whole branch, which publishes
+anything left committed on master. Appendices CY/CZ/DA went public that way,
+hours before anyone authorized a push. **The authorization was consumed by a
+scheduled task before it was given.** Mid-session the branch advanced again to
+`fcd4010` (08-13 pre-market daily report, `daily_report.{md,html}` only) and
+that too was already pushed.
+
+Nothing here is a defect to fix - it is the designed behavior of the trade-check
+tasks. It is recorded because "I have not pushed" is not a safe assumption in
+this repo, and a future session should not reason as if it were.
+
+## DB.2 Landing-check verdict: SAFE
+
+A cold agent re-derived every claim in `b2b4fb0..e5366fd` from artifacts and
+disk, with no summary of the work handed to it.
+
+- **All 7 changed files LANDED** on the copy that executes. `trading_bot` is not
+  installed in site-packages, so no shadowing; each module resolved through the
+  venv python reports `D:\ClaudeCode\Trading\...`. The two same-name hits found
+  (`.venv/Lib/site-packages/git/db.py`, `.venv/.../pyarrow/tests/test_strategies.py`)
+  are unrelated packages, not shadows.
+- **Strongest landing evidence**: `daily.bat` was committed 17:14:20 and
+  `TradingDailyMTM` fired at 17:15:01. `var/last_daily_run.log` proves the NEW
+  file ran - the `:verify_fail` path stamped
+  `[OPS 2026-08-12] coverage=PENDING verify=FAIL` and exited 1, matching the
+  task's Last Result = 1.
+- **15 of 18 extracted claims re-derived TRUE**, including DA's own assertion
+  that the crit is *not* fixed: `verify_run.py:195-202` still tests date
+  presence and `:213` still takes `navs[-1]`, untouched in the range. A stale
+  "still broken" would have been as much a finding as a stale "fixed"; it is
+  neither.
+
+## DB.3 CZ.5 CORRECTED - two facts wrong, the mechanism right
+
+CZ.5 states the `positions` residue is "**137 rows** stamped `entry_time`
+2026-08-03T04:36:36Z with `entry_date` 2025-01-02".
+
+Both details are wrong. Read from the live DB read-only:
+
+- **No row in any snapshot carries `2026-08-03T04:36:36Z`.** Count of rows with
+  `entry_time LIKE '2026-08-03%'` is **0**.
+- **`entry_date` is not a single date.** It spans six monthly rebalance dates -
+  2025-01-02 (50 rows), 2025-02-03 (19), 2025-03-03 (16), 2025-04-01 (19),
+  2025-05-01 (14), 2025-06-02 (19). That is the whole `2025_H1` frozen window,
+  which CZ names correctly elsewhere; only the first date of it reached CZ.5.
+
+The row count (137) and `portfolio_state.cash = 39.262514` are correct.
+
+**The mechanism claim in CZ.5 - "they are now permanent, nothing else deletes
+them" - is TRUE, and is now positively proven rather than argued.** Four
+snapshots, each holding exactly 137 rows with 137 distinct microsecond-resolution
+timestamps inside a ~0.25 s burst:
+
+| snapshot | entry_time burst (UTC) | local (CDT) | session that follows |
+|---|---|---|---|
+| `var/backups/trades_2026-07-28.db` | 19:59:19.68 -> .97 | 07-28 14:59 | CH, ~15:37 |
+| `var/backups/trades_2026-08-02.db` | 22:49:56.95 -> 57.19 | 08-02 17:49 | CL, ~17:50 |
+| `var/backups/trades_2026-08-09.db` | 08-07 10:40:17.79 -> .96 | 08-07 05:40 | CW, ~05:41 |
+| live `var/trades.db` | 08-12 04:15:15.72 -> .94 | 08-11 23:15 | CY, ~23:25 |
+
+Every burst is a wipe-and-rewrite of the whole table minutes before a session
+that ran frozen tests - i.e. `_wipe_state()` on the **pre-fix** suite, exactly
+the writer CZ identified. **All four predate the CZ fix (08-12 ~07:20 CDT).**
+
+The negative control: a full frozen run executed this session at
+**2026-08-13 ~15:20 CDT** left `entry_time` still at `2026-08-12T04:15:15Z`,
+unchanged. The pre-fix suite would have rewritten it. The fix holds, confirmed
+by a post-fix run rather than by the same `data_version` argument CZ used.
+
+**Consequence for the queued command:** CZ.5's optional `DELETE FROM positions`
+is valid and durable. Nothing rewrites those rows any more.
+
+## DB.4 A wrong call of my own, caught before it reached this file
+
+Working from the four-snapshot rewrite pattern in DB.3 and *before* checking
+those timestamps against the fix date, I told Evan mid-session that the delete
+command was **futile** - that something still rewrote the table and the rows
+would come back - and hypothesized a `factor_backtest` TEMP-shadow leak into
+`main.positions`.
+
+That was wrong. All four bursts predate the fix; the shadow leak is not
+happening; the delete is durable. The error was reasoning from a real pattern
+without testing it against the one date that discriminated the two explanations.
+Recorded because DB.3's table reads like evidence of an active writer until the
+fix date is laid over it, and a future session re-deriving this should not have
+to re-make the mistake.
+
+## DB.5 CZ.4's "no reader" claim is now literally false, harmlessly
+
+CZ.4 states `grep -rn` "finds no reader of `positions` / `portfolio_state` under
+`scripts/momentum/`". That was true when written and is false now:
+`scripts/momentum/test_backtest_state_isolation.py` - added by the same commit -
+reads both. It operates on a throwaway fixture DB, so nothing follows from it.
+Corrected for the record only.
+
+## DB.6 THE CRIT, CONFIRMED BY PREDICTION
+
+DA sized the `verify_run` recon crit M and left it open. The session handoff made
+a falsifiable prediction from it: *the 07:45 morning run may report PASS 76/76
+with nothing repaired, and a morning PASS is NOT resolution.*
+
+Read from `var/verify_report.log`, the project's own accumulated report -
+FAIL counts per run, every run in the file that had any:
+
+| run | FAIL |
+|---|---|
+| 2026-07-09 18:04 | 17 |
+| 2026-07-29 07:47 / 17:17 / 20:30 | 8 / 9 / 9 |
+| 2026-08-02 16:21 / 17:18 / 19:56 | 15 / 21 / 41 |
+| 2026-08-11 07:47 / 17:17 / 20:30 | 19 / 19 / 19 |
+| **2026-08-12 07:46** | **0 - PASS 76/76** |
+| 2026-08-12 17:18 / 20:30 | 20 / 20 |
+| **2026-08-13 07:47** | **0 - PASS 76/76** |
+
+**The prediction held.** `var/last_morning_run.log` at 2026-08-13 07:47:11 reads
+`RESULT: PASS (76/76 sleeves OK)` with **zero `[FAIL]` lines**, after FAIL 56/76
+at both 17:18 and 20:30 the evening before, with no repair performed by anyone
+in between.
+
+The sharper finding is what the set membership shows. Comparing the failing
+sleeves at 08-11 07:47 (19) against 08-12 17:18 (20): **common = 6**. So
+
+- **13 sleeves failed on 08-11 and passed on 08-12 with nothing repaired** -
+  all of them `_wk`: `residual_w{3565,4060,4555,5050,5545,6040,6535,7030,7525,
+  8020,8515,9010,9505}_wk_paper`.
+- 14 sleeves were newly failing on 08-12.
+
+A checker whose failing set turns over by two thirds in 24 h, with no
+intervention, is not reporting the state of the ledger. It is reporting the
+state of **one row** - `navs[-1]` at `verify_run.py:213` - and the continuity
+walk at `:195-202` cannot catch the difference because it asserts date
+*presence*, not value correctness. One good newer row makes every bad older row
+permanently invisible.
+
+This upgrades the crit from "observed once" (DA) to **predicted in advance and
+reproduced**, which is the standard CQ.4 sets for trusting a checker at all.
+The bad 08-10 rows are still in the DB. Fixing it is Task 1 of the next work
+block and is unstarted.
+
+## DB.7 Collateral still open
+
+1. **`scripts/momentum/morning_refresh.bat:26` still carries DA finding 2
+   verbatim** - `if errorlevel 1 echo WARNING: refresh failed; catch-up may use
+   stale prices.` Bare echo, return code discarded. It is a live scheduled task
+   (`TradingMorningMTM`, 7:45am). Not a copy-paste of the `daily.bat` fix: that
+   script has no `ops_stamp` call to thread a note into, so it needs a decision,
+   not a patch. `rebalance.bat:24` handles the same call correctly (hard abort).
+2. **`HANDOFF.md` was never synced for Appendix DA** - still stamped
+   `Last updated: 2026-08-12 ~07:25 CDT` (the CZ session), with no mention of the
+   cold audit, the `daily.bat` change, or the crit. `HANDOFF.md:480` still
+   describes `verify_run`'s cash recon with no caveat that it covers only the
+   newest NAV row. Project CLAUDE.md definition-of-done item 4 covers exactly
+   this.
+3. `TradingLadderRebalance` returned exit **1** at 08-12 20:30 (its embedded
+   `verify_run` FAILed). Same root cause as DB.6, noted separately because the
+   task result is a second, independent surface for it.
+
+## DB.8 Status
+
+- Frozen tests **4/4 d=+/-0.0000pp**, run this session at ~15:20 CDT, exit 0:
+  v1 +14.5547%/70 and +1.8792%/156, v2 +14.4062%/38 and +10.2194%/87.
+- `positions` unchanged by that run - CZ fix confirmed holding post-fix.
+- No code changed this session. Working tree clean; HEAD `fcd4010` = origin.
+- **Open, unstarted**: the DB.6 crit (Task 1), the 08-12 residual-ladder FAIL
+  diagnosis (Task 2), and 13 of DA's 15 findings plus its 8 edge cases.
+
+# Appendix DC - The verify_run alarm is INVERTED: there are no bad 08-10 rows, check (b) measures nightly price_cache revision rather than the ledger, and the 846 per-date cash divergences are the M7.3 KLAC repair to the cent (30/30). Task 1's canary premise is falsified; Task 2 answered by the same mechanism (2026-08-13, ~21:50 CDT)
+
+Task 1 was to replace `verify_run`'s latest-row-only cash recon with an honest
+per-date ledger replay, and to prove the new checker FAILS on the known-bad
+2026-08-10 rows (record DA crit, restated in the session handoff). The
+investigation falsified the premise before any code was written. **No production
+code changed this session; every query below ran against `mode=ro`.**
+
+## DC.1 There are no bad 08-10 rows
+
+Every per-date invariant that does NOT depend on mutable `price_cache` passes on
+them. Across **all 4,892 `paper_nav` rows**, all 76 sleeves:
+
+| invariant | violations |
+|---|---|
+| I1 `cash + positions_value == total_nav` (internal arithmetic) | **0** |
+| I3 `n_open_positions` vs ledger replay | **1** |
+| I4 `positions_value == 0` iff `n_open == 0` | **0** |
+| cash vs ledger replay, on 2026-08-10 / -11 / -12 | **0 / 0 / 0** |
+
+The single I3 violation is `llm_overlay_sector_top4_paper` @ 2026-07-28
+(stored n=3, replay n=2) - the XLK invalidation-stop ordering artifact already
+identified and explained in CK.3. It reproduces exactly, which is a useful
+positive control on the replayer.
+
+The 08-10 rows themselves are unremarkable, e.g. `residual_w0595_wk_paper`:
+
+    2026-08-07 cash= 1.1752 pv= 104215.76 nav= 104216.94 n=49
+    2026-08-10 cash= 0.0012 pv= 103768.61 nav= 103768.61 n=50
+    2026-08-11 cash= 0.0012 pv= 103400.15 nav= 103400.15 n=50
+
+Internally consistent, ledger-consistent, with the 08-10 rebalance (49 -> 50
+positions, cash spent) correctly reflected.
+
+**Task 1b as specified is unsatisfiable.** A cash checker cannot be made to fail
+on rows whose cash is correct. Building one and declaring the crit closed would
+have been precisely the "small patch that only appears to close it" DA warned
+against.
+
+## DC.2 What check (b) actually measures
+
+`verify_run.py:215-236` is not a cash reconciliation. It takes **current**
+`paper_portfolio.cash` plus **current** open positions, reprices them with
+**today's** `price_cache` as of the latest stored nav date, and compares the
+result to that row's stored `total_nav`:
+
+    recomputed = paper_portfolio.cash + SUM(qty x last_close(ticker, latest))
+    diff       = recomputed - paper_nav.total_nav[latest]
+
+Per CK.4, `daily_price_refresh.py` re-downloads the last 30 days for every cached
+ticker with `INSERT OR REPLACE`, deliberately. So every close inside a rolling
+30-day window is overwritten nightly. Any such revision makes `recomputed`
+disagree with the row that was written before it - **and the disagreement is the
+revision, not an error.**
+
+Proven by reproducing the reported deltas exactly, from a cold read:
+
+| sleeve | run that reported it | stored `total_nav` | repriced now | delta | verify_run said |
+|---|---|---|---|---|---|
+| `residual_w0595_wk_paper` | 08-11 07:47 | 103,768.61 | 103,742.87 | **-25.73** | -25.73 |
+| `residual_w1090_wk_paper` | 08-11 07:47 | 105,492.03 | 105,468.20 | **-23.82** | -23.82 |
+| `mom_v1_paper` | 08-13 17:17 | 90,624.24 | 90,758.26 | **+134.02** | +134.02 |
+| `mom_roa_6535_paper` | 08-13 17:17 | 94,001.03 | 94,176.19 | **+175.15** | +175.15 |
+
+Four for four, to the cent, across two different nights and two unrelated sleeve
+families.
+
+**The mechanical loop, closed:** at 21:49 on 08-13 the newest `paper_nav` row is
+still **2026-08-12** - the 08-13 row is PENDING until the 07:45 heal (the
+settled-day logic at `:199-202`). So the 17:15 run reprices *today's revised*
+cache against *yesterday's stored* row and fails. The 07:45 morning refresh then
+writes rows with current prices, the newest row agrees with current prices, and
+the run passes. That evening the cycle repeats.
+
+## DC.3 The alarm is inverted
+
+DA framed the crit as *"verify_run retracts true alarms"*, and the handoff as
+*"it is actively lying to you right now"*. Half of that is right. The lying is
+real; the direction is backwards.
+
+**The crit is a genuine code defect.** `latest = navs[-1]` at `:218` means one
+row is checked, and the continuity walk at `:199-207` asserts date *presence*,
+not value correctness. A genuinely bad older row WOULD be invisible. That is
+worth fixing on its own merits.
+
+**But the observed FAIL/PASS flapping is not that defect.** It is check (b)
+generating false alarms and then clearing them. Evidence, all read from
+`var/verify_report.log` and tonight's task logs:
+
+| run | result |
+|---|---|
+| 2026-08-11 07:47 / 17:17 / 20:30 | FAIL 57/76 (19 sleeves) |
+| 2026-08-12 07:46 | PASS 76/76 |
+| 2026-08-12 17:18 / 20:30 | FAIL 56/76 (20 sleeves) |
+| 2026-08-13 07:47 | PASS 76/76 |
+| 2026-08-13 17:17 / 20:30 | FAIL 55/76 (21 sleeves) |
+
+Set membership is the tell:
+
+- 08-11 (19) vs 08-12 (20): **common = 6**. Thirteen `_wk` sleeves failed then
+  passed with nothing repaired.
+- 08-12 (20) vs 08-13 (21): **common = 0**. Complete turnover in 24 h, and
+  tonight's failures are `mom_*` sleeves - not the residual ladder at all.
+
+A checker whose failing set has zero overlap night to night, with no
+intervention, is not reporting the state of the ledger. It is sampling which
+tickers yfinance revised that night.
+
+**This also answers Task 2.** The 08-12 residual-ladder FAIL (deltas
++$0.14..+$0.35) needs no separate cause: same mechanism, different night's
+revisions. It is not the CL.6 signature and needs no `remark_nav_day`. Nothing
+is broken, so there is nothing to repair.
+
+## DC.4 The 846 per-date cash divergences are the KLAC repair, exactly
+
+A per-date replay of stored `paper_nav.cash` against
+`historical_state.state_at()` flags **846 of 4,892 rows** across ~30 sleeves,
+all in July. They are not a defect.
+
+Cause: M7.3 (recommended CK.5, applied live CM on 2026-08-02) repaired the closed
+KLAC positions and the sleeves' CURRENT cash, and **deliberately left historical
+`paper_nav` rows alone**. The replay therefore books repaired `exit_value`s while
+the stored July rows carry pre-repair cash.
+
+Verified against the pre-repair backup `var/backups/trades_2026-07-28.db`:
+
+- closed KLAC rows: 34 pre-repair -> 35 live; **30 had `exit_value` changed**,
+  total delta **+$83,711.69**; 54 sleeves ever held KLAC.
+- For each affected sleeve, the observed per-date cash divergence equals that
+  sleeve's repair delta: **30 sleeves compared, 30 MATCH, 0 MISMATCH**, to the
+  cent (e.g. `residual_w3070_paper` repair +2,885.48, observed +2,885.48).
+
+The replayer itself is sound: for `residual_w3070_paper` the replay at the latest
+nav date reproduces live `paper_portfolio.cash` at **19.863751 vs 19.863751,
+delta -0.000000000**.
+
+**Consequence for the design:** a naive per-date cash checker would emit 846
+failures every day, forever, for a state Evan explicitly chose. Shipping it would
+replace a checker that cries wolf nightly with one that cries wolf permanently.
+
+## DC.5 Proposed fix - NOT yet built, Evan's call taken as "build it"
+
+Split check (b) into two honest checks:
+
+- **(b1) LEDGER - hard FAIL.** Per-date stored `paper_nav.cash` vs
+  `historical_state.state_at()`, scoped to the post-repair epoch
+  (`nav_date >= 2026-08-03`) or carrying the KLAC deltas as an explicit, cited
+  allowlist. Immune to price mutability. A bad old row stays failed on every
+  subsequent run instead of being masked by `navs[-1]` - which is the actual
+  content of the DA crit.
+- **(b2) PRICE DRIFT - demote to INFO.** Keep the existing repricing comparison
+  but stop calling it a failure, since it measures by-design mutability (CK.4).
+  Report the magnitude so a genuinely large drift is still visible.
+
+**Canary (replacing the unsatisfiable 1b):** fault injection on a `VACUUM INTO`
+copy - corrupt a known cash row, prove (b1) FAILS on it, prove it PASSES on the
+unmodified copy. That proves the instrument can see a positive, which is the real
+requirement behind 1b and behind CQ.4.
+
+## DC.6 Status
+
+- Frozen tests **4/4 d=+/-0.0000pp** (run this session ~15:20 CDT, exit 0);
+  `positions` unchanged by that run, confirming the CZ fix holds post-fix.
+- No production code changed. No DB writes. Working tree carries only this
+  record entry and its HTML twin.
+- **Open**: build (b1)/(b2) per DC.5; `morning_refresh.bat:26` (DA finding 2,
+  DB.7); HANDOFF.md unsynced since CZ - now two appendices stale; 13 of DA's 15
+  findings and its 8 edge cases.
+- **Superseded**: DA's crit description and the handoff's Task 2 framing. The
+  crit's code defect stands; its stated symptom and its canary do not.
+
+# Appendix DD - The DA crit is CLOSED: verify_run check (b) split into (b1) per-date ledger cash as the hard FAIL and (b2) price drift as INFO, canaried by fault injection on a copy - a corrupted OLDER row now FAILs while the newest row stays clean, which is exactly what the old navs[-1] check could not see (2026-08-13, ~21:59 CDT)
+
+Built the fix designed in DC.5, on Evan's instruction. This is the engineering
+half of DC; read DC first for why the old check was wrong.
+
+## DD.1 What changed - `scripts/momentum/verify_run.py`
+
+One file, +53/-13 lines (`git diff --numstat`). Check (b) became two checks:
+
+- **(b1) LEDGER CASH - hard FAIL.** For EVERY `paper_nav` row since
+  `LEDGER_EPOCH`, stored `cash` must equal the entry/exit ledger replayed to that
+  date. Uses the existing `historical_state.load_history` / `state_at` (record
+  CK.1) - **no second replayer was written**, per the task's own constraint.
+  Because it walks every row rather than `navs[-1]`, a bad row stays failed on
+  every later run instead of being masked by one good newer row.
+- **(b2) PRICE DRIFT - reported, never failed.** The old computation is kept
+  verbatim for its diagnostic value but no longer appends to `fails`. It
+  reprices CURRENT positions with TODAY's cache as of the latest nav row, so it
+  measures how far `price_cache` has been revised since that row was written -
+  by-design behavior (CK.4), not an error.
+
+The per-sleeve info line changed shape accordingly:
+
+    continuity(71/71) ledger(9/9) drift($+54.86) preinc(0) pos(44/50)
+
+`recon(delta $x)` is gone; `ledger(ok/total)` and `drift($x)` replace it. Anything
+parsing the old token will need updating - nothing in-repo does.
+
+## DD.2 The epoch was MEASURED, not assumed
+
+`LEDGER_EPOCH = "2026-07-31"`.
+
+Rows before it legitimately disagree with the replay - M7.3 (CK.5, applied CM
+2026-08-02) repaired closed KLAC positions and current cash while deliberately
+leaving historical `paper_nav` alone (DC.4). Checking them would emit **846**
+known, chosen failures on every run.
+
+The boundary was derived by scanning all 4,892 rows rather than reasoned from the
+repair date: **the last divergent `nav_date` is 2026-07-30, and every date from
+2026-07-31 is clean on all 76 sleeves.** 2026-07-31 is the row CM re-marked. The
+obvious guess - the 08-03 rebalance - would have been wrong by two trading days
+and would have silently skipped two rows from the checked window.
+
+**Known limitation, stated rather than hidden:** the epoch is a hardcoded date.
+It is correct today and carries a comment citing CK.5/CM, but if the pre-epoch
+history is ever repaired the constant becomes stale and will quietly under-check.
+Deriving it at runtime was considered and skipped - it would mean re-deriving the
+KLAC repair delta on every run, and a wrong auto-derivation fails silently in the
+same direction. Flagged to Evan at build time.
+
+## DD.3 Canary - fault injection, replacing the unsatisfiable 1b
+
+Task 1b asked for proof the checker FAILs on the known-bad 08-10 rows. DC.1 showed
+those rows are not bad, so that canary cannot exist. The requirement behind it -
+CQ.4's "prove the instrument can see a positive before trusting its zero" - was
+met by fault injection on a `VACUUM INTO` copy instead.
+
+The injected fault is deliberately the one DA feared: **corrupt an OLDER row and
+leave the newest row clean**, so a `navs[-1]` checker sees nothing.
+
+| step | result |
+|---|---|
+| unmodified copy | **PASS 76/76**, `ledger(9/9)` on every sleeve, exit 0 |
+| `residual_w0595_wk_paper` @ 2026-08-04, cash +$1000.00 | |
+| `mom_v1_paper` @ 2026-08-06, cash -$250.25 | |
+| injected copy | **FAIL 74/76**, exit 1 |
+
+Exactly the two corrupted sleeves failed, each naming its date and delta:
+
+    [FAIL] mom_v1_paper             continuity(71/71,+2hol) ledger(8/9) drift($+134.02) preinc(0) pos(100/100)
+             - ledger cash: 1 row(s) since 2026-07-31 disagree with the entry/exit replay (e.g. 2026-08-06(+250.2500))
+    [FAIL] residual_w0595_wk_paper  continuity(71/71) ledger(8/9) drift($+0.00) preinc(0) pos(50/50)
+             - ledger cash: 1 row(s) since 2026-07-31 disagree with the entry/exit replay (e.g. 2026-08-04(-1000.0000))
+
+**The load-bearing line is `residual_w0595_wk_paper`'s `drift($+0.00)`.** Its
+newest row is untouched and its drift is zero - the old check read that row and
+nothing else, so it would have reported PASS on a sleeve carrying a $1,000 ledger
+error. The new check fails it. That is the DA crit, demonstrated closed rather
+than argued closed.
+
+Reproduction (the copy was deleted after the run; ~90 s to rebuild):
+
+    VACUUM INTO 'var/canary/trades.db' from a mode=ro connection
+    UPDATE paper_nav SET cash=cash+1000 WHERE strategy_name='residual_w0595_wk_paper' AND nav_date='2026-08-04'
+    .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily --db var\canary\trades.db
+
+The copy must live in its OWN directory: `verify_run` writes its report to
+`db_path.parent / "verify_report.log"`, so a copy placed directly in `var/` would
+append to the live ops log. Confirmed isolated - `var/verify_report.log` stayed
+at 829,258 bytes / 20:30 across all canary runs.
+
+## DD.4 Effect on the live nightly result
+
+The same live snapshot that produced **FAIL 55/76** at 17:17 and 20:30 today
+produces **PASS 76/76** under the new checks, with the drift still visible and
+some of it large (`residual_w9505_wk_paper` `drift($+316.83)`). Nothing was
+repaired between those two results - the difference is entirely that a by-design
+price revision is no longer being called a failure.
+
+This is the intended outcome, and it is also the thing to watch: the nightly
+signal goes quiet. If it stays quiet forever that is correct, but DD.3's canary
+is the only evidence the gate can still fire, so it should be re-run after any
+change to `historical_state.py` or the `paper_nav` writers.
+
+## DD.5 Verification (real output)
+
+Frozen tests **4/4 d=+/-0.0000pp**, exit 0, run 2026-08-13 ~21:57 CDT:
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+    All regression tests passed.
+
+- `CASH_RECON_TOL` removed - my change orphaned it (its only consumer was the
+  deleted FAIL branch); 0 references remain repo-wide, module compiles and
+  imports clean. Pre-existing dead code was left alone.
+- End-to-end re-run on the final code after that removal: FAIL 74/76, exit 1,
+  same two rows named.
+- No live DB writes. The 4.8 GB `var/canary/` copy created for the canary was
+  removed; 1.2 TB free.
+
+## DD.6 Status
+
+- **DA crit: CLOSED**, by demonstration (DD.3), not by widening a window.
+- **Task 2: answered** in DC.3 - no repair needed, nothing was broken.
+- Open: `morning_refresh.bat:26` (DA finding 2, DB.7); HANDOFF.md; 13 of DA's 15
+  findings and its 8 edge cases; the `LEDGER_EPOCH` staleness risk in DD.2.
+- Not pushed. Evan has not authorized a push of this work - but note DB.1: the
+  weekday `daily-trade-check` tasks push the whole branch, so a commit left on
+  master publishes itself.
+
+# Appendix DE - Scheduled daily-audit: DA's morning_refresh.bat/cache_gap gaps closed, HANDOFF's scheduled-task table re-synced, DD's own work committed (2026-08-16, ~13:21 CDT)
+
+## DE.1 What ran
+
+The `daily-audit` scheduled task (undocumented until this entry - see DE.3)
+ran a cross-project cold audit, then Evan replied "do all" to the findings.
+This entry covers the Trading fixes only; Swing Trading, World Models
+Research, Autonomous Car Project, ServeLocal, and the two portfolio landing
+repos each got their own fixes this same pass, recorded in their own
+projects.
+
+## DE.2 Fixes applied
+
+**T-1 - DD's own work committed.** Appendices DB/DC/DD plus the `verify_run.py`
+rebuild and the pre-commit-hook delegation fix sat uncommitted for 3 days
+(last non-daily-report commit was `e5366fd`, DA). Frozen tests re-verified
+GREEN before committing (DE.4). Committed, not pushed - same standing
+DB.1/DD.6 caveat.
+
+**T-2 - `morning_refresh.bat` gets the DA-finding-2 fix daily.bat already had.**
+Line 26 was a bare `echo` on refresh failure - nothing captured or propagated
+the return code, and the file never called `ops_stamp.py` at all, so a failed
+7:45am refresh left zero artifact anywhere. Now mirrors `daily.bat`'s
+`REFRESH_RC`/`REFRESH_NOTE` pattern and calls `ops_stamp` on both the
+verify-PASS and verify-FAIL paths, `goto`-based per the file's own
+delayed-expansion note. Verified in isolation (not live - `mtm_catchup`
+writes real MTM marks, and this control-flow change didn't need a live run to
+prove correct): a stand-in copy with fake return codes confirmed all three
+cases - refresh-fail/verify-pass, refresh-ok/verify-fail, both-ok - propagate
+the right task exit code and note text.
+
+**T-4 - `check_cache_gaps` is now actually scheduled.** Documented "re-run
+monthly (M2.4)"; nothing scheduled it and `var/cache_gap_report.log` sat at
+its one-off 2026-07-09 run for 38 days - UNENFORCEABLE. Wired into
+`daily.bat`, gated on day-of-month via a Python one-liner (not cmd.exe's
+locale-dependent `%DATE%` - see `ops_stamp.py`'s own docstring for why this
+project avoids that parsing) rather than a separate scheduled task, so it
+can't drift the way `monthy-llm-rebalance`'s cron already has three times.
+Report-only, same non-blocking contract as the anomaly scan beside it.
+Verified: the guard correctly returns 1 (skip) on today, 2026-08-16 (day 16);
+a stand-in with a faked day=1 confirmed the run branch fires.
+
+**T-5 - HANDOFF's scheduled-task table re-synced against the live list,
+re-confirmed twice this session.** `daily-trade-check` is `0 7 * * 1-5`, not
+`0 8`; the stray test task is `hellllo` (three L's) at `0 12 * * *`, not
+`hellohello` at `0 8`; a SECOND, previously undocumented stray task
+`hello-just-say-hi-back` fires `0 17 * * *` - 10 minutes before
+`TradingDailyMTM`; `daily-audit` itself (the task that found this) was live
+but absent from the table; `cohort-0706-deploy` is correctly documented as
+disabled, not absent as an earlier read of this entry's own draft claimed.
+
+**Not fixed, on inspection:**
+- **T-3 (proposed: retain check_anomalies evidence) - SKIPPED, the premise
+  was wrong.** The audit read `var/anomaly_report.log`'s CFNB entries as
+  losing their evidence once `price_cache` gets overwritten by the next
+  `daily_price_refresh`. Re-reading the log format: each header line already
+  states `close=<date>`, and each `MOVE` line already carries ticker, percent
+  move, and the before/after price - `MOVE  CFNB  +4112.1%  $33.9500->$1430.0000`.
+  That is the full reproducible state (ticker, date, price) in text form
+  already. The gap is that it isn't machine-queryable, a usability
+  improvement, not the evidence-loss bug originally described. No fix
+  applied; flagging the corrected understanding instead of a redundant patch.
+- **T-6 (137 residue `positions` rows, `portfolio_state.cash=$39.262514`) -
+  BLOCKED-ON-EVAN, unchanged.** Per CZ.5/DD, this needs a live `DELETE`
+  against `trades.db` - Claude's live-DB writes are classifier-refused on
+  this project by standing design, and CLAUDE.md reserves NAV/DB history
+  edits for Evan regardless. Still a one-line command on his side.
+
+## DE.3 Live scheduled tasks, re-confirmed via the tool (not this table)
+
+Per the standing rule (`monthy-llm-rebalance` has drifted 3x), read live:
+`daily-audit` - `0 7 * * *`, enabled, last ran 2026-08-16. Not previously
+documented anywhere in this repo; it is the task that produced this entry.
+
+## DE.4 Verification
+
+- Frozen tests, re-run before committing DD's pending `verify_run.py` change:
+  `.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies` ->
+  all 4 configs d=±0.0000pp, "All regression tests passed."
+- `morning_refresh.bat` and the `daily.bat` T-4 addition: control-flow
+  verified via stand-in `.bat` files with faked return codes (DE.2), not a
+  live run - no live-DB write was needed to prove the branching correct, and
+  running the real files would have triggered a live `mtm_catchup` mark
+  outside this task's scope.
+- No live DB writes this entry.
+
+## DE.5 Status
+
+- T-1, T-2, T-4, T-5: closed.
+- T-3: withdrawn as a finding (premise was wrong).
+- T-6: BLOCKED-ON-EVAN, unchanged, one line for him to run.
+- Not pushed - Evan has not authorized a push; DB.1's push-on-commit caveat
+  still applies to the two weekday Claude tasks.

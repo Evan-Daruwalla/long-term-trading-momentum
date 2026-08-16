@@ -23,7 +23,18 @@ cd /d D:\ClaudeCode\Trading
 
 echo === Morning price refresh (heal prior-day coverage lag) ===
 .venv\Scripts\python.exe -m scripts.momentum.daily_price_refresh
-if errorlevel 1 echo WARNING: refresh failed; catch-up may use stale prices.
+set REFRESH_RC=%errorlevel%
+set REFRESH_NOTE=
+REM Audit 2026-08-16, finding T-2: mirrors daily.bat's 2026-08-12 fix (finding 2)
+REM -- a bare echo on failure is an artifact nothing downstream reads, and this
+REM file never called ops_stamp at all, so a failed morning refresh left NO
+REM record anywhere for a stale-price day. goto, not a parenthesized block: this
+REM file expands %VARS% at parse time (see daily.bat's header note), so a block
+REM would read the pre-block value.
+if "%REFRESH_RC%"=="0" goto refresh_ok
+echo WARNING: refresh failed; catch-up may use stale prices.
+set REFRESH_NOTE=--note "morning refresh failed rc=%REFRESH_RC% - catch-up may use stale prices"
+:refresh_ok
 
 echo.
 echo === Catch-up MTM: mark every now-settled missing trading day, all sleeves ===
@@ -31,7 +42,17 @@ echo === Catch-up MTM: mark every now-settled missing trading day, all sleeves =
 
 echo.
 echo === Post-run verification (daily) ===
-REM verify_run is the LAST command so its exit code is this task's result
-REM (PASS -> 0, FAIL -> nonzero shows in the task history). mtm_catchup's exit 2
-REM (today still PENDING in the morning) is normal and does not fail the task.
+REM verify_run is the LAST python command so its exit code is this task's
+REM result (PASS -> 0, FAIL -> nonzero shows in the task history). mtm_catchup's
+REM exit 2 (today still PENDING in the morning) is normal and does not fail the
+REM task. ops_stamp runs after it on BOTH paths so this run leaves a record
+REM either way -- previously only the evening daily.bat run ever stamped.
 .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
+set VERIFY_RC=%errorlevel%
+if "%VERIFY_RC%"=="0" goto verify_ok
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage n/a --verify FAIL %REFRESH_NOTE%
+exit /b %VERIFY_RC%
+
+:verify_ok
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage n/a --verify PASS %REFRESH_NOTE%
+exit /b 0

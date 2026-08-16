@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-12 ~07:25 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-13 ~22:00 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
@@ -34,7 +34,37 @@ itself an audit finding (22).
 > guard (17:00–18:30 / 19:45–21:00 / 07:30–08:15) is KEPT** but is now an
 > I/O-contention guard, not a correctness one; dropping it is a judgement call.
 > See the `positions` note under Database for the 137 residue rows this leaves
-> permanent.
+> permanent. **Correction (record DB.3):** CZ.5 stamped those rows
+> `entry_time` 2026-08-03T04:36:36Z with `entry_date` 2025-01-02. Both details
+> are wrong — no row carries that stamp, and `entry_date` spans six dates
+> (2025-01-02..2025-06-02, the whole `2025_H1` window). The row count (137),
+> the cash ($39.262514) and the "now permanent" conclusion are correct, and the
+> conclusion is now PROVEN: four snapshots show the table wipe-and-rewritten
+> minutes before each pre-fix frozen run, and a post-fix run on 2026-08-13 left
+> it untouched. Evan's optional `DELETE FROM positions` is durable.
+
+> **2026-08-13 (records DA/DB/DC/DD) — the nightly `verify_run` FAIL was a FALSE
+> alarm, and the checker is rebuilt.** The 08-11/08-12 failures were NOT
+> corrupted data. Old check (b) repriced CURRENT positions with TODAY's cache
+> against a stored `total_nav`, so it measured `daily_price_refresh`'s
+> by-design nightly rewrite of a rolling 30-day window (CK.4), not the ledger.
+> Proven to the cent on four sleeves across two nights. **There are no bad
+> 08-10 rows**: all 4,892 `paper_nav` rows satisfy `cash+positions_value=total_nav`,
+> and cash matches the ledger replay everywhere except 846 July rows that are
+> exactly the M7.3 KLAC repair (30/30 sleeves to the cent — CK.5/CM deliberately
+> left historical rows unrepaired).
+>
+> Check (b) is now split: **(b1) ledger cash** — every `paper_nav` row since
+> `LEDGER_EPOCH=2026-07-31` must match `historical_state.state_at()`, **hard
+> FAIL**; **(b2) price drift** — the old repricing comparison, **reported, never
+> failed**. The DA crit (only `navs[-1]` was checked, so a good newer row hid a
+> bad older one) is **CLOSED by demonstration**: fault injection on a copy, a
+> corrupted OLDER row FAILs while its newest row reads `drift($+0.00)` — exactly
+> what the old check could not see. **Expect PASS 76/76 nightly now**; the info
+> line changed from `recon(delta $x)` to `ledger(ok/total) drift($x)`.
+> **Still open from the DA audit:** `morning_refresh.bat:26` discards a failed
+> refresh's return code (bare `echo`, live 7:45am task), plus 13 of DA's 15
+> findings and its 8 edge cases.
 
 > ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
 > statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
@@ -477,7 +507,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
-| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), cash recon, position-count (monthly), no-pre-inception, **plus run-level (e) rebalance cadence** — `rebalance_log.md`'s date must be in the settled month or later, else FAIL (record CO; closes the CN blind spot — an un-rebalanced sleeve passes (a)-(d) perfectly, it just holds a stale book) → `var/verify_report.log`. Wired into `daily.bat` (M3.2), `rebalance.bat` (record BS), `ladder_rebalance.bat` (record CG) |
+| `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), **(b1) per-date ledger cash — every row since `LEDGER_EPOCH=2026-07-31` must match `historical_state.state_at()`, hard FAIL (record DD; replaced the `navs[-1]`-only recon that hid bad older rows)**, **(b2) price drift — reported, NEVER failed (measures `price_cache` revision, which is by design per CK.4)**, position-count (monthly), no-pre-inception, **plus run-level (e) rebalance cadence** — `rebalance_log.md`'s date must be in the settled month or later, else FAIL (record CO; closes the CN blind spot — an un-rebalanced sleeve passes (a)-(d) perfectly, it just holds a stale book) → `var/verify_report.log`. Wired into `daily.bat` (M3.2), `rebalance.bat` (record BS), `ladder_rebalance.bat` (record CG) |
 | `scripts/momentum/mtm_catchup.py [--dry-run]` | Self-healing MTM: marks every settled missing trading day (incl today) for all sleeves; skips pending days + never overwrites/back-marks across a rebalance. Runs in `daily.bat` after refresh (M3.5) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
 | `scripts/momentum/experiment_report.py [--md]` | LLM-experiment kill-switch tracker + control-vs-treatment NAV divergence (read-only) → console / `docs/experiment_report_<date>.md` (M4.1/M4.2) |
@@ -535,10 +565,12 @@ them **committing and pushing to this repo**. Read the live list with
 | Task | Cron | State | What it does |
 |---|---|---|---|
 | `monthy-llm-rebalance` | `0 18 * * *` (~6:03pm daily) | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
-| `daily-trade-check` | `0 8 * * 1-5` (~8:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then `git add` (those 2 files only) + `commit` + **`push`** |
+| `daily-trade-check` | `0 7 * * 1-5` (~7:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then `git add` (those 2 files only) + `commit` + **`push`** |
 | `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + commit + **push**. Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance |
-| `hellohello` | `0 8 * * *` (~8:08am daily) | **enabled** | ⚠️ **Stray test task.** Its entire prompt is `hello (Just say "hi" back)`. Harmless, but it fires every morning forever. **Evan's to delete — flagged, not removed.** |
-| `cohort-0706-deploy` | manual | disabled | One-time 07-06 cohort deploy, fired 2026-07-07 |
+| `hellllo` | `0 12 * * *` (~12:03pm daily) | **enabled** | ⚠️ **Stray test task.** Its entire prompt is `hello (Just say "hi" back)`. Harmless, but it fires every morning forever. **Evan's to delete — flagged, not removed.** |
+| `hello-just-say-hi-back` | `0 17 * * *` (~5:04-5:05pm daily) | **enabled** | ⚠️ **A SECOND stray test task, found 2026-08-16 (audit finding T-5) — was undocumented here entirely.** Same "hello, just say hi back" prompt as `hellllo`. Fires 10 min before `TradingDailyMTM` (5:15pm) — harmless overlap so far, but worth knowing about. **Evan's to delete.** |
+| `daily-audit` | `0 7 * * *` (~7:05am daily) | **enabled** | Runs `/audit` + `/landing-check` on active projects (this project's audits land here, in HANDOFF, and in the record). Found live 2026-08-16 (audit finding T-5) — was undocumented here entirely. |
+| `cohort-0706-deploy` | manual | **disabled** | One-time 07-06 cohort deploy, fired 2026-07-07 |
 | `check-0803-rebalance` | one-time | disabled | Post-mortem of the 08-03 rebalance, fired 2026-08-04 |
 
 > ✅ **Cron re-confirmed 2026-08-05 20:13 CDT** — the record CN note asked a future

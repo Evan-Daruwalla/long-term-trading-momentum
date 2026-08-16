@@ -7,9 +7,18 @@ sleeve:
       no gaps. (Dupes are impossible: paper_nav PK is (strategy, nav_date).)
       Rows on non-trading days (intentional holiday flat rows) are reported, not
       failed.
-  (b) cash reconciliation — recompute cash + Sum(qty x close@nav_date) the same
-      way paper_mtm does (carry-forward last close; entry_price if none) and
-      compare to the stored total_nav within a few cents.
+  (b1) ledger cash — for EVERY paper_nav row since LEDGER_EPOCH, the stored cash
+      must equal the entry/exit ledger replayed to that date
+      (historical_state.state_at). FAIL. This is the real invariant: it depends
+      only on the ledger, so a bad row stays failed on every later run.
+  (b2) price drift — reprices current positions with today's cache as of the
+      latest nav row and compares to its stored total_nav. REPORTED, NEVER
+      FAILED: historical NAV is not reproducible in principle because
+      daily_price_refresh rewrites a rolling 30-day window with INSERT OR
+      REPLACE by design (CK.4), so this measures cache revision, not error.
+      It was the FAIL gate until 2026-08-13; as a gate it fired nightly on a
+      failing set that turned over completely in 24h with nothing repaired
+      (record DC).
   (c) position count vs target. Hardcoded targets from HANDOFF's 2026-07-09
       cohort spec; overlay/cascade sleeves are variable (veto->cash) so they are
       reported, not asserted. FAIL if count EXCEEDS target (MONTHLY only — an
@@ -28,7 +37,7 @@ Plus one run-level (not per-sleeve) check:
       2026-08-01 was a Saturday). Reads the repo's rebalance_log.md, so it
       describes live ops state even under --db.
 
---mode daily runs (a),(b),(c: underfill only),(d),(e); --mode monthly adds the
+--mode daily runs (a),(b1),(b2),(c: underfill only),(d),(e); --mode monthly adds the
 EXCEEDS half of (c) and a reminder line to eyeball the Alpaca submit/reject
 counts in the run log. Read-only (file:...?mode=ro);
 appends a dated PASS/FAIL block to var/verify_report.log; nonzero exit on any FAIL.
@@ -50,13 +59,21 @@ from pathlib import Path
 
 from trading_bot.config import DB_PATH, PROJECT_ROOT
 from scripts.momentum.check_coverage import coverage_status
+from scripts.momentum import historical_state as hs
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("verify_run")
 
 MIN_TRADING_DAY_COUNT = 1000
-CASH_RECON_TOL = 0.05  # dollars
+# (b1) ledger-replay epoch. Rows BEFORE this date legitimately disagree with the
+# entry/exit replay: M7.3 (recommended CK.5, applied live CM 2026-08-02) repaired
+# the 31 closed KLAC positions and the sleeves' CURRENT cash but deliberately left
+# historical paper_nav rows alone, so the replay books repaired exit_values against
+# pre-repair stored cash. Measured, not assumed: the last divergent nav_date is
+# 2026-07-30 and every date from 2026-07-31 (the row CM re-marked) is clean, on all
+# 76 sleeves. Checking them would emit 846 known, chosen failures every run.
+LEDGER_EPOCH = "2026-07-31"
 # Catastrophic-underfill floor: FAIL below this share of the position target.
 # Deliberately far under the normal 43-50 of 50 range so a thin rebalance never
 # trips it — this catches wipeouts (e.g. a mass liquidation), not selectivity.
@@ -212,7 +229,34 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
         fails.append(f"pre-inception: {len(preinc)} nav row(s) before {inc} "
                      f"(e.g. {','.join(preinc[:5])})")
 
-    # (b) cash reconciliation against the latest nav row
+    # (b1) LEDGER — per-date cash vs the entry/exit replay. Hard FAIL.
+    # Replaces the old latest-row-only recon, which read navs[-1] alone: one good
+    # newer row made every bad older row permanently invisible, so the checker
+    # retracted its own findings overnight (record DA crit; reproduced DB.6).
+    # Walking every row in the epoch means a bad row stays failed on every later run.
+    # CASH, not NAV, deliberately: historical NAV is not reproducible even in
+    # principle — daily_price_refresh rewrites a rolling 30-day window with
+    # INSERT OR REPLACE by design (CK.4). Cash depends only on the ledger.
+    ledger_bad: list[str] = []
+    history = hs.load_history(conn, strategy)
+    ledger_rows = conn.execute(
+        "SELECT nav_date, cash FROM paper_nav WHERE strategy_name=? "
+        "AND nav_date >= ? ORDER BY nav_date", (strategy, LEDGER_EPOCH)).fetchall()
+    for r in ledger_rows:
+        delta = hs.state_at(history, r["nav_date"])["cash"] - r["cash"]
+        if abs(delta) > hs.CASH_TOL:
+            ledger_bad.append(f"{r['nav_date']}({delta:+.4f})")
+    if ledger_bad:
+        fails.append(f"ledger cash: {len(ledger_bad)} row(s) since {LEDGER_EPOCH} "
+                     f"disagree with the entry/exit replay "
+                     f"(e.g. {', '.join(ledger_bad[:5])})")
+
+    # (b2) PRICE DRIFT — reported, never failed. This reprices CURRENT positions
+    # with TODAY's cache as of the latest stored nav date and compares to that
+    # row's total_nav, so it measures how far price_cache has been revised since
+    # the row was written. That revision is by design (CK.4), which is why it is
+    # no longer a FAIL: as a gate it produced a nightly false alarm whose failing
+    # set turned over completely in 24h with nothing repaired (record DC).
     recon = "n/a"
     if navs:
         latest = navs[-1]
@@ -228,12 +272,7 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
         for p in pos:
             px = _last_close(conn, p["ticker"], latest)
             pv += (px if px is not None else p["entry_price"]) * p["qty"]
-        recomputed = cash + pv
-        diff = recomputed - stored
-        recon = f"{diff:+.2f}"
-        if abs(diff) > CASH_RECON_TOL:
-            fails.append(f"cash recon: recomputed {recomputed:.2f} vs stored total_nav "
-                         f"{stored:.2f} (delta {diff:+.2f} > ${CASH_RECON_TOL})")
+        recon = f"{cash + pv - stored:+.2f}"
 
     # (c) position count vs target
     n_open = conn.execute(
@@ -255,7 +294,8 @@ def verify_sleeve(conn: sqlite3.Connection, strategy: str, calendar: list[str],
 
     info = (f"continuity({len(window)-len(missing)}/{len(window)}"
             f"{'' if not holiday_rows else f',+{holiday_rows}hol'}) "
-            f"recon(delta ${recon}) preinc({len(preinc)}) pos({tgt_str})")
+            f"ledger({len(ledger_rows)-len(ledger_bad)}/{len(ledger_rows)}) "
+            f"drift(${recon}) preinc({len(preinc)}) pos({tgt_str})")
     return fails, info
 
 

@@ -3,10 +3,10 @@
 # Added 2026-07-12. Activate with:  git config core.hooksPath scripts/git-hooks
 #
 # Does two independent jobs, in order:
-#   1. Secret gate — block a commit whose staged diff contains a secret
-#      (same behavior as the old .git/hooks/pre-commit; preserved here because
-#      git only runs ONE pre-commit, and pointing core.hooksPath at this dir
-#      would otherwise silently drop that gate).
+#   1. Secret gate — DELEGATED to the canonical commit-gate hook (git runs only
+#      ONE pre-commit, so pointing core.hooksPath at this dir would otherwise
+#      drop that gate). Delegated rather than inlined: a forked copy is how
+#      gate fixes kept landing on code that never executes.
 #   2. Record HTML-twin sync — whenever the whole-project record .md is staged,
 #      regenerate its HTML twin and stage the result, so the two can never drift.
 #
@@ -20,22 +20,15 @@
 REPO=$(git rev-parse --show-toplevel)
 
 # ── 1. Secret gate ───────────────────────────────────────────────────────────
-SCANNER="${HOME}/.claude/skills/history-leak-scan/pm-secretscan.js"
-if [ -f "$SCANNER" ]; then
-  node "$SCANNER" --staged "$REPO"
-  status=$?
-  if [ "$status" -eq 1 ]; then
-    echo "" >&2
-    echo "commit-gate: a secret was detected in the STAGED diff — commit BLOCKED." >&2
-    echo "Remove it from the diff; if it is a live credential, rotate it" >&2
-    echo "and update .claude/secrets-inventory.md before retrying." >&2
-    exit 1
-  elif [ "$status" -ne 0 ]; then
-    echo "commit-gate WARNING: scanner error (exit $status) — secret gate SKIPPED (fail-open)." >&2
-    echo "The commit proceeds UNSCANNED. Check node + $SCANNER" >&2
-  fi
+# ONE executing copy, at a fixed path, shared by every repo — do NOT inline a
+# second copy here. That file resolves the scanner and owns the block/fail-open
+# policy, so a gate fix lands once instead of in four forks.
+GATE="${HOME}/.claude/skills/commit-gate/hooks/pre-commit"
+if [ -f "$GATE" ]; then
+  sh "$GATE" || exit 1
 else
-  echo "commit-gate WARNING: scanner not found at $SCANNER — secret gate SKIPPED." >&2
+  echo "commit-gate WARNING: gate not found at $GATE — secret gate SKIPPED (fail-open)." >&2
+  echo "The commit proceeds UNSCANNED." >&2
 fi
 
 # ── 2. Record HTML-twin sync ─────────────────────────────────────────────────

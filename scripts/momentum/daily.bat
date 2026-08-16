@@ -76,6 +76,20 @@ echo === Anomaly scan: KLAC-class single-day moves + missing held marks (non-blo
 .venv\Scripts\python.exe -m scripts.momentum.check_anomalies
 REM Report-only by design: a giant move can be legitimate news, so never halt.
 
+REM Audit 2026-08-16, finding T-4: check_cache_gaps was documented "re-run
+REM monthly (M2.4)" but nothing scheduled it -- var/cache_gap_report.log sat at
+REM its 2026-07-09 one-off run for 38 days, an UNENFORCEABLE contract. Gated on
+REM day-of-month via Python (not cmd.exe's locale-dependent %DATE% parsing --
+REM see ops_stamp.py's docstring for why this project avoids that) rather than
+REM a separate scheduled task, so it can't drift the way monthy-llm-rebalance's
+REM cron did. Report-only, same non-blocking contract as the anomaly scan above.
+.venv\Scripts\python.exe -c "import sys,datetime; sys.exit(0 if datetime.date.today().day==1 else 1)"
+if not errorlevel 1 (
+  echo.
+  echo === Monthly cache-gap audit (non-blocking; day 1 of month) ===
+  .venv\Scripts\python.exe -m scripts.momentum.check_cache_gaps
+)
+
 echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===
 REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/tests/research).
