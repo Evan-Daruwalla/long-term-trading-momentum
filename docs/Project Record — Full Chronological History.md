@@ -9603,3 +9603,15 @@ documented anywhere in this repo; it is the task that produced this entry.
 - T-6: BLOCKED-ON-EVAN, unchanged, one line for him to run.
 - Not pushed - Evan has not authorized a push; DB.1's push-on-commit caveat
   still applies to the two weekday Claude tasks.
+
+# Appendix DF - Correction to DE.1: the wrong commit was cited as "last non-daily-report" (2026-08-16, ~13:38 CDT)
+
+A post-fix `/landing-check` on DE's own commit caught a small citation error:
+DE.1 named `e5366fd` as "the last non-daily-report commit" before this
+entry's work landed. `e5366fd` is itself a Daily-report commit
+(2026-08-12 19:16:32, "post-market close analysis entry"). The actual last
+non-daily-report commit was `e96c5fe`, "Record Appendix DA" (2026-08-12
+17:27:29) - two hours earlier, and the correct one. Confirmed by re-reading
+`git log` for both hashes directly. Doesn't change anything DE fixed or
+verified - only the one sentence identifying which commit preceded the
+uncommitted work.

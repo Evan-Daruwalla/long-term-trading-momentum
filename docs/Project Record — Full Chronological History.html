@@ -10854,6 +10854,16 @@ documented anywhere in this repo; it is the task that produced this entry.</p>
 <li>Not pushed - Evan has not authorized a push; DB.1's push-on-commit caveat<br />
   still applies to the two weekday Claude tasks.</li>
 </ul>
+<h1 id="appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt">Appendix DF - Correction to DE.1: the wrong commit was cited as "last non-daily-report" (2026-08-16, ~13:38 CDT)</h1>
+<p>A post-fix <code>/landing-check</code> on DE's own commit caught a small citation error:<br />
+DE.1 named <code>e5366fd</code> as "the last non-daily-report commit" before this<br />
+entry's work landed. <code>e5366fd</code> is itself a Daily-report commit<br />
+(2026-08-12 19:16:32, "post-market close analysis entry"). The actual last<br />
+non-daily-report commit was <code>e96c5fe</code>, "Record Appendix DA" (2026-08-12<br />
+17:27:29) - two hours earlier, and the correct one. Confirmed by re-reading<br />
+<code>git log</code> for both hashes directly. Doesn't change anything DE fixed or<br />
+verified - only the one sentence identifying which commit preceded the<br />
+uncommitted work.</p>
 </div>
 </body>
 </html>
