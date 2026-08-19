@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-18 ~23:55 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-19 ~00:20 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
@@ -94,7 +94,7 @@ itself an audit finding (22).
 > hygiene): `scripts/backup_trades_db.py` (rotating `VACUUM INTO` backups, keep 3,
 > disk-guard), weekly `TradingWeeklyBackup` task (Sun 9am → `var/backup.log`),
 > restore drill passed. M2 (data-quality guardrails): read-only `check_coverage` +
-> `check_anomalies` wired into `daily.bat`, standalone `check_cache_gaps`. M3
+> `check_anomalies` wired into `daily.bat`, `check_cache_gaps` (in `daily.bat` day-1-gated since 08-16, gate fixed 08-19 record DG). M3
 > (unattended-automation safety): pre-inception NAV guard in `paper_mtm.py`
 > (+regression test), read-only `verify_run` wired into
 > `daily.bat`/`rebalance.bat`/`ladder_rebalance.bat` (monthly_auto.bat is the

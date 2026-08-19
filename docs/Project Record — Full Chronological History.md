@@ -168,6 +168,7 @@ lives in the dated entry, not the digest.
 - [DE - Scheduled daily-audit (2026-08-16): morning_refresh.bat gets DA's fix, `check_cache_gaps` wired into daily.bat, task table re-synced, DD's work committed](#appendix-de---scheduled-daily-audit-das-morning_refreshbatcache_gap-gaps-closed-handoffs-scheduled-task-table-re-synced-dds-own-work-committed-2026-08-16-1321-cdt) (08-16)
 - [DF - Correction to DE.1: `e96c5fe` (record DA), not `e5366fd`, was the last non-daily-report commit](#appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt) (08-16)
 - [DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed `daily-trade-check-2` drifted back to `0 17` - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15](#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt) (08-19)
+- [DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE `*_ops decide` path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count](#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt) (08-19)
 
 ---
 
@@ -9790,3 +9791,71 @@ No live DB writes. Diff: `daily.bat` +9/-5, `db.py` +27/-0, `llm_overlay.py`
 - Evan's: `slippage_log` still 0 rows; `positions` residue still 137.
 - Committed per Evan's "do all"; not pushed - but the DB.1 caveat stands, the
   weekday trade-check tasks push the whole branch (~07:07 tomorrow).
+
+# Appendix DH - Landing-check on DG (its own commit `ebc059f`): SAFE, three corrections - DG.4 verified the DORMANT decision path, the LIVE one had no guard and would have traced out of the unattended 6:03pm task on 09-01, now refuses cleanly (rc=2); one HANDOFF line DG.3 missed; one wrong diff count (2026-08-19, ~00:20 CDT)
+
+Per Evan's standing instruction the DG commit got its own cold landing-check (Opus
+worker, artifacts only). Verdict SAFE; every claim in DG re-derived TRUE except
+the three below, each re-derived by hand before acting.
+
+## DH.1 DG.4 cited the wrong path - the live monthly path had no guard
+
+DG.4 justified "the automated monthly path is unaffected" by
+`overlay_auto_decide.py`'s `if ticker in decided: continue`. That module is only
+reached via `monthly_auto.bat`, the **dormant** Option-B path (unscheduled). The
+**live** path is `monthy-llm-rebalance` -> `overlay_prep.bat` -> the LLM issuing
+`llm_overlay_ops decide` / `sector_overlay_ops decide` CLI calls, whose
+`cmd_decide` called `record_decision` with no already-decided check and no
+exception handling. `overlay_prep` does print "a decision is ALREADY logged ...
+Nothing owed" - a natural-language guard, not code.
+
+So DG's INSERT change moved the live failure mode from silent-overwrite to an
+uncaught `sqlite3.IntegrityError` traceback inside an unattended task, first
+exposure 2026-09-01. Right direction, wrong verification. **Fixed:** both
+`cmd_decide` now catch `IntegrityError`, log one `REFUSED: ... already logged
+and the log is append-only (record DG). Nothing was written.` line, and return 2.
+No `.bat` consumes `decide`'s exit code (checked `rebalance.bat`,
+`overlay_prep.bat`), so 2 is free. Proven in-process on a throwaway DB (live DB
+untouched): rc sequence first/relog/first/relog/new-ticker = `0,2,0,2,0`, 2
+REFUSED lines, 0 tracebacks, original rows intact.
+
+## DH.2 `HANDOFF.md:97` still said "standalone `check_cache_gaps`"
+
+DG.3 corrected three locations and missed the fourth - the M2 summary paragraph
+in HANDOFF's own current-state block. Corrected. Repo-wide grep for the stale
+phrasing over live docs now returns 0 (canary: `check_cache_gaps` itself 2 hits
+in HANDOFF).
+
+## DH.3 DG.5 diff count for `HANDOFF.md` was +7/-7; actual +15/-7
+
+I computed the numstat, then added the finding-4 paragraph to HANDOFF, then did
+not recompute. The other six per-file counts are correct.
+
+## DH.4 What the check could not yet see - and how to close it tomorrow
+
+Both DG predictions that depend on the next scheduled run were unobservable at
+00:11 (no run of any kind since the 00:01 commit). Thirty-second re-check after
+2026-08-19 17:15:
+
+    grep -c "=== Monthly cache-gap audit" var/last_daily_run.log      # must stay 0 (day 19)
+    wc -l var/cache_gap_report.log                                     # must stay 18, no 08-19 block
+    sqlite: SELECT COUNT(*) FROM sqlite_master WHERE type='trigger'    # must go 0 -> 6
+
+Also confirmed by the worker, worth keeping: no `UPDATE` or `DELETE` against
+either decision table exists anywhere in the repo, so the four UPDATE/DELETE
+triggers cannot break an existing code path when they land.
+
+## DH.5 Verification
+
+Frozen tests **4/4 d=+/-0.0000pp**, exit 0, run 2026-08-19 ~00:14 CDT after the
+`*_ops.py` edits:
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+    All regression tests passed.
+
+`py_compile` clean on both ops modules. Diff: `llm_overlay_ops.py` +17/-4,
+`sector_overlay_ops.py` +17/-4, `HANDOFF.md` +2/-2, plus this entry and its twin.

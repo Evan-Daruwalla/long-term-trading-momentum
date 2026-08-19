@@ -206,7 +206,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-dd---the-da-crit-is-closed-verify_run-check-b-split-into-b1-per-date-ledger-cash-as-the-hard-fail-and-b2-price-drift-as-info-canaried-by-fault-injection-on-a-copy---a-corrupted-older-row-now-fails-while-the-newest-row-stays-clean-which-is-exactly-what-the-old-navs-1-check-could-not-see-2026-08-13-2159-cdt">DD - <strong>DA crit CLOSED</strong>: check (b) split into (b1) per-date ledger cash (hard FAIL, via the existing replayer) and (b2) price drift (INFO); canaried by fault injection - a corrupted OLDER row FAILs while its newest row stays clean at drift($+0.00), which is exactly what navs[-1] could not see</a> (08-13)<br />
 - <a href="#appendix-de---scheduled-daily-audit-das-morning_refreshbatcache_gap-gaps-closed-handoffs-scheduled-task-table-re-synced-dds-own-work-committed-2026-08-16-1321-cdt">DE - Scheduled daily-audit (2026-08-16): morning_refresh.bat gets DA's fix, <code>check_cache_gaps</code> wired into daily.bat, task table re-synced, DD's work committed</a> (08-16)<br />
 - <a href="#appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt">DF - Correction to DE.1: <code>e96c5fe</code> (record DA), not <code>e5366fd</code>, was the last non-daily-report commit</a> (08-16)<br />
-- <a href="#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt">DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed <code>daily-trade-check-2</code> drifted back to <code>0 17</code> - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15</a> (08-19)</p>
+- <a href="#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt">DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed <code>daily-trade-check-2</code> drifted back to <code>0 17</code> - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15</a> (08-19)<br />
+- <a href="#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt">DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE <code>*_ops decide</code> path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count</a> (08-19)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -11038,6 +11039,59 @@ No live DB writes. Diff: <code>daily.bat</code> +9/-5, <code>db.py</code> +27/-0
 <li>Committed per Evan's "do all"; not pushed - but the DB.1 caveat stands, the<br />
   weekday trade-check tasks push the whole branch (~07:07 tomorrow).</li>
 </ul>
+<h1 id="appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt">Appendix DH - Landing-check on DG (its own commit <code>ebc059f</code>): SAFE, three corrections - DG.4 verified the DORMANT decision path, the LIVE one had no guard and would have traced out of the unattended 6:03pm task on 09-01, now refuses cleanly (rc=2); one HANDOFF line DG.3 missed; one wrong diff count (2026-08-19, ~00:20 CDT)</h1>
+<p>Per Evan's standing instruction the DG commit got its own cold landing-check (Opus<br />
+worker, artifacts only). Verdict SAFE; every claim in DG re-derived TRUE except<br />
+the three below, each re-derived by hand before acting.</p>
+<h2 id="dh1-dg4-cited-the-wrong-path---the-live-monthly-path-had-no-guard">DH.1 DG.4 cited the wrong path - the live monthly path had no guard</h2>
+<p>DG.4 justified "the automated monthly path is unaffected" by<br />
+<code>overlay_auto_decide.py</code>'s <code>if ticker in decided: continue</code>. That module is only<br />
+reached via <code>monthly_auto.bat</code>, the <strong>dormant</strong> Option-B path (unscheduled). The<br />
+<strong>live</strong> path is <code>monthy-llm-rebalance</code> -&gt; <code>overlay_prep.bat</code> -&gt; the LLM issuing<br />
+<code>llm_overlay_ops decide</code> / <code>sector_overlay_ops decide</code> CLI calls, whose<br />
+<code>cmd_decide</code> called <code>record_decision</code> with no already-decided check and no<br />
+exception handling. <code>overlay_prep</code> does print "a decision is ALREADY logged ...<br />
+Nothing owed" - a natural-language guard, not code.</p>
+<p>So DG's INSERT change moved the live failure mode from silent-overwrite to an<br />
+uncaught <code>sqlite3.IntegrityError</code> traceback inside an unattended task, first<br />
+exposure 2026-09-01. Right direction, wrong verification. <strong>Fixed:</strong> both<br />
+<code>cmd_decide</code> now catch <code>IntegrityError</code>, log one <code>REFUSED: ... already logged
+and the log is append-only (record DG). Nothing was written.</code> line, and return 2.<br />
+No <code>.bat</code> consumes <code>decide</code>'s exit code (checked <code>rebalance.bat</code>,<br />
+<code>overlay_prep.bat</code>), so 2 is free. Proven in-process on a throwaway DB (live DB<br />
+untouched): rc sequence first/relog/first/relog/new-ticker = <code>0,2,0,2,0</code>, 2<br />
+REFUSED lines, 0 tracebacks, original rows intact.</p>
+<h2 id="dh2-handoffmd97-still-said-standalone-check_cache_gaps">DH.2 <code>HANDOFF.md:97</code> still said "standalone <code>check_cache_gaps</code>"</h2>
+<p>DG.3 corrected three locations and missed the fourth - the M2 summary paragraph<br />
+in HANDOFF's own current-state block. Corrected. Repo-wide grep for the stale<br />
+phrasing over live docs now returns 0 (canary: <code>check_cache_gaps</code> itself 2 hits<br />
+in HANDOFF).</p>
+<h2 id="dh3-dg5-diff-count-for-handoffmd-was-7-7-actual-15-7">DH.3 DG.5 diff count for <code>HANDOFF.md</code> was +7/-7; actual +15/-7</h2>
+<p>I computed the numstat, then added the finding-4 paragraph to HANDOFF, then did<br />
+not recompute. The other six per-file counts are correct.</p>
+<h2 id="dh4-what-the-check-could-not-yet-see---and-how-to-close-it-tomorrow">DH.4 What the check could not yet see - and how to close it tomorrow</h2>
+<p>Both DG predictions that depend on the next scheduled run were unobservable at<br />
+00:11 (no run of any kind since the 00:01 commit). Thirty-second re-check after<br />
+2026-08-19 17:15:</p>
+<pre><code>grep -c "=== Monthly cache-gap audit" var/last_daily_run.log      # must stay 0 (day 19)
+wc -l var/cache_gap_report.log                                     # must stay 18, no 08-19 block
+sqlite: SELECT COUNT(*) FROM sqlite_master WHERE type='trigger'    # must go 0 -&gt; 6
+</code></pre>
+<p>Also confirmed by the worker, worth keeping: no <code>UPDATE</code> or <code>DELETE</code> against<br />
+either decision table exists anywhere in the repo, so the four UPDATE/DELETE<br />
+triggers cannot break an existing code path when they land.</p>
+<h2 id="dh5-verification">DH.5 Verification</h2>
+<p>Frozen tests <strong>4/4 d=+/-0.0000pp</strong>, exit 0, run 2026-08-19 ~00:14 CDT after the<br />
+<code>*_ops.py</code> edits:</p>
+<pre><code>[OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+[OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+[OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+[OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+All regression tests passed.
+</code></pre>
+<p><code>py_compile</code> clean on both ops modules. Diff: <code>llm_overlay_ops.py</code> +17/-4,<br />
+<code>sector_overlay_ops.py</code> +17/-4, <code>HANDOFF.md</code> +2/-2, plus this entry and its twin.</p>
 </div>
 </body>
 </html>

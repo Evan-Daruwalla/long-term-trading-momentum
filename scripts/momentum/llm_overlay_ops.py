@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sqlite3
 import sys
 from datetime import date
 
@@ -150,10 +151,22 @@ def cmd_candidate(args) -> int:
 
 def cmd_decide(args) -> int:
     decision_date = date.fromisoformat(args.as_of)
-    llm_overlay.record_decision(
-        decision_date=decision_date, ticker=args.ticker.upper(),
-        score=args.score, verdict=args.verdict,
-        invalidation_level=args.invalidation, rationale=args.rationale)
+    try:
+        llm_overlay.record_decision(
+            decision_date=decision_date, ticker=args.ticker.upper(),
+            score=args.score, verdict=args.verdict,
+            invalidation_level=args.invalidation, rationale=args.rationale)
+    except sqlite3.IntegrityError:
+        # Append-only since 2026-08-18 (record DG.4): a decision for this
+        # (date, ticker) is already logged and cannot be overwritten. This
+        # is the live monthly path (LLM-issued CLI, no code guard upstream),
+        # so refuse cleanly rather than trace out of an unattended task.
+        log.error("REFUSED: a decision for %s %s is already logged and the "
+                  "log is append-only (record DG). Nothing was written. "
+                  "If the existing decision is wrong, that is Evan's call - "
+                  "the record, not the DB, is where it gets corrected.",
+                  decision_date, args.ticker.upper())
+        return 2
     log.info("Logged decision for %s: %s %s score=%s invalidation=%s",
              decision_date, args.verdict.upper(), args.ticker.upper(),
              args.score, args.invalidation)
