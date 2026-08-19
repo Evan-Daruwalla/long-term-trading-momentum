@@ -169,6 +169,7 @@ lives in the dated entry, not the digest.
 - [DF - Correction to DE.1: `e96c5fe` (record DA), not `e5366fd`, was the last non-daily-report commit](#appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt) (08-16)
 - [DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed `daily-trade-check-2` drifted back to `0 17` - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15](#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt) (08-19)
 - [DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE `*_ops decide` path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count](#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt) (08-19)
+- [DI - Scheduled daily-audit (2026-08-19): `rebalance.bat`'s 15 `if errorlevel 1` gates were blind to negative crash codes -- a crashed `alpaca_sync --execute` stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed](#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt) (08-19)
 
 ---
 
@@ -9859,3 +9860,190 @@ Frozen tests **4/4 d=+/-0.0000pp**, exit 0, run 2026-08-19 ~00:14 CDT after the
 
 `py_compile` clean on both ops modules. Diff: `llm_overlay_ops.py` +17/-4,
 `sector_overlay_ops.py` +17/-4, `HANDOFF.md` +2/-2, plus this entry and its twin.
+
+# Appendix DI - Scheduled daily-audit: the 15 exit-code gates on the one script that trades were deaf to crash codes, and the "monthly" rebalance was gated only by prose an LLM reads (2026-08-19, ~16:45 CDT)
+
+The scheduled `daily-audit` task fired 07:05 CDT. Its rule is to skip any project
+whose last three record entries already contain an audit, so **Autonomous Car**
+(AK, 08-16), **ServeLocal** (II.27, 08-16) and **World Models Research** (EZ's
+cold G2-G4 sweep, 08-19) were skipped by rule, not by judgement. **Trading**,
+**Skills** and **Swing Trading** were audited, each by a cold auditor plus a
+separate landing-check that reads artifacts only.
+
+Trading's cold audit returned **11 findings (1 high, 4 med, 6 low) and 7 edge
+cases**. The landing-check on DF/DG/DH returned **SAFE** - every checkable claim
+in all three re-derived TRUE from disk, including DH's own self-correction of
+DG's `+7/-7` diff count, and DH.4's three morning re-checks all held. Evan
+approved the safety-first subset only: **findings 1, E4 and E5**. The other 8
+findings and 6 edge cases are OPEN and unfixed; see DI.6.
+
+## DI.1 Finding 1 - `if errorlevel 1` is GREATER-OR-EQUAL, on the one script that trades
+
+All 15 step gates in `rebalance.bat` were `if errorlevel 1`. That is `>= 1`, so
+it is blind to a **negative** exit code - the `-1073741819` (0xC0000005, access
+violation) a killed `python.exe` returns. A crashed `alpaca_sync --execute` or
+`monthly_rebalance` therefore left `RC_FAIL=0`, stamped `stamp_rebalance_log
+--status OK`, and exited 0. Real broker orders half-submitted, recorded as a
+clean monthly rebalance - and `verify_run`'s cadence check then reads that OK
+stamp and PASSes, so nothing downstream catches it either.
+
+This is not a new lesson in this repo. `daily.bat:54-56` **documents this exact
+trap** ("`if errorlevel 1`, which is GREATER-OR-EQUAL and therefore blind to a
+negative crash code") and fixed itself for it after audit 2026-08-12 finding 3;
+`ladder_rebalance.bat` and `morning_refresh.bat` already use the correct form.
+`rebalance.bat` - the only one of the four that submits real orders - was the
+one left on the old idiom. The audit found it by sibling-diffing the idiom
+across all ten `.bat` files rather than reading any one of them.
+
+Fix: each site becomes `set STEP_RC=%errorlevel%` on the following line plus
+`if not "%STEP_RC%"=="0" (`. Block bodies unchanged. 15 sites, +47/-15.
+
+## DI.2 Edge case E4 - the "monthly" rebalance fires DAILY, gated only by prose
+
+`monthy-llm-rebalance` runs on cron `0 18 * * *` - **every day**, not monthly.
+Its only month gate was Step 0 of the task's own prompt ("check
+`rebalance_log.md` ... STOP"), i.e. natural language read by an LLM. The script
+itself had no month check. `rebalance.bat`'s header comment says "Idempotent:
+re-running same day is a no-op (target set unchanged)" - true the same day, and
+false mid-month, because by then the ranks have moved. So a single mis-read of
+that prose runs a full rebalance mid-month and it **trades**.
+
+Fix: new `scripts/momentum/check_month_gate.py`, called before the price
+refresh, refusing when `rebalance_log.md` already stamps the current calendar
+month. `--allow-same-month` is the deliberate override.
+
+One deliberate exception, so this does not re-introduce an older bug: a
+**PARTIAL** stamp does NOT refuse. A PARTIAL is a failed run awaiting its retry,
+and locking that retry out is exactly what audit 2026-08-04 finding 1 fixed when
+it introduced `--status` in the first place. A legacy stamp with no status is
+treated as OK (refuse), matching `check_rebalance_cadence`'s existing
+convention.
+
+## DI.3 E5 - the daily-report auto-push, which had already fired that morning
+
+Both `daily-trade-check` prompts ended their report commit with a bare
+`git push`. The `git add` is carefully scoped to exactly two paths, but
+`git push` publishes the **whole branch**, so any unrelated local work commit
+rides along. This was not hypothetical: at **07:08 CDT that morning** the
+pre-market run pushed `ebc059f` and `c758d25` - the two landing-check work
+commits from DG and DH - to the public remote along with its report. The audit
+caught it as a CONSTRUCTED edge case; by the time the fix was applied it was
+OBSERVED.
+
+Fix: the push instruction is removed from both prompts; commits stay local and
+publishing is Evan's call, which is what global CLAUDE.md required all along
+("Commit only when asked; never push unless told"). **These two files live at
+`~/.claude/scheduled-tasks/daily-trade-check*/SKILL.md`, outside this repo**, so
+the fix is live on disk but is NOT in this or any commit - see DI.6.
+
+## DI.4 Verification (real output)
+
+Finding 1's claim and its fix, proven against real Windows exit codes rather
+than argued:
+
+    case A: exit -1073741819 (crashed python)
+      OLD `if errorlevel 1`  : MISSED <-- the bug
+      NEW explicit capture   : CAUGHT
+    case B: exit 1     OLD: CAUGHT   NEW: CAUGHT    (no regression)
+    case C: exit 0     OLD: passed   NEW: passed    (no false positive)
+    case D: exit 9009  NEW: CAUGHT                  (missing interpreter)
+
+End-to-end control flow over the whole patched 240-line file, every
+`python.exe` call replaced by a stub so nothing traded:
+
+    === gate REFUSES (mid-month firing)          exit=1 expect=1  [OK]
+        | REFUSED: this calendar month is already rebalanced (see rebalance_log.md).
+    === --allow-same-month, all steps clean      exit=0 expect=0  [OK]
+        | [stub] STAMPED OK
+    === alpaca_sync crashes -1073741819          exit=1 expect=1  [OK]
+        | STEP FAIL: alpaca_sync --execute
+        | [stub] STAMPED PARTIAL
+    FLOW TEST PASS 3/3
+
+That third case is the whole finding: **before the fix it stamped OK and exited
+0.** (The first harness attempt reported a false 2/3 because a `.bat` invoking
+another `.bat` without `call` transfers control permanently and never returns -
+the test was terminating at the first stub, and two of its three "passes" were
+coincidence. Recorded because a harness that passes for the wrong reason is the
+same class of defect this audit is about.)
+
+`check_month_gate --canary` covers every branch including month boundary and
+year rollover:
+
+    CANARY PASS 8/8
+
+and against the live log:
+
+    month gate: REFUSE -- last stamp 2026-08-03 (status legacy-OK) is already in 2026-08
+
+Frozen regression tests, required by CLAUDE.md after any Python change:
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+    All regression tests passed.
+
+`py_compile` clean. Commit `9d9fd72` holds exactly two files, +123/-15
+(`rebalance.bat` +47/-15, `check_month_gate.py` +76). **This entry and its
+HTML twin are NOT in that commit** - it landed before the entry was written,
+so they follow separately; DG's and DH's entries shipped inside their own
+commits and this one does not. The pre-commit secret gate ran and returned 0
+findings. **Not pushed** - and with E5 applied, no scheduled task will push it
+either.
+
+## DI.5 A machine-wide check the audit added, and what it found
+
+Independently of the per-project sweeps, every non-Microsoft scheduled task was
+queried read-only. The five Trading/Swing daily jobs are all healthy (exit 0,
+correct next-run times). One is not:
+
+**`\llm rebal`** - enabled, Monthly, next run 2026-09-01 17:59, last run
+2026-08-02 15:39 with `LastTaskResult -2147020576 = 0x800710E0` ("operator or
+administrator refused the request") and `StopIfGoingOnBatteries=True`. Its
+`Task To Run` is not a rebalance at all: it is a `mouse_event` wake-nudge, i.e.
+a wake fired 4 minutes before the 18:03 `monthy-llm-rebalance`. It has sat
+failed for 17 days, and the failure mode - refusal on battery - is the **same
+one HANDOFF already documents at line 550 for `TradingWeeklyBackup`**, whose fix
+(clearing the battery flags) was never applied here. Nothing surfaces it: no
+log, no HANDOFF row, no check.
+
+Also: HANDOFF's Windows task table lists **5** tasks; `schtasks` registers **8**
+non-Microsoft ones. `\llm rebal`, `\Wake PC` and `\Wake PC 2` appear in no
+project doc. DE T-5 and DG.2 both claim the task table was "re-synced against
+the live list" - true, but only of the Claude-scheduler table, not the Windows
+one.
+
+This is finding 9 and is **OPEN**. It is Evan-gated: changing task settings and
+deleting or documenting a task he created is his call, not the audit's.
+
+## DI.6 What this entry does NOT cover - stated rather than implied
+
+- **8 findings and 6 edge cases remain OPEN**, including three the audit ranked
+  above most of what was fixed: `market_data.last_close_on_or_before` ignoring
+  the NULL-quarantine convention its three siblings honour (finding 2, med, 42
+  tickers currently in the enabling state, 0 rows live); `verify_run`'s
+  continuity check deriving its calendar from the same table it is checking, so
+  a wholly-lost trading day PASSes (finding 3 / E2, the realized 07-30+07-31
+  shape); and `check_dependency_cves.py` being invoked by nothing (finding 5).
+- **No HANDOFF sync yet.** This entry is the record; the live snapshot has not
+  been updated for it.
+- **E5's two files are not under version control here.** They live in
+  `~/.claude/scheduled-tasks/`. The fix is live on disk with no commit behind
+  it, and nothing in this repo's history will show it happened.
+- **The Skills and Swing Trading audits are not recorded here** and their fixes
+  are not committed. Swing's record entry was deliberately held: a **concurrent
+  session was found writing that repo** during this one - it had applied the
+  Swing audit's own finding 2, implemented V3 PBO scoping in
+  `run_v1_harness_check.py`, staged an F14 execution (`var/swing.db.pre-F14.bak`
+  exists; `swing.db` itself unchanged), and had already claimed appendix `FC`.
+  Writing a Swing entry from here would have forked the append-only record.
+  Flagged to Evan; he chose to hold both.
+
+## DI.7 Status
+
+`rebalance.bat` and `check_month_gate.py` committed (`9d9fd72`, local, unpushed).
+The month gate first bites on **2026-09-01**, which is also the first firing of
+`\llm rebal` since it started failing and the date DH's own `rc=2` guard first
+matters - so 09-01 is the run to watch. E5 is live for the next scheduled
+report run. Everything in DI.6 is open.

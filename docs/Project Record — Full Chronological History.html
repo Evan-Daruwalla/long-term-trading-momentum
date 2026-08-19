@@ -207,7 +207,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-de---scheduled-daily-audit-das-morning_refreshbatcache_gap-gaps-closed-handoffs-scheduled-task-table-re-synced-dds-own-work-committed-2026-08-16-1321-cdt">DE - Scheduled daily-audit (2026-08-16): morning_refresh.bat gets DA's fix, <code>check_cache_gaps</code> wired into daily.bat, task table re-synced, DD's work committed</a> (08-16)<br />
 - <a href="#appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt">DF - Correction to DE.1: <code>e96c5fe</code> (record DA), not <code>e5366fd</code>, was the last non-daily-report commit</a> (08-16)<br />
 - <a href="#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt">DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed <code>daily-trade-check-2</code> drifted back to <code>0 17</code> - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15</a> (08-19)<br />
-- <a href="#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt">DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE <code>*_ops decide</code> path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count</a> (08-19)</p>
+- <a href="#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt">DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE <code>*_ops decide</code> path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count</a> (08-19)<br />
+- <a href="#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt">DI - Scheduled daily-audit (2026-08-19): <code>rebalance.bat</code>'s 15 <code>if errorlevel 1</code> gates were blind to negative crash codes -- a crashed <code>alpaca_sync --execute</code> stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed</a> (08-19)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -11092,6 +11093,164 @@ All regression tests passed.
 </code></pre>
 <p><code>py_compile</code> clean on both ops modules. Diff: <code>llm_overlay_ops.py</code> +17/-4,<br />
 <code>sector_overlay_ops.py</code> +17/-4, <code>HANDOFF.md</code> +2/-2, plus this entry and its twin.</p>
+<h1 id="appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt">Appendix DI - Scheduled daily-audit: the 15 exit-code gates on the one script that trades were deaf to crash codes, and the "monthly" rebalance was gated only by prose an LLM reads (2026-08-19, ~16:45 CDT)</h1>
+<p>The scheduled <code>daily-audit</code> task fired 07:05 CDT. Its rule is to skip any project<br />
+whose last three record entries already contain an audit, so <strong>Autonomous Car</strong><br />
+(AK, 08-16), <strong>ServeLocal</strong> (II.27, 08-16) and <strong>World Models Research</strong> (EZ's<br />
+cold G2-G4 sweep, 08-19) were skipped by rule, not by judgement. <strong>Trading</strong>,<br />
+<strong>Skills</strong> and <strong>Swing Trading</strong> were audited, each by a cold auditor plus a<br />
+separate landing-check that reads artifacts only.</p>
+<p>Trading's cold audit returned <strong>11 findings (1 high, 4 med, 6 low) and 7 edge<br />
+cases</strong>. The landing-check on DF/DG/DH returned <strong>SAFE</strong> - every checkable claim<br />
+in all three re-derived TRUE from disk, including DH's own self-correction of<br />
+DG's <code>+7/-7</code> diff count, and DH.4's three morning re-checks all held. Evan<br />
+approved the safety-first subset only: <strong>findings 1, E4 and E5</strong>. The other 8<br />
+findings and 6 edge cases are OPEN and unfixed; see DI.6.</p>
+<h2 id="di1-finding-1---if-errorlevel-1-is-greater-or-equal-on-the-one-script-that-trades">DI.1 Finding 1 - <code>if errorlevel 1</code> is GREATER-OR-EQUAL, on the one script that trades</h2>
+<p>All 15 step gates in <code>rebalance.bat</code> were <code>if errorlevel 1</code>. That is <code>&gt;= 1</code>, so<br />
+it is blind to a <strong>negative</strong> exit code - the <code>-1073741819</code> (0xC0000005, access<br />
+violation) a killed <code>python.exe</code> returns. A crashed <code>alpaca_sync --execute</code> or<br />
+<code>monthly_rebalance</code> therefore left <code>RC_FAIL=0</code>, stamped <code>stamp_rebalance_log
+--status OK</code>, and exited 0. Real broker orders half-submitted, recorded as a<br />
+clean monthly rebalance - and <code>verify_run</code>'s cadence check then reads that OK<br />
+stamp and PASSes, so nothing downstream catches it either.</p>
+<p>This is not a new lesson in this repo. <code>daily.bat:54-56</code> <strong>documents this exact<br />
+trap</strong> ("<code>if errorlevel 1</code>, which is GREATER-OR-EQUAL and therefore blind to a<br />
+negative crash code") and fixed itself for it after audit 2026-08-12 finding 3;<br />
+<code>ladder_rebalance.bat</code> and <code>morning_refresh.bat</code> already use the correct form.<br />
+<code>rebalance.bat</code> - the only one of the four that submits real orders - was the<br />
+one left on the old idiom. The audit found it by sibling-diffing the idiom<br />
+across all ten <code>.bat</code> files rather than reading any one of them.</p>
+<p>Fix: each site becomes <code>set STEP_RC=%errorlevel%</code> on the following line plus<br />
+<code>if not "%STEP_RC%"=="0" (</code>. Block bodies unchanged. 15 sites, +47/-15.</p>
+<h2 id="di2-edge-case-e4---the-monthly-rebalance-fires-daily-gated-only-by-prose">DI.2 Edge case E4 - the "monthly" rebalance fires DAILY, gated only by prose</h2>
+<p><code>monthy-llm-rebalance</code> runs on cron <code>0 18 * * *</code> - <strong>every day</strong>, not monthly.<br />
+Its only month gate was Step 0 of the task's own prompt ("check<br />
+<code>rebalance_log.md</code> ... STOP"), i.e. natural language read by an LLM. The script<br />
+itself had no month check. <code>rebalance.bat</code>'s header comment says "Idempotent:<br />
+re-running same day is a no-op (target set unchanged)" - true the same day, and<br />
+false mid-month, because by then the ranks have moved. So a single mis-read of<br />
+that prose runs a full rebalance mid-month and it <strong>trades</strong>.</p>
+<p>Fix: new <code>scripts/momentum/check_month_gate.py</code>, called before the price<br />
+refresh, refusing when <code>rebalance_log.md</code> already stamps the current calendar<br />
+month. <code>--allow-same-month</code> is the deliberate override.</p>
+<p>One deliberate exception, so this does not re-introduce an older bug: a<br />
+<strong>PARTIAL</strong> stamp does NOT refuse. A PARTIAL is a failed run awaiting its retry,<br />
+and locking that retry out is exactly what audit 2026-08-04 finding 1 fixed when<br />
+it introduced <code>--status</code> in the first place. A legacy stamp with no status is<br />
+treated as OK (refuse), matching <code>check_rebalance_cadence</code>'s existing<br />
+convention.</p>
+<h2 id="di3-e5---the-daily-report-auto-push-which-had-already-fired-that-morning">DI.3 E5 - the daily-report auto-push, which had already fired that morning</h2>
+<p>Both <code>daily-trade-check</code> prompts ended their report commit with a bare<br />
+<code>git push</code>. The <code>git add</code> is carefully scoped to exactly two paths, but<br />
+<code>git push</code> publishes the <strong>whole branch</strong>, so any unrelated local work commit<br />
+rides along. This was not hypothetical: at <strong>07:08 CDT that morning</strong> the<br />
+pre-market run pushed <code>ebc059f</code> and <code>c758d25</code> - the two landing-check work<br />
+commits from DG and DH - to the public remote along with its report. The audit<br />
+caught it as a CONSTRUCTED edge case; by the time the fix was applied it was<br />
+OBSERVED.</p>
+<p>Fix: the push instruction is removed from both prompts; commits stay local and<br />
+publishing is Evan's call, which is what global CLAUDE.md required all along<br />
+("Commit only when asked; never push unless told"). <strong>These two files live at<br />
+<code>~/.claude/scheduled-tasks/daily-trade-check*/SKILL.md</code>, outside this repo</strong>, so<br />
+the fix is live on disk but is NOT in this or any commit - see DI.6.</p>
+<h2 id="di4-verification-real-output">DI.4 Verification (real output)</h2>
+<p>Finding 1's claim and its fix, proven against real Windows exit codes rather<br />
+than argued:</p>
+<pre><code>case A: exit -1073741819 (crashed python)
+  OLD `if errorlevel 1`  : MISSED &lt;-- the bug
+  NEW explicit capture   : CAUGHT
+case B: exit 1     OLD: CAUGHT   NEW: CAUGHT    (no regression)
+case C: exit 0     OLD: passed   NEW: passed    (no false positive)
+case D: exit 9009  NEW: CAUGHT                  (missing interpreter)
+</code></pre>
+<p>End-to-end control flow over the whole patched 240-line file, every<br />
+<code>python.exe</code> call replaced by a stub so nothing traded:</p>
+<pre><code>=== gate REFUSES (mid-month firing)          exit=1 expect=1  [OK]
+    | REFUSED: this calendar month is already rebalanced (see rebalance_log.md).
+=== --allow-same-month, all steps clean      exit=0 expect=0  [OK]
+    | [stub] STAMPED OK
+=== alpaca_sync crashes -1073741819          exit=1 expect=1  [OK]
+    | STEP FAIL: alpaca_sync --execute
+    | [stub] STAMPED PARTIAL
+FLOW TEST PASS 3/3
+</code></pre>
+<p>That third case is the whole finding: <strong>before the fix it stamped OK and exited<br />
+0.</strong> (The first harness attempt reported a false 2/3 because a <code>.bat</code> invoking<br />
+another <code>.bat</code> without <code>call</code> transfers control permanently and never returns -<br />
+the test was terminating at the first stub, and two of its three "passes" were<br />
+coincidence. Recorded because a harness that passes for the wrong reason is the<br />
+same class of defect this audit is about.)</p>
+<p><code>check_month_gate --canary</code> covers every branch including month boundary and<br />
+year rollover:</p>
+<pre><code>CANARY PASS 8/8
+</code></pre>
+<p>and against the live log:</p>
+<pre><code>month gate: REFUSE -- last stamp 2026-08-03 (status legacy-OK) is already in 2026-08
+</code></pre>
+<p>Frozen regression tests, required by CLAUDE.md after any Python change:</p>
+<pre><code>[OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+[OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+[OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+[OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+All regression tests passed.
+</code></pre>
+<p><code>py_compile</code> clean. Commit <code>9d9fd72</code> holds exactly two files, +123/-15<br />
+(<code>rebalance.bat</code> +47/-15, <code>check_month_gate.py</code> +76). <strong>This entry and its<br />
+HTML twin are NOT in that commit</strong> - it landed before the entry was written,<br />
+so they follow separately; DG's and DH's entries shipped inside their own<br />
+commits and this one does not. The pre-commit secret gate ran and returned 0<br />
+findings. <strong>Not pushed</strong> - and with E5 applied, no scheduled task will push it<br />
+either.</p>
+<h2 id="di5-a-machine-wide-check-the-audit-added-and-what-it-found">DI.5 A machine-wide check the audit added, and what it found</h2>
+<p>Independently of the per-project sweeps, every non-Microsoft scheduled task was<br />
+queried read-only. The five Trading/Swing daily jobs are all healthy (exit 0,<br />
+correct next-run times). One is not:</p>
+<p><strong><code>\llm rebal</code></strong> - enabled, Monthly, next run 2026-09-01 17:59, last run<br />
+2026-08-02 15:39 with <code>LastTaskResult -2147020576 = 0x800710E0</code> ("operator or<br />
+administrator refused the request") and <code>StopIfGoingOnBatteries=True</code>. Its<br />
+<code>Task To Run</code> is not a rebalance at all: it is a <code>mouse_event</code> wake-nudge, i.e.<br />
+a wake fired 4 minutes before the 18:03 <code>monthy-llm-rebalance</code>. It has sat<br />
+failed for 17 days, and the failure mode - refusal on battery - is the <strong>same<br />
+one HANDOFF already documents at line 550 for <code>TradingWeeklyBackup</code></strong>, whose fix<br />
+(clearing the battery flags) was never applied here. Nothing surfaces it: no<br />
+log, no HANDOFF row, no check.</p>
+<p>Also: HANDOFF's Windows task table lists <strong>5</strong> tasks; <code>schtasks</code> registers <strong>8</strong><br />
+non-Microsoft ones. <code>\llm rebal</code>, <code>\Wake PC</code> and <code>\Wake PC 2</code> appear in no<br />
+project doc. DE T-5 and DG.2 both claim the task table was "re-synced against<br />
+the live list" - true, but only of the Claude-scheduler table, not the Windows<br />
+one.</p>
+<p>This is finding 9 and is <strong>OPEN</strong>. It is Evan-gated: changing task settings and<br />
+deleting or documenting a task he created is his call, not the audit's.</p>
+<h2 id="di6-what-this-entry-does-not-cover---stated-rather-than-implied">DI.6 What this entry does NOT cover - stated rather than implied</h2>
+<ul>
+<li><strong>8 findings and 6 edge cases remain OPEN</strong>, including three the audit ranked<br />
+  above most of what was fixed: <code>market_data.last_close_on_or_before</code> ignoring<br />
+  the NULL-quarantine convention its three siblings honour (finding 2, med, 42<br />
+  tickers currently in the enabling state, 0 rows live); <code>verify_run</code>'s<br />
+  continuity check deriving its calendar from the same table it is checking, so<br />
+  a wholly-lost trading day PASSes (finding 3 / E2, the realized 07-30+07-31<br />
+  shape); and <code>check_dependency_cves.py</code> being invoked by nothing (finding 5).</li>
+<li><strong>No HANDOFF sync yet.</strong> This entry is the record; the live snapshot has not<br />
+  been updated for it.</li>
+<li><strong>E5's two files are not under version control here.</strong> They live in<br />
+<code>~/.claude/scheduled-tasks/</code>. The fix is live on disk with no commit behind<br />
+  it, and nothing in this repo's history will show it happened.</li>
+<li><strong>The Skills and Swing Trading audits are not recorded here</strong> and their fixes<br />
+  are not committed. Swing's record entry was deliberately held: a <strong>concurrent<br />
+  session was found writing that repo</strong> during this one - it had applied the<br />
+  Swing audit's own finding 2, implemented V3 PBO scoping in<br />
+<code>run_v1_harness_check.py</code>, staged an F14 execution (<code>var/swing.db.pre-F14.bak</code><br />
+  exists; <code>swing.db</code> itself unchanged), and had already claimed appendix <code>FC</code>.<br />
+  Writing a Swing entry from here would have forked the append-only record.<br />
+  Flagged to Evan; he chose to hold both.</li>
+</ul>
+<h2 id="di7-status">DI.7 Status</h2>
+<p><code>rebalance.bat</code> and <code>check_month_gate.py</code> committed (<code>9d9fd72</code>, local, unpushed).<br />
+The month gate first bites on <strong>2026-09-01</strong>, which is also the first firing of<br />
+<code>\llm rebal</code> since it started failing and the date DH's own <code>rc=2</code> guard first<br />
+matters - so 09-01 is the run to watch. E5 is live for the next scheduled<br />
+report run. Everything in DI.6 is open.</p>
 </div>
 </body>
 </html>
