@@ -111,7 +111,16 @@ def candidate(as_of: date) -> tuple[str, float] | None:
 def record_decision(*, decision_date: date, ticker: str, score: float | None,
                     verdict: str, invalidation_level: float | None,
                     rationale: str | None) -> None:
-    """Insert (or replace) the pre-committed LLM decision for a rebalance date."""
+    """Insert the pre-committed LLM decision for a rebalance date.
+
+    Plain INSERT, deliberately. This was INSERT OR REPLACE until 2026-08-18:
+    on a UNIQUE(decision_date, ticker) hit SQLite REPLACE deletes the old row
+    and inserts a fresh one with a new AUTOINCREMENT id, so re-logging a
+    same-day decision silently destroyed the original. Three decisions were
+    lost that way (ids 4, 5, 9; record DA finding 4 / DG). A second decision
+    for the same (date, ticker) now raises sqlite3.IntegrityError - the log is
+    append-only by construction, matching CLAUDE.md "never backdated".
+    """
     verdict = verdict.upper()
     if verdict not in ("BUY", "VETO"):
         raise ValueError(f"verdict must be BUY or VETO, got {verdict!r}")
@@ -119,7 +128,7 @@ def record_decision(*, decision_date: date, ticker: str, score: float | None,
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute(
-            "INSERT OR REPLACE INTO llm_overlay_log "
+            "INSERT INTO llm_overlay_log "
             "(decision_date, ticker, score, verdict, invalidation_level, "
             " rationale, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (decision_date.isoformat(), ticker, score, verdict,

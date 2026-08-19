@@ -119,7 +119,7 @@ record.
       single-day moves in held or ranked names; KLAC-class events surface the same day (M2).
       **[2026-07-28: `check_anomalies.py`, wired into `daily.bat` post-MTM, non-blocking — M2.3.]**
 - [x] A cache-gap audit script exists and a full run's results are recorded; it can be re-run
-      monthly in one command (M2). **[2026-07-28: `check_cache_gaps.py` — M2.4.]**
+      monthly in one command (M2). **[2026-07-28: `check_cache_gaps.py` — M2.4.]** **[2026-08-16: wired into `daily.bat` day-1-of-month, record DE T-4; gate fixed 2026-08-18, record DG.]**
 - [x] `paper_mtm.py` refuses to write NAV rows dated before a sleeve's inception; the
       Appendix AU/AV manual-cleanup class is extinct, with a regression test (M3).
       **[2026-07-28: pre-inception guard + `test_inception_guard.py` — M3.1, record BF–BI.]**

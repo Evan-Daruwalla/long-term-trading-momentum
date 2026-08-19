@@ -241,6 +241,33 @@ CREATE TABLE IF NOT EXISTS sector_overlay_log (
   created_at TEXT NOT NULL,
   UNIQUE (decision_date, ticker)
 );
+
+-- Decision logs are APPEND-ONLY (CLAUDE.md: "LLM decisions are never backdated").
+-- The Python writers use plain INSERT since 2026-08-18 (record DG); these
+-- triggers make the same rule hold for ANY writer, including raw SQL, so a
+-- future INSERT OR REPLACE / UPDATE / DELETE cannot quietly destroy a row the
+-- way three were destroyed before (llm_overlay_log ids 4, 5, 9 - record DA
+-- finding 4). Idempotent via IF NOT EXISTS; applied to the live DB by init_db().
+-- BEFORE INSERT, not just DELETE: SQLite's REPLACE conflict-resolution does NOT
+-- fire delete triggers unless PRAGMA recursive_triggers is on, so a delete
+-- trigger alone still lets `INSERT OR REPLACE` destroy the old row. Refusing the
+-- insert while a (date, ticker) row exists closes that path for every writer.
+CREATE TRIGGER IF NOT EXISTS llm_overlay_log_no_relog BEFORE INSERT ON llm_overlay_log
+WHEN EXISTS (SELECT 1 FROM llm_overlay_log
+             WHERE decision_date = NEW.decision_date AND ticker = NEW.ticker)
+BEGIN SELECT RAISE(ABORT, 'llm_overlay_log is append-only (record DG): decision already logged for this date+ticker'); END;
+CREATE TRIGGER IF NOT EXISTS llm_overlay_log_no_update BEFORE UPDATE ON llm_overlay_log
+BEGIN SELECT RAISE(ABORT, 'llm_overlay_log is append-only (record DG)'); END;
+CREATE TRIGGER IF NOT EXISTS llm_overlay_log_no_delete BEFORE DELETE ON llm_overlay_log
+BEGIN SELECT RAISE(ABORT, 'llm_overlay_log is append-only (record DG)'); END;
+CREATE TRIGGER IF NOT EXISTS sector_overlay_log_no_relog BEFORE INSERT ON sector_overlay_log
+WHEN EXISTS (SELECT 1 FROM sector_overlay_log
+             WHERE decision_date = NEW.decision_date AND ticker = NEW.ticker)
+BEGIN SELECT RAISE(ABORT, 'sector_overlay_log is append-only (record DG): decision already logged for this date+ticker'); END;
+CREATE TRIGGER IF NOT EXISTS sector_overlay_log_no_update BEFORE UPDATE ON sector_overlay_log
+BEGIN SELECT RAISE(ABORT, 'sector_overlay_log is append-only (record DG)'); END;
+CREATE TRIGGER IF NOT EXISTS sector_overlay_log_no_delete BEFORE DELETE ON sector_overlay_log
+BEGIN SELECT RAISE(ABORT, 'sector_overlay_log is append-only (record DG)'); END;
 """
 
 

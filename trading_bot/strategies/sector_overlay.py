@@ -125,7 +125,12 @@ def prompts(ticker: str) -> list[str]:
 def record_decision(*, decision_date: date, ticker: str, score: float | None,
                     verdict: str, invalidation_level: float | None,
                     rationale: str | None) -> None:
-    """Insert (or replace) one pre-committed sector decision for a date."""
+    """Insert one pre-committed sector decision for a date.
+
+    Plain INSERT, deliberately - see llm_overlay.record_decision: REPLACE on
+    the UNIQUE(decision_date, ticker) key destroyed the prior row and its id
+    (record DG). A same-day re-log now raises sqlite3.IntegrityError.
+    """
     verdict = verdict.upper()
     if verdict not in ("HOLD", "VETO"):
         raise ValueError(f"verdict must be HOLD or VETO, got {verdict!r}")
@@ -133,7 +138,7 @@ def record_decision(*, decision_date: date, ticker: str, score: float | None,
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute(
-            "INSERT OR REPLACE INTO sector_overlay_log "
+            "INSERT INTO sector_overlay_log "
             "(decision_date, ticker, score, verdict, invalidation_level, "
             " rationale, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (decision_date.isoformat(), ticker.upper(), score, verdict,

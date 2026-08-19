@@ -84,11 +84,15 @@ REM see ops_stamp.py's docstring for why this project avoids that) rather than
 REM a separate scheduled task, so it can't drift the way monthy-llm-rebalance's
 REM cron did. Report-only, same non-blocking contract as the anomaly scan above.
 .venv\Scripts\python.exe -c "import sys,datetime; sys.exit(0 if datetime.date.today().day==1 else 1)"
-if not errorlevel 1 (
-  echo.
-  echo === Monthly cache-gap audit (non-blocking; day 1 of month) ===
-  .venv\Scripts\python.exe -m scripts.momentum.check_cache_gaps
-)
+REM goto, not a parenthesized block (file header rule): the 2026-08-16 block form
+REM had "(...)" inside the echo text, which closed the block early and made the
+REM check run EVERY day (record DG). Escaping the parens works too, but is
+REM fragile; goto is what the rest of this file uses.
+if errorlevel 1 goto cache_gap_skip
+echo.
+echo === Monthly cache-gap audit - non-blocking, day 1 of month ===
+.venv\Scripts\python.exe -m scripts.momentum.check_cache_gaps
+:cache_gap_skip
 
 echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===

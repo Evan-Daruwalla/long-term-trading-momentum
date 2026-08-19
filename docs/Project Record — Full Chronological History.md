@@ -165,6 +165,9 @@ lives in the dated entry, not the digest.
 - [DB - verify_run crit CONFIRMED BY PREDICTION: FAIL 56/76 evening -> PASS 76/76 next morning with nothing repaired, 13 sleeves silently recovered; plus two CZ.5 factual corrections and one wrong call of my own](#appendix-db---the-verify_run-crit-confirmed-by-prediction-fail-5676-on-08-12-evening-pass-7676-on-08-13-morning-with-nothing-repaired-and-13-sleeves-silently-recovered-plus-two-cz5-factual-corrections-and-one-wrong-call-of-my-own-caught-before-it-reached-this-file-2026-08-13-1522-cdt) (08-13)
 - [DC - The verify_run alarm is INVERTED: there are NO bad 08-10 rows; check (b) measures nightly price_cache revision, not the ledger; the 846 per-date cash divergences are the M7.3 KLAC repair to the cent (30/30). Task 1's canary premise falsified, Task 2 answered by the same mechanism](#appendix-dc---the-verify_run-alarm-is-inverted-there-are-no-bad-08-10-rows-check-b-measures-nightly-price_cache-revision-rather-than-the-ledger-and-the-846-per-date-cash-divergences-are-the-m73-klac-repair-to-the-cent-3030-task-1s-canary-premise-is-falsified-task-2-answered-by-the-same-mechanism-2026-08-13-2150-cdt) (08-13)
 - [DD - **DA crit CLOSED**: check (b) split into (b1) per-date ledger cash (hard FAIL, via the existing replayer) and (b2) price drift (INFO); canaried by fault injection - a corrupted OLDER row FAILs while its newest row stays clean at drift($+0.00), which is exactly what navs[-1] could not see](#appendix-dd---the-da-crit-is-closed-verify_run-check-b-split-into-b1-per-date-ledger-cash-as-the-hard-fail-and-b2-price-drift-as-info-canaried-by-fault-injection-on-a-copy---a-corrupted-older-row-now-fails-while-the-newest-row-stays-clean-which-is-exactly-what-the-old-navs-1-check-could-not-see-2026-08-13-2159-cdt) (08-13)
+- [DE - Scheduled daily-audit (2026-08-16): morning_refresh.bat gets DA's fix, `check_cache_gaps` wired into daily.bat, task table re-synced, DD's work committed](#appendix-de---scheduled-daily-audit-das-morning_refreshbatcache_gap-gaps-closed-handoffs-scheduled-task-table-re-synced-dds-own-work-committed-2026-08-16-1321-cdt) (08-16)
+- [DF - Correction to DE.1: `e96c5fe` (record DA), not `e5366fd`, was the last non-daily-report commit](#appendix-df---correction-to-de1-the-wrong-commit-was-cited-as-last-non-daily-report-2026-08-16-1338-cdt) (08-16)
+- [DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed `daily-trade-check-2` drifted back to `0 17` - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15](#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt) (08-19)
 
 ---
 
@@ -9615,3 +9618,175 @@ non-daily-report commit was `e96c5fe`, "Record Appendix DA" (2026-08-12
 `git log` for both hashes directly. Doesn't change anything DE fixed or
 verified - only the one sentence identifying which commit preceded the
 uncommitted work.
+
+# Appendix DG - Landing-check on DE found two of its fixes did not hold: the day-1 cache-gap gate was a cmd.exe no-op (ran DAILY 08-16..08-18) and the "re-synced" task table missed a cron that had drifted back into the MTM window. Both fixed. Plus DA finding 4 CLOSED: the three lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand - writers are plain INSERT now and the tables are append-only at the DB layer, canaried 15/15 (2026-08-19, ~00:05 CDT)
+
+Evan: "find any outstanding work (no hallucinating) then use /landing-check with
+/opus-workers", then "do all". The outstanding work was found by running a
+landing-check on the previous session's commits (`7cd7b28`, `4757330`, record
+DE/DF); a cold Opus worker did the sweep and every load-bearing finding below was
+re-derived by hand before it was acted on. Session ran ~18:20 CDT 08-18 to ~00:05
+CDT 08-19 (long gaps - clock read at each step).
+
+## DG.1 DE's T-4 gate never gated: `check_cache_gaps` ran every day
+
+DE T-4 wired `check_cache_gaps` into `daily.bat` "gated on day-of-month" and
+recorded the gate as verified. It was not. The block form was:
+
+    if not errorlevel 1 (
+      echo.
+      echo === Monthly cache-gap audit (non-blocking; day 1 of month) ===
+      .venv\Scripts\python.exe -m scripts.momentum.check_cache_gaps
+    )
+
+cmd.exe closes a parenthesized block at the first unescaped `)` - which here is
+the one inside the echo text. So the two `echo` lines were the block (skipped
+on non-day-1) and the `check_cache_gaps` line fell OUTSIDE it and ran
+unconditionally. Evidence, all from disk:
+
+- `var/cache_gap_report.log` has dated blocks on **2026-08-16, 08-17, 08-18** -
+  days 16, 17, 18.
+- The banner `=== Monthly cache-gap audit` appears **0** times in
+  `var/last_daily_run.log`; the sibling `=== Anomaly scan` banner appears 1 time
+  (the canary that proves the grep can see banners).
+- DE's own verification tested the Python one-liner's exit code (correct: 1 on
+  a non-day-1) and a stand-in with a faked day=1 - it never exercised the
+  non-day-1 `.bat` path, which is the only path that was broken.
+- The 08-17 scheduled daily report already journaled the misfire as "the
+  scheduled cache-gap audit also ran for the first time".
+
+**Fix:** the block is replaced with the file's own `goto` idiom (its header
+mandates `goto`, not blocks, precisely because of `%VAR%` parse-time expansion;
+T-4 broke the file's own rule). Verified with three stand-ins built from the
+exact patched lines and a fake gate:
+
+    gate rc=1 (non-day-1)  -> no banner, no run          [new form]
+    gate rc=0 (day 1)      -> banner + WOULD_RUN          [new form]
+    gate rc=1 (non-day-1)  -> WOULD_RUN anyway            [OLD form - the bug, reproduced]
+
+Pure ASCII, all `goto` targets resolve. Report-only contract unchanged. Note for
+future `.bat` work: the file is **LF-only** on disk (`core.autocrlf=true`
+normalizes at checkout); the worker's "121/121 CRLF" claim was false and cost two
+failed byte-match patches before I read the bytes myself.
+
+## DG.2 `daily-trade-check-2` had drifted back into the MTM window
+
+DE T-5 claimed HANDOFF's task table was "re-synced against the live list,
+re-confirmed twice". Reading the live list (the tool, not any doc):
+
+| task | HANDOFF said | live was |
+|---|---|---|
+| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm) | **`0 17 * * 1-5` (5:00pm)** |
+| `cohort-0706-deploy` | disabled | **absent** |
+
+The `0 17` drift matters: that task reads `paper_nav`/`paper_positions` and was
+moved OFF `0 18` on 2026-08-04 (record CQ.3/E2) for exactly the two-writer overlap
+it now had again, 15 minutes before `TradingDailyMTM` at 17:15. **Restored to
+`0 19 * * 1-5`** via the scheduled-task tool; the tool confirmed "At 07:00 PM,
+Monday through Friday". This is the third documented cron drift on this machine
+(`monthy-llm-rebalance` twice, record BS/CN, now this) - the standing rule "read
+the live list, never a doc" is re-affirmed in the HANDOFF row.
+
+`cohort-0706-deploy` is struck in HANDOFF's table with the note that DE T-5
+overrode a correct earlier "absent" with "disabled".
+
+## DG.3 HANDOFF/PRD lines that DE's own commit left stale
+
+- `HANDOFF.md` "Still open from the DA audit" listed `morning_refresh.bat:26` -
+  the very finding DE T-2 closed in the same commit. Corrected.
+- `HANDOFF.md:509`, `PRD_ROADMAP.md:122`, `.claude/codebase-memory/architecture.md:8`
+  all still called `check_cache_gaps` "standalone, re-run monthly". Corrected to
+  the wired-and-gated state.
+- `HANDOFF.md` Last-updated stamp said 08-13 despite the 08-16 edit. Now
+  2026-08-18 ~23:55 CDT.
+
+## DG.4 DA finding 4 CLOSED - the lost decisions were REPLACE'd, not deleted
+
+DA: "LLM decisions are never backdated is UNENFORCEABLE and three decisions have
+ALREADY been overwritten (ids 4, 5, 9 missing; id=1 carries
+`decision_date=2026-05-29` against `created_at=2026-05-31`)". Read-only look at
+what is actually there:
+
+- `llm_overlay_log`: **13 rows, ids 1..16, missing 4/5/9, `sqlite_sequence=16`.**
+  Reproduces DA exactly. `sector_overlay_log`: 22 rows, ids 1..22, none missing.
+- The three rows are absent from **every surviving snapshot** (backups 08-02,
+  08-09, 08-16; the 05-27 pre-spike backup predates the table). Their content is
+  unrecoverable.
+- The record has **no entry** mentioning their removal. Record AT (07-02 reset)
+  says "decision logs untouched"; the 07-02 reset archive JSON contains no
+  overlay rows.
+
+**Mechanism, from the code, not inferred:** both writers used
+`INSERT OR REPLACE` against `UNIQUE (decision_date, ticker)`
+(`llm_overlay.py:122`, `sector_overlay.py:136`; docstrings said "Insert (or
+replace)"). SQLite's REPLACE resolves a UNIQUE conflict by **deleting the old row
+and inserting a new one with a fresh AUTOINCREMENT id.** So re-logging a decision
+for the same (date, ticker) silently destroyed the original and burned an id.
+Nobody had to break a rule; the SQL did it. The surviving timestamps fit: ids 6/7/8
+(07-01 WDC/BE/SLGL) were created 06-30 17:36-17:40 - ids 4 and 5 sit immediately
+before them, almost certainly first attempts re-logged minutes later; id 9 sits
+between the 06-30 batch and 07-07's id 10 (WDC again). Stated as the consistent
+explanation, not as proven - the rows are gone.
+
+**On "backdated":** the `created_at != decision_date` rows split two ways. ids
+6/7/8 and sector 5-10 were created **06-30 for a 07-01 decision** - pre-dated,
+decided the evening before, which is the design. Only id=1 (created 05-31 for
+05-29) and id=3 (06-13 for 06-12) were logged AFTER their date, 1-2 days, both in
+the pre-automation era. Reported, not repaired - CLAUDE.md reserves that.
+
+**Fix, two layers, one file each way:**
+
+1. `record_decision` in both modules: `INSERT OR REPLACE` -> plain `INSERT`. A
+   same-(date, ticker) re-log now raises `sqlite3.IntegrityError`. Checked all
+   4 call sites: `overlay_auto_decide.py` already skips already-decided names
+   (`if ticker in decided: continue` / `decision_for(as_of) is None`), so the
+   automated monthly path is unaffected; the only path that could hit the
+   conflict is a manual `*_ops decide` re-run, which is exactly the case that
+   should refuse.
+2. `trading_bot/db.py` SCHEMA: six triggers, `IF NOT EXISTS`, per table -
+   BEFORE INSERT (refuse when the (date, ticker) already exists), BEFORE UPDATE,
+   BEFORE DELETE, each `RAISE(ABORT, '... is append-only (record DG)')`. Applied
+   to the live DB by `init_db()`, which `paper_mtm.write_nav()` calls on every
+   NAV write - so the 5:15pm run on 08-19 installs them (0 triggers on live as of
+   this entry; 0 duplicate keys, so nothing trips).
+
+**Canary - `scripts/momentum/test_decision_log_append_only.py`, throwaway DB,
+15/15 PASS.** It caught a real hole in my first attempt: I initially wrote only
+UPDATE + DELETE triggers, and the test's raw `INSERT OR REPLACE` case FAILED -
+**SQLite's REPLACE does not fire DELETE triggers unless `PRAGMA
+recursive_triggers` is on**, so a delete trigger alone still let REPLACE
+destroy rows through the DB layer. The BEFORE INSERT trigger closes that; the
+re-run is 15/15. The test's first check is a positive control that runs the
+exact old statement on a trigger-less twin table and shows id=1 destroyed and
+seq burned - the instrument can see the bug it guards against (CQ.4).
+
+## DG.5 Verification (real output)
+
+Frozen tests **4/4 d=+/-0.0000pp**, exit 0, run 2026-08-18 ~23:59 CDT after all
+Python edits:
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+    All regression tests passed.
+
+`test_decision_log_append_only`: 15/15 PASS, exit 0 (output above in DG.4).
+`daily.bat`: 0 non-ASCII bytes; every `goto` target present exactly once.
+`py_compile` clean on `db.py`, `llm_overlay.py`, `sector_overlay.py`.
+No live DB writes. Diff: `daily.bat` +9/-5, `db.py` +27/-0, `llm_overlay.py`
++11/-2, `sector_overlay.py` +7/-2, `HANDOFF.md` +7/-7, `PRD_ROADMAP.md` +1/-1,
+`architecture.md` +1/-1, plus the new test file.
+
+## DG.6 Status
+
+- DE T-4, T-5: **re-closed properly** (DG.1, DG.2). DE's "verified" on both was
+  a verification of the wrong path / the wrong source.
+- DA finding 4: **CLOSED** at writer + DB layer; live triggers land 08-19 17:15.
+- Still open from DA: findings 5 (`TOL_PCT=0.05`), 6 (ticker normalisation
+  between overlay twins), E3 (daily-firing "monthly" task + cadence check blind
+  to mid-month fires), and the remaining edge cases.
+- Evan's: `slippage_log` still 0 rows; `positions` residue still 137.
+- Committed per Evan's "do all"; not pushed - but the DB.1 caveat stands, the
+  weekday trade-check tasks push the whole branch (~07:07 tomorrow).

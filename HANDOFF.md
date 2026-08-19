@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-13 ~22:00 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-18 ~23:55 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
@@ -62,9 +62,17 @@ itself an audit finding (22).
 > corrupted OLDER row FAILs while its newest row reads `drift($+0.00)` — exactly
 > what the old check could not see. **Expect PASS 76/76 nightly now**; the info
 > line changed from `recon(delta $x)` to `ledger(ok/total) drift($x)`.
-> **Still open from the DA audit:** `morning_refresh.bat:26` discards a failed
-> refresh's return code (bare `echo`, live 7:45am task), plus 13 of DA's 15
-> findings and its 8 edge cases.
+> **Still open from the DA audit:** findings 5/6 and E3 (8 edge cases;
+> `morning_refresh.bat:26` was CLOSED 2026-08-16, record DE T-2 — the line here that
+> said otherwise was added by the same commit that fixed it, record DG).
+> **Finding 4 CLOSED 2026-08-19 (record DG.4):** the 3 missing `llm_overlay_log` ids
+> (4/5/9) were destroyed by `INSERT OR REPLACE` on the UNIQUE(date,ticker) key — a
+> same-day re-log deleted the original and burned an id. Both `record_decision`
+> writers are plain INSERT now (re-log raises), and `SCHEMA` carries BEFORE
+> INSERT/UPDATE/DELETE append-only triggers on both decision tables — installed on
+> the live DB by `init_db()` at the next MTM (08-19 17:15). Canary:
+> `test_decision_log_append_only` 15/15. The lost rows are unrecoverable (absent
+> from every backup); id=1/id=3 are the only truly post-dated logs, both pre-automation.
 
 > ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
 > statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
@@ -506,7 +514,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/seed_spy_benchmark.py` | One-off index-benchmark sleeve seeder (idempotent; `--ticker` — seeded SPY + QQQ controls) |
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
-| `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Standalone, re-run monthly (M2.4) |
+| `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Wired into `daily.bat`, gated to day 1 of month (record DE T-4; the gate was a no-op until DG fixed the block→goto — it ran DAILY 08-16..08-18) |
 | `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), **(b1) per-date ledger cash — every row since `LEDGER_EPOCH=2026-07-31` must match `historical_state.state_at()`, hard FAIL (record DD; replaced the `navs[-1]`-only recon that hid bad older rows)**, **(b2) price drift — reported, NEVER failed (measures `price_cache` revision, which is by design per CK.4)**, position-count (monthly), no-pre-inception, **plus run-level (e) rebalance cadence** — `rebalance_log.md`'s date must be in the settled month or later, else FAIL (record CO; closes the CN blind spot — an un-rebalanced sleeve passes (a)-(d) perfectly, it just holds a stale book) → `var/verify_report.log`. Wired into `daily.bat` (M3.2), `rebalance.bat` (record BS), `ladder_rebalance.bat` (record CG) |
 | `scripts/momentum/mtm_catchup.py [--dry-run]` | Self-healing MTM: marks every settled missing trading day (incl today) for all sleeves; skips pending days + never overwrites/back-marks across a rebalance. Runs in `daily.bat` after refresh (M3.5) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
@@ -566,11 +574,11 @@ them **committing and pushing to this repo**. Read the live list with
 |---|---|---|---|
 | `monthy-llm-rebalance` | `0 18 * * *` (~6:03pm daily) | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
 | `daily-trade-check` | `0 7 * * 1-5` (~7:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then `git add` (those 2 files only) + `commit` + **`push`** |
-| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + commit + **push**. Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance |
+| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + commit + **push**. Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance. **Found drifted back to `0 17` (5:00pm, 15 min before `TradingDailyMTM`) on 2026-08-18 and restored to `0 19` (record DG) - third documented cron drift on this machine; read the live list, never this table** |
 | `hellllo` | `0 12 * * *` (~12:03pm daily) | **enabled** | ⚠️ **Stray test task.** Its entire prompt is `hello (Just say "hi" back)`. Harmless, but it fires every morning forever. **Evan's to delete — flagged, not removed.** |
 | `hello-just-say-hi-back` | `0 17 * * *` (~5:04-5:05pm daily) | **enabled** | ⚠️ **A SECOND stray test task, found 2026-08-16 (audit finding T-5) — was undocumented here entirely.** Same "hello, just say hi back" prompt as `hellllo`. Fires 10 min before `TradingDailyMTM` (5:15pm) — harmless overlap so far, but worth knowing about. **Evan's to delete.** |
 | `daily-audit` | `0 7 * * *` (~7:05am daily) | **enabled** | Runs `/audit` + `/landing-check` on active projects (this project's audits land here, in HANDOFF, and in the record). Found live 2026-08-16 (audit finding T-5) — was undocumented here entirely. |
-| `cohort-0706-deploy` | manual | **disabled** | One-time 07-06 cohort deploy, fired 2026-07-07 |
+| ~~`cohort-0706-deploy`~~ | ~~manual~~ | **absent** | One-time 07-06 cohort deploy, fired 2026-07-07. NOT in the live task list as of 2026-08-18 (record DG); DE T-5 wrote "disabled" over an earlier correct read of "absent" |
 | `check-0803-rebalance` | one-time | disabled | Post-mortem of the 08-03 rebalance, fired 2026-08-04 |
 
 > ✅ **Cron re-confirmed 2026-08-05 20:13 CDT** — the record CN note asked a future
