@@ -19,9 +19,27 @@ REM broker orders. RC_FAIL accumulates any non-zero step; it decides the
 REM stamp's --status and this batch's own exit code.
 set RC_FAIL=0
 
+REM Audit 2026-08-19, edge case E4: `monthy-llm-rebalance` fires DAILY (cron
+REM `0 18 * * *`); its ONLY month gate was prose in that task's Step 0, read by
+REM an LLM. A mis-read there runs this script mid-month, when the ranks have
+REM moved -- so the "idempotent, re-running same day is a no-op" note above no
+REM longer holds and this TRADES. This is the mechanical gate.
+REM --allow-same-month is the deliberate override (it also covers the
+REM documented same-day re-run).
+if /i "%~1"=="--allow-same-month" goto month_gate_ok
+.venv\Scripts\python.exe -m scripts.momentum.check_month_gate
+set GATE_RC=%errorlevel%
+if not "%GATE_RC%"=="0" (
+    echo REFUSED: this calendar month is already rebalanced ^(see rebalance_log.md^).
+    echo Re-run with --allow-same-month if this is a deliberate re-run.
+    exit /b %GATE_RC%
+)
+:month_gate_ok
+
 echo === Daily price refresh ===
 .venv\Scripts\python.exe -m scripts.momentum.daily_price_refresh
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo ERROR: Price refresh failed. ABORTING rebalance - would use stale ranks.
     exit /b 1
 )
@@ -53,7 +71,8 @@ REM spy_benchmark_paper mark. The LLM-overlay sleeves + the spy_benchmark_0701
 REM seed stay below (they depend on their own ops/seed steps). Sleeve roster lives
 REM in the module + HANDOFF.md. A failed sleeve is logged and skipped, not fatal.
 .venv\Scripts\python.exe -m scripts.momentum.monthly_rebalance
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: monthly_rebalance reported a sleeve failure. See output above.
     set RC_FAIL=1
 )
@@ -62,7 +81,8 @@ echo.
 echo === Seed/MTM: spy_benchmark_0701_paper (S^&P 500 control aligned with the 7/1 cohort; reset to 07-06) ===
 echo Idempotent buy-and-hold SPY at the 07-06 close; no-op stub until that close lands.
 .venv\Scripts\python.exe -m scripts.momentum.seed_spy_benchmark --sleeve spy_benchmark_0701_paper --inception 2026-07-06
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: seed_spy_benchmark
     set RC_FAIL=1
 )
@@ -70,7 +90,8 @@ if errorlevel 1 (
 echo.
 echo === LLM-experiment CONTROL rebalance: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode control
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: llm_overlay control
     set RC_FAIL=1
 )
@@ -84,7 +105,8 @@ echo errors with "no decision logged", run candidate + decide by hand, re-run:
 echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops decide --ticker X --score N --verdict BUY^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode overlay
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: llm_overlay treatment
     set RC_FAIL=1
 )
@@ -92,7 +114,8 @@ if errorlevel 1 (
 echo.
 echo === Mark-to-market: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy mom_roa_top1_paper --force
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: mtm mom_roa_top1
     set RC_FAIL=1
 )
@@ -100,7 +123,8 @@ if errorlevel 1 (
 echo.
 echo === Mark-to-market: llm_overlay_mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_mom_roa_top1_paper --force
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: mtm llm_overlay_top1
     set RC_FAIL=1
 )
@@ -112,7 +136,8 @@ echo Requires a HOLD/VETO decision for ALL 4 candidate sectors FIRST, else refus
 echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops decide --ticker XLK --score N --verdict HOLD^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops rebalance
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: sector_overlay treatment
     set RC_FAIL=1
 )
@@ -120,7 +145,8 @@ if errorlevel 1 (
 echo.
 echo === Mark-to-market: llm_overlay_sector_top4_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_overlay_sector_top4_paper --force
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: mtm llm_overlay_sector4
     set RC_FAIL=1
 )
@@ -134,12 +160,14 @@ echo   sector = first 4 HOLD sectors (else momentum-fill to 4)
 echo Log decisions DEEPER in the ranking (llm_overlay_ops / sector_overlay_ops
 echo decide) for the cascade to differ from the control. See overlay_prep.
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-stock
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: cascade stock
     set RC_FAIL=1
 )
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-sector
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: cascade sector
     set RC_FAIL=1
 )
@@ -147,12 +175,14 @@ if errorlevel 1 (
 echo.
 echo === Mark-to-market: LLM-cascade sleeves ===
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_top1_paper --force
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: mtm cascade_top1
     set RC_FAIL=1
 )
 .venv\Scripts\python.exe -m scripts.momentum.paper_mtm --strategy llm_cascade_sector4_paper --force
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: mtm cascade_sector4
     set RC_FAIL=1
 )
@@ -168,7 +198,8 @@ echo Submits market orders to reconcile each Alpaca paper account to its sleeve'
 echo weights (scaled to that account's equity). PAPER only; needs alpaca_keys.env filled.
 echo Skips cleanly if keys are missing or a sleeve hasn't deployed yet.
 .venv\Scripts\python.exe -m trading_bot.execution.alpaca_sync --all --execute
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: alpaca_sync --execute
     set RC_FAIL=1
 )
@@ -183,7 +214,8 @@ if "%RC_FAIL%"=="1" (
 ) else (
     .venv\Scripts\python.exe -m scripts.momentum.stamp_rebalance_log --status OK
 )
-if errorlevel 1 (
+set STEP_RC=%errorlevel%
+if not "%STEP_RC%"=="0" (
     echo STEP FAIL: stamp_rebalance_log
     set RC_FAIL=1
 )
