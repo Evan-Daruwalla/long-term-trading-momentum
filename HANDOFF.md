@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-19 ~00:20 CDT** — this file is the only live snapshot
+**Last updated: 2026-08-19 ~17:00 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
@@ -86,6 +86,31 @@ itself an audit finding (22).
 > done-check ("CSV rows match the order counts the record logged") — so the fill
 > count is an open question M6.1 answers, not a number to assert here.
 >
+>
+> **2026-08-19 (record DI) — scheduled daily-audit: the 15 exit-code gates on
+> `rebalance.bat` were deaf to crash codes, and the "monthly" rebalance had no
+> mechanical month gate.** `if errorlevel 1` is GREATER-OR-EQUAL, so all 15 step
+> gates were blind to the negative code a killed `python.exe` returns: a crashed
+> `alpaca_sync --execute` left `RC_FAIL=0`, stamped `--status OK` and exited 0,
+> and `verify_run`'s cadence check then read that OK stamp and PASSed.
+> `daily.bat:54-56` documents this exact trap and fixed itself for it after audit
+> 2026-08-12; the one script that actually trades was the one left on the old
+> idiom. All 15 now use explicit capture. Separately, `monthy-llm-rebalance`
+> fires **daily** (`0 18 * * *`) and its only month gate was prose in the task's
+> own Step 0 — a mis-read runs a full rebalance mid-month, when the ranks have
+> moved, and it TRADES. New `check_month_gate.py` is the mechanical gate;
+> **a deliberate mid-month or same-day re-run now needs
+> `rebalance.bat --allow-same-month`.** A PARTIAL stamp still permits the retry.
+> Commits `9d9fd72` (code) + `e926f70` (record), **local, unpushed**.
+>
+> **Still OPEN from that audit — 8 findings and 6 edge cases**, notably:
+> `market_data.last_close_on_or_before` has no `price IS NOT NULL` filter while
+> its three siblings do, so a NULL-quarantined row shadows the real prior close
+> (42 tickers in the enabling state, 0 rows live today); `verify_run`'s
+> continuity check builds its calendar from `price_cache` itself, so a trading
+> day the cache lost ENTIRELY has 0 rows, is not in the calendar, is not
+> "missing", and PASSes (the realized 07-30/07-31 shape); and
+> `check_dependency_cves.py` is invoked by nothing. Full list in record DI.6.
 > **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
 > (record Appendices BB–BN); the two before-2026-08-01 deadline milestones (M2/M3)
 > plus M4 + M5 are in place, and the daily pipeline is now self-healing (M3.5). **M6 (slippage) is the only remaining task and is ~~GATED on the
@@ -515,6 +540,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | `scripts/momentum/check_coverage.py` | Coverage gate (read-only): fails if the day's close count < floor. Wired into `daily.bat` before MTM (M2.1/M2.2) |
 | `scripts/momentum/check_anomalies.py` | Anomaly detector (read-only): flags KLAC-class 1-day moves + missing held marks → `var/anomaly_report.log`. Wired into `daily.bat` after MTM, non-blocking (M2.3) |
 | `scripts/momentum/check_cache_gaps.py` | Cache-gap auditor (read-only): flags rankable tickers with history holes >5 trading days → `var/cache_gap_report.log`. Wired into `daily.bat`, gated to day 1 of month (record DE T-4; the gate was a no-op until DG fixed the block→goto — it ran DAILY 08-16..08-18) |
+| `scripts/momentum/check_month_gate.py [--canary]` | Month gate for `rebalance.bat` (read-only): exits 1 when `rebalance_log.md` already stamps the current calendar month, so the daily-firing `monthy-llm-rebalance` cannot run a second rebalance mid-month on a mis-read of its own prose gate (record DI.2). A **PARTIAL** stamp does NOT refuse — that is a failed run awaiting its retry, and locking it out is the bug audit 2026-08-04 finding 1 fixed. Override: `rebalance.bat --allow-same-month`. Self-check: `--canary` 8/8 |
 | `scripts/momentum/verify_run.py --mode daily\|monthly` | Post-run verifier (read-only): per-sleeve NAV continuity (to last SETTLED day), **(b1) per-date ledger cash — every row since `LEDGER_EPOCH=2026-07-31` must match `historical_state.state_at()`, hard FAIL (record DD; replaced the `navs[-1]`-only recon that hid bad older rows)**, **(b2) price drift — reported, NEVER failed (measures `price_cache` revision, which is by design per CK.4)**, position-count (monthly), no-pre-inception, **plus run-level (e) rebalance cadence** — `rebalance_log.md`'s date must be in the settled month or later, else FAIL (record CO; closes the CN blind spot — an un-rebalanced sleeve passes (a)-(d) perfectly, it just holds a stale book) → `var/verify_report.log`. Wired into `daily.bat` (M3.2), `rebalance.bat` (record BS), `ladder_rebalance.bat` (record CG) |
 | `scripts/momentum/mtm_catchup.py [--dry-run]` | Self-healing MTM: marks every settled missing trading day (incl today) for all sleeves; skips pending days + never overwrites/back-marks across a rebalance. Runs in `daily.bat` after refresh (M3.5) |
 | `scripts/momentum/ops_stamp.py` | Appends a dated one-line run-status stamp to `var/ops_status.log` (M3.4) |
@@ -528,7 +554,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 | File | When to run |
 |---|---|
 | `scripts/momentum/daily.bat` | Daily after market close (auto via `TradingDailyMTM` at 5:15pm) |
-| `scripts/momentum/rebalance.bat` | 1st trading day of each month (manual, idempotent) |
+| `scripts/momentum/rebalance.bat` | 1st trading day of each month (auto via the `monthy-llm-rebalance` Claude task). **Refuses if this calendar month is already stamped** (`check_month_gate.py`, record DI.2) — pass `--allow-same-month` for a deliberate re-run. All 15 step gates use explicit `%errorlevel%` capture, not `if errorlevel 1` (record DI.1) |
 | `scripts/momentum/ladder_rebalance.bat` | Nightly weekly/biweekly ladder rebalance (auto via `TradingLadderRebalance` 8:30pm; no-op on evenings where both cadences have already been served this period). Propagates the dispatcher's exit code (record CH) |
 | `scripts/add_price_cache_date_index.py` | One-time migration, APPLIED 2026-07-28 (record CH): partial index on `price_cache(key_date) WHERE kind='close' AND price IS NOT NULL`. Every date query used to full-scan 37.5M rows; the coverage gate went 7.1s -> 0.271s. Dry-run by default, `--execute` to apply, reversible via `DROP INDEX idx_pc_close_date` |
 | `scripts/start_all.bat` | Manual full restart (kills dashboard, refreshes prices, MTMs all) |
@@ -560,6 +586,27 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   whether today is a weekly/biweekly rebalance day (holiday-aware; biweekly parity is
   ordinal-weeks-since-2026-04-27, immune to 53-ISO-week years). Ends with its own
   `verify_run --mode daily`. Logs: `var/last_ladder_run.log`
+- **`\llm rebal`** — Monthly, day 1, 5:59 PM. **Despite the name it is NOT a
+  rebalance**: its action is a `mouse_event` wake-nudge, i.e. a wake fired 4
+  minutes before the 6:03 PM `monthy-llm-rebalance` Claude task below.
+  **CURRENTLY FAILING and has been since 2026-08-02** — `LastTaskResult`
+  `-2147020576` (0x800710E0, "operator or administrator refused the request")
+  with `StopIfGoingOnBatteries=True`. **This is the identical failure documented
+  for `TradingWeeklyBackup` above**, whose fix (clear the power flags, set
+  `StartWhenAvailable`) was applied 2026-07-28 and never applied here. Next
+  opportunity 2026-09-01 — the same run DH's new `rc=2` decide guard first
+  matters on. Nothing surfaces this: no log, no check. **OPEN, Evan's to change**
+  (record DI.5).
+- **`\Wake PC`** (daily 5:29 PM) / **`\Wake PC 2`** (daily 7:59 AM) — the same
+  `mouse_event` wake-nudge, paired to the evening and morning MTM slots. They
+  fire AFTER their slots, which is correct: both MTM tasks carry
+  `StartWhenAvailable`, so a wake after the slot triggers the missed run.
+  Undocumented here until 2026-08-19 (record DI.5).
+
+> **Task-table completeness (record DI.5).** DE T-5 and DG.2 both state the task
+> table was "re-synced against the live list" — true of the *Claude-scheduler*
+> table below, not this one. This section listed 5 tasks while `schtasks`
+> registered 8 non-Microsoft ones. The three above were the gap.
 
 ### Claude agent scheduled tasks (SEPARATE from the Windows tasks above)
 
@@ -707,7 +754,7 @@ trading day of the month does real work).
 > permission classifier — **a future session should re-list and confirm.**
 > `verify_run` structurally cannot catch this: an un-rebalanced sleeve has
 > perfectly continuous NAV and perfectly reconciled cash, it just holds a stale
-> book (same blind spot as the record CH biweekly-ladder finding, one layer up). It runs `rebalance.bat`, which now
+> book (same blind spot as the record CH biweekly-ladder finding, one layer up). It runs `rebalance.bat`, which since 2026-08-19 **refuses outright if this calendar month is already stamped** (`check_month_gate.py`, record DI.2 — the prose self-gate above is no longer the only thing standing between a daily-firing task and a mid-month rebalance). A deliberate re-run needs `--allow-same-month`. It
 dispatches through `scripts/momentum/monthly_rebalance.py` (29 rebalance + 30
 MTM sleeves, all `--broker-realistic`) instead of the old per-sleeve .bat lines
 — the "all 10 paper lines" phrasing here was obsolete as of 2026-07-28. It also
