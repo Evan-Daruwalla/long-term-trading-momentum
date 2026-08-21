@@ -171,6 +171,7 @@ lives in the dated entry, not the digest.
 - [DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE `*_ops decide` path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count](#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt) (08-19)
 - [DI - Scheduled daily-audit (2026-08-19): `rebalance.bat`'s 15 `if errorlevel 1` gates were blind to negative crash codes -- a crashed `alpaca_sync --execute` stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed](#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt) (08-19)
 - [DJ - Audit of `daily-trade-check-2`: its prohibitions (READ-ONLY, never `git add -A`, never push, never rebalance) had ZERO mechanical enforcement -- the deny list was 2 `Read(./.env*)` rules against a PUBLIC remote. Deny rules added to both settings files; the 4 live task specs (in no git repo) snapshotted to `docs/scheduled-tasks/` with a daily drift diff; `/landing-check` moved BEFORE the commit; 2026-08-17's missing post-close session found by the new check](#appendix-dj---audit-of-the-daily-trade-check-2-scheduled-task-spec-every-prohibition-in-the-file-that-authorizes-an-unattended-agent-to-write-this-repo-was-prose-with-zero-enforcement-and-the-one-time-it-was-tested-it-failed-deny-rules-added-specs-snapshotted-into-the-repo-landing-check-moved-before-the-commit-2026-08-20-2330-cdt) (08-20)
+- [DK - Landing-check on DJ: 4 of the 9 deny rules DJ.1 called the fix used a LEADING `:*`, which is dead syntax -- Bash rules are prefix matchers, so the four covering the rebalancer, the decide path and Alpaca order-submit could never fire, and the record said they did. Replaced with a tested PreToolUse hook (20/20). Plus DJ.8's task count was wrong (`hellow` is Evan's, it stays) and a stale byte count inside DJ](#appendix-dk---landing-check-on-dj-four-of-the-nine-deny-rules-dj1-called-the-fix-were-dead-syntax-and-could-never-fire-so-the-two-most-dangerous-prohibitions-had-no-cover-at-all-replaced-with-a-tested-pretooluse-hook-plus-two-smaller-dj-corrections-2026-08-20-2355-cdt) (08-20)
 
 ---
 
@@ -10212,3 +10213,145 @@ that were fixed by clause (E5 duplicate-fire, E7 month-boundary lock) are **CONS
 observed** - the clauses are untriggered guards, and the first real holiday and the first real
 1st-trading-day collision are still the tests that matter. E1 (missing session) and E6
 (unmarked NAV) were **OBSERVED** and are the two that were already costing something.
+
+
+# Appendix DK - Landing-check on DJ: four of the nine deny rules DJ.1 called the fix were dead syntax and could never fire, so the two most dangerous prohibitions had no cover at all. Replaced with a tested PreToolUse hook. Plus two smaller DJ corrections (2026-08-20, ~23:55 CDT)
+
+**Trigger.** `/landing-check` on commit `954eeaa`, run by two independent fresh
+agents. Both reached the same top finding, one of them by **empirical test rather
+than by reading** - which is why it was caught at all.
+
+**DK.1 - The correction that matters: DJ.1's fix was itself the failure class DJ.1
+was written about.**
+
+DJ.1 recorded nine `Bash(...)` deny rules added to both settings files. Four of them
+were written as:
+
+```
+"Bash(:*paper_rebalance:*)"
+"Bash(:*_ops rebalance:*)"
+"Bash(:*_ops decide:*)"
+"Bash(:*alpaca_sync --execute:*)"
+```
+
+Claude Code `Bash(...)` permission rules are **prefix matchers** - `Bash(prefix:*)`
+means "the command starts with `prefix`", and the `:*` shorthand is only recognised
+at the **end** of a pattern. A leading `:` is a literal colon, so each of those four
+rules required a command to *begin with a colon character*. Nothing does. The
+landing-check verified this two ways: `git rebase --help` was **blocked** (the five
+plain-prefix rules work), while a command carrying `paper_rebalance` mid-string
+**ran unblocked**.
+
+The consequence is worse than the count suggests. The five rules that worked are all
+`git` hygiene. The four that did not were the ones covering **actually rebalancing a
+sleeve, writing an LLM decision, and submitting Alpaca orders** - the operations the
+whole exercise exists to prevent. DJ.1 claimed those were now enforced. They were
+not, and the record said they were.
+
+This is the same shape as DI (a gate deaf to the codes it was supposed to catch) and
+as DJ.1's own subject (a prohibition with nothing behind it). **A rule that reads as
+protection and cannot fire is worse than no rule**, because it stops anyone looking
+further - and DJ's own `daily-audit` STEP 0e was written to assert those exact
+strings were *present*, which would have reported green forever on a dead gate.
+
+**The real reason a glob was never going to work here**, stated so this is not
+re-attempted: the invocation is
+`.venv\Scripts\python.exe -m scripts.momentum.paper_rebalance`. The dangerous token
+is in the **middle** of the command. A prefix matcher structurally cannot see it, so
+no amount of fixing the syntax would have produced a working rule.
+
+**Fix - a PreToolUse hook, which sees the whole command string.**
+`scripts/hooks/pretooluse-trading-guard.js` (new, and deliberately under `scripts/`
+rather than `.claude/` so the *logic* is version-controlled even though the settings
+pointer cannot be - see DJ.10). Registered on matcher `Bash|PowerShell` in both
+settings files. It denies `paper_rebalance`, `_ops rebalance`, `_ops decide`,
+`alpaca_sync --execute`, and `git push`, and returns
+`permissionDecision: "deny"` rather than crashing. It re-covers `git push` because
+the prefix rule misses `cd x && git push`.
+
+**The four dead rules were REMOVED, not repaired.** Leaving a corrected-looking
+string that still cannot match would rebuild the same trap.
+
+**Self-check:** `scripts/hooks/test_trading_guard.js`, assert-based, no framework -
+`node scripts\hooks\test_trading_guard.js` -> **20 passed, 0 failed**. Its DENY cases
+are the exact mid-command shapes the globs let through, including
+`cd /d/ClaudeCode/Trading && git push`, which the working prefix rule also misses.
+Its ALLOW cases are the daily report's real commands (`git status`,
+`git add daily_report.md daily_report.html`, `git commit -m ...`,
+`render_daily_report_html`, `alpaca_sync --dry-run`).
+
+**One accepted false positive, asserted in the test so it stays a decision and not a
+surprise:** substring matching also blocks *mentioning* a token, e.g.
+`grep -n paper_rebalance CLAUDE.md`. A false positive costs one rephrase; a false
+negative costs a real trade. The test asserts the deny so the behaviour cannot drift
+silently.
+
+`daily-audit` STEP 0e is rewritten to match: assert the five working prefix rules,
+assert the hook is registered in both files, then **run the hook's self-check**.
+Asserting strings is what produced the green-light-on-a-dead-gate risk; running the
+check is what actually establishes the guard is alive.
+
+**DK.2 - DJ.8's task count was wrong within minutes of being written.**
+
+DJ.8 said "the live task list is now 4 enabled ... plus one disabled one-time". The
+live list is **5 enabled + 1 disabled**. A task `hellow` (cron `0 12,17,22 * * *`,
+enabled, never fired at the time of writing) was created at 23:25:56, four minutes
+before commit `954eeaa`, and a sibling dir `hello/` at 23:25:08 which is not
+registered. Neither appears in DJ or HANDOFF. The landing-check flagged it and
+correctly declined to touch it.
+
+**Origin resolved: Evan created it, and it stays.** It was proposed for disabling on
+the theory that it was session debris and Evan declined - the routine is his. The
+older orphan dir `hellohello/` (2026-07-11, never registered) also sits on disk,
+inert. HANDOFF's task table is updated to carry `hellow` as a live intentional task
+rather than leaving it undocumented, which is the condition that made the two deleted
+strays hard to reason about in the first place.
+
+**DK.3 - A stale self-reference inside DJ.**
+
+DJ's Verification paragraph cites the record twin as "816,393 bytes, 147 links". The
+committed twin is **832,567 bytes, 148 links, 564 heading ids, 0 broken** - the
+numbers in `954eeaa`'s commit message are the correct ones. Cause: the byte count was
+captured before DJ.10 was appended to DJ itself, and the prose was not re-read after
+the second render. Harmless, but it is a wrong number in the ground-truth document,
+so it is corrected here rather than left. **DJ is not edited** - it is committed, and
+prior appendices are never rewritten.
+
+**What DJ got right.** Both landing-checks confirmed, independently and against disk:
+the four spec snapshots byte-identical to live and all present in the commit (DJ.2);
+`/landing-check` now ordered before `git add` in both specs, and the three cited
+corrections commits real and as described (DJ.3); 2026-08-17 has a pre-market header
+and no post-close one (DJ.4); PRE-FLIGHT 0a-0g and `mode=ro` present in both specs
+(DJ.5); the atomic `.tmp` + `os.replace()` write with a single shared chokepoint, and
+`render_daily_report_html.py` confirmed to call the same `render()` with no separate
+write path (DJ.7); HANDOFF's four push claims corrected at the exact lines cited and
+the two stray rows struck rather than deleted (DJ.9); `.gitignore:13` and neither
+settings file tracked (DJ.10). Also confirmed: frozen tests d=+/-0.0000pp on all four
+configs, `scripts/git-hooks/pre-commit` correctly left MODIFIED-but-uncommitted
+(pre-existing work from something else today, deliberately not swept in), nothing
+pushed (`ahead 3`), and `var/trades.db` mtime still `2026-08-20 17:17:34` from the
+scheduled MTM - no write during any of this.
+
+**Verification for this entry.**
+
+```
+node scripts\hooks\test_trading_guard.js
+trading-guard self-check: 20 passed, 0 failed
+
+.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies
+[OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+[OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+[OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+[OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+All regression tests passed.
+```
+
+Both settings files re-parse as valid JSON with the hook registered on
+`Bash|PowerShell`. All four spec snapshots re-diffed clean against live after the
+STEP 0e rewrite.
+
+**Open, and honestly open.** The guard is tested against the command shapes I could
+think of; it is a substring matcher and a sufficiently novel invocation (a renamed
+wrapper, a script that shells out internally) would slip it. It raises the floor, it
+is not a sandbox. The settings files remain untracked (DJ.10) - `daily-audit` STEP 0e
+detects removal, it cannot prevent it, and making them tracked is still Evan's call.

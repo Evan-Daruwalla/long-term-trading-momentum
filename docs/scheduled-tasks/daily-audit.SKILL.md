@@ -29,14 +29,23 @@ c. SPEC DRIFT. `diff` each live scheduled-task SKILL.md under
 d. CRON DRIFT. Read the live cron for every enabled task from the scheduled-tasks list
    (never from a doc) and compare against HANDOFF.md's task table. This machine has
    three documented drifts (records CQ.3, DG, and the monthly-rebalance day-gate).
-e. DENY-RULE PRESENCE. Assert BOTH D:\ClaudeCode\Trading\.claude\settings.json AND
-   C:\Users\evan.EVANFREDY\.claude\settings.json still carry the permissions.deny rules
-   added 2026-08-20 (record DJ.1): git push, git add -A, git add ., git reset --hard,
-   git rebase, *paper_rebalance*, *_ops rebalance*, *_ops decide*, *alpaca_sync --execute*.
-   Report any that are missing. These are the ONLY mechanical enforcement behind the
-   scheduled tasks' "READ-ONLY / never push / never trade" prose, and `.claude/` is
-   gitignored (.gitignore:13) so neither file is version-controlled — nothing else would
+e. TRADE/PUSH GUARD LIVE. Two layers, both must be present. `.claude/` is gitignored
+   (.gitignore:13) so NEITHER settings file is version-controlled — nothing else would
    ever notice them being edited away. Assert presence; do not print the files.
+   - Layer 1, settings deny (prefix rules, these work): BOTH
+     D:\ClaudeCode\Trading\.claude\settings.json AND
+     C:\Users\evan.EVANFREDY\.claude\settings.json must carry
+     `Bash(git push:*)`, `Bash(git add -A:*)`, `Bash(git add .:*)`,
+     `Bash(git reset --hard:*)`, `Bash(git rebase:*)`.
+   - Layer 2, the PreToolUse hook (this is what actually blocks a rebalance): both
+     files must register
+     `scripts\hooks\pretooluse-trading-guard.js` on matcher `Bash|PowerShell`.
+     Then RUN its self-check: `node scripts\hooks\test_trading_guard.js` — it must
+     print 0 failed. Do NOT assert deny-rule strings for paper_rebalance / _ops
+     rebalance / _ops decide / alpaca_sync --execute: those were tried as settings
+     globs on 2026-08-20 and CANNOT work (Bash rules are prefix matchers; the token
+     sits mid-command). Record DK. Asserting a string that cannot fire is a green
+     light on a dead gate.
 
 STEP 1 — Classify every project; print the table (project | verdict | evidence date)
 before doing anything else. No silent drops. To classify, read ONLY: the dates/titles
