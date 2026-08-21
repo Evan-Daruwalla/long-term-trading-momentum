@@ -104,8 +104,12 @@ def render(src, out, title, topbar):
     )
     html = TEMPLATE.format(body=body, scroll=SCROLL_MARGIN_TOP, title=title, topbar=topbar)
 
-    with open(out, "w", encoding="utf-8") as f:
+    # Atomic: a kill mid-write must not leave a truncated twin for the caller to
+    # commit (the daily-report tasks stage this file on the very next step).
+    tmp = out + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         f.write(html)
+    os.replace(tmp, out)
 
     # Verify every internal anchor resolves.
     hrefs = set(re.findall(r'href="#([^"]+)"', html))

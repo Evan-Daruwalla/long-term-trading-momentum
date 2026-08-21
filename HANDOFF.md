@@ -610,20 +610,27 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 
 ### Claude agent scheduled tasks (SEPARATE from the Windows tasks above)
 
+> **2026-08-20 (audit of `daily-trade-check-2`) — the scheduled tasks now have MECHANICAL enforcement and a drift detector.** The audit's crit finding was that every prohibition in the daily-report specs ("READ/RESEARCH ONLY", "NEVER `git add -A`", "never push", "never rebalance") was prose with **zero enforcement** — the deny list held two `Read(./.env*)` rules and nothing else, against a **public** remote, and it had already failed once for real (record DI.3). Three things changed:
+> 1. **Deny rules** added to BOTH `.claude/settings.json` and `~/.claude/settings.json` (the scheduled agent's cwd is not guaranteed): `git push`, `git add -A`, `git add .`, `git reset --hard`, `git rebase`, `*paper_rebalance*`, `*_ops rebalance*`, `*_ops decide*`, `*alpaca_sync --execute*`.
+> 2. **The live task specs are now snapshotted into the repo** at `docs/scheduled-tasks/<taskId>.SKILL.md` (4 of them). The live files under `~/.claude/scheduled-tasks/` are in NO git repo, so an edit to a spec that authorizes repo writes or trades was previously undetectable. `daily-audit` STEP 0c now diffs live-vs-snapshot every morning — **when you edit a task spec, re-copy it or the audit will report drift.**
+> 3. **`daily-audit` gained a STEP 0** (missing session / duplicate session / spec drift / cron drift). The missing-session check exists because **2026-08-17 has a pre-market entry and no post-market one** and nothing detected it — a scheduled report that never fires produces no error and no artifact.
+>
+> Both daily-report specs were also rewritten with a PRE-FLIGHT block: local-`date` header (the 19:00 task fires 22s past the UTC date line under CDT), holiday abort, duplicate-header abort, `mode=ro` DB open, month-boundary lock check, and an unmarked-NAV rule (**never present a carried-forward NAV as a marked close**). `/landing-check` now runs **BEFORE** the commit, not after — it had been gating nothing, and fabricated detail reached three of five consecutive entries.
+
 **Added 2026-08-05 (audit finding 16).** These run through Claude's own
 scheduler, not `schtasks`, so they appear in NO `schtasks /query` output and were
 in no inventory in this repo — three of them enabled and firing daily, two of
-them **committing and pushing to this repo**. Read the live list with
+them **committing to this repo** (local only — the push clause was removed 2026-08-19 after audit DI.3/E5; re-verified and re-stated 2026-08-20). Read the live list with
 `mcp__scheduled-tasks__list_scheduled_tasks`; prompts live in
 `C:\Users\evan.EVANFREDY\.claude\scheduled-tasks\<id>\SKILL.md`.
 
 | Task | Cron | State | What it does |
 |---|---|---|---|
 | `monthy-llm-rebalance` | `0 18 * * *` (~6:03pm daily) | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
-| `daily-trade-check` | `0 7 * * 1-5` (~7:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then `git add` (those 2 files only) + `commit` + **`push`** |
-| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + commit + **push**. Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance. **Found drifted back to `0 17` (5:00pm, 15 min before `TradingDailyMTM`) on 2026-08-18 and restored to `0 19` (record DG) - third documented cron drift on this machine; read the live list, never this table** |
-| `hellllo` | `0 12 * * *` (~12:03pm daily) | **enabled** | ⚠️ **Stray test task.** Its entire prompt is `hello (Just say "hi" back)`. Harmless, but it fires every morning forever. **Evan's to delete — flagged, not removed.** |
-| `hello-just-say-hi-back` | `0 17 * * *` (~5:04-5:05pm daily) | **enabled** | ⚠️ **A SECOND stray test task, found 2026-08-16 (audit finding T-5) — was undocumented here entirely.** Same "hello, just say hi back" prompt as `hellllo`. Fires 10 min before `TradingDailyMTM` (5:15pm) — harmless overlap so far, but worth knowing about. **Evan's to delete.** |
+| `daily-trade-check` | `0 7 * * 1-5` (~7:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then /landing-check, then `git add` (those 2 files only) + `commit`. **Local only — never pushes** (audit DI.3/E5) |
+| `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + landing-check + commit. **Local only — never pushes** (audit DI.3/E5). Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance. **Found drifted back to `0 17` (5:00pm, 15 min before `TradingDailyMTM`) on 2026-08-18 and restored to `0 19` (record DG) - third documented cron drift on this machine; read the live list, never this table** |
+| ~~`hellllo`~~ | ~~`0 12 * * *`~~ | **DELETED 2026-08-20** | Stray test task (`hello (Just say "hi" back)`), fired daily for months. Removed in the 2026-08-20 audit (finding 13); 10 run sessions archived. `SKILL.md` left on disk at `~/.claude/scheduled-tasks/hellllo/` so the prompt is recoverable. |
+| ~~`hello-just-say-hi-back`~~ | ~~`0 17 * * *`~~ | **DELETED 2026-08-20** | Second stray test task, same prompt; fired ~10 min before `TradingDailyMTM`. Removed in the 2026-08-20 audit (finding 13); 7 run sessions archived. `SKILL.md` left on disk. |
 | `daily-audit` | `0 7 * * *` (~7:05am daily) | **enabled** | Runs `/audit` + `/landing-check` on active projects (this project's audits land here, in HANDOFF, and in the record). Found live 2026-08-16 (audit finding T-5) — was undocumented here entirely. |
 | ~~`cohort-0706-deploy`~~ | ~~manual~~ | **absent** | One-time 07-06 cohort deploy, fired 2026-07-07. NOT in the live task list as of 2026-08-18 (record DG); DE T-5 wrote "disabled" over an earlier correct read of "absent" |
 | `check-0803-rebalance` | one-time | disabled | Post-mortem of the 08-03 rebalance, fired 2026-08-04 |
@@ -636,7 +643,7 @@ them **committing and pushing to this repo**. Read the live list with
 > from this table.
 >
 > **Two writers to `daily_report.md`**: `daily-trade-check` and
-> `daily-trade-check-2` both append and push. Their windows are 11 hours apart,
+> `daily-trade-check-2` both append and commit locally; neither pushes. Their windows are 11 hours apart,
 > and both are explicitly scoped to `git add daily_report.md daily_report.html`
 > (never `-A`), so an in-progress working tree is not swept in.
 

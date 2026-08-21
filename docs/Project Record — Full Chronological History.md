@@ -170,6 +170,7 @@ lives in the dated entry, not the digest.
 - [DG - Landing-check on DE: its day-1 cache-gap gate was a cmd.exe NO-OP (ran daily 08-16..08-18) and its "re-synced" task table missed `daily-trade-check-2` drifted back to `0 17` - both fixed. DA finding 4 CLOSED: the 3 lost LLM decisions were destroyed by INSERT OR REPLACE, not by hand; writers now plain INSERT + append-only triggers, canaried 15/15](#appendix-dg---landing-check-on-de-found-two-of-its-fixes-did-not-hold-the-day-1-cache-gap-gate-was-a-cmdexe-no-op-ran-daily-08-1608-18-and-the-re-synced-task-table-missed-a-cron-that-had-drifted-back-into-the-mtm-window-both-fixed-plus-da-finding-4-closed-the-three-lost-llm-decisions-were-destroyed-by-insert-or-replace-not-by-hand---writers-are-plain-insert-now-and-the-tables-are-append-only-at-the-db-layer-canaried-1515-2026-08-19-0005-cdt) (08-19)
 - [DH - Landing-check on DG's own commit: SAFE, 3 corrections - DG.4 verified the DORMANT decision path; the LIVE `*_ops decide` path had no guard and would have traced out on 09-01, now refuses cleanly rc=2; one HANDOFF line; one diff count](#appendix-dh---landing-check-on-dg-its-own-commit-ebc059f-safe-three-corrections---dg4-verified-the-dormant-decision-path-the-live-one-had-no-guard-and-would-have-traced-out-of-the-unattended-603pm-task-on-09-01-now-refuses-cleanly-rc2-one-handoff-line-dg3-missed-one-wrong-diff-count-2026-08-19-0020-cdt) (08-19)
 - [DI - Scheduled daily-audit (2026-08-19): `rebalance.bat`'s 15 `if errorlevel 1` gates were blind to negative crash codes -- a crashed `alpaca_sync --execute` stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed](#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt) (08-19)
+- [DJ - Audit of `daily-trade-check-2`: its prohibitions (READ-ONLY, never `git add -A`, never push, never rebalance) had ZERO mechanical enforcement -- the deny list was 2 `Read(./.env*)` rules against a PUBLIC remote. Deny rules added to both settings files; the 4 live task specs (in no git repo) snapshotted to `docs/scheduled-tasks/` with a daily drift diff; `/landing-check` moved BEFORE the commit; 2026-08-17's missing post-close session found by the new check](#appendix-dj---audit-of-the-daily-trade-check-2-scheduled-task-spec-every-prohibition-in-the-file-that-authorizes-an-unattended-agent-to-write-this-repo-was-prose-with-zero-enforcement-and-the-one-time-it-was-tested-it-failed-deny-rules-added-specs-snapshotted-into-the-repo-landing-check-moved-before-the-commit-2026-08-20-2330-cdt) (08-20)
 
 ---
 
@@ -10047,3 +10048,167 @@ The month gate first bites on **2026-09-01**, which is also the first firing of
 `\llm rebal` since it started failing and the date DH's own `rc=2` guard first
 matters - so 09-01 is the run to watch. E5 is live for the next scheduled
 report run. Everything in DI.6 is open.
+
+
+# Appendix DJ - Audit of the `daily-trade-check-2` scheduled-task spec: every prohibition in the file that authorizes an unattended agent to write this repo was prose with zero enforcement, and the one time it was tested it failed. Deny rules added, specs snapshotted into the repo, landing-check moved before the commit (2026-08-20, ~23:30 CDT)
+
+**Trigger.** Evan ran `/audit` on `~/.claude/scheduled-tasks/daily-trade-check-2/SKILL.md`
+immediately after that task's own 19:00 run produced the 08-20 post-close entry. Per the
+audit skill's step 0 the executing session is a compromised auditor, so a **cold
+general-purpose agent** was spawned with the file, the blast radius, and steps 1-6, and with
+no conversation history. Its findings were then independently re-verified before action:
+`.claude/settings.json`, `git remote -v`, `cd ~/.claude && git rev-parse`, `ls docs/research`,
+and a header grep of `daily_report.md`. All confirmed.
+
+**DJ.1 - The crit finding: the prohibitions were decorative.**
+
+The spec asserts "This task is READ/RESEARCH ONLY", "NEVER `git add -A` or `git add .`",
+"Do NOT push", "never push, force-push, pull, rebase, or auto-merge", "it must never
+rebalance, MTM, or modify any sleeve, NAV, or price data". Every one of those was **prose an
+LLM reads**, with nothing behind it:
+
+```
+.claude/settings.json   ->  permissions.deny = ["Read(./.env)", "Read(./.env.*)"]
+~/.claude/settings.json ->  permissions had NO deny key at all
+git remote -v           ->  https://github.com/Evan-Daruwalla/long-term-trading-momentum (PUBLIC)
+```
+
+This is the same class as DI's month gate ("gated only by prose an LLM reads") and it had
+**already failed once for real**: record DI.3, 2026-08-19 07:08 CDT, when two landing-check
+commits were pushed to the public remote by a task whose spec said not to.
+
+**Fix:** nine `Bash(...)` deny rules added to **both** `.claude/settings.json` and
+`~/.claude/settings.json` - the scheduled agent's cwd is not guaranteed, so a project-only
+deny list is a deny list with a hole in it. Covered: `git push`, `git add -A`, `git add .`,
+`git reset --hard`, `git rebase`, `*paper_rebalance*`, `*_ops rebalance*`, `*_ops decide*`,
+`*alpaca_sync --execute*`. Both files re-parsed as valid JSON after the edit.
+
+**DJ.2 - The spec that authorizes repo writes is in no git repo.**
+
+`cd ~/.claude && git rev-parse --show-toplevel` -> *not a git repository*. There is no
+history, no diff, no rollback, and no way to detect that a task spec was edited - on a machine
+where this task's cron has drifted three times (CQ.3, DG, plus the monthly day-gate). Flagged
+in DI.6; nothing had been done.
+
+**Fix:** the four live Trading-relevant specs are now snapshotted to
+`docs/scheduled-tasks/<taskId>.SKILL.md` (`daily-trade-check`, `daily-trade-check-2`,
+`daily-audit`, `monthy-llm-rebalance`), and `daily-audit` STEP 0c diffs live-vs-snapshot every
+morning. **Standing consequence: editing a task spec now requires re-copying it, or the next
+audit reports drift.** That is the intended behaviour, not a bug.
+
+**DJ.3 - `/landing-check` was running after the commit, gating nothing.**
+
+The spec said "Then self-commit ... **Finally** use /landing-check". The skill's own contract
+is a **pre-commit** sweep returning `SAFE TO COMMIT / FIX FIRST`. Running it after the commit
+means its verdict cannot gate anything, and the record shows the cost: fabricated or wrong
+detail reached **three of the five preceding entries** and each needed a second corrections
+commit - `c118a3e` (wrong CFNB band low), `12f8bb6` (session counts carried past their
+timestamp), `2d17058` (13 share counts written to 4 decimals from a 2-decimal console
+display). The last of those happened in this very session, hours before the audit.
+
+**Fix:** both daily-report specs now run `/landing-check` **before** `git add`, with the commit
+gated on a clean verdict, plus an explicit clause authorizing a
+`Daily report: <date> corrections - ...` commit if something is found after the fact.
+
+**DJ.4 - A whole session was missing from the track record and nothing noticed.**
+
+`grep -c "^## Report: 2026-08-17 (Monday) - Post-Market" daily_report.md` -> **0**. The
+pre-market entry for 08-17 exists at line 30505; the post-close one was never written, and
+there is no commit between `87466e3` (08-17 07:26) and `63affd0` (08-18 07:30). Nothing
+errored. A scheduled report that never fires produces no error and no artifact - **the absence
+is the failure**, and only a manual header-date diff would ever have caught it.
+
+**Fix:** `daily-audit` gained a **STEP 0** running before classification: (a) missing session -
+every weekday in the last 7 must have BOTH a Pre-Market and a Post-Market header; (b) duplicate
+session; (c) spec drift per DJ.2; (d) cron drift read from the live tool, never from a doc.
+
+**DJ.5 - PRE-FLIGHT blocks on both daily-report specs.**
+
+Seven checks, each of which can abort the run, added to `daily-trade-check` and
+`daily-trade-check-2`:
+
+| check | why |
+|---|---|
+| 0a local `date` for the header | this task fires at 19:00 local = **00:00:22 UTC**, so a UTC-derived date files the session under tomorrow. `nextRunAt 2026-08-22T00:00:22.000Z`, jitter 22s. Seasonal - invisible all winter under CST. |
+| 0b holiday abort | cron is `* * 1-5` with no holiday calendar; ~9 closed weekdays a year, on which "today's final NAV" is unsatisfiable and the compliant-looking output republishes yesterday under today's date |
+| 0c duplicate-header abort | no idempotency clause existed; a re-fire double-counts in the week/period summaries |
+| 0d echo the live cron into section 0 | turns a silent drift into a visible artifact |
+| 0e `mode=ro` DB open | `grep -c 'mode=ro'` was **0** in both specs though CLAUDE.md makes it a hard rule; a default connect is read-write **and creates the file** on a wrong relative path, and `var/` is gitignored so a phantom DB would not show in `git status` |
+| 0f month-boundary lock check | `monthy-llm-rebalance` fires ~18:03 and runs 15-35 min; on the 1st trading day it can still hold the DB when this task starts at 19:00 |
+| 0g unmarked-NAV rule | **live right now** - `paper_nav` max is 2026-08-19 and 08-20 has 0/76 rows, the fourth consecutive session under the coverage floor. The spec said "query for today's final NAV" with no clause for the day being unmarked; the compliant-looking failure is publishing yesterday's NAV as today's close. |
+
+Also added: the sections the format had converged on but the spec never required (**section 0
+data-integrity/ops** and **the ladder-gradient/structural read**); an explicit **precision**
+clause under DO-NOT-ASSUME (never print more significant digits than the source - the
+`2d17058` failure mode); a stated working directory (the absolute repo path appeared **once**
+in 3,647 characters, buried in the git clause); "`daily_report.md` is newest-LAST, read the
+TAIL"; and a source-disagreement rule (publish the reconciled figure, flag the outlier, never
+average silently).
+
+**DJ.6 - `/research-brief` was forbidden by the spec's own whitelist.**
+
+The spec opened with "use /research-brief" and later said "the ONLY writes it may make are
+appending its own report to daily_report.md, rendering the HTML twin, and committing those two
+report files". `/research-brief`'s defined deliverable is `docs/research/<date>_<slug>.md` plus
+a record line - both outside that whitelist. `docs/research/` does not exist and no brief has
+been produced by this task in ~37 runs; the methodology was being applied inline all along.
+**Fix:** the spec now says to apply the *methodology* inline and explicitly not to save a
+separate brief.
+
+**DJ.7 - Non-atomic HTML render, and the no-op that reports nowhere.**
+
+`scripts/render_record_html.py:107` did `open(out, "w")` then `f.write(html)` on a 5.7 MB
+file, and the next spec step stages and commits that file - an interruption commits a truncated
+twin, which CLAUDE.md forbids hand-editing. Both renderers share this one write site
+(`render_daily_report_html.py` delegates to `render()`), so the chokepoint fix covers both. It
+now writes `out + ".tmp"` then `os.replace()`. **Verified by feeding it the trigger**, not by
+reading the patch: a simulated kill mid-write left the target byte-identical (34 bytes,
+unchanged), a clean write replaced it and consumed the `.tmp`, and the pre-fix behaviour
+truncated the same file to 50 bytes for contrast.
+
+Separately, the spec's *only* handled failure - "If git reports nothing to commit, that is fine
+- just note it in your summary and finish" - routes its notice to an unattended chat summary
+nobody reads, when in fact nothing-to-commit means the report was never appended: a total
+failure wearing the happy path's clothes. It now appends
+`[OPS <date>] daily-trade-check-2 NO-OP: nothing to commit` to `var/ops_status.log`, and
+`var/ops_status.log` was added to the write whitelist to keep that legal.
+
+**DJ.8 - Two stray test tasks deleted.**
+
+`hellllo` (`0 12 * * *`) and `hello-just-say-hi-back` (`0 17 * * *`) - both entire prompts were
+`hello (Just say "hi" back)`, both still **enabled and firing daily**, the second one ~10
+minutes before `TradingDailyMTM`. Flagged as "Evan's to delete" in HANDOFF since 2026-08-16
+(DE T-5). Deleted on Evan's approval; 10 and 7 archived run sessions respectively. **Their
+`SKILL.md` files were left on disk**, so the prompts are recoverable. The live task list is now
+4 enabled (`daily-trade-check`, `daily-trade-check-2`, `monthy-llm-rebalance`, `daily-audit`)
+plus one disabled one-time.
+
+**DJ.9 - HANDOFF drift corrected.**
+
+HANDOFF - the only live snapshot - still described both daily-report tasks as pushing, in four
+places (`:616`, `:623`, `:624`, `:639`), and had been synced 41 minutes *after* the push clause
+was removed. All four corrected, the two stray-task rows struck, and a note added recording the
+enforcement layer and the re-copy obligation from DJ.2.
+
+**DJ.10 - A caveat on DJ.1 found while committing: the enforcement layer is itself untracked.** `.gitignore:13` is `.claude/*` with a single exception (`!.claude/codebase-memory/`), so **neither** settings file is version-controlled. The deny rules that are now the only mechanical enforcement behind every scheduled task's "READ-ONLY / never push / never trade" prose live in files git cannot see - the same unversioned-config gap as DJ.2, one layer down. Copying them into the repo was rejected: the user-level file carries personal config and the remote is public. Instead `daily-audit` STEP 0e now **asserts the nine rules are present in both files by name** every morning and reports any that went missing, without printing either file. That detects removal; it does not prevent it. **Making these tracked is a real open question and it is Evan's call** - it needs a `!.claude/settings.json` negation and a decision about what belongs in a public repo.
+
+**Verification.** Frozen regression tests after the Python change:
+
+```
+[OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+[OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+[OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+[OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+All regression tests passed.
+```
+
+Both renderers re-run clean (`daily_report.html` 5,718,872 bytes, 1,201 heading ids, 0 broken;
+record twin 816,393 bytes, 147 links, 0 broken), no `.tmp` residue. Both settings files
+re-parse as valid JSON. All four spec snapshots `diff`-clean against live.
+
+**What was NOT done.** The audit's M6 was read-only - the spec itself was not executed, since
+executing it writes and commits. No CVE database was consulted. The edge cases ranked P2/P3
+that were fixed by clause (E5 duplicate-fire, E7 month-boundary lock) are **CONSTRUCTED, not
+observed** - the clauses are untriggered guards, and the first real holiday and the first real
+1st-trading-day collision are still the tests that matter. E1 (missing session) and E6
+(unmarked NAV) were **OBSERVED** and are the two that were already costing something.
