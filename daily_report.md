@@ -33607,7 +33607,7 @@ The one persistent, mechanically-visible dispersion in this book right now is **
 > **DAILY SUMMARY**
 > **THE BOOK CLOSED AN INDICATIVE $7,752,474.48, −0.7588% ON THE DAY.** `paper_nav` is marked through **2026-08-19 at $7,811,752.06 (76/76 rows)**; **08-20 is UNMARKED** because the 17:15 `TradingDailyMTM` found **4,270 closes against a 5,000 floor**. The naive carry-forward indicative is **$7,754,525.58 (−0.7326%)**; four held names have no 08-20 row and all four were fetched individually, which corrects the book down **$2,051.10** — **$2,041.81 of it is TGTX alone** ($50.56 actual vs $51.69 carried, 1,806.9103 shares in 42 sleeves). Against **SPY −0.8400%** and **QQQ −0.7192%**, the book beat SPY by 0.08pp and lagged QQQ by 0.04pp. §0, §2.
 > **THE DAY'S STRUCTURE IS A CLEAN INVERSION OF THE LAST THREE SESSIONS: SEMIS LED, HEALTHCARE PAID FOR IT.** The **24-name semi/semicap complex — 16.37% of held value, $1,248,580.94 — gained $18,086.12 (+1.470%)**, its first up day in four. Healthcare, the book's largest block at **25.55% ($1,947,742.29), lost $33,443.65 (−1.688%)**, and the XLV-tagged sleeve block another **$2,006.19**. Combined healthcare is **−$35,449.84 = 59.8% of the $59,277.58 net loss**, while semis offset **30.5%** of it. Three sessions running, semis were the whole loss; today they were the only large defence. §3a/§3b.
-> **MICRON IS THE SINGLE LARGEST P&L LINE IN THE BOOK AND IT CLOSED +3.97% TO $974.33.** That is **+$11,329.76** on 304.4029 shares across 60 sleeves, a $296,585.57 position, **3.98% of held value**. The catalyst set is dated: **BMO Capital initiated at Outperform with a $1,300 target on a "prolonged memory supercycle"**, and Micron announced **Micron Research Labs in Boise behind a planned $10B investment** ([TradingKey, 2026-08-20](https://www.tradingkey.com/news/market-movers/262122310-market-movers-mu-20260820); [TheStreet, 2026-08](https://www.thestreet.com/investing/micron-stock-new-street-price-target)). The rest of the memory complex followed: **STX +2.12% (+$5,341.28)**, **WDC +1.51% (+$2,082.23)**, **LRCX +1.09% (+$1,607.74)**. §3a.
+> **MICRON IS THE SINGLE LARGEST P&L LINE IN THE BOOK AND IT CLOSED +3.97% TO $974.33.** That is **+$11,329.76** on 304.3995 shares across 60 sleeves, a $296,585.57 position, **3.98% of held value**. The catalyst set is dated: **BMO Capital initiated at Outperform with a $1,300 target on a "prolonged memory supercycle"**, and Micron announced **Micron Research Labs in Boise behind a planned $10B investment** ([TradingKey, 2026-08-20](https://www.tradingkey.com/news/market-movers/262122310-market-movers-mu-20260820); [TheStreet, 2026-08](https://www.thestreet.com/investing/micron-stock-new-street-price-target)). The rest of the memory complex followed: **STX +2.12% (+$5,341.28)**, **WDC +1.51% (+$2,082.23)**, **LRCX +1.09% (+$1,607.74)**. §3a.
 > **AURINIA IS THE BEST PERCENTAGE MOVE OF ANY POSITION OF SIZE — +6.80% TO $17.27, +$7,048.32 — AND IT IS A DATED, VERIFIABLE CATALYST.** The Teva **voclosporin patent-litigation settlement pushes US generic entry to at least 2036-12-07** ([TipRanks, 2026-08-19](https://www.tipranks.com/news/company-announcements/aurinia-teva-reach-voclosporin-patent-litigation-settlement); close confirmed at [stockanalysis.com/stocks/auph, read 2026-08-20 ~19:08 CDT](https://stockanalysis.com/stocks/auph/)). It is held in **46 sleeves**. It is the only healthcare name of size that worked. §3b.
 > **MODERNA GAVE BACK 23.55% — $174.38 → $133.32 — ONE SESSION AFTER +176.97%, AND THE BOOK STILL BARELY FELT IT.** It cost **$1,212.02 on 29.5182 shares in 2 sleeves**. Wednesday's +176.97% earned **$3,288.92**; the round trip nets **+$2,076.90** on a position that never exceeded 0.07% of the book. **The book's exposure to the largest single-name repricing of the month was, and remains, structurally trivial** ([24/7 Wall St., 2026-08-20](https://247wallst.com/investing/2026/08/20/moderna-plunges-20-one-day-after-cancer-vaccine-breakthrough-sent-shares-up-177/); [Benzinga, 2026-08-20](https://www.benzinga.com/trading-ideas/movers/26/08/61339720/moderna-mrna-177-percent-record-cancer-vaccine-selloff-25-percent-worst-day)). §3b.
 > **THE MACRO EVENT IS THAT THE TREASURY BUYBACK RALLY REVERSED INSIDE ONE SESSION.** The 30-year **rose 4bp to 5.24%** and the 10-year **rose 4bp to 4.69%**, undoing Wednesday's 9bp/5bp falls, and the Dow's **−1.32%** was its worst day since 2026-07-29 ([Yahoo Finance live blog, 2026-08-20](https://finance.yahoo.com/markets/live/stock-market-today-thursday-august-20-dow-sp-500-nasdaq-081139322.html); [TradingEconomics, read 2026-08-20](https://tradingeconomics.com/united-states/stock-market)). **Walmart −9.15% to $103.84** on US same-store sales of **+2.6% vs +3.7% expected**, blamed on **high gas prices** forcing consumer "trade-offs" — **WMT is held by zero sleeves**, but the read-through hit the book's cyclicals: **Consumer Cyclical −2.655% (−$9,986.68), the worst sector in the book.** §1, §3c.
@@ -33863,19 +33863,19 @@ This is the complex that cost the book **−$65,154.40** on 08-19 — 266% of th
 
 | ticker | sleeves | qty | 08-19 | 08-20 | day | P&L | value |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| MU | 60 | 304.4029 | $937.11 | **$974.33** | **+3.97%** | **+$11,329.76** | $296,585.57 |
-| STX | 66 | 302.1088 | $832.56 | **$850.24** | **+2.12%** | **+$5,341.28** | $256,865.14 |
-| WDC | 65 | 299.1698 | $462.09 | $469.05 | +1.51% | +$2,082.23 | $140,326.14 |
-| LRCX | 61 | 478.4909 | $307.17 | $310.53 | +1.09% | +$1,607.74 | $148,586.98 |
-| AMAT | 51 | 239.5257 | $496.17 | $496.21 | +0.01% | +$9.58 | $118,855.79 |
-| KLAC | 45 | 519.4187 | $187.27 | $185.86 | −0.75% | −$732.39 | $96,540.20 |
+| MU | 60 | 304.3995 | $937.11 | **$974.33** | **+3.97%** | **+$11,329.76** | $296,585.57 |
+| STX | 66 | 302.1090 | $832.56 | **$850.24** | **+2.12%** | **+$5,341.28** | $256,865.14 |
+| WDC | 65 | 299.1710 | $462.09 | $469.05 | +1.51% | +$2,082.23 | $140,326.14 |
+| LRCX | 61 | 478.4948 | $307.17 | $310.53 | +1.09% | +$1,607.74 | $148,586.98 |
+| AMAT | 51 | 239.5272 | $496.17 | $496.21 | +0.01% | +$9.58 | $118,855.79 |
+| KLAC | 45 | 519.4234 | $187.27 | $185.86 | −0.75% | −$732.39 | $96,540.20 |
 | **VICR** | 36 | 288.4831 | $217.35 | **$207.64** | **−4.47%** | **−$2,801.17** | $59,900.81 |
-| TER | 22 | 82.0511 | $379.65 | $383.15 | +0.92% | +$287.18 | $31,438.03 |
-| PXLW | 10 | 2,651.4778 | $6.60 | $6.87 | +4.09% | +$715.90 | $18,215.65 |
-| AAOI | 6 | 70.2954 | $122.19 | $129.10 | +5.66% | +$485.75 | $9,075.13 |
-| MRVL | 4 | 25.0990 | $237.27 | $251.01 | +5.79% | +$344.91 | $6,300.60 |
-| ICHR | 6 | 117.3016 | $61.21 | $58.87 | −3.82% | −$274.49 | $6,905.44 |
-| UCTT | 6 | 110.1662 | $75.01 | $73.01 | −2.67% | −$220.34 | $8,043.23 |
+| TER | 22 | 82.0505 | $379.65 | $383.15 | +0.92% | +$287.18 | $31,438.03 |
+| PXLW | 10 | 2,651.4809 | $6.60 | $6.87 | +4.09% | +$715.90 | $18,215.65 |
+| AAOI | 6 | 70.2965 | $122.19 | $129.10 | +5.66% | +$485.75 | $9,075.13 |
+| MRVL | 4 | 25.1030 | $237.27 | $251.01 | +5.79% | +$344.91 | $6,300.60 |
+| ICHR | 6 | 117.3022 | $61.21 | $58.87 | −3.82% | −$274.49 | $6,905.44 |
+| UCTT | 6 | 110.1696 | $75.01 | $73.01 | −2.67% | −$220.34 | $8,043.23 |
 
 *(remaining 11 names — ALAB, FORM, INTC, ONTO, NVEC, SITM, AMD, COHU, LSCC, AMKR, VSH — contribute −$89.82 combined on $50,942.23 of value.)*
 
@@ -33934,7 +33934,7 @@ The structural driver behind the whole block is unchanged and quantified: **DDR5
 | DPZ | −0.64% | −$271.75 | $42,263.71 |
 | TRS | +0.10% | +$37.49 | $36,150.32 |
 
-**ELA is Envela Corporation (NYSE American: ELA)**, a recommerce business — pre-owned luxury jewellery/watches/bullion on the consumer side, IT asset disposition on the commercial side ([Nasdaq/ELA](https://www.nasdaq.com/market-activity/stocks/ela)). It closed **−6.00% at $14.10** on 4,091.0055 shares in 44 sleeves. **I found no 08-20-specific news for ELA and am not going to invent one.** The structural read is that a discretionary-resale name is exactly what sells off on a Walmart print that names consumer trade-offs and gas prices — **ROST (off-price retail) −2.43%, DECK −2.96%, BYD (gaming) −2.09% and BKNG (travel) −1.47% all move the same direction on the same logic** — but that is an inference from the sector pattern, not a sourced fact about ELA.
+**ELA is Envela Corporation (NYSE American: ELA)**, a recommerce business — pre-owned luxury jewellery/watches/bullion on the consumer side, IT asset disposition on the commercial side ([Nasdaq/ELA](https://www.nasdaq.com/market-activity/stocks/ela)). It closed **−6.00% at $14.10** on 4,091.0053 shares in 44 sleeves. **I found no 08-20-specific news for ELA and am not going to invent one.** The structural read is that a discretionary-resale name is exactly what sells off on a Walmart print that names consumer trade-offs and gas prices — **ROST (off-price retail) −2.43%, DECK −2.96%, BYD (gaming) −2.09% and BKNG (travel) −1.47% all move the same direction on the same logic** — but that is an inference from the sector pattern, not a sourced fact about ELA.
 
 **Two more losers with dated context.** **DAVE −2.91% to $335.01 (−$2,736.09, 45 sleeves)** — and the only dated 08-20 item is *positive*: **Benchmark reaffirmed Buy with a $320 price target after hosting an investor meeting with CEO Jason Wilk and CFO Kyle Beilman** ([Yahoo Finance](https://finance.yahoo.com/news/benchmark-keeps-buy-rating-dave-050452939.html)). **Note the price closed above that reaffirmed target.** The standing setup is the **2026-08-05** Q2 print — ninth consecutive quarter of ≥30% revenue growth, FY26 revenue guide raised to **$725–735M** from $710–720M — after which the stock **fell 15.1% on 08-06** on growth deceleration ([Investing.com](https://www.investing.com/news/company-news/dave-q2-2026-slides-30-revenue-growth-shares-drop-on-valuation-93CH-4839759)).
 
