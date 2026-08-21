@@ -62,8 +62,12 @@ What it does:
 3. Diffs against open positions; sells exits, buys new (BOTH sleeves)
 4. Logs new NAV rows reflecting post-rebalance state
 
-Idempotent — re-running same day with same universe is a no-op. Safe to re-run
-if you're unsure whether it ran.
+Idempotent WITHIN a day — re-running same day with same universe is a no-op.
+**But since 2026-08-19 `rebalance.bat` REFUSES outright if `rebalance_log.md`
+already stamps the current calendar month** (`check_month_gate.py`, record DI.2):
+mid-month the ranks have moved, so a re-run is not a no-op, it TRADES. A
+deliberate re-run needs `rebalance.bat --allow-same-month`. A PARTIAL stamp does
+NOT refuse - that retry path stays open.
 
 ## Verifying state
 

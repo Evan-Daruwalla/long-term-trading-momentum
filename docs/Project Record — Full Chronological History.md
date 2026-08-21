@@ -172,6 +172,7 @@ lives in the dated entry, not the digest.
 - [DI - Scheduled daily-audit (2026-08-19): `rebalance.bat`'s 15 `if errorlevel 1` gates were blind to negative crash codes -- a crashed `alpaca_sync --execute` stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed](#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt) (08-19)
 - [DJ - Audit of `daily-trade-check-2`: its prohibitions (READ-ONLY, never `git add -A`, never push, never rebalance) had ZERO mechanical enforcement -- the deny list was 2 `Read(./.env*)` rules against a PUBLIC remote. Deny rules added to both settings files; the 4 live task specs (in no git repo) snapshotted to `docs/scheduled-tasks/` with a daily drift diff; `/landing-check` moved BEFORE the commit; 2026-08-17's missing post-close session found by the new check](#appendix-dj---audit-of-the-daily-trade-check-2-scheduled-task-spec-every-prohibition-in-the-file-that-authorizes-an-unattended-agent-to-write-this-repo-was-prose-with-zero-enforcement-and-the-one-time-it-was-tested-it-failed-deny-rules-added-specs-snapshotted-into-the-repo-landing-check-moved-before-the-commit-2026-08-20-2330-cdt) (08-20)
 - [DK - Landing-check on DJ: 4 of the 9 deny rules DJ.1 called the fix used a LEADING `:*`, which is dead syntax -- Bash rules are prefix matchers, so the four covering the rebalancer, the decide path and Alpaca order-submit could never fire, and the record said they did. Replaced with a tested PreToolUse hook (20/20). Plus DJ.8's task count was wrong (`hellow` is Evan's, it stays) and a stale byte count inside DJ](#appendix-dk---landing-check-on-dj-four-of-the-nine-deny-rules-dj1-called-the-fix-were-dead-syntax-and-could-never-fire-so-the-two-most-dangerous-prohibitions-had-no-cover-at-all-replaced-with-a-tested-pretooluse-hook-plus-two-smaller-dj-corrections-2026-08-20-2355-cdt) (08-20)
+- [DL - Landing-check on DI: its central claim was FALSE - `daily.bat` still had 4 gates on the deaf `if errorlevel` idiom incl. the one on `verify_run`, so a CRASHED verifier stamped PASS and exited 0; fixed + proven against a real crash code. HANDOFF was claiming "local, unpushed" about 26-hour-public commits](#appendix-dl---landing-check-on-di-its-central-claim-was-false---dailybat-still-had-4-gates-on-the-deaf-if-errorlevel-idiom-including-the-one-on-verify_run-so-a-crashed-verifier-stamped-pass-and-exited-0-fixed-and-proven-against-a-real-crash-code-plus-handoff-was-asserting-local-unpushed-about-commits-that-had-been-public-for-26-hours-2026-08-21-0315-cdt) (08-21)
 
 ---
 
@@ -10355,3 +10356,147 @@ think of; it is a substring matcher and a sufficiently novel invocation (a renam
 wrapper, a script that shells out internally) would slip it. It raises the floor, it
 is not a sandbox. The settings files remain untracked (DJ.10) - `daily-audit` STEP 0e
 detects removal, it cannot prevent it, and making them tracked is still Evan's call.
+
+# Appendix DL - Landing-check on DI: its central claim was false - `daily.bat` still had 4 gates on the deaf `if errorlevel` idiom, including the one on `verify_run`, so a CRASHED verifier stamped PASS and exited 0. Fixed and proven against a real crash code. Plus HANDOFF was asserting "local, unpushed" about commits that had been public for 26 hours (2026-08-21, ~03:15 CDT)
+
+Evan: "/landing-check", then "1" (fix findings 1-3). A cold worker swept record DI's
+commits (`9d9fd72`, `e926f70`, `251b588`) plus the two out-of-repo `SKILL.md` edits;
+every load-bearing finding was re-derived by hand before anything was touched.
+Verdict on DI's work was **SAFE** - the 15-site conversion is complete with zero
+survivors, both diff counts exact, `--canary` 8/8, the live-log REFUSE string
+byte-identical, and both push instructions genuinely gone. Three things were wrong
+anyway, and one of them is a live correctness defect.
+
+## DL.1 DI.1's universal was false, and the survivor is the one that matters
+
+DI.1 states `rebalance.bat` "was the one left on the old idiom". Counting
+`if errorlevel` across all 10 tracked `.bat` files instead of the three DI named:
+
+| file | hits |
+|---|---|
+| `daily.bat` | **6** - 4 live gates + 2 REM comments describing the trap |
+| `monthly_auto.bat` | 2 (dormant Option-B path, unscheduled) |
+| `start_all.bat` | 1 |
+| `rebalance.bat`, `ladder_rebalance.bat`, `morning_refresh.bat`, 4 others | 0 |
+
+So `rebalance.bat` was the only one DI *checked*, not the only one left. `daily.bat`
+fixed itself for exactly this trap at the two `check-invalidation` sites (audit
+2026-08-12 finding 3) and **documents the trap in its own comments at lines 55 and
+68** - while four of its own gates kept using it.
+
+The material survivor was the verify gate:
+
+    .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
+    if errorlevel 1 goto verify_fail
+    ... ops_stamp --verify PASS ... & exit /b 0
+
+`if errorlevel N` is GREATER-OR-EQUAL, so a `verify_run` killed with
+`-1073741819` (0xC0000005) is **not** `>= 1`: control falls through to the PASS
+stamp and `exit /b 0`. A crashed verifier stamped `verify=PASS` and Task Scheduler
+showed green - the daily-path twin of the defect DI fixed on the monthly path.
+
+**Fixed** - all four converted to the file's own documented idiom (explicit
+`%errorlevel%` capture, matching its `STOPS_RC`/`CATCHUP_RC` sites). Explicit-capture
+sites went 4 -> 8; `if errorlevel` now appears only in the two REM comments. Each
+conversion is fail-safe in its own direction: a crashed `check_coverage` becomes
+PENDING (skips the PASS stamp), a crashed day-of-month gate skips the optional
+cache-gap report, a crashed Graphify warns instead of passing silently.
+
+**Proven against real Windows exit codes, not argued** - stand-ins built from the
+patched lines, `python.exe` replaced by `cmd /c exit <rc>`:
+
+    rc = -1073741819   OLD: REACHED_PASS_STAMP   exit=0   <-- the bug
+                       NEW: REACHED_VERIFY_FAIL  exit=1   <-- caught
+    rc = 1             NEW: REACHED_VERIFY_FAIL  exit=1   (no regression)
+    rc = 0             NEW: REACHED_PASS_STAMP   exit=0   (no false positive)
+
+`monthly_auto.bat` (2) and `start_all.bat` (1) are left alone: the first is the
+dormant unscheduled path, the second launches the dashboard and trades nothing.
+Reported, not fixed - a surgical change stops where the request stops.
+
+## DL.2 HANDOFF was asserting the opposite of the truth about publication
+
+`HANDOFF.md:104` read: "Commits `9d9fd72` (code) + `e926f70` (record), **local,
+unpushed**." All three DI commits are ancestors of the true remote head
+(`git ls-remote origin refs/heads/master` -> `adbf8f3`, not the cached ref), pushed
+**2026-08-20 19:18:40 CDT** per `git reflog origin/master` - 17 minutes after
+`daily-trade-check-2`'s run, and *before* DI's own E5 removed the push instruction
+from that spec. DI.7's "Not pushed - and with E5 applied, no scheduled task will
+push it either" was true for about 26 hours.
+
+The event is recorded in DJ; the **live snapshot** was still claiming the opposite,
+which is the one place it matters, since HANDOFF is what a fresh session reads
+first. Corrected to name all three commits and state they are public.
+
+## DL.3 Two runbooks still told you to do something that now fails
+
+DI's `check_month_gate` made `rebalance.bat` refuse a same-month re-run. Neither
+runbook was updated, and both actively contradicted it:
+
+- `docs/paper_trading_ops.md:65` - "Idempotent - re-running same day with same
+  universe is a no-op. **Safe to re-run if you're unsure whether it ran.**"
+- `docs/overlay_decision_runbook.md:34` - step 3 is a bare `cmd /c ... rebalance.bat`,
+  and the file's script table (`:191`) described only the overlay refusal.
+
+Grep for `allow-same-month` across both files returned **0** before this entry.
+Someone following either doc hits a bare `REFUSED` with nothing pointing at the
+override. All three sites now state the gate, the override flag, and that a PARTIAL
+stamp still permits its retry.
+
+## DL.4 A concurrent session was writing this repo, and this entry waited for it
+
+At 22:32 the tree was clean at `2d17058`. At 23:40 it was `954eeaa` (DJ) with 4
+files modified; `HANDOFF.md` had been written **2 seconds** before the check, and
+`scripts/hooks/pretooluse-trading-guard.js` + its test had appeared 20 seconds
+apart. Per DI.6's own precedent - Swing's entry was held for exactly this - **no
+write was made until it finished.** A watcher polling every 30s exited at 23:53:03
+when it committed DK (`6dcf543`) and went idle.
+
+Had that wait been skipped, the HANDOFF edit in DL.2 would have landed in a file
+another session had touched 40 seconds earlier, mid-DK.
+
+**Left deliberately untouched:** `scripts/git-hooks/pre-commit` is modified and
+uncommitted (mtime 23:05:38 - it sat unstaged through *both* DJ and DK). It adds a
+delegated record-invariants guard pointing at
+`~/.claude/skills/project-memory/hooks/pre-commit-record`, which exists. It is the
+LIVE hook (`core.hooksPath=scripts/git-hooks`), so it is already in force. Not mine
+to commit or revert; this commit stages explicit paths only, never `-A`, so it
+could not ride along. One thing to flag for whoever owns it: the block comments
+"**Fails CLOSED**", but its `else` branch on a missing guard prints a warning and
+falls through to `exit 0` - it fails **open** when the guard is absent. Moot today,
+and the same claim-vs-code mismatch class DK was written about.
+
+## DL.5 Verification (real output)
+
+Frozen tests **4/4 d=+/-0.0000pp**, exit 0, run 2026-08-21 ~03:10 CDT after the
+`.bat` change:
+
+    [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+    [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+    [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+    [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+    All regression tests passed.
+
+
+`daily.bat`: 0 non-ASCII bytes, LF-only preserved, every `goto` target resolves to
+exactly one label. (`grep -oP 'goto \K\w+'` also reports a target `is` with 0
+labels - that is the word "goto is what the rest of this file uses" inside DG's own
+REM comment, a pre-existing grep artifact, not a dangling jump.)
+
+No Python changed. No DB writes. No `.bat` was executed - the crash-code proof used
+stand-ins in the scratchpad.
+
+## DL.6 Status
+
+- DI.1's universal: **corrected**; `daily.bat`'s 4 gates closed and proven.
+- HANDOFF publication claim + 3 runbook sites: **corrected**.
+- Still OPEN, unchanged: the 08-19 audit's findings 2 (`last_close_on_or_before`
+  ignores the NULL-quarantine its siblings honour), 3/E2 (`verify_run`'s continuity
+  calendar derives from the table it is checking), 5 (`check_dependency_cves.py`
+  invoked by nothing), 9 (`\llm rebal` failing 19 days on a battery flag); DA's
+  findings 5 (`TOL_PCT=0.05`) and 6 (overlay-twin ticker normalisation); and the
+  findings from both audits that were never written down anywhere - identifiable
+  now only by re-auditing.
+- Evan's, unchanged: `slippage_log` 0 rows; `positions` residue 137 rows.
+- Local is ahead of the remote and **staying** there unless Evan says otherwise.

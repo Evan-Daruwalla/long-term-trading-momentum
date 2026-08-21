@@ -101,7 +101,10 @@ itself an audit finding (22).
 > moved, and it TRADES. New `check_month_gate.py` is the mechanical gate;
 > **a deliberate mid-month or same-day re-run now needs
 > `rebalance.bat --allow-same-month`.** A PARTIAL stamp still permits the retry.
-> Commits `9d9fd72` (code) + `e926f70` (record), **local, unpushed**.
+> Commits `9d9fd72` (code) + `e926f70` (record) + `251b588` (HANDOFF sync).
+> **All three are PUBLIC** - pushed 2026-08-20 19:18:40 CDT, before E5 removed
+> the push instruction from the trade-check specs. The "local, unpushed" this
+> line used to claim was true when written and false 26 hours later (record DL).
 >
 > **Still OPEN from that audit — 8 findings and 6 edge cases**, notably:
 > `market_data.last_close_on_or_before` has no `price IS NOT NULL` filter while

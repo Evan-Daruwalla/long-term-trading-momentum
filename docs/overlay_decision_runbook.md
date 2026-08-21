@@ -33,6 +33,9 @@ research against this rubric, the logged decisions, then the rebalance.
 
 3.  cmd /c D:\ClaudeCode\Trading\scripts\momentum\rebalance.bat
         # rebalances all systematic sleeves + both overlays (now un-blocked) + MTMs
+        # REFUSES if this calendar month is already stamped in rebalance_log.md
+        # (check_month_gate.py, record DI.2). Deliberate re-run:
+        #   rebalance.bat --allow-same-month
 ```
 
 **`--as-of`.** All `decide` calls and the rebalance must use the SAME date (the
@@ -188,5 +191,5 @@ periodically. The in-session Option A remains the lower-risk default.
 | `scripts/momentum/llm_cascade_ops.py` | BOTH cascade sleeves: init / rebalance-stock / rebalance-sector. **No `check-invalidation` — unstopped by design (2026-08-05, record CR)** |
 | `trading_bot/strategies/llm_overlay.py` | stock overlay design + kill switch |
 | `trading_bot/strategies/sector_overlay.py` | sector overlay design + kill switch |
-| `scripts/momentum/rebalance.bat` | monthly execution (refuses overlays until decided) |
+| `scripts/momentum/rebalance.bat` | monthly execution (refuses overlays until decided; also refuses a month already stamped in `rebalance_log.md` unless `--allow-same-month`) |
 | `scripts/momentum/daily.bat` | daily MTM + the two CASH overlays' stop enforcement (auto 5:15pm). Deliberately does NOT enforce stops on the cascade sleeves |

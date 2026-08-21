@@ -35,7 +35,8 @@ set REFRESH_NOTE=--note "price refresh failed rc=%REFRESH_RC% - marks may use st
 echo.
 echo === Coverage check for TODAY (ops stamp only; does NOT gate stops) ===
 .venv\Scripts\python.exe -m scripts.momentum.check_coverage
-if errorlevel 1 goto today_pending
+set COV_RC=%errorlevel%
+if not "%COV_RC%"=="0" goto today_pending
 
 set OPS_COV=PASS
 goto enforce_stops
@@ -88,7 +89,8 @@ REM goto, not a parenthesized block (file header rule): the 2026-08-16 block for
 REM had "(...)" inside the echo text, which closed the block early and made the
 REM check run EVERY day (record DG). Escaping the parens works too, but is
 REM fragile; goto is what the rest of this file uses.
-if errorlevel 1 goto cache_gap_skip
+set GATE_RC=%errorlevel%
+if not "%GATE_RC%"=="0" goto cache_gap_skip
 echo.
 echo === Monthly cache-gap audit - non-blocking, day 1 of month ===
 .venv\Scripts\python.exe -m scripts.momentum.check_cache_gaps
@@ -98,12 +100,14 @@ echo.
 echo === Refresh Graphify code knowledge-graph (structural, non-fatal) ===
 REM Scope is controlled by .graphifyignore (trading_bot/ + scripts/, minus docs/tests/research).
 "%USERPROFILE%\.local\bin\graphify.exe" update
-if errorlevel 1 echo WARNING: Graphify update failed. Code graph may be stale.
+set GRAPHIFY_RC=%errorlevel%
+if not "%GRAPHIFY_RC%"=="0" echo WARNING: Graphify update failed. Code graph may be stale.
 
 echo.
 echo === Post-run verification (daily) ===
 .venv\Scripts\python.exe -m scripts.momentum.verify_run --mode daily
-if errorlevel 1 goto verify_fail
+set VERIFY_RC=%errorlevel%
+if not "%VERIFY_RC%"=="0" goto verify_fail
 .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage %OPS_COV% --verify PASS %REFRESH_NOTE%
 echo.
 echo Done.
