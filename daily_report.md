@@ -34549,3 +34549,475 @@ Two observations from today's data are structural rather than daily, and both ar
 **That is a falsifiable, pre-registerable hypothesis for the 09-01 cycle: a veto whose rationale rests primarily on trailing price technicals underperforms a veto whose rationale rests on a contract, order book, or regulatory fact.** It can be scored on the existing `llm_overlay_log.rationale` and `sector_overlay_log.rationale` fields with no new infrastructure — classify each logged rationale as technical-dominant or fundamental-dominant *at decision time*, then score forward returns by class. **The n is currently 13 stock decisions across 6 decision dates and 22 sector decisions across 4, far too small to conclude anything.** But the classification is free, it is pre-registerable before the next cycle rather than fitted after it, and it converts the experiment's two most expensive mistakes from anecdotes into a testable claim. **No recommendation is made here; the kill-switch criteria set at launch — 12 months / 30 picks, drop if scores don't predict returns or the treatment doesn't beat control — remain the governing test.**
 
 **6d. What this entry does not claim.** The 08-20 book value is indicative, not marked. The pre-market book value is an estimate built on 39.72% quote coverage with the balance carried flat. The flash PMI actual is not published because it had not printed. Yesterday's healthcare drawdown is reported as having no identified catalyst rather than being attributed to one. The semi-complex value differs from the 08-20 post-market entry by definition of membership, and the membership is listed so the difference is checkable.
+
+## Report: 2026-08-21 (Friday) — Post-Market Close Analysis
+
+> **DAILY SUMMARY**
+> **TODAY IS UNMARKED — THE FIFTH CONSECUTIVE SESSION THE 5:15pm MTM REFUSED TO MARK — AND EVERY NAV BELOW IS INDICATIVE.** `max(nav_date)` in `paper_nav` is **2026-08-20**. The 17:15 CDT refresh completed all **30/30 batches, 205,881 rows**, but Yahoo had published only **4,055 closes against a 10-day median baseline of 5,157 and a floor of 5,000** — so `check_coverage` FAILED and `mtm_catchup` logged `PENDING 2026-08-21 ... leaving unmarked (heals later)`. **This is incomplete same-day publication, not a truncated run.** Indicative book NAV is **$7,795,457.14** (held $7,666,990.10 + cash $128,467.04) against the marked 08-20 close of **$7,754,525.82** — **+0.5278%, +$40,931.33**. **18 of 209 held tickers have no 08-21 close and are carried flat at their 08-20 price: $540,775.29 = 7.05% of held value.** That carry biases every day-move toward zero and is the reason these are estimates. §0.
+> **THE BOOK BEAT THE S&P TODAY AND STILL LOST THE WEEK.** S&P 500 **+0.43% to 7,674.37**, Nasdaq **+0.43% to 26,180.46**, Dow **+0.98% (+517.80) to 53,277.01**, IWM **+0.77% to $299.96** ([Yahoo Finance live blog, 2026-08-21](https://finance.yahoo.com/markets/live/stock-market-today-friday-august-21-dow-sp-500-nasdaq-bitcoin-080533702.html); [stockanalysis.com/etf/iwm](https://stockanalysis.com/etf/iwm/)). Book **+0.5278%** vs SPY **+0.41%**. But on the week the book is **−1.3070% (−$103,238.46)** against S&P **−1.4%**, Dow **−0.8%**, Nasdaq **−2.0%**. **Month-to-date the book is +1.7116% (+$131,179.20).** §1, §5.
+> **THE BOOK'S BREADTH WAS THE STORY, NOT ITS BIG NAMES: 117 OF 191 PRICED HOLDINGS ROSE, MEDIAN +0.42%, AND THE SEMICONDUCTOR BLOCK FELL.** The **21-name semi/semicap block — $1,192,124.53, 15.55% of held value — closed −0.735%, −$8,823.63** (MU −0.77%, WDC −2.05%, VICR −3.42%, MRVL −5.57%, AEHR −4.00%, KLAC −1.01%, AMAT −0.78%; only LRCX +1.12%, ICHR +2.26%, MXL +2.04% green). **This morning's pre-market entry read semis as +1.221% and called them "ahead of" the tape; they closed red. That call is falsified and is recorded as such.** The pre-market whole-book estimate of **+0.2948%** also under-shot the **+0.5278%** indicative outcome — the flat-carry bias again. §3a, §7.
+> **TOP DOLLAR CONTRIBUTORS, ALL VERIFIED CLOSE-TO-CLOSE:** **ATEX +9.31% to $93.25 → +$10,383.66 across 59 sleeves** (no 08-21 catalyst sourced; most recent company news is 08-11/08-13 — reported as unattributed), **TGTX +7.34% to $54.27 → +$6,703.64 across 42 sleeves**, **DAVE +5.88% → +$5,371.36**, **AXGN +8.53% to $50.40 → +$2,962.05**, **EZPW +12.03% to $32.22 → +$2,562.07**. Against them: **AUPH −3.59% to $16.65 → −$3,972.69 across 46 sleeves**, **WDC −2.05% → −$2,875.03**, **MU −0.77% → −$2,298.21**. §3.
+> **MACRO: THE TREASURY'S BUYBACK RELIEF LASTED ONE DAY, AND JACKSON HOLE IS NEXT FRIDAY.** Treasury doubled longer-dated buybacks from **$2B to $4B per operation, 2026-09-09 through 11-04**, on 08-19; the 10-year fell 5.7bp to 4.647% and the 30-year 9bp to 5.196% that day, then gave it all back ([CNBC, 2026-08-19](https://www.cnbc.com/2026/08/19/treasury-announces-upscaled-buyback-operation-for-longer-term-debt-sending-yields-lower.html); [CNBC, 2026-08-21](https://www.cnbc.com/2026/08/21/treasury-yields-bonds-inflation-rates.html)). **10-year 4.73%, 30-year 5.27% at Friday's close; VIX −5.50% to 15.13.** **Jackson Hole runs 2026-08-27 to 08-29, with Chair Kevin Warsh's first keynote Friday 2026-08-28** ([Saxo Bank, 2026-08-21](https://www.home.saxo/en-mena/content/articles/macro/market-quick-take---treasury-yields-rise-and-walmart-slides-as-jackson-hole-comes-into-view---21-august-2026-21082026)). §1.
+> **LLM EXPERIMENT — THE STOCK ARM IS STILL 100% CASH AND THE SECTOR ARM'S OWN STOP LEVEL IS THE FINDING.** `llm_overlay_mom_roa_top1_paper` sits at **exactly $100,000.00, 0 positions, 46 sessions in**, after VETOing all five 08-03 candidates. Control `mom_roa_top1_paper` is **−3.69%**; cascade `llm_cascade_top1_paper` **+2.05%**. On the sector side control `sector_top4_paper` **+6.46%** > overlay **+2.32%** > cascade **+2.02%**. **New finding: the LLM's 08-03 XLU invalidation level of $44.50 was set ABOVE XLU's close on the very day it was logged ($44.36), and XLU has closed below $44.50 on all 15 sessions since, ending today at $42.77 (−3.89% through the level).** Nothing acts on it — XLU is held only by the cascade arm, which by design has no stop. §4.
+> **THE LADDER'S GRADIENT IS UNAMBIGUOUS AND IT POINTS AT THE QUALITY LEG, NOT MOMENTUM.** Across all 57 rungs since 2026-05-01: **residual-weight ≤45% (ROA-dominant, n=27) averages +5.76%; residual-weight ≥55% (momentum-dominant, n=27) averages +2.31%** — a **3.45pp spread**. Cadence stacks the same way: **monthly +5.45% > weekly +3.72% > biweekly +3.04%**. **Only 13 of 57 rungs beat SPY's +6.25%.** §6.
+> **CRITICAL OUTSTANDING:** (1) five consecutive PENDING coverage days — 08-21 should heal on the next settled run, but the 7:45am `TradingMorningMTM` will next fire **Monday 08-24**, so the weekend carries an unmarked Friday; (2) **CFNB flagged +4126.8%, $33.95 → $1,435.00, after 10 sessions pinned at $33.95** — a cache-level data ghost, **never held by any sleeve, past or present** (verified: 0 rows in `paper_positions`), reported not fixed; (3) six sourcing outliers rejected today, listed in §0d.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock and zone.** `date` returned **`Fri Aug 21 19:01:08 CDT 2026`**. UTC-5 → **CDT**. Every timestamp in this entry is CDT and every date is the local date.
+
+**0b. Market state.** US equities traded a full regular session. Verified against three independent closing sources plus 191 individually-priced holdings in `price_cache`.
+
+**0c. Duplicate check.** `grep` for `## Report: 2026-08-21 (Friday) — Post-Market Close Analysis` in `daily_report.md` returned nothing before this append. The 08-21 pre-market entry exists at line 34143; this is the day's second and final entry.
+
+**0d. Cron echo — no drift.** From the live scheduled-tasks list:
+
+| field | value |
+|---|---|
+| `taskId` | `daily-trade-check-2` |
+| `cronExpression` | `0 19 * * 1-5` |
+| `enabled` | `true` |
+| `lastRunAt` | `2026-08-22T00:01:01.614Z` = **2026-08-21 19:01 CDT** (this run) |
+| `nextRunAt` | `2026-08-25T00:00:22.000Z` = **2026-08-24 19:00 CDT (Monday)** |
+| `jitterSeconds` | 22 |
+
+**19:00 local is correct** — it sits 1h45m after the 17:15 MTM, so `paper_nav` is read after the writer has finished. The historical failure mode (`0 17`, records CQ.3/DG) would have read the prior session's NAVs with no symptom. Not present today.
+
+**0e/0f. DB access.** Every query in this entry used `sqlite3.connect('file:var/trades.db?mode=ro', uri=True)`. Today is not the first trading day of the month; `monthy-llm-rebalance` last fired **2026-08-21 18:03 CDT** and left no lock — no `database is locked` error was encountered on any of the ~40 queries behind this report. No sleeve rebalanced today: **0 rows in `paper_positions` with `entry_date` or `exit_date` = 2026-08-21**. The most recent ladder rebalance was **2026-08-17 20:32 CDT**.
+
+**0g. TODAY IS UNMARKED — read this before using any number below.**
+
+`max(nav_date)` in `paper_nav` is **2026-08-20**, earlier than today. The chain from `var/last_daily_run.log`:
+
+```
+17:15:50  daily_refresh: Refreshing 5875 tickers, range 2026-07-22 to 2026-08-21
+17:17:44  daily_refresh:   [ 30/ 30] +  2501 rows    1.0s  (total 205881)
+17:17:45  check_coverage: date=2026-08-21  closes=4055  baseline(median of 10)=5157
+                          floor=5000 [max(5000, 90%*5157=4641)]
+17:17:45  check_coverage: COVERAGE FAIL: only 4055 closes on 2026-08-21 (< floor 5000).
+                          Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.
+17:17:48  mtm_catchup:    PENDING 2026-08-21: coverage 4055 < floor 5000 - leaving unmarked (heals later).
+17:17:48  mtm_catchup:    catch-up done: marked=0 ... coverage_ok=False pending=2026-08-21
+17:17:55  verify_run:     RESULT: PASS (76/76 sleeves OK)
+          [OPS 2026-08-21] coverage=PENDING verify=PASS
+```
+
+**All 30 batches completed and 205,881 rows landed** — the refresh did not truncate. The shortfall is Yahoo's own EOD publication being incomplete 75 minutes after the bell, which is the failure mode documented in record Appendix AU. `var/ops_status.log` now shows **five consecutive `coverage=PENDING` days: 08-17, 08-18, 08-19, 08-20, 08-21**. The prior four all healed — `paper_nav` has full 76-row marks for 08-17 through 08-20 — so the mechanism works; it just runs a day late. **08-21 will not heal until Monday's run**, because `TradingMorningMTM` next fires 2026-08-24 07:45 CDT.
+
+**Method used for every "indicative" figure in this entry:** per sleeve, `paper_portfolio.cash` + Σ(`paper_positions.qty` × `price_cache` close for 2026-08-21), falling back to the **2026-08-20** close for any ticker with no 08-21 row. **No price is estimated, interpolated, or invented** — a name either has a real 08-21 close or is carried flat at its real 08-20 close.
+
+**The 18 held tickers with no 2026-08-21 close** (matching `check_anomalies`' 18 NOCLOSE warnings exactly):
+
+`CLST`, `SCCO`, `SEIC`, `SEZL`, `SITM`, `TNGX`, `TPL`, `TRS`, `TTMI`, `TWST`, `TXG`, `TYRA`, `UCTT`, `UTHR`, `UYSC`, `VSAT`, `VSH`, `VTR`
+
+They are **all late-alphabet (S–V)**, consistent with the publication cutting off rather than with any ticker-specific problem. Combined carried-forward value **$540,775.29 = 7.05% of held value**. Worst-affected sleeves: `residual_w3565_paper` 13.12%, `residual_w2575_2wk_paper` 13.10%, `residual_w2575_paper` 12.68%, `residual_w2080_paper` 12.63%. Best: the ETF sleeves and the top-residual monthly rungs at 2.0–2.4%. **A sleeve carrying 13% of its book flat has a day-move mechanically pulled toward zero; that is a known, quantified, one-directional bias and not a random error.**
+
+**Price anomaly — CFNB.** `check_anomalies` flagged `MOVE CFNB +4126.8% $33.9500->$1435.0000 [cache]`. The series is **$33.95 on every session from 08-10 through 08-20, then $1,435.00 on 08-21** — a stale-then-spike pattern, not a split (a split would move the history, not one bar). **CFNB has never been held by any sleeve** — `select count(*) from paper_positions where ticker='CFNB'` returns **0**. Per the standing rule, this is **reported, not fixed**; it is a universe-side contaminant of exactly the class that produced the BKGM ghost (record 2026-06-01) and it will rank absurdly on any price-based screen until it is corrected. Total anomalies flagged today: **19** (18 NOCLOSE + 1 MOVE).
+
+**Sourcing outliers rejected today.** Six figures from secondary sources conflicted with closes independently confirmed on stockanalysis.com, which matched `price_cache` exactly on **7 of 7** spot checks (EZPW, ATEX, AUPH, TGTX, MRNA, SDOT, AXGN, XLU, XLV). Publishing the reconciled figure and naming the outlier, per method:
+
+| claim | source | verified close | verdict |
+|---|---|---|---|
+| EZPW "+13.7%, closed $32.70" | [Alphastreet](https://news.alphastreet.com/ezcorp-surges-13-7-amid-sector-wide-rally/) | **$32.22, +12.03%** | outlier — not adopted |
+| TGTX "jumped 11.61%" | [StocksToTrade, 2026-08-21](https://stockstotrade.com/news/tg-therapeutics-inc-tgtx-news-2026_08_21/) | **$54.27, +7.34%** | outlier — likely intraday high |
+| MRNA "closing at $148.86, +11.52%" | [StocksToTrade, 2026-08-21](https://stockstotrade.com/news/moderna-inc-mrna-news-2026_08_21/) | **$145.13, +8.86%** | outlier — not adopted |
+| MRNA "+14.01% on Aug 21" | [TradingKey](https://www.tradingkey.com/news/market-movers/262124929-market-movers-mrna-20260821) | **+8.86%** | outlier — not adopted |
+| CIFR −9% / WULF −7% "on rising yields" | [24/7 Wall St.](https://247wallst.com/investing/2026/08/18/cipher-mining-falls-9-terawulf-sinks-7-as-rising-yields-hit-the-ai-miner-pivot/) | article dated **2026-08-18** | **stale attribution — not adopted as today's cause** |
+| SDOT "+135% in pre-market Tuesday" | [Stocktwits](https://stocktwits.com/news-articles/markets/equity/sdot-stock-rally-retail-traders-300-percent-target/cZQwwPoReBq) | not a 08-21 article | **stale attribution — not adopted** |
+
+Also rejected: an AUPH quote of "$17.06 current, range $16.98–$17.68" from stockinvest.us — an intraday snapshot, not the close. The verified close is **$16.65**.
+
+---
+
+### 1. Market summary — 2026-08-21
+
+**Index closes.** All three majors rose Friday and all three lost the week.
+
+| index | close | day | week |
+|---|---|---|---|
+| S&P 500 | **7,674.37** | **+0.43%** (+33.21) | **−1.4%** |
+| Nasdaq Composite | **26,180.46** | **+0.43%** (+113.29) | **−2.0%** |
+| Dow Jones Industrial Average | **53,277.01** | **+0.98%** (+517.80) | **−0.8%** |
+| IWM (Russell 2000 ETF) | **$299.96** | **+0.77%** (+$2.29) | — |
+
+Sources: [Yahoo Finance live blog, 2026-08-21](https://finance.yahoo.com/markets/live/stock-market-today-friday-august-21-dow-sp-500-nasdaq-bitcoin-080533702.html); [stockanalysis.com/etf/iwm, read 2026-08-21 evening CDT](https://stockanalysis.com/etf/iwm/).
+
+**Rates and volatility.** 10-year Treasury **4.73%**, 30-year **5.27%**, both up roughly 2bp on the day. **VIX closed 15.13, −5.50%** from 16.01 (`price_cache`, `^VIX`) — note the VIX print of 16.01 is itself corroborated by [Zacks via Yahoo, 2026-08-21](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-aug-21-090400012.html), which reports Thursday's VIX at 16.01, +7.5%.
+
+**The week's actual driver was the bond market, not equities.** On **Wednesday 2026-08-19** Treasury surprised the market by at least doubling its longer-dated buyback operations — **from $2 billion to $4 billion per operation, running 2026-09-09 through 2026-11-04**, targeting the 10-to-20-year and 20-to-30-year sectors that had seen a buyers' strike since late June. Yields fell hard: the **10-year closed down 5.7bp to 4.647%** and the **30-year down 9bp to 5.196%** ([CNBC, 2026-08-19](https://www.cnbc.com/2026/08/19/treasury-announces-upscaled-buyback-operation-for-longer-term-debt-sending-yields-lower.html); [Axios, 2026-08-19](https://www.axios.com/2026/08/19/rates-treasury-borrowing-bessent)). **The relief lasted one session.** By Thursday yields had returned to roughly pre-announcement levels, with the 30-year back above 5.27% ([CNBC, 2026-08-21](https://www.cnbc.com/2026/08/21/treasury-yields-bonds-inflation-rates.html)). CNN attributes the underlying pressure to persistent US inflation, the debt trajectory, and competition from corporate AI-buildout issuance draining Treasury demand ([CNN, 2026-08-21](https://www.cnn.com/2026/08/21/economy/bond-market-explainer)).
+
+**Thursday 2026-08-20 for context** (the session this book is marked against): S&P **−0.9% to 7,641.16**, Dow **−1.3% (−703.84) to 52,759.21**, Nasdaq **−1.0% to 26,067.17**; nine of eleven sectors lower; **Walmart −9.2%**, its steepest fall since 2022, on the slowest US comparable-sales growth in six years. Data that day: initial claims **206,000** (vs 204,000 consensus), continuing claims **1.799M** (+18,000), Philadelphia Fed **47.4** (vs 25 estimate), Leading Indicators **+0.2% m/m** ([Zacks via Yahoo, 2026-08-21](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-aug-21-090400012.html); [Saxo Bank, 2026-08-21](https://www.home.saxo/en-mena/content/articles/macro/market-quick-take---treasury-yields-rise-and-walmart-slides-as-jackson-hole-comes-into-view---21-august-2026-21082026)). *Arithmetic check: 52,759.21 + 517.80 = 53,277.01 — Thursday's close plus Friday's gain reconciles exactly to Friday's close, confirming the two sources describe consecutive sessions and not the same one.*
+
+**Friday's leadership was financials, healthcare and crypto-adjacent risk.** The Dow's outperformance came from healthcare — Merck and Johnson & Johnson — with financials adding breadth. **Bitcoin closed near $77,000, up roughly 6% on the day and about 22% on the week, its best week since 2023**, on the Treasury intervention, roughly **$2.7 billion of short liquidations** per CoinGlass, and a White House push on the CLARITY Act. **Robinhood +13.70%, Coinbase +8%, MicroStrategy +6%** ([CNBC, 2026-08-21](https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html); [CoinDesk, 2026-08-21](https://www.coindesk.com/markets/2026/08/21/bitcoin-tops-usd77-000-as-best-week-since-2023-pulls-altcoins-along-for-the-ride)). *Sources disagree on the exact bitcoin figures — $77,821.05/+5.62% (Yahoo), $76,943.90/+6% (CNBC), weekly +20%/+22%/+23% across CNBC headline variants. Publishing the reconciled band rather than averaging: **~$77,000, ~+6% day, ~+22% week**. Bitcoin is not held by any sleeve.*
+
+**Jackson Hole is the next scheduled catalyst.** The symposium runs **2026-08-27 to 2026-08-29**, theme **"Financial Innovation — Implications for Payments and Policy"**, with **Chair Kevin Warsh delivering his first keynote on Friday 2026-08-28** ([Saxo Bank, 2026-08-21](https://www.home.saxo/en-mena/content/articles/macro/market-quick-take---treasury-yields-rise-and-walmart-slides-as-jackson-hole-comes-into-view---21-august-2026-21082026)). Under Warsh the Fed has stopped telegraphing intentions ahead of meetings, which raises the information content — and the gap risk — of that speech.
+
+**Sector ETF closes** (from `price_cache`; XLU and XLV independently verified against stockanalysis.com):
+
+| ETF | 08-20 | 08-21 | day | week (08-14→08-21) | 1mo (07-21→08-21) |
+|---|---|---|---|---|---|
+| XLB Materials | 52.42 | **53.54** | **+2.14%** | +1.90% | +6.87% |
+| XLV Health Care | 172.39 | **174.62** | **+1.29%** | **+4.33%** | **+8.97%** |
+| XLY Cons. Disc. | 116.68 | **118.02** | +1.15% | −0.15% | +2.74% |
+| XLF Financials | 56.95 | **57.48** | +0.93% | −1.17% | +2.44% |
+| XLP Cons. Staples | 85.32 | **85.99** | +0.79% | −0.12% | +2.30% |
+| XLC Comm. Svcs. | 110.68 | **111.40** | +0.65% | −1.37% | +1.25% |
+| XLI Industrials | 179.77 | **180.25** | +0.27% | −3.36% | +0.89% |
+| XLK Technology | 183.10 | **183.31** | +0.11% | **−3.53%** | +1.40% |
+| XLRE Real Estate | 45.08 | **45.08** | 0.00% | −0.42% | −0.27% |
+| XLE Energy | 63.75 | **63.64** | −0.17% | **+2.79%** | **+8.79%** |
+| XLU Utilities | 43.77 | **42.77** | **−2.28%** | **−3.48%** | **−4.79%** |
+
+**Utilities were the day's outlier and no utility-specific catalyst was found.** XLU **−2.28%** on a day the 10-year rose only ~2bp is a larger move than the rate change alone explains, and no 08-21 sector headline surfaced in three searches. **Reporting it as unattributed rather than inventing a rate-duration story.** What is verifiable is the trend: XLU is **−4.79% over one month** and is the only sector ETF negative on both the week and the month.
+
+---
+
+### 2. Full NAV table — all 76 sleeves (INDICATIVE, 2026-08-21)
+
+**Every NAV in this table is indicative, not a marked close** (see §0g). "Basis" is the first row in that sleeve's `paper_nav` history, which is the correct denominator for "since": the 57 ladder rungs and the four original systematic sleeves carry NAV backfilled to **2026-05-01** even though their `paper_portfolio.initialized_at` rows were created in July — **the July timestamps are row-creation dates, not performance inceptions, and using them would misstate every ladder return.** The 12-sleeve LLM cohort starts **2026-07-06**. Day % is versus the marked 08-20 close.
+
+| # | sleeve | NAV (ind.) | day | week | MTD | since | basis | n |
+|---:|---|---:|---:|---:|---:|---:|---|---:|
+| 1 | residual_w0595_2wk_paper | 108,834.46 | +0.56% | +0.22% | +1.15% | **+8.89%** | 05-01 | 49 |
+| 2 | residual_w6040_paper | 108,295.70 | +0.90% | −0.88% | +2.69% | +8.35% | 05-01 | 48 |
+| 3 | residual_w0595_paper | 108,288.42 | +0.69% | +0.33% | +1.50% | +8.34% | 05-01 | 49 |
+| 4 | sector_top4_full_paper | 108,046.25 | +0.37% | −0.09% | +5.03% | +8.10% | 05-01 | 4 |
+| 5 | residual_w5545_paper | 107,275.33 | +0.80% | +0.04% | +1.89% | +7.33% | 05-01 | 49 |
+| 6 | residual_w1585_2wk_paper | 107,230.44 | +0.60% | +0.52% | +1.26% | +7.28% | 05-01 | 49 |
+| 7 | residual_w1585_wk_paper | 106,949.10 | +0.64% | +0.58% | +1.67% | +7.00% | 05-01 | 49 |
+| 8 | residual_w2080_2wk_paper | 106,846.51 | +0.65% | +0.24% | +0.20% | +6.90% | 05-01 | 49 |
+| 9 | residual_w3565_paper | 106,808.14 | +0.63% | +0.29% | +0.57% | +6.86% | 05-01 | 49 |
+| 10 | residual_w1090_2wk_paper | 106,672.02 | +0.51% | +0.17% | +0.74% | +6.73% | 05-01 | 49 |
+| 11 | residual_w1090_paper | 106,629.16 | +0.75% | +0.34% | +1.18% | +6.68% | 05-01 | 49 |
+| 12 | residual_w2080_wk_paper | 106,437.33 | +0.71% | +0.34% | +0.65% | +6.49% | 05-01 | 49 |
+| 13 | sector_top4_paper | 106,462.14 | +0.36% | +0.11% | +5.14% | +6.46% | 07-06 | 4 |
+| 14 | residual_w4060_paper | 106,335.70 | +0.82% | +0.82% | +2.20% | +6.39% | 05-01 | 49 |
+| 15 | residual_w4060_2wk_paper | 106,245.17 | +0.57% | +0.57% | +1.52% | +6.30% | 05-01 | 48 |
+| 16 | **spy_benchmark_paper** | **106,254.07** | **+0.41%** | **−1.37%** | **+2.50%** | **+6.25%** | 05-01 | 1 |
+| 17 | residual_w4555_paper | 106,193.58 | +0.75% | +0.57% | +1.42% | +6.25% | 05-01 | 48 |
+| 18 | residual_w1090_wk_paper | 105,956.22 | +0.58% | +0.20% | +0.66% | +6.01% | 05-01 | 49 |
+| 19 | residual_w3565_2wk_paper | 105,934.55 | +0.62% | +0.60% | +0.42% | +5.99% | 05-01 | 49 |
+| 20 | **qqq_benchmark_paper** | **105,828.08** | **+0.35%** | **−2.41%** | **+3.70%** | **+5.83%** | 05-01 | 1 |
+| 21 | residual_w4555_2wk_paper | 105,754.80 | +0.41% | +0.26% | +0.92% | +5.81% | 05-01 | 49 |
+| 22 | residual_w3070_wk_paper | 105,470.44 | +0.64% | +0.30% | −0.26% | +5.52% | 05-01 | 49 |
+| 23 | residual_w2080_paper | 105,437.01 | +0.71% | +0.38% | +0.99% | +5.49% | 05-01 | 49 |
+| 24 | residual_w5050_paper | 105,140.57 | +0.78% | −0.13% | +0.52% | +5.19% | 05-01 | 48 |
+| 25 | residual_w5050_wk_paper | 104,874.50 | +0.30% | −0.42% | +0.60% | +4.93% | 05-01 | 48 |
+| 26 | residual_w9505_paper | 104,755.61 | +0.81% | −3.17% | +0.80% | +4.81% | 05-01 | 44 |
+| 27 | residual_w6535_paper | 104,745.89 | +0.47% | −2.35% | +0.35% | +4.80% | 05-01 | 47 |
+| 28 | residual_w1585_paper | 104,715.41 | +0.78% | +0.46% | +1.50% | +4.77% | 05-01 | 49 |
+| 29 | residual_w3070_paper | 104,701.10 | +0.73% | +0.30% | +0.23% | +4.75% | 05-01 | 49 |
+| 30 | residual_w3565_wk_paper | 104,686.76 | +0.67% | +0.57% | +0.51% | +4.74% | 05-01 | 49 |
+| 31 | residual_w4060_wk_paper | 104,520.99 | +0.68% | +0.30% | +1.01% | +4.57% | 05-01 | 48 |
+| 32 | residual_w0595_wk_paper | 104,349.63 | +0.65% | +0.23% | +1.37% | +4.40% | 05-01 | 49 |
+| 33 | residual_w2575_2wk_paper | 104,291.15 | +0.63% | +0.20% | +0.36% | +4.34% | 05-01 | 49 |
+| 34 | residual_w7030_paper | 104,279.44 | +0.50% | −2.26% | +0.99% | +4.33% | 05-01 | 46 |
+| 35 | residual_w2575_paper | 104,250.36 | +0.78% | +0.35% | +0.81% | +4.30% | 05-01 | 49 |
+| 36 | residual_w8515_paper | 104,198.48 | +0.69% | −3.04% | +0.43% | +4.25% | 05-01 | 45 |
+| 37 | residual_w8020_paper | 104,148.17 | +0.55% | −2.75% | +0.36% | +4.20% | 05-01 | 45 |
+| 38 | residual_w2575_wk_paper | 103,970.85 | +0.68% | +0.17% | +0.42% | +4.02% | 05-01 | 49 |
+| 39 | residual_w5050_2wk_paper | 103,910.25 | +0.33% | −0.38% | +0.62% | +3.96% | 05-01 | 48 |
+| 40 | residual_w4555_wk_paper | 103,889.46 | +0.32% | −0.11% | +0.86% | +3.94% | 05-01 | 49 |
+| 41 | residual_w6040_2wk_paper | 103,785.98 | +0.27% | −0.78% | +2.90% | +3.84% | 05-01 | 47 |
+| 42 | residual_w7525_paper | 103,766.25 | +0.48% | −2.68% | +0.10% | +3.82% | 05-01 | 46 |
+| 43 | residual_w6040_wk_paper | 103,551.75 | +0.31% | −1.00% | +2.23% | +3.60% | 05-01 | 47 |
+| 44 | residual_w5545_wk_paper | 103,473.94 | +0.26% | −0.86% | +1.38% | +3.53% | 05-01 | 48 |
+| 45 | residual_w5545_2wk_paper | 103,426.58 | +0.20% | −0.76% | +1.42% | +3.48% | 05-01 | 48 |
+| 46 | residual_roa_6535_paper | 103,366.34 | +0.48% | −2.29% | +0.44% | +3.42% | 05-01 | 48 |
+| 47 | residual_w9505_wk_paper | 102,825.13 | +0.71% | −1.89% | +1.79% | +2.88% | 05-01 | 45 |
+| 48 | residual_w3070_2wk_paper | 102,759.83 | +0.56% | −0.10% | −0.85% | +2.81% | 05-01 | 49 |
+| 49 | residual_w9010_paper | 102,491.10 | +0.67% | −3.15% | +0.72% | +2.54% | 05-01 | 44 |
+| 50 | residual_w7525_wk_paper | 102,454.32 | +0.63% | −1.84% | +2.12% | +2.51% | 05-01 | 45 |
+| 51 | llm_overlay_sector_top4_paper | 102,322.06 | +0.35% | **+0.95%** | +4.30% | +2.32% | 07-06 | 3 |
+| 52 | residual_w6535_wk_paper | 102,150.10 | +0.61% | −0.78% | +2.36% | +2.20% | 05-01 | 45 |
+| 53 | llm_cascade_top1_paper | 102,053.01 | −0.03% | **−12.67%** | −1.13% | +2.05% | 07-06 | 1 |
+| 54 | llm_cascade_sector4_paper | 102,023.85 | −0.19% | +0.11% | +3.72% | +2.02% | 07-06 | 4 |
+| 55 | **spy_benchmark_0701_paper** | **101,922.05** | **+0.41%** | **−1.37%** | **+2.50%** | **+1.92%** | 07-06 | 1 |
+| 56 | residual_w6535_2wk_paper | 101,687.15 | +0.69% | −0.46% | +2.66% | +1.74% | 05-01 | 45 |
+| 57 | residual_w9010_wk_paper | 101,610.94 | +0.77% | −1.44% | +2.11% | +1.66% | 05-01 | 45 |
+| 58 | residual_w8020_wk_paper | 101,450.15 | +0.59% | −1.45% | +2.27% | +1.50% | 05-01 | 45 |
+| 59 | residual_w8515_wk_paper | 101,434.93 | +0.57% | −1.38% | +2.71% | +1.49% | 05-01 | 45 |
+| 60 | llm_overlay_mom_roa_top1_paper | 100,000.00 | 0.00% | 0.00% | 0.00% | 0.00% | 07-06 | **0** |
+| 61 | residual_w7030_wk_paper | 99,706.12 | +0.52% | −1.69% | +1.57% | −0.24% | 05-01 | 45 |
+| 62 | residual_w9505_2wk_paper | 99,188.76 | +0.81% | −2.08% | +2.22% | −0.76% | 05-01 | 45 |
+| 63 | residual_w9010_2wk_paper | 99,047.81 | +0.77% | −1.39% | +2.74% | −0.90% | 05-01 | 45 |
+| 64 | **qqq_benchmark_0706_paper** | **98,702.30** | **+0.35%** | **−2.41%** | **+3.70%** | **−1.30%** | 07-06 | 1 |
+| 65 | residual_w7525_2wk_paper | 98,641.67 | +0.70% | −1.41% | +2.32% | −1.31% | 05-01 | 45 |
+| 66 | residual_w7030_2wk_paper | 98,169.05 | +0.63% | −1.32% | +2.28% | −1.78% | 05-01 | 45 |
+| 67 | residual_roa_6535_0701_paper | 97,931.07 | +0.50% | −2.44% | +0.00% | −2.07% | 07-06 | 47 |
+| 68 | residual_w8515_2wk_paper | 97,681.35 | +0.62% | −1.41% | +2.73% | −2.27% | 05-01 | 45 |
+| 69 | residual_w8020_2wk_paper | 96,695.62 | +0.59% | −1.49% | +2.13% | −3.26% | 05-01 | 45 |
+| 70 | mom_roa_top1_paper | 96,314.51 | −0.77% | −0.50% | **+23.48%** | −3.69% | 07-06 | 1 |
+| 71 | mom_v1_0701_paper | 94,189.71 | +0.86% | −4.42% | +4.45% | −5.81% | 07-06 | 100 |
+| 72 | mom_roa_6535_0701_paper | 91,107.38 | −0.32% | −8.87% | +0.58% | −8.89% | 07-06 | 50 |
+| 73 | mom_v2_0701_paper | 89,977.40 | +0.72% | −7.40% | +0.48% | −10.02% | 07-06 | 50 |
+| 74 | mom_roa_6535_paper | 87,658.27 | −0.27% | −8.46% | +0.17% | −12.30% | 05-01 | 50 |
+| 75 | mom_v1_paper | 87,325.35 | +0.79% | −4.61% | +3.93% | −12.63% | 05-01 | 100 |
+| 76 | mom_v2_paper | 84,952.05 | +0.63% | −7.12% | +0.60% | −15.01% | 05-01 | 50 |
+
+**Book totals:** held value **$7,666,990.10** + cash **$128,467.04** = **$7,795,457.14** indicative, against the 08-20 marked total of **$7,754,525.82** (76/76 rows).
+
+Two entries need a note. **`residual_roa_6535_0701_paper` shows MTD +0.00%** — this is real, not a placeholder: 07-31 NAV was **$97,929.82** and today's indicative is **$97,931.07**, a difference of **$1.25 (+0.0013%)**. **`mom_roa_top1_paper` shows MTD +23.48%** because it rotated at the 08-03 rebalance: it exited **BE at −17.33% realized** and bought **99.53848 MU at $829.9147**, which is now $966.78. The MTD number measures the rotation, not a 23% move in a held name.
+
+---
+
+### 3. Key position analysis
+
+**3a. Breadth carried the day; the largest block dragged.** Of the **191 held tickers with a real 08-21 close, 117 rose and 72 fell** (2 unchanged), median **+0.42%**. That is the whole story of a **+0.5278%** book day — no single position drove it.
+
+**Sector weights and day P&L** (`paper_positions.sector`, valued at 08-21 indicative). *Note the labels `Healthcare` and `Health Care` are distinct strings in the DB — the first is the 46 stock sleeves' biotech and provider names, the second is the XLV ETF held by 4 sector sleeves. They are additive, not duplicated: combined healthcare exposure is $2,066,470.11 = 26.95%.*
+
+| sector | value | weight | day P&L | day % |
+|---|---:|---:|---:|---:|
+| Healthcare | 1,959,989.53 | 25.56% | **+12,247.24** | +0.625% |
+| Technology | 1,815,766.12 | 23.68% | **−2,033.69** | **−0.112%** |
+| Financial Services | 709,963.88 | 9.26% | +6,529.64 | +0.920% |
+| Industrials | 558,520.40 | 7.28% | +4,040.55 | +0.723% |
+| Energy | 497,219.25 | 6.49% | +2,510.32 | +0.505% |
+| Communication Services | 465,499.07 | 6.07% | **+14,306.55** | **+3.073%** |
+| Index (SPY/QQQ) | 412,706.49 | 5.38% | +1,567.81 | +0.380% |
+| Consumer Cyclical | 371,051.70 | 4.84% | +4,869.28 | +1.312% |
+| Basic Materials | 298,362.42 | 3.89% | +714.61 | +0.240% |
+| Consumer Defensive | 291,564.01 | 3.80% | −642.45 | −0.220% |
+| Real Estate | 152,767.87 | 1.99% | −1,925.13 | −1.260% |
+| Health Care (XLV) | 106,480.58 | 1.39% | +1,359.82 | +1.277% |
+| Utilities | 23,790.02 | 0.31% | −556.23 | **−2.338%** |
+| Unknown | 3,308.75 | 0.04% | −5.90 | −0.178% |
+
+**Communication Services at +3.073% is the book's best sector by a wide margin and it is one name:** ATEX contributed **+$10,383.66 of the sector's +$14,306.55**, with GOOGL +$1,238.94, GOOG +$1,047.81, EVER +$860.57 and SPHR +$799.98 supplying the rest. **Technology is the only sector of size that fell, and the whole of that came from semis.**
+
+The **semi/semicap block is the book's largest thematic concentration at $1,192,124.53 (15.55% of held value) and it closed −0.735%, −$8,823.63**:
+
+| ticker | 08-20 | 08-21 | day | position value | day $ | sleeves |
+|---|---:|---:|---:|---:|---:|---:|
+| MU | 974.33 | 966.78 | −0.77% | 294,287.36 | −2,298.21 | 60 |
+| STX | 850.24 | 850.00 | −0.03% | 256,792.64 | −72.50 | 66 |
+| WDC | 469.05 | 459.44 | −2.05% | 137,451.11 | −2,875.03 | 65 |
+| LRCX | 310.53 | 314.00 | **+1.12%** | 150,247.36 | +1,660.38 | 61 |
+| AMAT | 496.21 | 492.32 | −0.78% | 117,924.03 | −931.76 | 51 |
+| KLAC | 185.86 | 183.99 | −1.01% | 95,568.71 | −971.32 | 44 |
+| VICR | 207.64 | 200.54 | −3.42% | 57,852.39 | −2,048.23 | 36 |
+| MRVL | 251.01 | 237.04 | **−5.57%** | 5,950.41 | −350.69 | 4 |
+| AEHR | 105.97 | 101.73 | −4.00% | 13,231.83 | −551.49 | 6 |
+| AAOI | 129.10 | 124.82 | −3.32% | 8,774.40 | −300.87 | 6 |
+| INTC | 92.13 | 90.07 | −2.24% | 8,131.72 | −185.98 | 6 |
+| ICHR | 58.87 | 60.20 | **+2.26%** | 7,061.59 | +156.01 | 6 |
+| MXL | 65.28 | 66.61 | **+2.04%** | 7,510.35 | +149.96 | 6 |
+| FORM | 115.71 | 114.16 | −1.34% | 9,075.93 | −123.23 | 6 |
+| ONTO | 298.84 | 293.33 | −1.84% | 5,634.66 | −105.84 | 4 |
+| AMD | 469.46 | 473.25 | **+0.81%** | 1,849.41 | +14.81 | 2 |
+| COHU | 54.11 | 54.37 | **+0.48%** | 1,777.30 | +8.50 | 2 |
+| LSCC | 117.56 | 117.69 | **+0.11%** | 1,686.19 | +1.86 | 2 |
+| OSS | 11.40 | 11.40 | 0.00% | 1,420.75 | 0.00 | 2 |
+| UCTT | 73.01 | *no close* | — | 8,043.48 | *carried* | 6 |
+| SITM | 598.81 | *no close* | — | 1,852.90 | *carried* | 2 |
+| **total** | | | **−0.735%** | **1,192,124.53** | **−8,823.63** | **21 names** |
+
+**This is the fourth consecutive week in which memory is the book's dominant risk factor and it has now cut both ways within five sessions.** STX ran **$921.37 → $973.44 → $994.79** (08-13 to 08-17) and then fell to **$832.56** by 08-19 before settling at **$850.00** — a 14.6% peak-to-trough round trip in three sessions. The sector explanation on the way down was rising Treasury yields compressing multiples on the most-extended trade in semis, against 2026 YTD gains reported at **255% for Micron and 262% for Seagate** ([24/7 Wall St., 2026-08-18](https://247wallst.com/investing/2026/08/18/micron-technology-falls-5-sandisk-sinks-6-western-digital-drops-7-as-higher-rates-test-the-memory-boom/)). *That article is dated 08-18 and is cited here for the YTD figures and the standing thesis only, not as today's cause.*
+
+**3b. Top dollar contributors — day.**
+
+| ticker | day | day $ | shares (book) | sleeves | note |
+|---|---:|---:|---:|---:|---|
+| **ATEX** | **+9.31%** | **+10,383.66** | 1,307.7655 | 59 | no 08-21 catalyst sourced |
+| **TGTX** | **+7.34%** | **+6,703.64** | 1,806.9103 | 42 | acquisition speculation |
+| **DAVE** | +5.88% | +5,371.36 | 272.5197 | — | no 08-21 catalyst sourced |
+| **AXGN** | +8.53% | +2,962.05 | 747.9919 | 16 | no 08-21 catalyst sourced |
+| KRYS | +2.84% | +2,654.68 | 277.6858 | 40 | — |
+| **EZPW** | **+12.03%** | +2,562.07 | 740.4817 | 12 | financials/credit-services rally |
+| ROST | +4.39% | +2,348.21 | 233.6529 | — | — |
+| ECPG | +3.13% | +1,910.34 | 622.2600 | — | credit services, with EZPW |
+| EDRY | +7.87% | +1,744.20 | 510.0000 | 5 | dry bulk |
+| **SDOT** | **+56.16%** | +1,701.66 | 359.0000 | 4 | volatility halt |
+| LRCX | +1.12% | +1,660.38 | 478.4948 | 61 | — |
+| NRC | +1.70% | +1,646.40 | 4,449.7119 | — | — |
+
+**Top dollar detractors — day.**
+
+| ticker | day | day $ | shares (book) | sleeves |
+|---|---:|---:|---:|---:|
+| **AUPH** | **−3.59%** | **−3,972.69** | 6,407.5618 | 46 |
+| WDC | −2.05% | −2,875.03 | 299.1710 | 65 |
+| MU | −0.77% | −2,298.21 | 304.3995 | 60 |
+| INDV | −2.41% | −2,233.54 | 2,454.4439 | — |
+| CBL | −3.20% | −2,137.15 | 1,167.8437 | 31 |
+| VICR | −3.42% | −2,048.23 | 288.4831 | 36 |
+| COCO | −2.79% | −1,901.82 | 1,044.9547 | 31 |
+| MO | −1.27% | −1,251.46 | 1,472.2994 | — |
+| NHC | −1.41% | −1,120.49 | 334.4729 | — |
+| LQDA | −3.42% | −1,111.50 | 457.4086 | 19 |
+| KLAC | −1.01% | −971.32 | 519.4234 | 44 |
+| AMAT | −0.78% | −931.76 | 239.5272 | 51 |
+
+**3c. What actually had news, and what did not.**
+
+**TGTX +7.34% to $54.27 — acquisition speculation, and a Q2 that already re-rated the name.** GuruFocus reports the move as speculation that a large US-listed biopharmaceutical company could acquire TG Therapeutics; **no acquirer is named in the source and none is asserted here** ([GuruFocus](https://www.gurufocus.com/news/9047765/tg-therapeutics-tgtx-shares-surge-72-amid-acquisition-rumors-valuation-remains-a-key-focus)). The fundamental backdrop, from the Q2 2026 report 18 days ago: **US BRIUMVI net revenue +64% year-over-year to $227.7M**, total revenue about **$240M**, FY2026 guidance raised to roughly **$950M**; the Phase 3 ENHANCE readout met its primary endpoint on bioequivalent exposure, and a subcutaneous BRIUMVI program plus a Phase 2 in treatment-resistant schizophrenia extend the franchise ([stockanalysis.com/stocks/tgtx](https://stockanalysis.com/stocks/tgtx/); [Timothy Sykes, 2026-08-21](https://www.timothysykes.com/news/tg-therapeutics-inc-tgtx-news-2026_08_21/)). **42 sleeves hold it — the single widest-held idiosyncratic winner in the book today.**
+
+**MRNA +8.86% to $145.13 — the third act of the largest single-name repricing this book has ever held.** The sequence is now complete and worth stating in full because it is a clean natural experiment: **08-18 $62.96 → 08-19 $174.38 (+176.97%) → 08-20 $133.32 (−23.55%) → 08-21 $145.13 (+8.86%)**. The catalyst remains the 08-19 readout: **Moderna and Merck's individualized mRNA cancer vaccine, intismeran autogene, plus Keytruda, met primary and key secondary endpoints in the Phase 3 INTerpath-001 melanoma trial — the first positive Phase 3 for an mRNA cancer therapy** ([StocksToTrade, 2026-08-21](https://stockstotrade.com/news/moderna-inc-mrna-news-2026_08_21/); [stockanalysis.com/stocks/mrna](https://stockanalysis.com/stocks/mrna/)). **The book holds 29.5182 shares in exactly 2 sleeves — `mom_v1_paper` and `mom_v1_0701_paper`.** Running P&L across the three sessions: **+$3,288.92, −$1,212.02, +$348.61 = +$2,425.51 net**, on a position that has never exceeded 0.07% of held value. *(The +$348.61 is computed here as 29.5182 × ($145.13 − $133.32) = $348.61.)*
+
+**SDOT +56.16% to $13.18 — real, and it halted.** stockanalysis.com's news feed shows **"Sadot Group Inc trading halted, volatility trading pause"** followed by **"trading resumes"**, both timestamped roughly 10 hours before this report — i.e. during today's session ([stockanalysis.com/stocks/sdot](https://stockanalysis.com/stocks/sdot/)). Recent context: Q2 2026 results 7 days ago noting completed integration of the acquired TradeOS platform, and a **$4.3M debt-to-equity settlement** 24 days ago framed as a transition toward an "AI-powered technology platform company." **A six-week-old Fugazi Research note calls the company "unsuitable for investment," citing that it has shed multiple business operations in two years.** **SDOT is held by exactly four sleeves and all four are pure-momentum: `mom_v1_paper` (53 sh), `mom_v2_paper` (110), `mom_v1_0701_paper` (66), `mom_v2_0701_paper` (130) — 359 shares, $4,731.62. No ladder rung holds it.** **A 56% day on a name carrying a short-seller note and a volatility halt is exactly the kind of position an unfiltered momentum screen acquires and an ROA filter rejects — and the ladder's ROA leg did in fact reject it. That is the §6 gradient showing up as a single concrete name.**
+
+**EZPW +12.03% to $32.22 — sector, not company.** Alphastreet frames it as riding a broad credit-services rally rather than company news, on 1.0M shares and a $2.0B market cap. **ECPG, also credit services, rose 3.13% (+$1,910.34) on the same day** — the two moving together supports the sector read. Fundamental backdrop from fiscal Q3 2026: **net income +44% to $38.2M, adjusted diluted EPS +47% to $0.47**. *(Alphastreet's stated close of $32.70/+13.7% is rejected in favour of the verified $32.22/+12.03%; the +$2,562.07 book figure uses the verified close.)*
+
+**ATEX +9.31% to $93.25 — the book's largest dollar gain, and no cause was found.** Three searches produced nothing dated 08-21. The most recent items are a **JPMorgan price-target cut to $130 from $133, Overweight maintained** (4 days ago), the **Q1 FY2027 report** (10 days ago: revenue ~$2M, no debt, cash $116.0M, total assets $497.9M as of 2026-06-30, ~85% of MHz-POPs still available for monetization), the **08-11 statement supporting SpaceX's 08-10 FCC ex parte letter** on buildout requirements in the 896-901/935-940 MHz band, and an **08-17 insider sale** ([stockanalysis.com/stocks/atex](https://stockanalysis.com/stocks/atex/); [Anterix investor relations, 2026-08-11](https://investors.anterix.com/node/21301/pdf)). **Reported as unattributed.** Note the tension worth watching: ATEX has been this book's largest single-name dollar mover in both directions this month (−4.45%/−$5,414.15 on 08-12, +9.31%/+$10,383.66 today) on 59 sleeves, with no news on either day. **A position that swings ±$10k on no information is a liquidity artifact, not a signal, and it is the book's fifth-largest single-name concentration outside the ETFs (behind MU $294,287.36, STX $256,792.64, LRCX $150,247.36 and WDC $137,451.11).**
+
+**AXGN +8.53% to $50.40 and DAVE +5.88% — also unattributed.** AXGN's most recent news is 22 days old: four price-target raises to $53–$55 after Q2 (revenue +23.1%, adjusted EPS 12c in line, FY26 guidance raised to $279M from $270M) ([stockanalysis.com/stocks/axgn](https://stockanalysis.com/stocks/axgn/)). DAVE's most recent is the 08-05 Q2 print (revenue +30%, adjusted EBITDA +48%) and subsequent target raises to $420–$485. **No 08-21 catalyst for either; both reported as continuation, not attributed to an event.**
+
+**AUPH −3.59% to $16.65 — giving back the settlement pop.** Aurinia settled its voclosporin patent litigation with Teva two days ago (08-19), pushing US generic entry to at least 2036-12-07, and the stock rose 6.80% on 08-20's session. Today it retraced. There is no new 08-21 item ([stockanalysis.com/stocks/auph](https://stockanalysis.com/stocks/auph/)). **At 6,407.5618 shares across 46 sleeves it is the book's largest idiosyncratic detractor today at −$3,972.69, and it is still holding most of the settlement gain: $15.30 (08-18) → $16.17 (08-19) → $17.27 (08-20) → $16.65 (08-21), **+8.82% above the pre-settlement close and +2.97% above the settlement-day close.**
+
+**3d. The crypto divergence is the day's cleanest anomaly.** **Bitcoin rose ~6% to ~$77,000 and had its best week since 2023. The book's two bitcoin miners fell: CIFR −8.40% to $15.77, WULF −4.92% to $15.64.** Meanwhile Robinhood +13.70%, Coinbase +8%, MicroStrategy +6%. **The crypto-equity complex split cleanly: exchanges and treasury vehicles up double digits, miners down mid-to-high single digits, on the same day the underlying asset rose 6%.** CIFR's close is independently verified and its news feed shows no 08-21 company item — the most recent are three price-target *cuts* after Q2 (JPMorgan to $22 from $23, Morgan Stanley to $43.50 from $47, KBW to $28 from $32, all ratings maintained), 14–16 days old ([stockanalysis.com/stocks/cifr](https://stockanalysis.com/stocks/cifr/)). **The available explanation — that the miners now trade as levered duration on multi-year AI-datacenter capex rather than as bitcoin proxies, so a 10-year at 4.73% hurts them more than a 6% bitcoin day helps — comes from an article dated 2026-08-18 and is therefore offered as a hypothesis consistent with today's data, not as today's sourced cause.** It is testable: if it is right, miner betas to bitcoin should keep falling while their betas to the long end rise. This book holds CIFR in 4 sleeves and WULF in 6, so the exposure is small; the observation matters more than the P&L.
+
+**3e. Approaching a stop or level.** No position is near a mechanical stop except one, and the one genuine finding is a stop that was never live:
+
+| holding | 08-21 close | LLM invalidation (2026-08-03) | distance | acts? |
+|---|---:|---:|---:|---|
+| XLE | 63.64 | 56.50 | +12.64% | overlay arm, enforced |
+| XLV | 174.62 | 156.00 | +11.94% | overlay arm, enforced |
+| **XLI** | **180.25** | **178.00** | **+1.26%** | overlay arm, enforced |
+| **XLU** | **42.77** | **44.50** | **−3.89% BREACHED** | **cascade arm only — no stop exists** |
+
+**XLI is 1.26% above the level the LLM itself named**, and `sector_overlay_ops --settled` confirmed at 17:17 today that it priced stops as-of the last settled day (08-20) and held all three: `XLE close $63.75 > stop $56.50`, `XLI close $179.77 > stop $178.00`, `XLV close $172.39 > stop $156.00`. **On today's unmarked close XLI is at $180.25 — still above, but this is the closest any overlay position has come to invalidation.** If XLI closes below $178.00 on a settled day, one quarter of `llm_overlay_sector_top4_paper` goes to cash. Worth flagging now rather than after it happens.
+
+**XLU is the real finding.** The 08-03 sector-overlay log records `XLU | score 6.0 | HOLD | invalidation 44.50`. **XLU's close on 2026-08-03 — the decision date — was $44.36. The prior close, 07-31, was $44.35.** The invalidation level was set **above the market price that existed when it was written**, meaning it was breached at the instant it was logged. It has closed below $44.50 on **every one of the 15 sessions since**, ending today at **$42.77**. Nothing enforced it, because XLU was not among the top-4 momentum sectors and so never entered `llm_overlay_sector_top4_paper`; the only sleeve holding it is `llm_cascade_sector4_paper`, which walked down the ranking past the XLK veto and by design carries no stop. **Net: the book holds $23,790.02 of XLU under an LLM-authored invalidation level that has been continuously violated for three weeks and that no code path can act on. That is a process defect in how the levels are generated — a stop set above spot is not a stop — and it is separate from whether holding XLU is a good idea.**
+
+---
+
+### 4. LLM overlay — treatment vs. control
+
+**46 sessions since the 2026-07-06 reset.** All figures indicative for 08-21.
+
+| arm | sleeve | NAV | day | week | since 07-06 | holdings |
+|---|---|---:|---:|---:|---:|---|
+| **stock control** | mom_roa_top1_paper | 96,314.51 | −0.77% | −0.50% | **−3.69%** | MU (99.53848 @ $829.9147, 08-03) |
+| **stock treatment** | llm_overlay_mom_roa_top1_paper | **100,000.00** | 0.00% | 0.00% | **0.00%** | **CASH — 0 positions** |
+| **stock cascade** | llm_cascade_top1_paper | 102,053.01 | −0.03% | **−12.67%** | **+2.05%** | STX (119.94492 @ $831.4755, 08-03) |
+| **sector control** | sector_top4_paper | 106,462.14 | +0.36% | +0.11% | **+6.46%** | XLE, XLK, XLI, XLV |
+| **sector treatment** | llm_overlay_sector_top4_paper | 102,322.06 | +0.35% | **+0.95%** | **+2.32%** | XLI, XLV, XLE + $24,158.02 cash |
+| **sector cascade** | llm_cascade_sector4_paper | 102,023.85 | −0.19% | +0.11% | **+2.02%** | XLI, XLV, XLE, **XLU** |
+| benchmark | spy_benchmark_0701_paper | 101,922.05 | +0.41% | −1.37% | +1.92% | SPY |
+| benchmark | qqq_benchmark_0706_paper | 98,702.30 | +0.35% | −2.41% | −1.30% | QQQ |
+
+**The stock arm has produced no data because the treatment has not traded.** The 2026-08-03 decision set was **BE (score 3, VETO), MU (3, VETO), STX (6, BUY), VICR (2, VETO), WDC (4, VETO)** — one BUY, but the BUY went to the cascade arm (STX), and the overlay arm, which must buy the *top-ranked* name or hold cash, VETOed MU at score 3 and went to cash. **`llm_overlay_mom_roa_top1_paper` sits at exactly $100,000.00 with zero positions.** `llm_overlay_ops --settled` confirmed today at 17:17: `[overlay] no open position - nothing to check.`
+
+**The honest scoring of that:** the treatment is **+0.00%** against a control at **−3.69%**, so on the scoreboard the veto is "winning" by 3.69pp. **But it is winning by not playing.** A sleeve that has held cash since 08-03 has no return series to correlate with LLM scores, which was the falsifiable claim the experiment exists to test. The kill-switch criteria are 12 months or 30 picks; **the pick count is what is starving, not the calendar.** With n=1 held name since the reset and long stretches in cash, this arm will hit 12 months before it hits 30 picks, and the 12-month verdict will rest on a sample too small to distinguish skill from a coin flip. **That is a design finding, and it is now visible enough to record: the single-name top-1 construction gives the LLM too few decisions per unit time for a 12-month test to resolve anything.**
+
+**The cascade arm is the one producing signal, and this week it produced a large negative one.** `llm_cascade_top1_paper` is **−12.67% on the week** — the worst weekly move of any sleeve in the book — entirely because it holds STX, which went **$973.44 → $850.00** (−12.68%) from 08-14 to today. The match to two decimal places confirms the sleeve is a pure single-name proxy with no cash drag. **It is still +2.05% since inception and ahead of SPY's +1.92%, which is a fragile margin resting on one semiconductor name.**
+
+**On the sector side, the control still beats both LLM arms and the gap is structural.** `sector_top4_paper` **+6.46%** vs overlay **+2.32%** vs cascade **+2.02%**. The overlay's deficit traces to the **XLK veto** (score 4, 08-03) that put 25% of the sleeve into cash — **$24,158.02 sitting flat while XLK rose 1.40% over the past month**. The cascade's deficit traces to the substitute it chose instead: **XLU, which is −4.79% over the same month and is the worst-performing sector ETF on both the week and the month.** **Both LLM arms lost to the control for the same reason and in the same direction: the model's macro judgement moved capital out of the sector that worked and, in the cascade's case, into the one that worked least.** This is the second consecutive month the sector overlay's veto has been the wrong call. The honest prior recorded at launch — that macro is where an LLM has the least edge — is holding up.
+
+**One point in the overlay's favour, stated for fairness:** `llm_overlay_sector_top4_paper` is the **only sleeve in the entire 76-sleeve book positive on the week (+0.95%)** other than a handful of ladder rungs. Holding 25% cash into a −1.4% S&P week is exactly the payoff a veto is supposed to produce. **It is one week, it does not offset a 4.14pp deficit since inception, and it is what a cash drag looks like when the tape goes down — not evidence of foresight.**
+
+---
+
+### 5. Week and period summary
+
+| window | book NAV start | book NAV end | change |
+|---|---:|---:|---:|
+| **Day** (08-20 marked → 08-21 ind.) | 7,754,525.82 | **7,795,457.14** | **+0.5278% / +$40,931.33** |
+| **Week** (08-14 marked → 08-21 ind.) | 7,898,695.60 | 7,795,457.14 | **−1.3070% / −$103,238.46** |
+| **Month-to-date** (07-31 marked → 08-21 ind.) | 7,664,277.95 | 7,795,457.14 | **+1.7116% / +$131,179.20** |
+
+*Do not re-derive the change columns by subtracting the rounded endpoints — every change figure above is rounded from the full-precision difference, so e.g. the day change is $40,931.327373 → **$40,931.33**, whereas 7,795,457.14 − 7,754,525.82 would give $40,931.32. The endpoints are each correctly rounded; their rounded difference is not.*
+
+Daily marked book NAV through the week: **08-14 $7,898,695.60 → 08-17 $7,977,796.49 → 08-18 $7,843,995.54 → 08-19 $7,811,752.06 → 08-20 $7,754,525.82 → 08-21 $7,795,457.14 (indicative)**. **The week peaked Monday and fell for three straight sessions before today's bounce** — the same shape as the S&P, which the book tracked at −1.31% against −1.4%.
+
+**Week's best and worst sleeves.**
+
+| best | week | | worst | week |
+|---|---:|---|---|---:|
+| llm_overlay_sector_top4_paper | +0.95% | | llm_cascade_top1_paper | −12.67% |
+| residual_w4060_paper | +0.82% | | mom_roa_6535_0701_paper | −8.87% |
+| residual_w3565_2wk_paper | +0.60% | | mom_roa_6535_paper | −8.46% |
+| residual_w1585_wk_paper | +0.58% | | mom_v2_0701_paper | −7.40% |
+| residual_w4060_2wk_paper | +0.57% | | mom_v2_paper | −7.12% |
+| residual_w3565_wk_paper | +0.57% | | mom_v1_paper | −4.61% |
+| residual_w4555_paper | +0.57% | | mom_v1_0701_paper | −4.42% |
+
+**Median sleeve week move: −0.50%.** The pattern is stark and it is not noise: **every one of the seven worst weekly sleeves is a pure-momentum construction (`mom_*`) or the single-name cascade; every one of the seven best is a low-residual-weight ladder rung or the cash-heavy sector overlay.** The momentum family lost 4–9% in a week the S&P lost 1.4%.
+
+**Week's largest held-name moves** (08-14 → 08-21, priced holdings only): up — **MRNA +129.20%**, EDRY +28.11%, NVCT +24.26%, INBX +17.27%, HL +12.79%, MRK +12.30%, SDOT +12.27%, TGTX +11.35%. Down — **AEHR −24.12%**, MXL −21.49%, MTRN −18.08%, AAOI −16.94%, FSLY −16.64%, OSS −16.24%, AIP −15.64%, ICHR −15.27%. **Six of the eight worst are semiconductors or semicap; the book's largest thematic block supplied nearly the entire downside tail.**
+
+---
+
+### 6. Ladder gradient and the structural read
+
+**6a. The residual-weight ladder — 57 rungs, since 2026-05-01, indicative 08-21.** Weight is residual-momentum / ROA. Every rung shares the same 05-01 NAV basis, so these are directly comparable to each other and to `spy_benchmark_paper` (**+6.25%**) and `qqq_benchmark_paper` (**+5.83%**).
+
+| resid% | ROA% | monthly | weekly | biweekly |
+|---:|---:|---:|---:|---:|
+| 5 | 95 | **+8.34%** | +4.40% | **+8.89%** |
+| 10 | 90 | **+6.68%** | +6.01% | **+6.73%** |
+| 15 | 85 | +4.77% | **+7.00%** | **+7.28%** |
+| 20 | 80 | +5.49% | **+6.49%** | **+6.90%** |
+| 25 | 75 | +4.30% | +4.02% | +4.34% |
+| 30 | 70 | +4.75% | +5.52% | +2.81% |
+| 35 | 65 | **+6.86%** | +4.74% | +5.99% |
+| 40 | 60 | **+6.39%** | +4.57% | **+6.30%** |
+| 45 | 55 | +6.25% | +3.94% | +5.81% |
+| 50 | 50 | +5.19% | +4.93% | +3.96% |
+| 55 | 45 | **+7.33%** | +3.53% | +3.48% |
+| 60 | 40 | **+8.35%** | +3.60% | +3.84% |
+| 65 | 35 | +4.80% | +2.20% | +1.74% |
+| 70 | 30 | +4.33% | −0.24% | −1.78% |
+| 75 | 25 | +3.82% | +2.51% | −1.31% |
+| 80 | 20 | +4.20% | +1.50% | −3.26% |
+| 85 | 15 | +4.25% | +1.49% | −2.27% |
+| 90 | 10 | +2.54% | +1.66% | −0.90% |
+| 95 | 5 | +4.81% | +2.88% | −0.76% |
+
+**Two gradients are legible and both are large relative to the dispersion within them.**
+
+**Gradient 1 — the quality leg is carrying, the momentum leg is subtracting.** Splitting the 57 rungs at the midpoint: **residual weight ≤45% (ROA-dominant, n=27) averages +5.76%; residual weight ≥55% (momentum-dominant, n=27) averages +2.31%.** A **3.45pp spread** over 16 weeks, monotone enough to survive eyeballing: the biweekly column in particular goes from **+8.89% at 5% residual to −0.76% at 95%**, and every biweekly rung at 70% residual or above is negative.
+
+**Gradient 2 — slower is better.** **Monthly mean +5.45% (range +2.54% to +8.35%) > weekly +3.72% (−0.24% to +7.00%) > biweekly +3.04% (−3.26% to +8.89%).** Monthly wins on the mean, on the minimum, and on the number of rungs above SPY. **Across all 57 rungs the mean is +4.07% and only 13 beat SPY's +6.25%** — so the ladder as a family is losing to buy-and-hold, and the rungs that beat it cluster in the ROA-heavy monthly and biweekly corners.
+
+**The caveat that keeps this honest:** the ladder rebalanced most recently on **2026-08-17**, four sessions ago, and today's carried-forward exposure is uneven across rungs (**2.0% to 13.1%** of held value priced at 08-20). The **13.1% carry on `residual_w3565_paper` versus 2.3% on `residual_w9505_paper` means today's day-move column is not comparable across rungs**, though the since-05-01 column — 77 marked sessions plus one indicative — is barely affected by one day of partial pricing.
+
+**6b. The clean-start 2026-07-06 cohort against its benchmarks.**
+
+| sleeve | since 07-06 | vs SPY (+1.92%) |
+|---|---:|---:|
+| sector_top4_paper | **+6.46%** | **+4.54pp** |
+| llm_overlay_sector_top4_paper | +2.32% | +0.40pp |
+| llm_cascade_top1_paper | +2.05% | +0.13pp |
+| llm_cascade_sector4_paper | +2.02% | +0.10pp |
+| **spy_benchmark_0701_paper** | **+1.92%** | — |
+| llm_overlay_mom_roa_top1_paper | 0.00% | −1.92pp |
+| **qqq_benchmark_0706_paper** | **−1.30%** | −3.22pp |
+| residual_roa_6535_0701_paper | −2.07% | −3.99pp |
+| mom_roa_top1_paper | −3.69% | −5.61pp |
+| mom_v1_0701_paper | −5.81% | −7.73pp |
+| mom_roa_6535_0701_paper | −8.89% | −10.81pp |
+| mom_v2_0701_paper | −10.02% | −11.94pp |
+
+**Exactly one sleeve in the clean-start cohort meaningfully beats SPY, and it is the one with no stock selection in it at all.** `sector_top4_paper` holds four sector ETFs picked by sector momentum. Everything downstream of single-stock selection — the two momentum champions, the residual champion, the LLM arms — is at or below the benchmark, and the two 50-name momentum sleeves are **10 to 12pp behind SPY in seven weeks**.
+
+**6c. The structural read.** Put §6a and §6b together and they say the same thing from two directions. **In the ladder, dialling residual momentum down toward zero and ROA up toward 100% improves returns by 3.45pp on average. In the cohort, removing single-stock selection entirely and holding sector ETFs beats every stock-picking sleeve by 4.5pp or more.** The common factor is not "momentum is broken this quarter" — the sector sleeve is itself a momentum strategy, just applied to eleven sector ETFs instead of ~5,000 stocks. **What is failing is single-name momentum specifically, and the mechanism visible in the data is concentration into one theme: memory/semis are 15.55% of held value and supplied six of the eight worst weekly movers.** A cross-sectional momentum screen run monthly on a universe where one theme has run 250%+ YTD will keep buying that theme, and it has.
+
+---
+
+### 7. Strategic insights — is there structural edge here?
+
+**7a. What today falsified.** This morning's pre-market entry called the semiconductor block **+1.221%** and described it as leading the tape "for a second consecutive session." **It closed −0.735%.** The whole-book pre-market estimate of **+0.2948%** came in against **+0.5278%** actual. Both errors run in the same direction and have the same cause: **the pre-market method prices a covered subset and carries the remainder flat, and the covered subset is biased toward large, liquid, early-quoting names — which today were exactly the semis that reversed.** The post-close method has the mirror-image version of the same problem (7.05% carried flat, skewed to late-alphabet small caps). **Neither estimate is wrong by accident; both are wrong by construction, and the direction of the bias is predictable from which names are missing.** Recording this because a forecast that is only ever checked against itself is not a forecast.
+
+**7b. Where the evidence now points, stated as strongly as the data supports.**
+
+**The quality tilt has 16 weeks of monotone cross-sectional evidence and it is the strongest live finding in the book.** 27 ROA-dominant rungs at +5.76% against 27 momentum-dominant rungs at +2.31%, with the gradient visible within each cadence column separately, is not one lucky configuration — it is 57 sleeves ordered by a single parameter behaving the way the parameter predicts. **This is the closest thing to a structural result this project has produced since the ladder was seeded.** It is also, deliberately, not yet a trading conclusion: 16 weeks spans one regime, the whole window contains a single large semiconductor drawdown, and the ROA leg's advantage may be nothing more than "ROA screens out unprofitable high-momentum semis." **The test that would separate those is whether the gradient survives when the semi complex is neutralised — which is a backtest, not a live observation, and it is the obvious next research task.**
+
+**The cadence result is weaker and should be held more loosely.** Monthly > weekly > biweekly by +5.45/+3.72/+3.04 is the right ordering for a transaction-cost story, but biweekly beating nothing while sitting *between* the other two in frequency breaks the monotonicity a pure cost explanation would predict. **More likely this is one drawdown landing differently across three rebalance calendars.** Not a finding yet.
+
+**7c. New sleeve concepts today's data supports — and the ones it does not.**
+
+**Supported, weakly: a miner-versus-exchange spread inside crypto equities.** Today produced a clean, dated dispersion — **bitcoin +6%, exchanges and treasury vehicles +6% to +14%, miners −5% to −8%** — with a mechanism (miners re-rating as levered duration on AI-datacenter capex rather than as bitcoin beta) that is falsifiable by measuring rolling betas. **It is also a long/short, which is research-only until Evan is 18, and the borrow on the short leg would likely eat it.** Logged as an observation with a testable claim attached, not as a candidate.
+
+**Contradicted: anything that needs single-name momentum to work.** The four `mom_*` sleeves lost 4.4% to 8.9% this week and sit 5.8% to 15.0% below inception. Seven weeks into a clean start, **`mom_v2_0701_paper` is −11.94pp against SPY** on data with no known contamination. That is no longer a drawdown to wait out; it is a sustained result on the champion construction.
+
+**Contradicted again, from a new angle: the "wide enough to catch the outlier" premise.** Wednesday's Moderna print was recorded as a counterexample to breadth-as-tail-capture. Today extends it. **Over the full three-session MRNA round trip the top-100 sleeves netted +$2,425.51 on the single largest repricing this book has ever held — and `mom_v1_paper` is still −12.63% since inception and −4.61% on the week.** A 130% weekly gain in a held name moved the sleeve that held it by roughly one percentage point, because 0.07% of a book cannot rescue it. **Breadth does not convert tail events into performance at these weights; only concentration does, and concentration is what the ladder's ROA leg is quietly arguing against.**
+
+**No recommendation.** The one action item that is not a research question is operational: **the XLU invalidation level was set above spot on the day it was written**, and if the sector overlay is going to keep generating levels, that generation step needs a sanity check comparing the proposed level to the current price before it is logged. That is a defect in the experiment's instrumentation, and instrumentation defects compound quietly.
+
+---
+
+*Report generated: 2026-08-21 (Friday), post-market close, ~19:00–20:00 CDT (`date` → `Fri Aug 21 19:01:08 CDT 2026`, UTC-5 → CDT). Task `daily-trade-check-2`, cron `0 19 * * 1-5`, lastRunAt 2026-08-22T00:01:01.614Z, nextRunAt 2026-08-25T00:00:22.000Z. Coverage: `var/trades.db` opened read-only (`file:var/trades.db?mode=ro`) for `paper_nav`, `paper_positions`, `paper_portfolio`, `price_cache`, `llm_overlay_log`, `sector_overlay_log`; `var/last_daily_run.log` and `var/ops_status.log` read for operational state. **2026-08-21 is UNMARKED — `max(nav_date)` = 2026-08-20; `check_coverage` FAILED at 4,055 closes vs a 5,000 floor; `mtm_catchup` marked=0, pending=2026-08-21. All 08-21 NAVs, day-moves, week-moves and MTD figures in this entry are INDICATIVE, computed from `paper_portfolio.cash` + Σ(qty × 08-21 close) with 18 of 209 held tickers ($540,775.29 = 7.05% of held value) carried flat at their 08-20 closes.** `verify_run` PASS 76/76. `check_anomalies` flagged 19 items (18 NOCLOSE + CFNB +4126.8%, never held). No sleeve traded today; last ladder rebalance 2026-08-17 20:32 CDT. No new `llm_overlay_log` or `sector_overlay_log` rows since 2026-08-03. Next monthly rebalance: first trading day of September 2026. | Sources: [Yahoo Finance — Stock market today, Friday August 21 live blog](https://finance.yahoo.com/markets/live/stock-market-today-friday-august-21-dow-sp-500-nasdaq-bitcoin-080533702.html) | [Zacks via Yahoo Finance — Stock Market News for Aug 21, 2026](https://finance.yahoo.com/markets/stocks/articles/stock-market-news-aug-21-090400012.html) | [Saxo Bank — Market Quick Take, 21 August 2026](https://www.home.saxo/en-mena/content/articles/macro/market-quick-take---treasury-yields-rise-and-walmart-slides-as-jackson-hole-comes-into-view---21-august-2026-21082026) | [CNBC — Treasury announces upscaled buyback operation, 2026-08-19](https://www.cnbc.com/2026/08/19/treasury-announces-upscaled-buyback-operation-for-longer-term-debt-sending-yields-lower.html) | [CNBC — Longer-dated Treasury yields rise as Bessent's buyback rally fizzles, 2026-08-21](https://www.cnbc.com/2026/08/21/treasury-yields-bonds-inflation-rates.html) | [CNN Business — Global bond yields are surging, 2026-08-21](https://www.cnn.com/2026/08/21/economy/bond-market-explainer) | [Axios — Treasury to double down on buybacks, 2026-08-19](https://www.axios.com/2026/08/19/rates-treasury-borrowing-bessent) | [CNBC — Bitcoin on track for weekly gain as optimism floods back, 2026-08-21](https://www.cnbc.com/2026/08/21/bitcoin-gain-cryptocurrency-investors-optimistic.html) | [CoinDesk — BTC tops $77,000 as best week since 2023, 2026-08-21](https://www.coindesk.com/markets/2026/08/21/bitcoin-tops-usd77-000-as-best-week-since-2023-pulls-altcoins-along-for-the-ride) | [stockanalysis.com — ATEX](https://stockanalysis.com/stocks/atex/) | [stockanalysis.com — TGTX](https://stockanalysis.com/stocks/tgtx/) | [stockanalysis.com — MRNA](https://stockanalysis.com/stocks/mrna/) | [stockanalysis.com — AUPH](https://stockanalysis.com/stocks/auph/) | [stockanalysis.com — EZPW](https://stockanalysis.com/stocks/ezpw/) | [stockanalysis.com — AXGN](https://stockanalysis.com/stocks/axgn/) | [stockanalysis.com — SDOT](https://stockanalysis.com/stocks/sdot/) | [stockanalysis.com — CIFR](https://stockanalysis.com/stocks/cifr/) | [stockanalysis.com — XLU](https://stockanalysis.com/etf/xlu/) | [stockanalysis.com — XLV](https://stockanalysis.com/etf/xlv/) | [stockanalysis.com — IWM](https://stockanalysis.com/etf/iwm/) | [GuruFocus — TGTX shares surge on acquisition speculation](https://www.gurufocus.com/news/9047765/tg-therapeutics-tgtx-shares-surge-72-amid-acquisition-rumors-valuation-remains-a-key-focus) | [Timothy Sykes — TGTX, 2026-08-21](https://www.timothysykes.com/news/tg-therapeutics-inc-tgtx-news-2026_08_21/) | [StocksToTrade — MRNA, 2026-08-21](https://stockstotrade.com/news/moderna-inc-mrna-news-2026_08_21/) | [Alphastreet — Ezcorp surges amid sector-wide rally](https://news.alphastreet.com/ezcorp-surges-13-7-amid-sector-wide-rally/) | [Anterix — Statement in support of SpaceX proposal, 2026-08-11](https://investors.anterix.com/node/21301/pdf) | [24/7 Wall St. — Micron, SanDisk, Western Digital as higher rates test the memory boom, 2026-08-18](https://247wallst.com/investing/2026/08/18/micron-technology-falls-5-sandisk-sinks-6-western-digital-drops-7-as-higher-rates-test-the-memory-boom/) | [24/7 Wall St. — Cipher Mining falls, TeraWulf sinks as rising yields hit the AI miner pivot, 2026-08-18](https://247wallst.com/investing/2026/08/18/cipher-mining-falls-9-terawulf-sinks-7-as-rising-yields-hit-the-ai-miner-pivot/)*
