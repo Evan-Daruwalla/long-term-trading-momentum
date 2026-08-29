@@ -38253,7 +38253,7 @@ That is a structural finding about *portfolio construction*, not about the *sign
 > **ENERGY WAS THE BOOK'S ONLY POSITIVE SECTOR AT +3.1687%, AND IT IS TANKERS.** INSW **+5.487%** — held in **41 of 76 sleeves**, still the book's most widely-held name. Brent **88.22, −0.34%** on the day but rebounding on Russia-Ukraine escalation ([Trading Economics](https://tradingeconomics.com/commodity/brent-crude-oil)). Healthcare **−2.3708%** at **25.602%** weight is the largest drag. §1c, §3d.
 > **THE LLM STOCK OVERLAY'S VETO RULE IMPROVED AND ITS IMPLEMENTATION STILL DISCARDS THE GAIN.** The four 08-03 vetoes now average **−3.9823%** vs cash (WDC −12.8542%, VICR −12.0774%, BE −3.4582%, MU **+12.4605%** — the one miss, and it widened). The abstain-to-cash arm remains at **exactly $100,000.00, 0 positions, +0.0000%**; the cascade arm that walks down the ranking is **+1.6176%**. Same signal, opposite outcome, difference is purely implementation. §4a, §7b.
 > **XLI IS THE NEAREST LIVE INVALIDATION IN THE BOOK AND IT TIGHTENED TO +0.4494% ABOVE ITS $178.00 STOP** (178.80 on 08-27, no 08-28 close). **XLU has now closed below its $44.50 invalidation on all 19 sessions since the HOLD was logged** — latest 43.18, **−2.9663% through** — with nothing enforcing it. §4c.
-> **LADDER GRADIENT HOLDS ITS SHAPE BUT LOSES GROUND TO SPY.** Marked 08-26: monthly **+5.8559%** > weekly **+3.8125%** > biweekly **+2.9092%**; ROA-dominant **+6.2342%** vs momentum-dominant **+2.1049%**, spread **4.1293pp**; **14/57 rungs beat SPY (+6.3040%)**. Indicative 08-28: spread **widens to 4.2925pp** while rungs beating SPY **fall to 7/57**. §6.
+> **LADDER GRADIENT HOLDS ITS SHAPE BUT LOSES GROUND TO SPY.** Marked 08-26: monthly **+5.8558%** > weekly **+3.8125%** > biweekly **+2.9091%**; ROA-dominant **+6.2342%** vs momentum-dominant **+2.1049%**, spread **4.1293pp**; **14/57 rungs beat SPY (+6.3040%)**. Indicative 08-28: spread **widens to 4.2925pp** while rungs beating SPY **fall to 7/57**. §6.
 > **CRITICAL OUTSTANDING:** (1) two consecutive unmarked sessions, with 08-27 blocked by 3 closes against an absolute floor the universe is shrinking toward; (2) **25 held tickers have no 08-28 close**, all K–X — including **XLE, XLI, XLU**, so three of five sector-ETF positions and the XLI stop check are unpriceable tonight; (3) XLU 19 sessions through its invalidation, unenforced; (4) **41 rows of the 08-24 exit batch still carry `exit_ref_date` 2026-08-21**, and **751 rows from the 08-03 rebalance carry `exit_ref_date` NULL** — both unrepaired; (5) UYSC's eight-session price freeze broke on 08-27 to $10.88 and has now frozen again at the new level for two sessions. §0j, §0k.
 
 ---
@@ -38687,9 +38687,9 @@ Those are the last honest book-level numbers. Adding the two indicative sessions
 
 | cadence | n | mean | min | max |
 |---|---|---|---|---|
-| **monthly** | 19 | **+5.8559%** | +3.0537% | +9.3517% |
+| **monthly** | 19 | **+5.8558%** | +3.0537% | +9.3517% |
 | weekly | 19 | +3.8125% | −0.6397% | +7.7236% |
-| biweekly | 19 | +2.9092% | −3.7800% | +9.6974% |
+| biweekly | 19 | +2.9091% | −3.7800% | +9.6974% |
 
 **Monotonic in cadence: less trading wins.** Four months in, this is the most stable finding the ladder has produced — the ordering has not inverted once.
 
@@ -38714,9 +38714,9 @@ Those are the last honest book-level numbers. Adding the two indicative sessions
 
 | measure | marked 08-26 | indicative 08-28 | change |
 |---|---|---|---|
-| monthly mean | +5.8559% | **+4.7456%** | −1.11pp |
+| monthly mean | +5.8558% | **+4.7456%** | −1.11pp |
 | weekly mean | +3.8125% | **+2.8316%** | −0.98pp |
-| biweekly mean | +2.9092% | **+2.0549%** | −0.85pp |
+| biweekly mean | +2.9091% | **+2.0549%** | −0.85pp |
 | ROA-dominant | +6.2342% | **+5.3360%** | −0.90pp |
 | momentum-dominant | +2.1049% | **+1.0435%** | −1.06pp |
 | **ROA−mom spread** | **+4.1293pp** | **+4.2925pp** | **+0.16pp** |
