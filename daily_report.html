@@ -116651,6 +116651,2086 @@ biweekly  05:+8.13  10:+5.63  15:+6.05  20:+5.01  25:+2.73  30:+1.42  35:+4.91  
 <p><strong>6e. What would change the picture.</strong> The residual-momentum family's four-sleeve lead over SPY is the only live positive signal in the book, and it is <strong>four months old on a $100,000 paper seed with no out-of-sample validation since the 2026-06-13 re-inception</strong>. Per the standing rule that all pre-2026-06-13 backtest numbers are stale, <strong>the residual family's apparent edge has never been re-validated on clean data at the parameter grid now deployed.</strong> That re-validation, not a new sleeve, is what would convert an encouraging live ranking into a defensible claim.</p>
 <hr />
 <p><em>Compiled by the <code>daily-trade-check</code> scheduled task, 2026-09-04, ~07:08–07:55 CDT. Read-only: no sleeve, NAV, price row or rebalance was modified. All portfolio arithmetic is from <code>var/trades.db</code> opened <code>mode=ro</code>; all pre-market quotes are externally sourced and timestamped, and every one was reconciled against <code>price_cache</code> before publication.</em></p>
+<hr />
+<h2 id="report-2026-09-04-friday--post-market-close-analysis">Report: 2026-09-04 (Friday) — Post-Market Close Analysis</h2>
+<p><em>Compiled 2026-09-04 ~19:00–19:45 CDT (UTC−5), after the 15:00 CDT US equity close, after the 17:15 <code>TradingDailyMTM</code> run, and after the 18:03 CDT <code>monthy-llm-rebalance</code> fire. Local date is 2026-09-04; UTC had already rolled to 2026-09-05 at compile time — see §0a.</em></p>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong><br />
+<strong>NAV — today is UNMARKED.</strong> The last <strong>marked</strong> close for all 76 sleeves is <strong>2026-09-03</strong>. The 17:15 MTM logged <code>coverage=PENDING</code> for 2026-09-04 (<strong>4,305 closes against a floor of 5,000</strong>) and refused to mark; it instead caught up <strong>09-03</strong>, which the 07:47 morning heal had itself declined to mark. Every 09-04 figure here is <strong>INDICATIVE</strong> (§0g). Marked standings at 09-03, ranked best-to-worst: <code>residual_w0595_2wk_paper</code> <strong>+8.19%</strong>, <code>sector_top4_full_paper</code> <strong>+7.90%</strong>, <code>residual_w0595_paper</code> <strong>+7.72%</strong>, <code>residual_w6040_paper</code> <strong>+7.47%</strong>, then <strong>SPY +7.29%</strong>; the tail is <code>mom_v1_paper</code> <strong>−16.25%</strong>, <code>mom_roa_6535_paper</code> <strong>−17.47%</strong>, <code>mom_v2_paper</code> <strong>−18.08%</strong>. <strong>Four of the 64 sleeves in the 05-01 cohort beat SPY; 54 of 64 are above the $100,000 seed.</strong> Aggregate 76-sleeve NAV <strong>$7,710,307.20</strong> marked → <strong>$7,745,600.78</strong> indicative, <strong>+0.4577%</strong>.<br />
+<strong>Day moves (indicative).</strong> The book gained on a down tape. The three single-name MU sleeves each mark <strong>+6.09%</strong>; the six pure-momentum sleeves that have been the book's worst performers all year mark <strong>+0.31% to +2.54%</strong>; the residual-heavy top of the ladder marks <strong>−0.57% to −0.62%</strong>. Sign reversal from yesterday, and it is a factor-loading effect, not noise — see §6.<br />
+<strong>Key movers.</strong> <strong>FICO −16.68%</strong> ($1,118.93 → $932.26, held by 30 sleeves) after FHFA Director Bill Pulte ordered Fannie Mae and Freddie Mac to accept VantageScore 4.0 immediately, ending the FICO mortgage-scoring monopoly. Against it, a memory/semicap rally: <strong>MU +6.10%</strong>, <strong>STX +6.34%</strong> (held by 65 sleeves, the widest holding), <strong>KLAC +7.32%</strong>, <strong>MRVL +7.05%</strong>, <strong>AEHR +13.10%</strong>. <strong>ADBE −6.73%</strong> on a surprise CEO succession six days before earnings; <strong>NFLX −5.35%</strong> as the long-duration rate casualty.<br />
+<strong>Macro event.</strong> <strong>August payrolls +162,000</strong> against a <strong>53,000</strong> consensus (Dow Jones), unemployment <strong>4.1%</strong> unchanged, June and July revised up a combined <strong>+55,000</strong>. 10-year Treasury <strong>4.78%</strong> (+2 bp), 2-year <strong>4.37%</strong> (+3.8 bp). September FOMC hike odds moved to roughly <strong>65%</strong> from <strong>55%</strong> pre-print — but three sources give three different numbers, reconciled in §0k. <strong>S&amp;P 500 −0.38% to 7,718.60; Dow −0.51%; Nasdaq Composite −0.29%; Russell 2000 +0.21%.</strong><br />
+<strong>LLM overlay.</strong> Stock arm: <strong>14 logged decisions</strong> by <code>count(*)</code> (<code>max(id)</code> = 17; the id gaps are real). Spearman(score, forward return to the 09-03 mark) = <strong>−0.3705</strong> — still the wrong sign. BUY rows average <strong>−17.9984%</strong> against VETO <strong>−11.2204%</strong>: BUYs trail VETOs by <strong>6.7780pp</strong>. Treatment <code>llm_overlay_mom_roa_top1_paper</code> <strong>+2.59%</strong> beats control <code>mom_roa_top1_paper</code> <strong>−4.54%</strong> since 07-06, but both hold the same MU today and the entire gap is one skipped trade. Sector arm: treatment <strong>+2.40%</strong> against control <strong>+6.29%</strong>, with <strong>$23,087.99 (22.548% of the sleeve)</strong> idle in cash from the 09-01 XLI veto.<br />
+<strong>Critical outstanding.</strong> (1) <strong>Monday 2026-09-07 is Labor Day, NYSE closed</strong> — and both <code>daily-trade-check</code> (<code>nextRunAt</code> 2026-09-07T12:07:23Z) and <code>TradingLadderRebalance</code> are scheduled into it; the weekly ladder rung has landed on a Monday every week since 08-10. (2) The <code>coverage=PENDING</code> streak is now <strong>10 trading sessions</strong> (08-24 through 09-04), and today the <strong>07:47 morning heal also failed</strong> — the first session where neither of the two marking paths worked on the day. (3) The <strong>trading-guard hook still blocks the monthly rebalance</strong>; <code>monthy-llm-rebalance</code> fired again at 18:03 CDT today on its <code>1-5</code>-day cron, the fourth fire this month. BLOCKED-ON-EVAN. (4) Five held tickers have no 09-04 close <strong>and</strong> near-frozen prices for 4–8 prior sessions (§0i) — a stale-mark problem, not just a coverage gap.</p>
+</blockquote>
+<hr />
+<h3 id="0-data-integrity-and-operational-status_42">0. Data integrity and operational status</h3>
+<p><strong>0a. Clock — and the UTC rollover the pre-flight exists to catch.</strong> <code>date</code> returned <code>Fri Sep  4 19:00:41 CDT 2026</code> at pre-flight and <code>Fri Sep  4 19:07:59 CDT 2026</code> mid-run. <code>date -u</code> returned <code>Sat Sep  5 00:07:59 UTC 2026</code>. UTC offset −5 → <strong>CDT</strong>. <strong>The UTC date is already 2026-09-05 while the local date is 2026-09-04.</strong> Every date and timestamp in this entry is local CDT. Had this run filed under the UTC date, tomorrow's pre-market run would have read this entry as belonging to a session that has not happened.</p>
+<p><strong>0b. Market status — open today, closed Monday.</strong> 2026-09-04 is a Friday and not an NYSE holiday; a full session traded and settled, confirmed by index closes from three independent sources in §1a. Sections 1–7 proceed. <strong>Labor Day falls Monday 2026-09-07 and the NYSE is closed</strong>, reopening Tuesday 2026-09-08. That closure is an operational item, not calendar trivia — §0d and §7c.</p>
+<p><strong>0c. Duplicate check.</strong> A <code>grep -n</code> for this date's post-market header against <code>daily_report.md</code>, run before writing, returned no match. The newest headers in the file were the 09-03 post-market entry (line 42420) and this morning's 09-04 pre-market entry (line 42971). <strong>Not a re-fire.</strong> (The pattern is described rather than reproduced verbatim so this line cannot satisfy a later run's own duplicate check.)</p>
+<p><strong>0d. Cron echo.</strong> Live values for <code>daily-trade-check-2</code> from <code>list_scheduled_tasks</code>:</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cronExpression</code></td>
+<td><code>0 19 * * 1-5</code></td>
+</tr>
+<tr>
+<td><code>schedule</code></td>
+<td>At 07:00 PM, Monday through Friday</td>
+</tr>
+<tr>
+<td><code>nextRunAt</code></td>
+<td><code>2026-09-08T00:00:22.000Z</code></td>
+</tr>
+<tr>
+<td><code>lastRunAt</code></td>
+<td><code>2026-09-05T00:00:34.379Z</code></td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>jitterSeconds</code></td>
+<td>22</td>
+</tr>
+</tbody>
+</table>
+<p><strong>No drift.</strong> The slot is <code>0 19</code>, which is the documented value and the one that matters: at <code>0 17</code> this task would read <code>paper_nav</code> fifteen minutes before the 17:15 MTM writes to it, and every NAV here would silently be the prior session's. <code>nextRunAt</code> resolves to <strong>Monday 2026-09-07 19:00 CDT — Labor Day</strong>, so the §0b holiday check will be the only thing standing between that fire and a report republishing today's numbers under a 09-07 header.</p>
+<p>The other three live Trading tasks, echoed because their timing interacts with this one:</p>
+<table>
+<thead>
+<tr>
+<th>task</th>
+<th>cron</th>
+<th>nextRunAt</th>
+<th>lastRunAt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>daily-trade-check</code></td>
+<td><code>0 7 * * 1-5</code></td>
+<td><code>2026-09-07T12:07:23.000Z</code></td>
+<td><code>2026-09-04T12:08:16.185Z</code></td>
+</tr>
+<tr>
+<td><code>daily-audit</code></td>
+<td><code>0 7 * * *</code></td>
+<td><code>2026-09-05T12:05:01.000Z</code></td>
+<td><code>2026-09-04T12:05:54.611Z</code></td>
+</tr>
+<tr>
+<td><code>monthy-llm-rebalance</code></td>
+<td><code>0 18 1-5 * *</code></td>
+<td><code>2026-09-05T23:03:03.000Z</code></td>
+<td><code>2026-09-04T23:03:15.345Z</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Both 07:07 tasks are also scheduled into Labor Day.</strong> <code>monthy-llm-rebalance</code> remains on the <strong><code>1-5</code>-day</strong> cron — the drift found 2026-09-02 and deliberately <strong>not</strong> restored, which is Evan's call. It has now fired on 09-01, 09-02, 09-03 and <strong>09-04 at 18:03 CDT</strong>, and is scheduled to fire once more on 09-05. <code>rebalance_log.md</code> still reads <code>Last rebalance: 2026-09-01</code> / <code>Status: OK</code>, and the 17:17 <code>verify_run</code> cadence line reads <code>last_rebalance(2026-09-01/OK) settled_month(2026-09)</code>, so the month gate was closed before today's fire. <strong>That is the intended no-op inferred from unchanged state; this task does not open the rebalance task's own log and cannot confirm it directly.</strong></p>
+<p><strong>0e. DB access.</strong> Every query used <code>sqlite3.connect('file:var/trades.db?mode=ro', uri=True)</code>. Read-only. No write was made or attempted.</p>
+<p><strong>0f. Lock check — clear.</strong> <code>monthy-llm-rebalance</code> fired at 18:03 CDT, 57 minutes before this run's first query, and its observed runtime is 15–35 minutes. Every query in this entry completed without <code>database is locked</code> on a 10-second timeout. No partial-entry condition.</p>
+<p><strong>0g. MTM state — the 09-04 session is UNMARKED, and today BOTH marking paths failed.</strong></p>
+<pre><code>max(nav_date) in paper_nav = 2026-09-03   (76 of 76 sleeves)
+</code></pre>
+<p>The 17:15 run's own log states the refusal and its arithmetic:</p>
+<pre><code>check_coverage: Coverage check: date=2026-09-04  closes=4305  baseline(median of 10)=5144
+                floor=5000 [max(5000, 90%*5144=4629)]
+check_coverage: COVERAGE FAIL: only 4305 closes on 2026-09-04 (&lt; floor 5000).
+                Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.
+TODAY PENDING - incomplete same-day publication.
+[OPS 2026-09-04] coverage=PENDING verify=PASS
+</code></pre>
+<p><strong>The new fact tonight is that the 07:47 morning heal also declined to mark</strong>, which is a departure from the pattern the last nine entries recorded:</p>
+<pre><code>07:47:12 mtm_catchup: PENDING 2026-09-03: coverage 4629 &lt; floor 5000 - leaving unmarked (heals later).
+07:47:12 mtm_catchup: catch-up done: marked=0 skipped_pre_rebalance=0 latest=2026-09-03
+                      coverage_ok=False pending=2026-09-03
+[OPS 2026-09-04] coverage=n/a verify=PASS
+</code></pre>
+<p>4,629 is exactly the 90%-of-baseline term, and the floor is the <code>max(5000, ...)</code> branch — the morning refresh landed <strong>371 rows short of the hard floor</strong> with the relative test satisfied. <strong>09-03 was then marked nine and a half hours later by the evening run's catch-up pass</strong>, once the 17:15 price refresh had carried 09-03 from 4,262 rows to 5,137. So the book's daily mark did not rest on the 07:45 heal today; it rested on the <em>evening</em> run marking the <em>previous</em> day. Both paths now run a day behind.</p>
+<p><strong>The <code>coverage=PENDING</code> streak stands at ten trading sessions.</strong> <code>var/ops_status.log</code> carries <code>coverage=PENDING</code> on the 17:15 line for 08-24, 25, 26, 27, 28, 31 and 09-01, 02, 03, 04. The last <code>coverage=PASS</code> is <code>[OPS 2026-08-23]</code>, a Sunday. <strong><code>verify=PASS</code> on the same lines confirms continuity, ledger and drift on the rows that exist — it is not evidence that a session was marked.</strong> Tonight <code>verify_run</code> returned <code>RESULT: PASS (76/76 sleeves OK)</code> while 09-04 went unmarked.</p>
+<p><strong>Method for every 09-04 figure in this entry.</strong> NAV(09-04, indicative) = sleeve cash at the 09-03 mark + Σ(open qty × 09-04 cached close), substituting the 09-03 close for any position with no 09-04 close. Per-sleeve coverage is printed in the <code>cov</code> column of §2. <strong>No carried-forward NAV is presented as a marked close.</strong></p>
+<p><strong>0h. Price coverage.</strong></p>
+<table>
+<thead>
+<tr>
+<th>key_date</th>
+<th style="text-align: right;">closes (<code>kind='close'</code>, non-NULL)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-27</td>
+<td style="text-align: right;">5,147</td>
+</tr>
+<tr>
+<td>2026-08-28</td>
+<td style="text-align: right;">5,144</td>
+</tr>
+<tr>
+<td>2026-08-31</td>
+<td style="text-align: right;">5,141</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td style="text-align: right;">5,143</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td style="text-align: right;">5,141</td>
+</tr>
+<tr>
+<td>2026-09-03</td>
+<td style="text-align: right;">5,137</td>
+</tr>
+<tr>
+<td><strong>2026-09-04</strong></td>
+<td style="text-align: right;"><strong>4,305</strong></td>
+</tr>
+</tbody>
+</table>
+<p>4,305 / 5,144 (the run's own median-of-10 baseline) = <strong>83.7%</strong>. Note that <strong>09-03 is now complete at 5,137</strong> — it was 4,262 at last night's post-market entry and 4,262 again at this morning's pre-market entry, and the evening refresh repaired it. That is the documented evening-job duration problem repeating one day later, not a broken ticker list.</p>
+<p>Of the <strong>207 distinct held tickers, 202 carry a 09-04 close.</strong> The five without: <code>APGE, CRNX, FMBM, KFII, UYSC</code>.</p>
+<p><strong>0i. Price anomaly — the five missing names are also STALE, which is the more serious finding.</strong> Tonight's anomaly scan flagged 5 <code>NOCLOSE</code> rows and <strong>no</strong> move above its held&gt;300% / cache&gt;1000% thresholds, so there is no split-misapplication signature (the KLAC 2026-06-12 tell). But pulling each missing name's price history shows the gap is the visible end of a stale-mark problem:</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>closes 2026-08-25 → 2026-09-04</th>
+<th style="text-align: right;">sleeves</th>
+<th style="text-align: right;">book weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>APGE</code></td>
+<td>134.85, 134.95, 134.96, 134.97, 135.08, 135.08, 135.07, 135.07, —</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.1056%</td>
+</tr>
+<tr>
+<td><code>CRNX</code></td>
+<td>84.86, 84.84, 84.85, 84.84, 84.95, 84.95, <strong>— , —</strong></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">not measurable</td>
+</tr>
+<tr>
+<td><code>FMBM</code></td>
+<td>40.20, 40.20, 40.20, 40.00, 40.00, 40.00, 40.00, 40.00, —</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.0325%</td>
+</tr>
+<tr>
+<td><code>KFII</code></td>
+<td>10.65, 10.63, 10.64, 10.64, 10.65, 10.65, 10.65, 10.65, —</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.4555%</td>
+</tr>
+<tr>
+<td><code>UYSC</code></td>
+<td>10.84, 10.84, 10.88, 10.88, 10.99, 10.99, 10.99, 10.99, —</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.5364%</td>
+</tr>
+</tbody>
+</table>
+<p><code>FMBM</code> has printed exactly $40.00 for five consecutive sessions; <code>KFII</code> $10.65 for four; <code>UYSC</code> $10.99 for four; <code>APGE</code> has moved 0.01 in four. <code>CRNX</code> has had <strong>no close since 2026-09-02</strong> — two sessions, so its market value is absent from every book total in this entry rather than merely held flat, and the §3 attribution is computed on a book that excludes it. <strong>These are being carried as if they mark, and four of the five barely move even when a close exists.</strong> Combined weight of the four measurable names is <strong>1.13% of book market value</strong>. Flagged, not acted on — repair is Evan's call under the NAV-is-sacred rule.</p>
+<p><strong>0j. Independent validation of <code>price_cache</code>.</strong> Five of tonight's largest moves were checked against sources that publish their own close and percentage, and <code>price_cache</code> reproduces all five:</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th><code>price_cache</code> 09-03 → 09-04</th>
+<th style="text-align: right;">computed</th>
+<th>independent source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FICO</code></td>
+<td>1,118.9301 → 932.2600</td>
+<td style="text-align: right;">−16.6829%</td>
+<td>$932.26, −16.68% (<a href="https://www.fool.com/investing/2026/09/04/why-fair-isaac-stock-crashed-today/">Motley Fool, 2026-09-04</a>)</td>
+</tr>
+<tr>
+<td><code>STX</code></td>
+<td>798.6100 → 849.2800</td>
+<td style="text-align: right;">+6.3448%</td>
+<td>$849.28, +$50.67, +6.34% at close Sep 4 2026 (<a href="https://stockanalysis.com/stocks/stx/">stockanalysis.com</a>)</td>
+</tr>
+<tr>
+<td><code>MU</code></td>
+<td>958.1600 → 1,016.5900</td>
+<td style="text-align: right;">+6.0982%</td>
+<td>$1,016.59, +6.10%, +$58.43 at close Sep 4 2026 (<a href="https://stockanalysis.com/stocks/mu/">stockanalysis.com</a>)</td>
+</tr>
+<tr>
+<td><code>NFLX</code></td>
+<td>82.6700 → 78.2500</td>
+<td style="text-align: right;">−5.3466%</td>
+<td>$78.25, −$4.42, −5.35%, Sep 4 2026 4:00 PM EDT, prev close $82.67, day range $78.23–$82.69 (<a href="https://stockanalysis.com/stocks/nflx/">stockanalysis.com</a>)</td>
+</tr>
+<tr>
+<td><code>KLAC</code></td>
+<td>172.9400 → 185.6000</td>
+<td style="text-align: right;">+7.3205%</td>
+<td>closed $185.60, +7% (<a href="https://seekingalpha.com/news/4640453-kla-rises-7-amid-semiconductor-equipment-advance">Seeking Alpha</a>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>price_cache</code>'s 09-04 closes are confirmed correct by independent sources arithmetically, not by assertion.</strong></p>
+<p><strong>0k. Quote conflicts — published reconciled, outliers flagged, never averaged.</strong></p>
+<ul>
+<li><strong>NFLX.</strong> <a href="https://247wallst.com/investing/2026/09/04/netflix-falls-4-as-rate-repricing-pressures-long-duration-growth-disney-dips-warner-bros-discovery-sits-tight/">24/7 Wall St, 2026-09-04</a> reports "Netflix dropped 4% to $79.16." A search-result summary separately claimed a 09-04 session low of $81.63. <strong>Both are wrong as end-of-day figures</strong>: the timestamped 4:00 PM EDT quote is $78.25 / −5.35% with a session low of $78.23. The 24/7 figure is an intraday snapshot taken before the close; the $81.63 low is not reproducible against any source and is discarded. <strong>$78.25 / −5.35% is published.</strong></li>
+<li><strong>August payrolls consensus.</strong> Three values in circulation: <strong>53,000</strong> (<a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-today-sept-4-133716564.html">Yahoo, 2026-09-04</a>, attributed to Dow Jones), <strong>55,000</strong> (also Yahoo, in a different sentence of the same article), <strong>65,000</strong> (<a href="https://247wallst.com/investing/2026/09/04/sandisk-soars-8-is-the-nand-pricing-cycle-still-accelerating/">24/7 Wall St, 2026-09-04</a>). The <strong>actual print of +162,000 is unanimous.</strong> The <strong>53,000</strong> Dow Jones figure is published as the consensus because it is the only one attributed to a named survey; the other two are flagged.</li>
+<li><strong>September FOMC hike odds.</strong> <strong>65%, up from 55% pre-print</strong> (<a href="https://investrade.com/market-review-september-04-2026/">Investrade, 2026-09-04</a>); <strong>60.2%</strong> (24/7 Wall St); <strong>"roughly 50%"</strong> (Yahoo). A 15-point spread on the same day's pricing. The Investrade figure is published because it is the only one that states both a level and a pre-print baseline; <strong>the spread is the honest reading, and no single number here is load-bearing for any sleeve decision.</strong></li>
+<li><strong>FOMC meeting date — correcting this morning's entry.</strong> The pre-market entry stated the meeting as "2026-09-16/17". The meeting is <strong>September 15–16, 2026, with the decision Wednesday 2026-09-16 at 2:00 PM ET</strong> (<a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">Federal Reserve FOMC calendars</a>, <a href="https://fedratecalc.com/fomc-meeting-schedule/">FedRateCalc</a>). Investrade's "September 15-16" is correct.</li>
+</ul>
+<p><strong>0l. No position changes today.</strong> <code>paper_positions</code> carries <strong>0 entries and 0 exits dated 2026-09-04</strong>, and 0 dated 2026-09-03. The last entries are 09-01 (379 rows, the monthly rebalance) and 08-31 (338 rows, the weekly ladder). <strong>Every NAV move in this entry is pure mark-to-market on an unchanged book.</strong></p>
+<hr />
+<h3 id="1-market-summary_19">1. Market summary</h3>
+<p><strong>1a. Index closes — reconciled across three sources.</strong></p>
+<table>
+<thead>
+<tr>
+<th>index</th>
+<th style="text-align: right;">close</th>
+<th style="text-align: right;">change</th>
+<th style="text-align: right;">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S&amp;P 500</td>
+<td style="text-align: right;">7,718.60</td>
+<td style="text-align: right;">−29.11</td>
+<td style="text-align: right;"><strong>−0.38%</strong></td>
+</tr>
+<tr>
+<td>Dow Jones Industrial Average</td>
+<td style="text-align: right;">53,414.25</td>
+<td style="text-align: right;">−271.86</td>
+<td style="text-align: right;"><strong>−0.51%</strong></td>
+</tr>
+<tr>
+<td>Nasdaq Composite</td>
+<td style="text-align: right;">26,506.99</td>
+<td style="text-align: right;">−77.07</td>
+<td style="text-align: right;"><strong>−0.29%</strong></td>
+</tr>
+<tr>
+<td>Russell 2000</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;"><strong>+0.21%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Sources agree at every printed digit: <a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-today-sept-4-133716564.html">Yahoo Finance, 2026-09-04</a>; <a href="https://investrade.com/market-review-september-04-2026/">Investrade Market Review, 2026-09-04</a>; <a href="https://www.cnbc.com/2026/09/03/stock-market-today-live-updates.html">CNBC live blog, 2026-09-04</a>.</p>
+<p>The portfolio's own ETF marks agree with the index prints: <strong>SPY 773.17 → 770.19, −0.39%</strong>; <strong>QQQ 717.67 → 718.96, +0.18%</strong>. QQQ's positive sign against a Nasdaq Composite of −0.29% is not a contradiction — QQQ tracks the Nasdaq-100, and the semiconductor names that carried it are diluted in the Composite's much longer tail.</p>
+<p><strong>One stale headline to discount.</strong> Search surfaced "<a href="https://www.nbcnews.com/business/markets/sp-500-nasdaq-post-record-closes-friday-jobs-report-raises-fed-rate-cu-rcna160495">S&amp;P 500, Nasdaq post record closes Friday as jobs report raises Fed rate cut hopes</a>" (NBC News), whose headline is the exact inverse of today's tape — record closes on <em>rate-cut</em> hopes against today's decline on <em>rate-hike</em> fears. It is not a 2026-09-04 article and is <strong>not used as a source for anything in this entry.</strong> This is the third consecutive session in which the search layer has attributed an article of the wrong date to the current day; the check that caught it is the same one each time — the article's own direction failed to reconcile against <code>price_cache</code>.</p>
+<p><strong>1b. Sector performance — from the portfolio's own SPDR marks.</strong> Every figure below is a <code>price_cache</code> close-to-close, independent of any news source:</p>
+<table>
+<thead>
+<tr>
+<th>sector ETF</th>
+<th style="text-align: right;">09-03</th>
+<th style="text-align: right;">09-04</th>
+<th style="text-align: right;">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XLK Technology</td>
+<td style="text-align: right;">185.97</td>
+<td style="text-align: right;">187.28</td>
+<td style="text-align: right;"><strong>+0.70%</strong></td>
+</tr>
+<tr>
+<td>XLI Industrials</td>
+<td style="text-align: right;">174.56</td>
+<td style="text-align: right;">175.27</td>
+<td style="text-align: right;"><strong>+0.41%</strong></td>
+</tr>
+<tr>
+<td>XLU Utilities</td>
+<td style="text-align: right;">43.03</td>
+<td style="text-align: right;">43.08</td>
+<td style="text-align: right;"><strong>+0.12%</strong></td>
+</tr>
+<tr>
+<td>XLB Materials</td>
+<td style="text-align: right;">52.62</td>
+<td style="text-align: right;">52.44</td>
+<td style="text-align: right;"><strong>−0.34%</strong></td>
+</tr>
+<tr>
+<td>XLRE Real Estate</td>
+<td style="text-align: right;">44.25</td>
+<td style="text-align: right;">43.93</td>
+<td style="text-align: right;"><strong>−0.72%</strong></td>
+</tr>
+<tr>
+<td>XLF Financials</td>
+<td style="text-align: right;">58.56</td>
+<td style="text-align: right;">58.10</td>
+<td style="text-align: right;"><strong>−0.79%</strong></td>
+</tr>
+<tr>
+<td>XLP Consumer Staples</td>
+<td style="text-align: right;">85.26</td>
+<td style="text-align: right;">84.58</td>
+<td style="text-align: right;"><strong>−0.80%</strong></td>
+</tr>
+<tr>
+<td>XLE Energy</td>
+<td style="text-align: right;">64.62</td>
+<td style="text-align: right;">64.06</td>
+<td style="text-align: right;"><strong>−0.87%</strong></td>
+</tr>
+<tr>
+<td>XLV Health Care</td>
+<td style="text-align: right;">173.26</td>
+<td style="text-align: right;">171.45</td>
+<td style="text-align: right;"><strong>−1.04%</strong></td>
+</tr>
+<tr>
+<td>XLC Communication Svcs</td>
+<td style="text-align: right;">113.38</td>
+<td style="text-align: right;">112.03</td>
+<td style="text-align: right;"><strong>−1.19%</strong></td>
+</tr>
+<tr>
+<td>XLY Consumer Discretionary</td>
+<td style="text-align: right;">116.46</td>
+<td style="text-align: right;">114.91</td>
+<td style="text-align: right;"><strong>−1.33%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Only three of eleven sectors closed green, and technology was the only one that mattered.</strong> Investrade's narrative — "Technology led gains while consumer discretionary and healthcare lagged" — matches the marks exactly. This is a textbook duration-repricing session: rate-sensitive and defensive sectors (XLY, XLC, XLV, XLP, XLRE, XLF) all sold, and the one sector with in-hand cash generation from already-reported earnings held its bid.</p>
+<p><strong>1c. Macro — the print that caused it.</strong></p>
+<ul>
+<li><strong>August nonfarm payrolls: +162,000</strong>, against a Dow Jones consensus of <strong>53,000</strong> — roughly three times expected. <strong>June and July were revised up a combined +55,000.</strong> Unemployment held at <strong>4.1%</strong>.</li>
+<li><strong>10-year Treasury 4.78%, +2 bp; 2-year 4.37%, +3.8 bp</strong> (Investrade). 24/7 Wall St quotes the 10-year at 4.77% and 4.79% in the same article; <strong>4.78% is published</strong> as the only figure carrying an explicit basis-point change, with the ~2 bp spread noted.</li>
+<li><strong>September FOMC hike odds ≈65%, from ≈55% pre-print</strong> — see the §0k conflict. Decision <strong>Wednesday 2026-09-16, 2:00 PM ET</strong>.</li>
+<li><strong>WTI crude +$0.18 to $91.48</strong>, up more than <strong>8% on the week</strong> — directly relevant at <strong>11.18% book energy weight</strong> (§3e).</li>
+<li><strong>Gold −1.39% to $4,476.60/oz; silver −1.41% to $66.75.</strong></li>
+<li>Bill Adams of Fifth Third Commercial Bank, quoted by Yahoo: the report focuses "the Fed squarely on controlling inflation" at the September meeting.</li>
+</ul>
+<p><strong>Why this matters to the book and not just to the tape:</strong> a hawkish repricing is normally a headwind for a portfolio that is 23.66% technology. It was not today, because the technology the book holds is memory and semicap — names whose earnings have already landed and whose 2026 cash flows do not discount the way a 31x-multiple streaming name does. §3 quantifies that split.</p>
+<hr />
+<h3 id="2-full-nav-table--all-76-sleeves_12">2. Full NAV table — all 76 sleeves</h3>
+<p><code>NAV 09-03</code> is a <strong>marked</strong> DB row. <code>NAV 09-04</code> is <strong>INDICATIVE</strong> per §0g. <code>since %</code> is against the sleeve's own first NAV row. <code>wk %</code> is 08-28 → 09-03, both marked. <code>cov</code> = open positions carrying a real 09-04 close / open positions. Ranked by return since series start.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">#</th>
+<th>sleeve</th>
+<th style="text-align: right;">NAV 09-03 (marked)</th>
+<th style="text-align: right;">NAV 09-04 (ind.)</th>
+<th style="text-align: right;">day %</th>
+<th style="text-align: right;">wk %</th>
+<th style="text-align: right;">since %</th>
+<th>inception</th>
+<th>cov</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>residual_w0595_2wk_paper</code></td>
+<td style="text-align: right;">108,135.70</td>
+<td style="text-align: right;">107,514.59</td>
+<td style="text-align: right;">−0.57</td>
+<td style="text-align: right;">−0.97</td>
+<td style="text-align: right;"><strong>+8.19</strong></td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>sector_top4_full_paper</code></td>
+<td style="text-align: right;">107,842.65</td>
+<td style="text-align: right;">107,632.40</td>
+<td style="text-align: right;">−0.19</td>
+<td style="text-align: right;">+0.76</td>
+<td style="text-align: right;"><strong>+7.90</strong></td>
+<td>2026-05-01</td>
+<td>4/4</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>residual_w0595_paper</code></td>
+<td style="text-align: right;">107,662.73</td>
+<td style="text-align: right;">106,992.18</td>
+<td style="text-align: right;">−0.62</td>
+<td style="text-align: right;">−0.96</td>
+<td style="text-align: right;"><strong>+7.72</strong></td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>residual_w6040_paper</code></td>
+<td style="text-align: right;">107,420.33</td>
+<td style="text-align: right;">108,105.88</td>
+<td style="text-align: right;">+0.64</td>
+<td style="text-align: right;">+0.36</td>
+<td style="text-align: right;"><strong>+7.47</strong></td>
+<td>2026-05-01</td>
+<td>47/47</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><strong><code>spy_benchmark_paper</code></strong></td>
+<td style="text-align: right;"><strong>107,287.86</strong></td>
+<td style="text-align: right;"><strong>106,874.35</strong></td>
+<td style="text-align: right;"><strong>−0.39</strong></td>
+<td style="text-align: right;"><strong>+0.50</strong></td>
+<td style="text-align: right;"><strong>+7.29</strong></td>
+<td>2026-05-01</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>residual_w5545_paper</code></td>
+<td style="text-align: right;">106,561.43</td>
+<td style="text-align: right;">107,368.87</td>
+<td style="text-align: right;">+0.76</td>
+<td style="text-align: right;">+0.20</td>
+<td style="text-align: right;">+6.61</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><strong><code>qqq_benchmark_paper</code></strong></td>
+<td style="text-align: right;"><strong>106,455.53</strong></td>
+<td style="text-align: right;"><strong>106,646.89</strong></td>
+<td style="text-align: right;"><strong>+0.18</strong></td>
+<td style="text-align: right;"><strong>+0.17</strong></td>
+<td style="text-align: right;"><strong>+6.46</strong></td>
+<td>2026-05-01</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>sector_top4_paper</code></td>
+<td style="text-align: right;">106,293.84</td>
+<td style="text-align: right;">106,038.38</td>
+<td style="text-align: right;">−0.24</td>
+<td style="text-align: right;">+0.86</td>
+<td style="text-align: right;">+6.29</td>
+<td>2026-07-06</td>
+<td>4/4</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>residual_w1585_2wk_paper</code></td>
+<td style="text-align: right;">106,055.76</td>
+<td style="text-align: right;">105,697.81</td>
+<td style="text-align: right;">−0.34</td>
+<td style="text-align: right;">−1.10</td>
+<td style="text-align: right;">+6.11</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>residual_w1585_wk_paper</code></td>
+<td style="text-align: right;">105,830.65</td>
+<td style="text-align: right;">105,570.43</td>
+<td style="text-align: right;">−0.25</td>
+<td style="text-align: right;">−1.02</td>
+<td style="text-align: right;">+5.88</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td><code>residual_w1090_paper</code></td>
+<td style="text-align: right;">105,729.22</td>
+<td style="text-align: right;">105,277.88</td>
+<td style="text-align: right;">−0.43</td>
+<td style="text-align: right;">−0.91</td>
+<td style="text-align: right;">+5.78</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td><code>residual_w3565_paper</code></td>
+<td style="text-align: right;">105,651.49</td>
+<td style="text-align: right;">105,666.51</td>
+<td style="text-align: right;">+0.01</td>
+<td style="text-align: right;">−0.28</td>
+<td style="text-align: right;">+5.70</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td><code>residual_w1090_2wk_paper</code></td>
+<td style="text-align: right;">105,632.10</td>
+<td style="text-align: right;">105,225.38</td>
+<td style="text-align: right;">−0.39</td>
+<td style="text-align: right;">−1.01</td>
+<td style="text-align: right;">+5.68</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">14</td>
+<td><code>residual_w4060_paper</code></td>
+<td style="text-align: right;">105,419.08</td>
+<td style="text-align: right;">105,804.81</td>
+<td style="text-align: right;">+0.37</td>
+<td style="text-align: right;">−0.04</td>
+<td style="text-align: right;">+5.47</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td><code>residual_w4555_paper</code></td>
+<td style="text-align: right;">105,292.41</td>
+<td style="text-align: right;">105,817.72</td>
+<td style="text-align: right;">+0.50</td>
+<td style="text-align: right;">−0.20</td>
+<td style="text-align: right;">+5.35</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td><code>residual_w1090_wk_paper</code></td>
+<td style="text-align: right;">105,188.01</td>
+<td style="text-align: right;">104,788.91</td>
+<td style="text-align: right;">−0.38</td>
+<td style="text-align: right;">−0.84</td>
+<td style="text-align: right;">+5.24</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">17</td>
+<td><code>residual_w2080_2wk_paper</code></td>
+<td style="text-align: right;">105,008.15</td>
+<td style="text-align: right;">104,832.73</td>
+<td style="text-align: right;">−0.17</td>
+<td style="text-align: right;">−0.98</td>
+<td style="text-align: right;">+5.06</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">18</td>
+<td><code>residual_w3565_2wk_paper</code></td>
+<td style="text-align: right;">104,906.40</td>
+<td style="text-align: right;">105,087.48</td>
+<td style="text-align: right;">+0.17</td>
+<td style="text-align: right;">−0.09</td>
+<td style="text-align: right;">+4.96</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">19</td>
+<td><code>residual_w4060_2wk_paper</code></td>
+<td style="text-align: right;">104,892.48</td>
+<td style="text-align: right;">105,050.14</td>
+<td style="text-align: right;">+0.15</td>
+<td style="text-align: right;">+0.01</td>
+<td style="text-align: right;">+4.94</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td><code>residual_w2080_wk_paper</code></td>
+<td style="text-align: right;">104,831.04</td>
+<td style="text-align: right;">104,764.67</td>
+<td style="text-align: right;">−0.06</td>
+<td style="text-align: right;">−0.85</td>
+<td style="text-align: right;">+4.88</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">21</td>
+<td><code>residual_w5050_paper</code></td>
+<td style="text-align: right;">104,362.73</td>
+<td style="text-align: right;">104,846.72</td>
+<td style="text-align: right;">+0.46</td>
+<td style="text-align: right;">+0.02</td>
+<td style="text-align: right;">+4.41</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">22</td>
+<td><code>residual_w2080_paper</code></td>
+<td style="text-align: right;">104,223.90</td>
+<td style="text-align: right;">103,994.77</td>
+<td style="text-align: right;">−0.22</td>
+<td style="text-align: right;">−0.71</td>
+<td style="text-align: right;">+4.28</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">23</td>
+<td><code>residual_w9505_paper</code></td>
+<td style="text-align: right;">104,146.74</td>
+<td style="text-align: right;">104,611.58</td>
+<td style="text-align: right;">+0.45</td>
+<td style="text-align: right;">+0.42</td>
+<td style="text-align: right;">+4.20</td>
+<td>2026-05-01</td>
+<td>45/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">24</td>
+<td><code>residual_w3070_wk_paper</code></td>
+<td style="text-align: right;">104,125.74</td>
+<td style="text-align: right;">104,153.41</td>
+<td style="text-align: right;">+0.03</td>
+<td style="text-align: right;">−0.37</td>
+<td style="text-align: right;">+4.18</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">25</td>
+<td><code>residual_w4555_2wk_paper</code></td>
+<td style="text-align: right;">104,019.19</td>
+<td style="text-align: right;">104,273.11</td>
+<td style="text-align: right;">+0.24</td>
+<td style="text-align: right;">−0.07</td>
+<td style="text-align: right;">+4.07</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">26</td>
+<td><code>residual_w3565_wk_paper</code></td>
+<td style="text-align: right;">103,778.02</td>
+<td style="text-align: right;">103,962.83</td>
+<td style="text-align: right;">+0.18</td>
+<td style="text-align: right;">−0.13</td>
+<td style="text-align: right;">+3.83</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">27</td>
+<td><code>residual_w3070_paper</code></td>
+<td style="text-align: right;">103,691.99</td>
+<td style="text-align: right;">103,567.38</td>
+<td style="text-align: right;">−0.12</td>
+<td style="text-align: right;">−0.33</td>
+<td style="text-align: right;">+3.74</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">28</td>
+<td><code>residual_w0595_wk_paper</code></td>
+<td style="text-align: right;">103,394.12</td>
+<td style="text-align: right;">102,781.55</td>
+<td style="text-align: right;">−0.59</td>
+<td style="text-align: right;">−1.02</td>
+<td style="text-align: right;">+3.45</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">29</td>
+<td><code>residual_w6535_paper</code></td>
+<td style="text-align: right;">103,304.38</td>
+<td style="text-align: right;">103,767.44</td>
+<td style="text-align: right;">+0.45</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">+3.36</td>
+<td>2026-05-01</td>
+<td>46/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">30</td>
+<td><code>residual_w5050_wk_paper</code></td>
+<td style="text-align: right;">103,298.99</td>
+<td style="text-align: right;">103,529.00</td>
+<td style="text-align: right;">+0.22</td>
+<td style="text-align: right;">−0.23</td>
+<td style="text-align: right;">+3.35</td>
+<td>2026-05-01</td>
+<td>47/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">31</td>
+<td><code>residual_w1585_paper</code></td>
+<td style="text-align: right;">103,286.12</td>
+<td style="text-align: right;">102,976.28</td>
+<td style="text-align: right;">−0.30</td>
+<td style="text-align: right;">−1.05</td>
+<td style="text-align: right;">+3.34</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">32</td>
+<td><code>residual_w4060_wk_paper</code></td>
+<td style="text-align: right;">103,222.41</td>
+<td style="text-align: right;">103,331.03</td>
+<td style="text-align: right;">+0.11</td>
+<td style="text-align: right;">+0.07</td>
+<td style="text-align: right;">+3.27</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">33</td>
+<td><code>residual_w2575_paper</code></td>
+<td style="text-align: right;">103,114.01</td>
+<td style="text-align: right;">103,076.43</td>
+<td style="text-align: right;">−0.04</td>
+<td style="text-align: right;">−0.56</td>
+<td style="text-align: right;">+3.17</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">34</td>
+<td><code>residual_w9505_wk_paper</code></td>
+<td style="text-align: right;">102,890.31</td>
+<td style="text-align: right;">103,273.70</td>
+<td style="text-align: right;">+0.37</td>
+<td style="text-align: right;">+1.29</td>
+<td style="text-align: right;">+2.94</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">35</td>
+<td><strong><code>spy_benchmark_0701_paper</code></strong></td>
+<td style="text-align: right;"><strong>102,913.69</strong></td>
+<td style="text-align: right;"><strong>102,517.03</strong></td>
+<td style="text-align: right;"><strong>−0.39</strong></td>
+<td style="text-align: right;"><strong>+0.50</strong></td>
+<td style="text-align: right;"><strong>+2.91</strong></td>
+<td>2026-07-06</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">36</td>
+<td><code>residual_w7030_paper</code></td>
+<td style="text-align: right;">102,795.22</td>
+<td style="text-align: right;">103,057.49</td>
+<td style="text-align: right;">+0.26</td>
+<td style="text-align: right;">+0.34</td>
+<td style="text-align: right;">+2.85</td>
+<td>2026-05-01</td>
+<td>46/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">37</td>
+<td><code>residual_w2575_2wk_paper</code></td>
+<td style="text-align: right;">102,722.21</td>
+<td style="text-align: right;">102,763.60</td>
+<td style="text-align: right;">+0.04</td>
+<td style="text-align: right;">−0.91</td>
+<td style="text-align: right;">+2.77</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">38</td>
+<td><code>residual_w8020_paper</code></td>
+<td style="text-align: right;">102,675.06</td>
+<td style="text-align: right;">103,210.11</td>
+<td style="text-align: right;">+0.52</td>
+<td style="text-align: right;">−0.01</td>
+<td style="text-align: right;">+2.73</td>
+<td>2026-05-01</td>
+<td>45/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">39</td>
+<td><code>llm_overlay_mom_roa_top1_paper</code></td>
+<td style="text-align: right;">102,594.37</td>
+<td style="text-align: right;">108,844.63</td>
+<td style="text-align: right;"><strong>+6.09</strong></td>
+<td style="text-align: right;">+2.59</td>
+<td style="text-align: right;">+2.59</td>
+<td>2026-07-06</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">40</td>
+<td><code>residual_w6040_wk_paper</code></td>
+<td style="text-align: right;">102,535.11</td>
+<td style="text-align: right;">102,872.32</td>
+<td style="text-align: right;">+0.33</td>
+<td style="text-align: right;">+0.46</td>
+<td style="text-align: right;">+2.59</td>
+<td>2026-05-01</td>
+<td>47/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">41</td>
+<td><code>residual_w8515_paper</code></td>
+<td style="text-align: right;">102,523.24</td>
+<td style="text-align: right;">102,996.12</td>
+<td style="text-align: right;">+0.46</td>
+<td style="text-align: right;">−0.05</td>
+<td style="text-align: right;">+2.57</td>
+<td>2026-05-01</td>
+<td>45/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">42</td>
+<td><code>residual_w4555_wk_paper</code></td>
+<td style="text-align: right;">102,495.38</td>
+<td style="text-align: right;">102,846.36</td>
+<td style="text-align: right;">+0.34</td>
+<td style="text-align: right;">−0.21</td>
+<td style="text-align: right;">+2.55</td>
+<td>2026-05-01</td>
+<td>48/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">43</td>
+<td><code>residual_w7525_wk_paper</code></td>
+<td style="text-align: right;">102,477.37</td>
+<td style="text-align: right;">102,871.30</td>
+<td style="text-align: right;">+0.38</td>
+<td style="text-align: right;">+1.40</td>
+<td style="text-align: right;">+2.53</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">44</td>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td style="text-align: right;">102,396.15</td>
+<td style="text-align: right;">102,067.02</td>
+<td style="text-align: right;">−0.32</td>
+<td style="text-align: right;">+1.43</td>
+<td style="text-align: right;">+2.40</td>
+<td>2026-07-06</td>
+<td>3/3</td>
+</tr>
+<tr>
+<td style="text-align: right;">45</td>
+<td><code>residual_w2575_wk_paper</code></td>
+<td style="text-align: right;">102,300.39</td>
+<td style="text-align: right;">102,331.77</td>
+<td style="text-align: right;">+0.03</td>
+<td style="text-align: right;">−0.95</td>
+<td style="text-align: right;">+2.35</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">46</td>
+<td><code>residual_w7525_paper</code></td>
+<td style="text-align: right;">102,141.36</td>
+<td style="text-align: right;">102,430.15</td>
+<td style="text-align: right;">+0.28</td>
+<td style="text-align: right;">+0.26</td>
+<td style="text-align: right;">+2.19</td>
+<td>2026-05-01</td>
+<td>45/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">47</td>
+<td><code>residual_roa_6535_paper</code></td>
+<td style="text-align: right;">102,015.79</td>
+<td style="text-align: right;">102,437.49</td>
+<td style="text-align: right;">+0.41</td>
+<td style="text-align: right;">+0.29</td>
+<td style="text-align: right;">+2.07</td>
+<td>2026-05-01</td>
+<td>46/47</td>
+</tr>
+<tr>
+<td style="text-align: right;">48</td>
+<td><code>residual_w6040_2wk_paper</code></td>
+<td style="text-align: right;">101,953.86</td>
+<td style="text-align: right;">102,236.71</td>
+<td style="text-align: right;">+0.28</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">+2.00</td>
+<td>2026-05-01</td>
+<td>47/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">49</td>
+<td><code>residual_w5545_wk_paper</code></td>
+<td style="text-align: right;">101,857.84</td>
+<td style="text-align: right;">102,477.05</td>
+<td style="text-align: right;">+0.61</td>
+<td style="text-align: right;">−0.26</td>
+<td style="text-align: right;">+1.91</td>
+<td>2026-05-01</td>
+<td>48/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">50</td>
+<td><code>residual_w8020_wk_paper</code></td>
+<td style="text-align: right;">101,710.92</td>
+<td style="text-align: right;">102,027.79</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">+1.55</td>
+<td style="text-align: right;">+1.76</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">51</td>
+<td><code>residual_w5050_2wk_paper</code></td>
+<td style="text-align: right;">101,636.35</td>
+<td style="text-align: right;">101,720.49</td>
+<td style="text-align: right;">+0.08</td>
+<td style="text-align: right;">−0.35</td>
+<td style="text-align: right;">+1.69</td>
+<td>2026-05-01</td>
+<td>47/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">52</td>
+<td><code>llm_cascade_sector4_paper</code></td>
+<td style="text-align: right;">101,585.65</td>
+<td style="text-align: right;">101,177.67</td>
+<td style="text-align: right;">−0.40</td>
+<td style="text-align: right;">+0.94</td>
+<td style="text-align: right;">+1.59</td>
+<td>2026-07-06</td>
+<td>4/4</td>
+</tr>
+<tr>
+<td style="text-align: right;">53</td>
+<td><code>residual_w9010_wk_paper</code></td>
+<td style="text-align: right;">101,538.04</td>
+<td style="text-align: right;">101,863.42</td>
+<td style="text-align: right;">+0.32</td>
+<td style="text-align: right;">+1.50</td>
+<td style="text-align: right;">+1.59</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">54</td>
+<td><code>residual_w3070_2wk_paper</code></td>
+<td style="text-align: right;">101,413.76</td>
+<td style="text-align: right;">101,535.92</td>
+<td style="text-align: right;">+0.12</td>
+<td style="text-align: right;">−0.53</td>
+<td style="text-align: right;">+1.46</td>
+<td>2026-05-01</td>
+<td>49/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">55</td>
+<td><code>residual_w6535_wk_paper</code></td>
+<td style="text-align: right;">101,252.26</td>
+<td style="text-align: right;">101,623.74</td>
+<td style="text-align: right;">+0.37</td>
+<td style="text-align: right;">+0.80</td>
+<td style="text-align: right;">+1.30</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">56</td>
+<td><code>residual_w9010_paper</code></td>
+<td style="text-align: right;">101,207.25</td>
+<td style="text-align: right;">101,785.22</td>
+<td style="text-align: right;">+0.57</td>
+<td style="text-align: right;">+0.01</td>
+<td style="text-align: right;">+1.26</td>
+<td>2026-05-01</td>
+<td>45/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">57</td>
+<td><code>residual_w6535_2wk_paper</code></td>
+<td style="text-align: right;">101,205.57</td>
+<td style="text-align: right;">101,440.95</td>
+<td style="text-align: right;">+0.23</td>
+<td style="text-align: right;">+1.16</td>
+<td style="text-align: right;">+1.26</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">58</td>
+<td><code>residual_w8515_wk_paper</code></td>
+<td style="text-align: right;">101,157.10</td>
+<td style="text-align: right;">101,498.46</td>
+<td style="text-align: right;">+0.34</td>
+<td style="text-align: right;">+1.42</td>
+<td style="text-align: right;">+1.21</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">59</td>
+<td><code>residual_w5545_2wk_paper</code></td>
+<td style="text-align: right;">101,035.48</td>
+<td style="text-align: right;">101,611.77</td>
+<td style="text-align: right;">+0.57</td>
+<td style="text-align: right;">−0.15</td>
+<td style="text-align: right;">+1.09</td>
+<td>2026-05-01</td>
+<td>48/49</td>
+</tr>
+<tr>
+<td style="text-align: right;">60</td>
+<td><code>llm_cascade_top1_paper</code></td>
+<td style="text-align: right;">100,545.23</td>
+<td style="text-align: right;">106,670.65</td>
+<td style="text-align: right;"><strong>+6.09</strong></td>
+<td style="text-align: right;">+0.92</td>
+<td style="text-align: right;">+0.55</td>
+<td>2026-07-06</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">61</td>
+<td><strong><code>qqq_benchmark_0706_paper</code></strong></td>
+<td style="text-align: right;"><strong>99,287.51</strong></td>
+<td style="text-align: right;"><strong>99,465.98</strong></td>
+<td style="text-align: right;"><strong>+0.18</strong></td>
+<td style="text-align: right;"><strong>+0.17</strong></td>
+<td style="text-align: right;"><strong>−0.71</strong></td>
+<td>2026-07-06</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">62</td>
+<td><code>residual_w9505_2wk_paper</code></td>
+<td style="text-align: right;">98,977.60</td>
+<td style="text-align: right;">99,354.16</td>
+<td style="text-align: right;">+0.38</td>
+<td style="text-align: right;">+1.10</td>
+<td style="text-align: right;">−0.97</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">63</td>
+<td><code>residual_w7030_wk_paper</code></td>
+<td style="text-align: right;">98,955.92</td>
+<td style="text-align: right;">99,352.21</td>
+<td style="text-align: right;">+0.40</td>
+<td style="text-align: right;">+0.88</td>
+<td style="text-align: right;">−0.99</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">64</td>
+<td><code>residual_w7525_2wk_paper</code></td>
+<td style="text-align: right;">98,733.54</td>
+<td style="text-align: right;">99,091.94</td>
+<td style="text-align: right;">+0.36</td>
+<td style="text-align: right;">+1.47</td>
+<td style="text-align: right;">−1.22</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">65</td>
+<td><code>residual_w9010_2wk_paper</code></td>
+<td style="text-align: right;">98,226.41</td>
+<td style="text-align: right;">98,550.01</td>
+<td style="text-align: right;">+0.33</td>
+<td style="text-align: right;">+1.10</td>
+<td style="text-align: right;">−1.72</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">66</td>
+<td><code>residual_w7030_2wk_paper</code></td>
+<td style="text-align: right;">97,588.26</td>
+<td style="text-align: right;">97,892.28</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">+1.04</td>
+<td style="text-align: right;">−2.36</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">67</td>
+<td><code>residual_w8515_2wk_paper</code></td>
+<td style="text-align: right;">96,794.68</td>
+<td style="text-align: right;">97,151.96</td>
+<td style="text-align: right;">+0.37</td>
+<td style="text-align: right;">+0.96</td>
+<td style="text-align: right;">−3.16</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">68</td>
+<td><code>residual_roa_6535_0701_paper</code></td>
+<td style="text-align: right;">96,384.93</td>
+<td style="text-align: right;">96,701.45</td>
+<td style="text-align: right;">+0.33</td>
+<td style="text-align: right;">+0.17</td>
+<td style="text-align: right;">−3.62</td>
+<td>2026-07-06</td>
+<td>46/46</td>
+</tr>
+<tr>
+<td style="text-align: right;">69</td>
+<td><code>residual_w8020_2wk_paper</code></td>
+<td style="text-align: right;">96,218.88</td>
+<td style="text-align: right;">96,545.05</td>
+<td style="text-align: right;">+0.34</td>
+<td style="text-align: right;">+1.34</td>
+<td style="text-align: right;">−3.73</td>
+<td>2026-05-01</td>
+<td>46/48</td>
+</tr>
+<tr>
+<td style="text-align: right;">70</td>
+<td><code>mom_roa_top1_paper</code></td>
+<td style="text-align: right;">95,456.48</td>
+<td style="text-align: right;">101,272.52</td>
+<td style="text-align: right;"><strong>+6.09</strong></td>
+<td style="text-align: right;">+2.71</td>
+<td style="text-align: right;">−4.54</td>
+<td>2026-07-06</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td style="text-align: right;">71</td>
+<td><code>mom_v1_0701_paper</code></td>
+<td style="text-align: right;">90,062.33</td>
+<td style="text-align: right;">90,339.83</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">−1.26</td>
+<td style="text-align: right;">−9.94</td>
+<td>2026-07-06</td>
+<td>96/98</td>
+</tr>
+<tr>
+<td style="text-align: right;">72</td>
+<td><code>mom_v2_0701_paper</code></td>
+<td style="text-align: right;">86,527.21</td>
+<td style="text-align: right;">88,256.74</td>
+<td style="text-align: right;"><strong>+2.00</strong></td>
+<td style="text-align: right;">−0.48</td>
+<td style="text-align: right;">−13.47</td>
+<td>2026-07-06</td>
+<td>49/50</td>
+</tr>
+<tr>
+<td style="text-align: right;">73</td>
+<td><code>mom_roa_6535_0701_paper</code></td>
+<td style="text-align: right;">85,376.99</td>
+<td style="text-align: right;">87,544.17</td>
+<td style="text-align: right;"><strong>+2.54</strong></td>
+<td style="text-align: right;">−1.55</td>
+<td style="text-align: right;">−14.62</td>
+<td>2026-07-06</td>
+<td>49/50</td>
+</tr>
+<tr>
+<td style="text-align: right;">74</td>
+<td><code>mom_v1_paper</code></td>
+<td style="text-align: right;">83,711.93</td>
+<td style="text-align: right;">84,127.32</td>
+<td style="text-align: right;">+0.50</td>
+<td style="text-align: right;">−1.12</td>
+<td style="text-align: right;">−16.25</td>
+<td>2026-05-01</td>
+<td>96/98</td>
+</tr>
+<tr>
+<td style="text-align: right;">75</td>
+<td><code>mom_roa_6535_paper</code></td>
+<td style="text-align: right;">82,484.27</td>
+<td style="text-align: right;">84,574.57</td>
+<td style="text-align: right;"><strong>+2.53</strong></td>
+<td style="text-align: right;">−1.36</td>
+<td style="text-align: right;">−17.47</td>
+<td>2026-05-01</td>
+<td>49/50</td>
+</tr>
+<tr>
+<td style="text-align: right;">76</td>
+<td><code>mom_v2_paper</code></td>
+<td style="text-align: right;">81,880.08</td>
+<td style="text-align: right;">83,562.11</td>
+<td style="text-align: right;"><strong>+2.05</strong></td>
+<td style="text-align: right;">−0.35</td>
+<td style="text-align: right;">−18.08</td>
+<td>2026-05-01</td>
+<td>49/50</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cohort scoring at the 09-03 mark.</strong></p>
+<ul>
+<li><strong>05-01 cohort, 64 sleeves.</strong> SPY <strong>+7.2879%</strong>. <strong>4 sleeves beat it</strong> (<code>residual_w0595_2wk</code>, <code>sector_top4_full</code>, <code>residual_w0595</code>, <code>residual_w6040</code>). <strong>54 of 64 are above the $100,000 seed.</strong></li>
+<li><strong>07-06 cohort, 12 sleeves.</strong> <code>spy_benchmark_0701_paper</code> <strong>+2.9137%</strong>. <strong>1 sleeve beats it</strong> (<code>sector_top4_paper</code>, +6.29%). <strong>6 of 12 are above seed.</strong></li>
+<li><strong>Aggregate.</strong> 76-sleeve NAV <strong>$7,710,307.20</strong> marked at 09-03 → <strong>$7,745,600.78</strong> indicative at 09-04, <strong>+0.4577%</strong>.</li>
+</ul>
+<hr />
+<h3 id="3-key-position-analysis_35">3. Key position analysis</h3>
+<p><strong>3a. Attribution — what actually moved the book.</strong> Computed over all 76 sleeves on aggregate position market value of <strong>$7,683,026.85</strong> at the 09-03 close (excludes cash, and excludes <code>CRNX</code> per §0i). Contributions sum to <strong>+$37,095.03 = +0.4828% of market value = +0.4577% of NAV</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th style="text-align: right;">P&amp;L contribution</th>
+<th style="text-align: right;">pp of book</th>
+<th style="text-align: right;">move</th>
+<th style="text-align: right;">sleeves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MU</strong></td>
+<td style="text-align: right;">+$30,161.77</td>
+<td style="text-align: right;"><strong>+0.3926</strong></td>
+<td style="text-align: right;">+6.10%</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><strong>FICO</strong></td>
+<td style="text-align: right;"><strong>−$11,199.90</strong></td>
+<td style="text-align: right;"><strong>−0.1458</strong></td>
+<td style="text-align: right;"><strong>−16.68%</strong></td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td>STX</td>
+<td style="text-align: right;">+$9,230.26</td>
+<td style="text-align: right;">+0.1201</td>
+<td style="text-align: right;">+6.34%</td>
+<td style="text-align: right;">65</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td style="text-align: right;">+$7,745.53</td>
+<td style="text-align: right;">+0.1008</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>EDRY</td>
+<td style="text-align: right;">+$7,171.54</td>
+<td style="text-align: right;">+0.0933</td>
+<td style="text-align: right;">+10.34%</td>
+<td style="text-align: right;">27</td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td style="text-align: right;">+$6,410.46</td>
+<td style="text-align: right;">+0.0834</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>KLAC</td>
+<td style="text-align: right;">+$5,353.01</td>
+<td style="text-align: right;">+0.0697</td>
+<td style="text-align: right;">+7.32%</td>
+<td style="text-align: right;">35</td>
+</tr>
+<tr>
+<td>AMAT</td>
+<td style="text-align: right;">+$4,377.42</td>
+<td style="text-align: right;">+0.0570</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>AAPL</td>
+<td style="text-align: right;">−$2,941.28</td>
+<td style="text-align: right;">−0.0383</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>KRYS</td>
+<td style="text-align: right;">−$2,827.22</td>
+<td style="text-align: right;">−0.0368</td>
+<td style="text-align: right;">−3.56%</td>
+<td style="text-align: right;">34</td>
+</tr>
+<tr>
+<td>INSW</td>
+<td style="text-align: right;">+$2,683.49</td>
+<td style="text-align: right;">+0.0349</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>DAVE</td>
+<td style="text-align: right;">−$2,598.96</td>
+<td style="text-align: right;">−0.0338</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>PTCT</td>
+<td style="text-align: right;">−$2,253.89</td>
+<td style="text-align: right;">−0.0293</td>
+<td style="text-align: right;">−2.94%</td>
+<td style="text-align: right;">38</td>
+</tr>
+<tr>
+<td>PSIX</td>
+<td style="text-align: right;">+$2,079.89</td>
+<td style="text-align: right;">+0.0271</td>
+<td style="text-align: right;">+11.18%</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr>
+<td>VICR</td>
+<td style="text-align: right;">+$2,035.59</td>
+<td style="text-align: right;">+0.0265</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>KNSA</td>
+<td style="text-align: right;">−$1,973.42</td>
+<td style="text-align: right;">−0.0257</td>
+<td style="text-align: right;">−3.18%</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr>
+<td>SEZL</td>
+<td style="text-align: right;">−$1,937.65</td>
+<td style="text-align: right;">−0.0252</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>ADBE</td>
+<td style="text-align: right;">−$1,711.02</td>
+<td style="text-align: right;">−0.0223</td>
+<td style="text-align: right;">−6.73%</td>
+<td style="text-align: right;">12</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MU alone is 81% of the book's gain</strong>, and the reason is breadth, not the three single-name sleeves. <strong>MU is held by 62 of the 76 sleeves</strong> — 516.203 shares, <strong>$494,605.02 at the 09-03 close, 6.4376% of book market value.</strong> The three ~100%-weight single-name arms account for roughly $300k of that; the remaining ~$195k sits across the momentum and residual ladders, which independently ranked the same name into the top 50. <strong>That convergence is the finding: a factor family designed to diversify across 46–50 names has 62 of 76 sleeves loaded on one ticker, so a single-name event in MU would hit the book almost as hard as FICO did today, in the same direction, everywhere at once.</strong> Strip MU out and the remaining book gained roughly <strong>+0.09pp</strong> on the day: the semicap complex (STX, WDC, LRCX, KLAC, AMAT = <strong>+0.4310pp</strong> combined) very nearly offset by FICO alone plus the healthcare and rate-sensitive drag.</p>
+<p><strong>3b. FICO — the day's structural event, and the largest single-name loss the book has taken this month.</strong> FICO fell <strong>−16.68% to $932.26</strong> (−$186.67), having traded down as much as <strong>−21% intraday to about $885</strong>. The catalyst is regulatory, not financial: <strong>FHFA Director Bill Pulte directed Fannie Mae and Freddie Mac to accept mortgage loans underwritten on VantageScore 4.0</strong>, escalating from a limited pilot that had covered only 50 lenders to immediate approval for all lenders (<a href="https://www.fool.com/investing/2026/09/04/why-fair-isaac-stock-crashed-today/">Motley Fool, 2026-09-04</a>; <a href="https://www.bloomberg.com/news/articles/2026-09-04/fico-plunges-21-credit-bureaus-fall-as-pulte-renews-criticism">Bloomberg, 2026-09-04</a>; <a href="https://cryptobriefing.com/fico-shares-plunge-pulte-credit-scoring/">Crypto Briefing, 2026-09-04</a>).</p>
+<p>The economics are stark and are the reason this is not a one-day headline: <strong>VantageScore's owners (Equifax, Experian, TransUnion) advertise $0.99 per score pull against FICO's $10 or more.</strong> Mortgage origination scoring is where the vast majority of FICO's Scores-segment revenue growth has come from. Investrade's session recap notes credit bureaus fell alongside on the same regulatory criticism.</p>
+<p><strong>Why it matters to the sleeves specifically:</strong> FICO is a <em>momentum</em> holding — it entered these sleeves because it had been rising, and the factor has no mechanism for pricing a regulatory monopoly break. <strong>This is a clean example of the risk that momentum factors carry structurally and that no risk overlay in this project has been able to control</strong> (the reactive-stop family closed 2026-05-27; the preemptive-overlay family closed 2026-07-14, record BU). The position will be sold at the next rebalance because the score collapses, which is the factor working as designed — a month late.</p>
+<p><strong>3c. The memory/semicap complex — the offsetting bid.</strong> Held names and their 09-04 closes:</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th style="text-align: right;">09-03</th>
+<th style="text-align: right;">09-04</th>
+<th style="text-align: right;">%</th>
+<th style="text-align: right;">sleeves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AEHR</td>
+<td style="text-align: right;">76.27</td>
+<td style="text-align: right;">86.26</td>
+<td style="text-align: right;"><strong>+13.10</strong></td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>COHU</td>
+<td style="text-align: right;">45.98</td>
+<td style="text-align: right;">50.72</td>
+<td style="text-align: right;">+10.31</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>TTMI</td>
+<td style="text-align: right;">115.39</td>
+<td style="text-align: right;">125.60</td>
+<td style="text-align: right;">+8.85</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>UCTT</td>
+<td style="text-align: right;">66.59</td>
+<td style="text-align: right;">72.43</td>
+<td style="text-align: right;">+8.77</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>FORM</td>
+<td style="text-align: right;">96.76</td>
+<td style="text-align: right;">103.90</td>
+<td style="text-align: right;">+7.38</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>KLAC</td>
+<td style="text-align: right;">172.94</td>
+<td style="text-align: right;">185.60</td>
+<td style="text-align: right;">+7.32</td>
+<td style="text-align: right;">35</td>
+</tr>
+<tr>
+<td>ACMR</td>
+<td style="text-align: right;">69.42</td>
+<td style="text-align: right;">74.44</td>
+<td style="text-align: right;">+7.23</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>MRVL</td>
+<td style="text-align: right;">208.83</td>
+<td style="text-align: right;">223.55</td>
+<td style="text-align: right;">+7.05</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>ICHR</td>
+<td style="text-align: right;">52.82</td>
+<td style="text-align: right;">56.38</td>
+<td style="text-align: right;">+6.74</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>COHR</td>
+<td style="text-align: right;">264.41</td>
+<td style="text-align: right;">281.86</td>
+<td style="text-align: right;">+6.60</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td><strong>STX</strong></td>
+<td style="text-align: right;"><strong>798.61</strong></td>
+<td style="text-align: right;"><strong>849.28</strong></td>
+<td style="text-align: right;"><strong>+6.34</strong></td>
+<td style="text-align: right;"><strong>65</strong></td>
+</tr>
+<tr>
+<td>ONTO</td>
+<td style="text-align: right;">252.46</td>
+<td style="text-align: right;">268.01</td>
+<td style="text-align: right;">+6.16</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><strong>MU</strong></td>
+<td style="text-align: right;"><strong>958.16</strong></td>
+<td style="text-align: right;"><strong>1,016.59</strong></td>
+<td style="text-align: right;"><strong>+6.10</strong></td>
+<td style="text-align: right;"><strong>62</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The reported catalysts are demand-side and dated: <strong>Dell Technologies' $95 billion AI-server backlog</strong> plus continued DRAM and NAND strength, against earlier-week pressure from Broadcom's Q4 revenue guidance of $34.8B coming in below some expectations despite Q3 AI semiconductor revenue of $16.7B, +221% y/y (<a href="https://247wallst.com/investing/2026/09/04/sandisk-soars-8-is-the-nand-pricing-cycle-still-accelerating/">24/7 Wall St, 2026-09-04</a>; <a href="https://finance.yahoo.com/markets/stocks/articles/memory-stocks-open-flat-then-165054304.html">Yahoo Finance</a>). That article states there was <strong>no company-specific news</strong> behind SanDisk's move, attributing it to sector momentum plus the counterintuitive read that memory names, having already reported, hold a bid when the discount rate moves against everything else.</p>
+<p><strong>STX is the book's widest single holding at 65 of 76 sleeves.</strong> Its own fundamentals continue to support the position independent of today's tape: fiscal-2026 revenue +34.06% y/y, earnings +116.75%, 25-analyst Strong Buy with a $1,125 average target (<a href="https://stockanalysis.com/stocks/stx/">stockanalysis.com</a>), and target raises from Morgan Stanley ($767 → $1,035, citing HDD shortages through at least 2028), Mizuho ($875 → $1,090), JPMorgan ($920) and Wells Fargo ($900).</p>
+<p><strong>MU's next binary is dated: fiscal-Q4 earnings 2026-09-30 after the close</strong> (<a href="https://stockanalysis.com/stocks/mu/">stockanalysis.com</a>) — one day before the October rebalance, exactly as the 09-01 overlay rationale anticipated. All three single-name sleeves hold MU through it.</p>
+<p><strong>3d. The drag side.</strong></p>
+<ul>
+<li><strong>ADBE −6.73%</strong> ($285.75 → $266.51, 12 sleeves). Adobe named <strong>Anil Chakravarthy</strong>, currently president of its digital experience business, to succeed Shantanu Narayen as CEO <strong>effective 2026-12-01</strong> (<a href="https://247wallst.com/investing/2026/09/04/adobe-sinks-7-as-internal-ceo-pick-lands-ahead-of-earnings-workday-falls-4/">24/7 Wall St, 2026-09-04</a>; <a href="https://finance.yahoo.com/markets/stocks/articles/adobe-stock-drops-surprise-ceo-153500132.html">Yahoo</a>). <strong>Fiscal Q3 results are due 2026-09-10</strong> — a dated binary six days out on a name the book already holds at a loss.</li>
+<li><strong>NFLX −5.35%</strong> to $78.25 (3 sleeves) — the cleanest duration casualty of the session. 24/7 Wall St's framing: at a trailing P/E of 31.3x, Netflix absorbed the most damage from the 10-year move, against Disney −2% to $105.37 and Warner Bros. Discovery −0.3% to $28.28.</li>
+<li><strong>Health care, the book's second-largest sector at 23.60%.</strong> XLV −1.04%, with held biotech leading down: <strong>KRYS −3.56%</strong> (34 sleeves), <strong>PTCT −2.94%</strong> (38 sleeves), <strong>KNSA −3.18%</strong> (24 sleeves), <strong>IRMD −3.63%</strong> (21 sleeves), <strong>APPF −4.16%</strong> (9 sleeves), <strong>RAPP −3.95%</strong>, <strong>TWST −3.10%</strong>, <strong>KOD −2.75%</strong>. This is the mechanical consequence of the payrolls print: long-duration cash flows reprice when the hike probability jumps, and unprofitable biotech is the longest duration in the book.</li>
+<li><strong>Energy, 11.18% of book, closed red despite crude closing up.</strong> XLE −0.87% and <strong>APA −3.19%</strong> (16 sleeves) against WTI +$0.18 to $91.48 and an 8%+ week. Energy equities lagging their own commodity on a strong-dollar, hawkish day is the expected pattern, not an anomaly — but note that the sector's 09-01 overlay rationale explicitly flagged "crowding: RSI 75 at a 52w high on a geopolitical premium," and this is the first session where the premium did not pay.</li>
+<li><strong>EDRY +10.34%</strong> (27 sleeves) is the largest non-semi gainer, +$7,171.54. <strong>No 09-04-specific catalyst was found.</strong> The standing driver is dry-bulk rates, with EuroDry's Q2 2026 fleet TCE more than doubling y/y to <strong>$20,398/day</strong> and an order book at ~14.4% of fleet as of July 2026 (<a href="https://ca.finance.yahoo.com/news/eurodry-soars-304-ytd-still-161700062.html">Yahoo/Zacks</a>). <strong>Stated as background, not as today's cause.</strong></li>
+</ul>
+<p><strong>3e. Sector weights, whole book, at the 09-03 close.</strong></p>
+<table>
+<thead>
+<tr>
+<th>sector</th>
+<th style="text-align: right;">market value</th>
+<th style="text-align: right;">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Technology</td>
+<td style="text-align: right;">$1,817,945.64</td>
+<td style="text-align: right;">23.66%</td>
+</tr>
+<tr>
+<td>Healthcare</td>
+<td style="text-align: right;">$1,813,464.64</td>
+<td style="text-align: right;">23.60%</td>
+</tr>
+<tr>
+<td>Energy</td>
+<td style="text-align: right;">$858,826.99</td>
+<td style="text-align: right;">11.18%</td>
+</tr>
+<tr>
+<td>Financial Services</td>
+<td style="text-align: right;">$813,037.44</td>
+<td style="text-align: right;">10.58%</td>
+</tr>
+<tr>
+<td>Communication Services</td>
+<td style="text-align: right;">$459,690.08</td>
+<td style="text-align: right;">5.98%</td>
+</tr>
+<tr>
+<td>Industrials</td>
+<td style="text-align: right;">$440,845.13</td>
+<td style="text-align: right;">5.74%</td>
+</tr>
+<tr>
+<td>Index (ETF sleeves)</td>
+<td style="text-align: right;">$415,944.59</td>
+<td style="text-align: right;">5.41%</td>
+</tr>
+<tr>
+<td>Consumer Cyclical</td>
+<td style="text-align: right;">$368,983.23</td>
+<td style="text-align: right;">4.80%</td>
+</tr>
+<tr>
+<td>Consumer Defensive</td>
+<td style="text-align: right;">$234,524.56</td>
+<td style="text-align: right;">3.05%</td>
+</tr>
+<tr>
+<td>Basic Materials</td>
+<td style="text-align: right;">$233,934.00</td>
+<td style="text-align: right;">3.04%</td>
+</tr>
+<tr>
+<td>Health Care</td>
+<td style="text-align: right;">$105,651.27</td>
+<td style="text-align: right;">1.38%</td>
+</tr>
+<tr>
+<td>Real Estate</td>
+<td style="text-align: right;">$91,750.97</td>
+<td style="text-align: right;">1.19%</td>
+</tr>
+<tr>
+<td>Materials</td>
+<td style="text-align: right;">$22,461.32</td>
+<td style="text-align: right;">0.29%</td>
+</tr>
+<tr>
+<td>(unlabelled)</td>
+<td style="text-align: right;">$5,967.00</td>
+<td style="text-align: right;">0.08%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A labelling inconsistency worth recording:</strong> "Healthcare"/"Health Care" and "Basic Materials"/"Materials" are stored as four distinct sector strings. The single-word forms come from yfinance stock metadata; the two-word forms come from the sector-ETF sleeves (XLV, XLB). True health-care exposure is <strong>24.98%</strong>, true materials <strong>3.33%</strong>. <strong>Any sector-concentration query that groups on the raw string will undercount both.</strong> Flagged, not changed.</p>
+<p><strong>3f. Overlay invalidation levels — distance to stop, at the 09-04 indicative close.</strong> No holding is near its stop.</p>
+<table>
+<thead>
+<tr>
+<th>sleeve</th>
+<th>ticker</th>
+<th style="text-align: right;">invalidation</th>
+<th style="text-align: right;">09-04 close</th>
+<th style="text-align: right;">headroom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>llm_overlay_mom_roa_top1_paper</code></td>
+<td>MU</td>
+<td style="text-align: right;">820.00</td>
+<td style="text-align: right;">1,016.59</td>
+<td style="text-align: right;"><strong>+23.97%</strong></td>
+</tr>
+<tr>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td>XLE</td>
+<td style="text-align: right;">58.00</td>
+<td style="text-align: right;">64.06</td>
+<td style="text-align: right;">+10.45%</td>
+</tr>
+<tr>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td>XLK</td>
+<td style="text-align: right;">177.00</td>
+<td style="text-align: right;">187.28</td>
+<td style="text-align: right;">+5.81%</td>
+</tr>
+<tr>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td>XLV</td>
+<td style="text-align: right;">163.50</td>
+<td style="text-align: right;">171.45</td>
+<td style="text-align: right;">+4.86%</td>
+</tr>
+<tr>
+<td><code>llm_cascade_sector4_paper</code></td>
+<td>XLB</td>
+<td style="text-align: right;">51.00</td>
+<td style="text-align: right;">52.44</td>
+<td style="text-align: right;"><strong>+2.82%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>XLB is the closest to its stop at +2.82%</strong>, and it is the cascade-#5 substitute taken on 09-01 only because XLI was vetoed — a marginal HOLD scored 6 and described in its own rationale as "honestly marginal." XLV's headroom shrank by roughly a point today.</p>
+<hr />
+<h3 id="4-llm-overlay--treatment-vs-control_21">4. LLM overlay — treatment vs control</h3>
+<p><strong>4a. Stock arm.</strong> <code>llm_overlay_log</code> holds <strong>14 rows by <code>count(*)</code>.</strong> <code>max(id)</code> is <strong>17</strong>; ids 4, 5 and 9 do not exist. <strong>Using <code>max(id)</code> here would overstate the decision count by three and has published a wrong kill-switch tally before.</strong></p>
+<table>
+<thead>
+<tr>
+<th>decision date</th>
+<th>ticker</th>
+<th style="text-align: right;">score</th>
+<th>verdict</th>
+<th style="text-align: right;">ref close at decision</th>
+<th style="text-align: right;">close 2026-09-03</th>
+<th style="text-align: right;">forward return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-05-29</td>
+<td>BE</td>
+<td style="text-align: right;">5.0</td>
+<td>VETO</td>
+<td style="text-align: right;">285.00</td>
+<td style="text-align: right;">235.55</td>
+<td style="text-align: right;">−17.3509%</td>
+</tr>
+<tr>
+<td>2026-06-03</td>
+<td>FN</td>
+<td style="text-align: right;">6.0</td>
+<td><strong>BUY</strong></td>
+<td style="text-align: right;">725.00</td>
+<td style="text-align: right;">395.00</td>
+<td style="text-align: right;"><strong>−45.5172%</strong></td>
+</tr>
+<tr>
+<td>2026-06-12</td>
+<td>AAOI</td>
+<td style="text-align: right;">4.0</td>
+<td>VETO</td>
+<td style="text-align: right;">169.05</td>
+<td style="text-align: right;">100.38</td>
+<td style="text-align: right;">−40.6211%</td>
+</tr>
+<tr>
+<td>2026-07-01</td>
+<td>WDC</td>
+<td style="text-align: right;">7.0</td>
+<td><strong>BUY</strong></td>
+<td style="text-align: right;">598.37</td>
+<td style="text-align: right;">441.57</td>
+<td style="text-align: right;">−26.2045%</td>
+</tr>
+<tr>
+<td>2026-07-01</td>
+<td>BE</td>
+<td style="text-align: right;">4.0</td>
+<td>VETO</td>
+<td style="text-align: right;">289.50</td>
+<td style="text-align: right;">235.55</td>
+<td style="text-align: right;">−18.6356%</td>
+</tr>
+<tr>
+<td>2026-07-01</td>
+<td>SLGL</td>
+<td style="text-align: right;">3.0</td>
+<td>VETO</td>
+<td style="text-align: right;">71.99</td>
+<td style="text-align: right;">70.10</td>
+<td style="text-align: right;">−2.6254%</td>
+</tr>
+<tr>
+<td>2026-07-07</td>
+<td>WDC</td>
+<td style="text-align: right;">6.0</td>
+<td><strong>BUY</strong></td>
+<td style="text-align: right;">532.10</td>
+<td style="text-align: right;">441.57</td>
+<td style="text-align: right;">−17.0137%</td>
+</tr>
+<tr>
+<td>2026-07-07</td>
+<td>BE</td>
+<td style="text-align: right;">4.0</td>
+<td>VETO</td>
+<td style="text-align: right;">269.57</td>
+<td style="text-align: right;">235.55</td>
+<td style="text-align: right;">−12.6201%</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>MU</td>
+<td style="text-align: right;">3.0</td>
+<td>VETO</td>
+<td style="text-align: right;">829.50</td>
+<td style="text-align: right;">958.16</td>
+<td style="text-align: right;"><strong>+15.5105%</strong></td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>WDC</td>
+<td style="text-align: right;">4.0</td>
+<td>VETO</td>
+<td style="text-align: right;">527.22</td>
+<td style="text-align: right;">441.57</td>
+<td style="text-align: right;">−16.2456%</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>VICR</td>
+<td style="text-align: right;">2.0</td>
+<td>VETO</td>
+<td style="text-align: right;">213.54</td>
+<td style="text-align: right;">178.76</td>
+<td style="text-align: right;">−16.2873%</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>BE</td>
+<td style="text-align: right;">3.0</td>
+<td>VETO</td>
+<td style="text-align: right;">218.32</td>
+<td style="text-align: right;">235.55</td>
+<td style="text-align: right;">+7.8921%</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>STX</td>
+<td style="text-align: right;">6.0</td>
+<td><strong>BUY</strong></td>
+<td style="text-align: right;">831.06</td>
+<td style="text-align: right;">798.61</td>
+<td style="text-align: right;">−3.9047%</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td>MU</td>
+<td style="text-align: right;">7.0</td>
+<td><strong>BUY</strong></td>
+<td style="text-align: right;">933.44</td>
+<td style="text-align: right;">958.16</td>
+<td style="text-align: right;">+2.6483%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Spearman(score, forward return) = −0.3705 over all 14</strong>, measured to the <strong>2026-09-03 marked close</strong> with tie-corrected (average) ranks — the score column has three ties at 4.0, three at 3.0 and four at 6.0, so tie correction is not optional here. This reproduces this morning's entry exactly, which is the expected result: no decision row was added today. <strong>Higher LLM conviction has predicted worse forward returns for the life of the experiment.</strong></li>
+<li><strong>BUY rows (n=5) average −17.9984%. VETO rows (n=9) average −11.2204%. BUYs trail VETOs by 6.7780pp.</strong> The overlay's stated job is to buy selectively and veto the rest; it has done the opposite of that.</li>
+<li><strong>The single worst decision remains the 2026-06-03 FN BUY at −45.52%</strong>, and the single best call remains a <strong>VETO — MU on 2026-08-03 at +15.51%</strong>, which is to say the overlay's most valuable act was declining to trade a name that then rallied. It reversed itself into that same name on 09-01 at a 12.5% higher price, and today's +6.10% is what that reversal is earning.</li>
+</ul>
+<p><strong>Sleeve standings (marked 09-03, all 07-06 inception):</strong></p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>sleeve</th>
+<th style="text-align: right;">since %</th>
+<th style="text-align: right;">week %</th>
+<th style="text-align: right;">day % (ind.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control</td>
+<td><code>mom_roa_top1_paper</code></td>
+<td style="text-align: right;"><strong>−4.54</strong></td>
+<td style="text-align: right;">+2.71</td>
+<td style="text-align: right;">+6.09</td>
+</tr>
+<tr>
+<td>treatment</td>
+<td><code>llm_overlay_mom_roa_top1_paper</code></td>
+<td style="text-align: right;"><strong>+2.59</strong></td>
+<td style="text-align: right;">+2.59</td>
+<td style="text-align: right;">+6.09</td>
+</tr>
+<tr>
+<td>cascade</td>
+<td><code>llm_cascade_top1_paper</code></td>
+<td style="text-align: right;"><strong>+0.55</strong></td>
+<td style="text-align: right;">+0.92</td>
+<td style="text-align: right;">+6.09</td>
+</tr>
+</tbody>
+</table>
+<p><strong>All three now hold MU, so all three mark identically today</strong> (+6.09% at the sleeve level; MU itself moved +6.10%, the small gap being cash dilution). The treatment's 7.13pp lead over control is therefore <strong>entirely historical, and traceable to a single episode</strong>: control bought MU on 2026-08-03 at $829.91 while treatment vetoed and sat in cash, then treatment entered on 09-01 at $933.91. <strong>Control is up +22.49% on its MU position; treatment is up +8.85% on its own.</strong> The treatment leads on NAV because it avoided an <em>earlier</em> drawdown, not because it is picking better — and the position-level P&amp;L is the opposite ranking. Both readings are true, and the second is the one that will matter if MU keeps rising.</p>
+<p><strong>4b. Sector arm.</strong> <code>sector_overlay_log</code> holds <strong>27 rows: 19 HOLD, 8 VETO.</strong></p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>sleeve</th>
+<th style="text-align: right;">since %</th>
+<th style="text-align: right;">week %</th>
+<th style="text-align: right;">day % (ind.)</th>
+<th>holdings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control</td>
+<td><code>sector_top4_paper</code></td>
+<td style="text-align: right;"><strong>+6.29</strong></td>
+<td style="text-align: right;">+0.86</td>
+<td style="text-align: right;">−0.24</td>
+<td>XLE, XLI, XLK, XLV</td>
+</tr>
+<tr>
+<td>treatment</td>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td style="text-align: right;"><strong>+2.40</strong></td>
+<td style="text-align: right;">+1.43</td>
+<td style="text-align: right;">−0.32</td>
+<td>XLE, XLK, XLV + <strong>$23,087.99 cash</strong></td>
+</tr>
+<tr>
+<td>cascade</td>
+<td><code>llm_cascade_sector4_paper</code></td>
+<td style="text-align: right;"><strong>+1.59</strong></td>
+<td style="text-align: right;">+0.94</td>
+<td style="text-align: right;">−0.40</td>
+<td>XLB, XLE, XLK, XLV</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The treatment trails control by 3.89pp</strong>, and the mechanism is unchanged and measurable: the 09-01 XLI veto put <strong>$23,087.99 = 22.548% of the sleeve</strong> into cash, and <strong>XLI closed +0.41% today</strong> — the second-best sector on the board. The veto rationale was specific and internally coherent ("Sept hike odds hit the cyclical; the energy shock is a margin-compression input-cost problem for manufacturing and transportation; Industrials carry DOWNWARD earnings revisions YTD"), and it has been wrong on the tape for four sessions running.</p>
+<p><strong>The cascade arm, which replaces a veto rather than going to cash, sits between the two.</strong> It holds XLB, which closed <strong>−0.34%</strong>, against the vetoed XLI at <strong>+0.41%</strong>: <strong>the substitution cost it 0.75pp of sector return today relative to simply holding the name the overlay rejected.</strong> Three arms, three different answers to "what do you do with a veto," and control — do nothing — is still winning.</p>
+<p><strong>4c. Honest prior check.</strong> The project's stated prior at launch (2026-05-31) was that the stock overlay would fail and the macro/sector overlay would fail harder. <strong>At 14 decisions and roughly three months, the sector arm is failing as predicted. The stock arm's NAV says it is working and its decision-quality metrics say it is not</strong> — a negative rank correlation plus BUYs underperforming VETOs by 6.78pp cannot be reconciled with a genuine edge. <strong>The kill switch is 12 months / 30 picks; the honest reading at 14 is that the NAV lead is one lucky abstention, not a signal.</strong></p>
+<hr />
+<h3 id="5-week-and-period-summary_9">5. Week and period summary</h3>
+<p><strong>5a. Week 2026-08-28 → 2026-09-03 (both marked; 09-04 excluded because it is unmarked).</strong></p>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>best</th>
+<th>worst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all 76 sleeves</td>
+<td><code>mom_roa_top1_paper</code> <strong>+2.7097%</strong></td>
+<td><code>mom_roa_6535_0701_paper</code> <strong>−1.5525%</strong></td>
+</tr>
+<tr>
+<td>best excluding single-name sleeves</td>
+<td><code>residual_w8020_wk_paper</code> <strong>+1.5540%</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>benchmarks</td>
+<td>SPY <strong>+0.50%</strong>, QQQ <strong>+0.17%</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>The two top places belong to single-name MU sleeves (<code>mom_roa_top1_paper</code> +2.7097%, <code>llm_overlay_mom_roa_top1_paper</code> +2.5944%) and are a bet on one ticker, not a cross-sectional result; the ladder row below them is the diversified reading.</p>
+<p><strong>The week's cross-section inverts the month's.</strong> Among the ladder, the <code>_wk_</code> and <code>_2wk_</code> cadences at the <strong>momentum-heavy</strong> end (w ≥ 75) are the leaders — <code>residual_w8020_wk</code> +1.5540%, <code>residual_w9010_wk</code> +1.5001%, <code>residual_w7525_2wk</code> +1.4699% — while the <strong>residual-heavy</strong> rungs that lead since inception are the week's losers: <code>residual_w1585_2wk</code> −1.0954%, <code>residual_w1585</code> −1.05%, <code>residual_w1585_wk</code> and <code>residual_w0595_wk</code> −1.02%. The six pure-momentum sleeves all fell on the week (−0.35% to −1.5525%) despite today's rally, so the momentum bid <strong>did not recover the week it is inside</strong>.</p>
+<p><strong>5b. Period since the 05-01 series start.</strong> Four sleeves beat SPY's +7.29%, and the composition of that four is the finding: <strong>three of them are the two lowest momentum-weight rungs of the residual ladder</strong> (w=05 monthly and biweekly, plus w=60 monthly), and the fourth is <code>sector_top4_full_paper</code>, which holds four sector ETFs and no single stocks. <strong>No stock-picking sleeve with heavy momentum weight has beaten the index over four months.</strong></p>
+<p><strong>5c. Calendar ahead.</strong></p>
+<ul>
+<li><strong>Monday 2026-09-07 — Labor Day, NYSE closed.</strong> Both 07:07 tasks and this 19:00 task fire into it; the §0b holiday check is the only guard. <code>TradingLadderRebalance</code> fires at 20:30 daily, and the weekly ladder rung has landed on a Monday every week since 08-10 (08-10, 08-17, 08-24, 08-31). <strong>A weekly rebalance dated 09-07 would be a rebalance on a day with no closes.</strong></li>
+<li><strong>Thursday 2026-09-10 — ADBE fiscal Q3</strong>, held by 12 sleeves, six days after a −6.73% CEO-succession session.</li>
+<li><strong>Wednesday 2026-09-16, 2:00 PM ET — FOMC decision</strong>, hike priced near 65%.</li>
+<li><strong>Wednesday 2026-09-30 AMC — MU fiscal Q4</strong>, held at ~100% weight by all three single-name sleeves, one day before the October rebalance.</li>
+</ul>
+<hr />
+<h3 id="6-ladder-gradient-and-the-structural-read_7">6. Ladder gradient and the structural read</h3>
+<p><strong>6a. Since-inception gradient, all 57 residual rungs (w = momentum weight / ROA weight), marked 09-03.</strong></p>
+<table>
+<thead>
+<tr>
+<th>w</th>
+<th style="text-align: right;">monthly</th>
+<th style="text-align: right;">weekly</th>
+<th style="text-align: right;">biweekly</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>05/95</td>
+<td style="text-align: right;"><strong>+7.72%</strong></td>
+<td style="text-align: right;">+3.45%</td>
+<td style="text-align: right;"><strong>+8.19%</strong></td>
+</tr>
+<tr>
+<td>10/90</td>
+<td style="text-align: right;">+5.78%</td>
+<td style="text-align: right;">+5.24%</td>
+<td style="text-align: right;">+5.68%</td>
+</tr>
+<tr>
+<td>15/85</td>
+<td style="text-align: right;">+3.34%</td>
+<td style="text-align: right;"><strong>+5.88%</strong></td>
+<td style="text-align: right;">+6.11%</td>
+</tr>
+<tr>
+<td>20/80</td>
+<td style="text-align: right;">+4.28%</td>
+<td style="text-align: right;">+4.88%</td>
+<td style="text-align: right;">+5.06%</td>
+</tr>
+<tr>
+<td>25/75</td>
+<td style="text-align: right;">+3.17%</td>
+<td style="text-align: right;">+2.35%</td>
+<td style="text-align: right;">+2.77%</td>
+</tr>
+<tr>
+<td>30/70</td>
+<td style="text-align: right;">+3.74%</td>
+<td style="text-align: right;">+4.18%</td>
+<td style="text-align: right;">+1.46%</td>
+</tr>
+<tr>
+<td>35/65</td>
+<td style="text-align: right;">+5.70%</td>
+<td style="text-align: right;">+3.83%</td>
+<td style="text-align: right;">+4.96%</td>
+</tr>
+<tr>
+<td>40/60</td>
+<td style="text-align: right;">+5.47%</td>
+<td style="text-align: right;">+3.27%</td>
+<td style="text-align: right;">+4.94%</td>
+</tr>
+<tr>
+<td>45/55</td>
+<td style="text-align: right;">+5.35%</td>
+<td style="text-align: right;">+2.55%</td>
+<td style="text-align: right;">+4.07%</td>
+</tr>
+<tr>
+<td>50/50</td>
+<td style="text-align: right;">+4.41%</td>
+<td style="text-align: right;">+3.35%</td>
+<td style="text-align: right;">+1.69%</td>
+</tr>
+<tr>
+<td>55/45</td>
+<td style="text-align: right;">+6.61%</td>
+<td style="text-align: right;">+1.91%</td>
+<td style="text-align: right;">+1.09%</td>
+</tr>
+<tr>
+<td>60/40</td>
+<td style="text-align: right;"><strong>+7.47%</strong></td>
+<td style="text-align: right;">+2.59%</td>
+<td style="text-align: right;">+2.00%</td>
+</tr>
+<tr>
+<td>65/35</td>
+<td style="text-align: right;">+3.36%</td>
+<td style="text-align: right;">+1.30%</td>
+<td style="text-align: right;">+1.26%</td>
+</tr>
+<tr>
+<td>70/30</td>
+<td style="text-align: right;">+2.85%</td>
+<td style="text-align: right;"><strong>−0.99%</strong></td>
+<td style="text-align: right;"><strong>−2.36%</strong></td>
+</tr>
+<tr>
+<td>75/25</td>
+<td style="text-align: right;">+2.19%</td>
+<td style="text-align: right;">+2.53%</td>
+<td style="text-align: right;">−1.22%</td>
+</tr>
+<tr>
+<td>80/20</td>
+<td style="text-align: right;">+2.73%</td>
+<td style="text-align: right;">+1.76%</td>
+<td style="text-align: right;"><strong>−3.73%</strong></td>
+</tr>
+<tr>
+<td>85/15</td>
+<td style="text-align: right;">+2.57%</td>
+<td style="text-align: right;">+1.21%</td>
+<td style="text-align: right;">−3.16%</td>
+</tr>
+<tr>
+<td>90/10</td>
+<td style="text-align: right;">+1.26%</td>
+<td style="text-align: right;">+1.59%</td>
+<td style="text-align: right;">−1.72%</td>
+</tr>
+<tr>
+<td>95/05</td>
+<td style="text-align: right;">+4.20%</td>
+<td style="text-align: right;">+2.94%</td>
+<td style="text-align: right;">−0.97%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6b. The measurement that makes today worth recording.</strong> Pearson correlation between a rung's momentum weight <code>w</code> and its return, by cadence, n=19 rungs each:</p>
+<table>
+<thead>
+<tr>
+<th>cadence</th>
+<th style="text-align: right;">corr(w, 09-04 indicative day)</th>
+<th style="text-align: right;">corr(w, 09-03 day)</th>
+<th style="text-align: right;">corr(w, since inception)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>monthly</td>
+<td style="text-align: right;"><strong>+0.8130</strong></td>
+<td style="text-align: right;">+0.0436</td>
+<td style="text-align: right;"><strong>−0.5081</strong></td>
+</tr>
+<tr>
+<td>weekly</td>
+<td style="text-align: right;"><strong>+0.8198</strong></td>
+<td style="text-align: right;">+0.4309</td>
+<td style="text-align: right;"><strong>−0.7032</strong></td>
+</tr>
+<tr>
+<td>biweekly</td>
+<td style="text-align: right;"><strong>+0.8393</strong></td>
+<td style="text-align: right;">+0.5012</td>
+<td style="text-align: right;"><strong>−0.9016</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>This is the cleanest single-day factor reading the ladder has produced.</strong> On 09-04 the day's return is a near-monotonic increasing function of momentum weight across all three cadences (+0.81 to +0.84), running from <strong>−0.62%</strong> at w=05 monthly to <strong>+0.76%</strong> at w=55 and <strong>+0.64%</strong> at w=60. <strong>Yesterday the same correlation was +0.04 on the monthly rungs — essentially none.</strong> One session flipped the ladder from factor-neutral to a strong momentum gradient, and the cause is identifiable: the semicap complex is where residual/idiosyncratic momentum and raw price momentum most disagree, and it rallied 6–13%.</p>
+<p><strong>The two columns directly contradict each other on horizon.</strong> The same weight that paid <strong>+0.84 correlation today</strong> carries <strong>−0.90 correlation since 05-01</strong> on the biweekly rungs. <strong>Raw price momentum won the day and has lost the four months.</strong> The ladder is doing exactly what it was built to do — it is not a portfolio, it is a measuring instrument, and today it measured the value of one strong momentum day against the cumulative cost of the momentum leg.</p>
+<p><strong>6c. The clean-start cohort against its benchmarks.</strong> The 07-06 cohort (12 sleeves) at the 09-03 mark: <code>spy_benchmark_0701_paper</code> <strong>+2.91%</strong>, <code>qqq_benchmark_0706_paper</code> <strong>−0.71%</strong>. <strong>Only <code>sector_top4_paper</code> (+6.29%) beats SPY.</strong> The systematic stock sleeves in that cohort — <code>mom_v1_0701</code> −9.94%, <code>mom_v2_0701</code> −13.47%, <code>mom_roa_6535_0701</code> −14.62%, <code>residual_roa_6535_0701</code> −3.62% — are all negative, and the residual variant loses the <em>least</em> by a factor of nearly three. <strong>The 07-06 cohort was seeded specifically to give a contamination-free head-to-head, and its verdict after two months is the same as the 05-01 cohort's after four: residual momentum beats raw momentum, and neither beats the index.</strong></p>
+<p><strong>6d. The pre-inception cohort split holds.</strong> <code>sector_top4_full_paper</code> (+7.90%, continuous since 05-01) versus <code>sector_top4_paper</code> (+6.29%, reset 07-06) differ only in pre-07-01 P&amp;L, as designed. Both are marked, both are internally consistent, and neither should be read as the other.</p>
+<hr />
+<h3 id="7-strategic-read_7">7. Strategic read</h3>
+<p><strong>7a. What today's data actually supports.</strong> Three things, none of which is a recommendation.</p>
+<ol>
+<li><strong>The residual-momentum thesis survived a day designed to break it.</strong> A +0.84 momentum gradient means today was close to the best possible tape for the raw-momentum end of the ladder, and it moved the since-inception ordering by nothing — the w=05 rungs still lead. <strong>A single-day factor reversal that leaves a four-month ordering intact is evidence the ordering is not a momentum-regime artifact.</strong> That is a genuinely useful negative result, and it is worth more than the +0.46% the book gained.</li>
+<li><strong>FICO is a specification finding, not a bad-luck finding.</strong> A −16.68% regulatory monopoly break on a top-30 holding is the exact failure mode a momentum score cannot see: the signal is price history, and the event is a policy decision with no price history. The project has already closed the reactive-stop family (2026-05-27) and the preemptive-overlay family (2026-07-14, record BU). <strong>Today says the remaining exposure is not volatility, it is single-name event risk, and neither closed family addressed it.</strong> The honest levers are position sizing and name count, not another overlay — and the ladder already runs 46–50 names, so the sizing lever is largely spent.</li>
+<li><strong>The ladder has quietly concentrated, and today measured it.</strong> MU is <strong>81% of today's whole-book P&amp;L</strong> and is held by <strong>62 of 76 sleeves at 6.4376% of book market value</strong> (§3a). Nothing in the design forced that — the momentum and residual scores independently converged on the same name across cadences and weights. <strong>The diversification these sleeves appear to have (46–50 names each) overstates the diversification the book actually has</strong>, because the sleeves are not independent draws; they are the same factor evaluated at different weights on the same universe. Today that concentration paid +0.39pp. <strong>FICO is what it looks like when it does not</strong> — and FICO was only 30 sleeves deep.</li>
+</ol>
+<p><strong>7b. What is not supported.</strong> Nothing today argues for a new sleeve. Specifically:</p>
+<ul>
+<li><strong>The memory/storage complex is not a candidate sleeve</strong> despite being the book's best-performing cluster. STX +200.8% YTD, EDRY +303.7% YTD, MU near a $1.15T market cap — these are late-stage moves in a cycle whose own analysts (Investrade, 24/7 Wall St) attribute today's bid to "already landed" earnings and a discount-rate accident rather than to new information. <strong>A sector sleeve seeded here would be buying the top of a documented supercycle on four days of evidence.</strong> The project's own history has a name for that pattern: the restricted-universe sleeves that appeared to crush held-out and turned out to be survivorship bias.</li>
+<li><strong>The XLI veto is not evidence the sector overlay can be repaired.</strong> It is the fourth consecutive session in which a coherent, well-argued macro veto has cost the treatment arm return. <strong>The failure is not the reasoning quality; it is that one-month-forward sector direction is not predictable from macro narrative, which was the stated prior at launch.</strong></li>
+</ul>
+<p><strong>7c. The operational item that outranks all of the above.</strong> <strong>Both marking paths failed today for the first time</strong> (§0g): the 07:47 heal declined 09-03 and the 17:15 run declined 09-04. The book is now marked one full session behind, with a <code>coverage=PENDING</code> streak of ten trading days, going into a <strong>three-day weekend</strong> in which Monday's scheduled runs will fire against a closed market and the weekly ladder rung is due on a day with no closes. <strong>That combination — stale marks, a holiday the crons do not know about, and a ladder rebalance scheduled into it — is a larger risk to the integrity of the track record than any sleeve's return, because a rebalance executed on carried-forward prices contaminates the ledger rather than merely mis-stating it.</strong> It is reported here, not acted on: this task is read-only, and every remedy touches a scheduled task or a write path that belongs to Evan.</p>
+<hr />
+<p><strong>Sources.</strong> <a href="https://www.fool.com/investing/2026/09/04/why-fair-isaac-stock-crashed-today/">Motley Fool — Why Fair Isaac Stock Crashed Today, 2026-09-04</a> · <a href="https://www.bloomberg.com/news/articles/2026-09-04/fico-plunges-21-credit-bureaus-fall-as-pulte-renews-criticism">Bloomberg — FICO Plunges 21%, Credit Bureaus Fall, as Pulte Renews Criticism, 2026-09-04</a> · <a href="https://cryptobriefing.com/fico-shares-plunge-pulte-credit-scoring/">Crypto Briefing — Fair Isaac shares plunge as Pulte orders end to FICO's credit scoring monopoly, 2026-09-04</a> · <a href="https://finance.yahoo.com/markets/stocks/articles/stock-market-today-sept-4-133716564.html">Yahoo Finance — Stock Market Today (Sept. 4, 2026), 2026-09-04</a> · <a href="https://investrade.com/market-review-september-04-2026/">Investrade — Market Review: September 04, 2026</a> · <a href="https://www.cnbc.com/2026/09/03/stock-market-today-live-updates.html">CNBC — Stock market news for Sept. 4, 2026</a> · <a href="https://247wallst.com/investing/2026/09/04/sandisk-soars-8-is-the-nand-pricing-cycle-still-accelerating/">24/7 Wall St — SanDisk Rises 8%, Micron Gains 5%: Is the NAND Pricing Cycle Still Accelerating?, 2026-09-04</a> · <a href="https://247wallst.com/investing/2026/09/04/netflix-falls-4-as-rate-repricing-pressures-long-duration-growth-disney-dips-warner-bros-discovery-sits-tight/">24/7 Wall St — Netflix Falls 4% as Rate Repricing Pressures Long-Duration Growth, 2026-09-04</a> · <a href="https://247wallst.com/investing/2026/09/04/adobe-sinks-7-as-internal-ceo-pick-lands-ahead-of-earnings-workday-falls-4/">24/7 Wall St — Adobe Sinks 7% as Internal CEO Pick Lands Ahead of Earnings, 2026-09-04</a> · <a href="https://finance.yahoo.com/markets/stocks/articles/adobe-stock-drops-surprise-ceo-153500132.html">Yahoo Finance — Adobe stock drops on surprise CEO transition</a> · <a href="https://finance.yahoo.com/markets/stocks/articles/memory-stocks-open-flat-then-165054304.html">Yahoo Finance — Memory Stocks Open Flat And Then Soar</a> · <a href="https://seekingalpha.com/news/4640453-kla-rises-7-amid-semiconductor-equipment-advance">Seeking Alpha — KLA rises 7% amid semiconductor equipment advance</a> · <a href="https://ca.finance.yahoo.com/news/eurodry-soars-304-ytd-still-161700062.html">Yahoo/Zacks — EuroDry Soars 304% YTD</a> · <a href="https://stockanalysis.com/stocks/stx/">stockanalysis.com — STX</a> · <a href="https://stockanalysis.com/stocks/mu/">stockanalysis.com — MU</a> · <a href="https://stockanalysis.com/stocks/nflx/">stockanalysis.com — NFLX</a> · <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">Federal Reserve — FOMC meeting calendars</a> · <a href="https://fedratecalc.com/fomc-meeting-schedule/">FedRateCalc — 2026 FOMC Meeting Schedule</a></p>
+<p><em>Not used as a source, flagged in §1a as wrong-dated: <a href="https://www.nbcnews.com/business/markets/sp-500-nasdaq-post-record-closes-friday-jobs-report-raises-fed-rate-cu-rcna160495">NBC News — S&amp;P 500, Nasdaq post record closes Friday</a>.</em></p>
 </div>
 </body>
 </html>
