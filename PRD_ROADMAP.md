@@ -123,13 +123,19 @@ record.
 - [x] `paper_mtm.py` refuses to write NAV rows dated before a sleeve's inception; the
       Appendix AU/AV manual-cleanup class is extinct, with a regression test (M3).
       **[2026-07-28: pre-inception guard + `test_inception_guard.py` — M3.1, record BF–BI.]**
-- [ ] A post-run verifier exists for the daily and monthly tasks (NAV continuity, cash recon,
+- [x] A post-run verifier exists for the daily and monthly tasks (NAV continuity, cash recon,
       position counts vs target, Alpaca submitted/rejected counts) and writes a dated pass/fail
       report; the 2026-08-01 unattended rebalance gets verified by it (M3).
       **[2026-07-28: verifier SHIPPED — `verify_run.py --mode daily|monthly`, wired into
       `daily.bat` (M3.2), `rebalance.bat` (record BS) and `ladder_rebalance.bat` (record CG).
       Left unticked ONLY because the second clause is a future event: the 2026-08-01 unattended
       rebalance has not fired yet. Tick after it verifies clean.]**
+      **[TICKED 2026-09-06: condition met. The 2026-08-03 unattended rebalance fired via the
+      `monthy-llm-rebalance` task and `verify_run --mode monthly` returned PASS 76/76 (record
+      CP). Re-confirmed on the 2026-09-01 monthly, PASS 76/76 (record DP.2) -- though that one
+      was run BY HAND, not unattended, because the trading-guard hook blocks the task's own
+      decision step (records DN/DO/DP). The verifier clause is satisfied; the automation
+      question is separate and still OPEN.]**
 - [ ] The frozen tests still pass at d=±0.0000pp — verified and stated after every code task.
       **[2026-07-28: standing per-task gate, not a one-time deliverable — left unticked by
       design; it is satisfied per task, in the record, not once here.]**

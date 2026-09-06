@@ -31,6 +31,21 @@ else
   echo "The commit proceeds UNSCANNED." >&2
 fi
 
+# ── Record invariants ────────────────────────────────────────────────────────
+# DELEGATED to ONE executing copy shared by every repo with an append-only
+# record, so a fix to the record rules lands once instead of in each repo's
+# fork. Added 2026-08-20: this block previously existed in the Skills repo
+# ALONE, so a hand-splice — the failure that silently overwrote another
+# session's entry (record BT) — was blocked there and free everywhere else.
+# No-op unless the record is actually staged. Fails CLOSED.
+REC_GUARD="${HOME}/.claude/skills/project-memory/hooks/pre-commit-record"
+if [ -f "$REC_GUARD" ]; then
+  sh "$REC_GUARD" || exit 1
+else
+  echo "record-check WARNING: record guard not found at $REC_GUARD" >&2
+  echo "  record invariants NOT verified for this commit." >&2
+fi
+
 # ── 2. Record HTML-twin sync ─────────────────────────────────────────────────
 RECORD_HTML="docs/Project Record — Full Chronological History.html"
 # Detect the staged record .md by an ASCII-only substring of its name. The full
@@ -54,5 +69,7 @@ if git -c core.quotepath=false diff --cached --name-only \
   git add "$RECORD_HTML"
   echo "commit-gate: HTML twin regenerated and staged." >&2
 fi
+
+
 
 exit 0

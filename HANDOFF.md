@@ -10,10 +10,64 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-08-19 ~17:00 CDT** — this file is the only live snapshot
+**Last updated: 2026-09-06 ~13:45 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
 itself an audit finding (22).
+
+> **2026-09-06 ~13:40 CDT (record DR) — THE SEPTEMBER ACCOUNT IS NOW IN HEAD.**
+> The 13-file uncommitted tree is down to **3 files**. Committed the 10-file
+> documentation half: the record (carrying Appendices **DM, DN, DO, DP, DQ**, all
+> verified absent from HEAD beforehand), its HTML twin, this file,
+> `PRD_ROADMAP.md`, `rebalance_log.md` (HEAD said `2026-08-03`, tree says
+> `2026-09-01`/`OK` — so the month gate no longer re-opens on an
+> already-rebalanced month), the four `codebase-memory` bins, and
+> `scripts/git-hooks/pre-commit`. Frozen tests 4/4 d=±0.0000pp before the commit.
+> **NO Python changed by this session. Nothing pushed** — still ahead of
+> `origin/master`, now by 21 commits.
+>
+> **`git config core.hooksPath` = `scripts/git-hooks`, so that `pre-commit` edit
+> was ALREADY the executing hook** while uncommitted, and its delegate
+> `~/.claude/skills/project-memory/hooks/pre-commit-record` exists — it takes the
+> enforcing path, not the warn-and-allow fallback. Committing it changed no
+> behaviour; it made HEAD agree with what already ran.
+>
+> **STILL UNCOMMITTED, deliberately: the 3 trading-path code files** —
+> `scripts/momentum/paper_rebalance.py` (adds the pure `_stale_fill()` predicate
+> and an opt-in `strict_fill_date`, default **False** so seeders/backdater/frozen
+> specs replay unchanged), `scripts/momentum/ladder_forward_rebalance.py:118` (the
+> one line opting the live ladder in), and untracked
+> `scripts/momentum/test_strict_fill_date.py`. Another session's 2026-08-26 work,
+> unreviewed here, on the fill path. **The guard is live in the tree but absent
+> from HEAD.** Its docstring's numbers (41 exits / 19 sleeves / $457.00 off the
+> 08-21 close) are QUOTED, not verified here; the test was not run. Next session
+> reviews, runs it, and commits separately.
+>
+> Clock note: the `~13:45 CDT` stamp above was ahead of the real clock — `date`
+> read `13:38:18 CDT` at the start of this session.
+
+> **2026-09-06 (record DQ) — doc sync + drift-check. NO code changed.** Five days
+> of nobody touching this repo except the daily-report tasks. Drift-check of this
+> file against live state: **2 drifted rows, both in the scheduled-task table**
+> (fixed below), everything else MATCH — 76 sleeves, `verify_run` PASS 76/76 on the
+> last 5 runs, `slippage_log` still **0 rows**, `positions` residue still **137**,
+> the 6 append-only decision-log triggers present, `paper_positions` 8,386 rows /
+> 3,256 open, latest `paper_nav` **2026-09-04** (09-05 was a SATURDAY — not a gap).
+>
+> **THE TREE HAS 8 UNCOMMITTED FILES, untouched since 2026-09-01 22:16.** They are
+> another session's work and include record Appendices **DM, DN, DO, DP** — the
+> whole account of the September rebalance — plus `rebalance_log.md` stamped
+> `2026-09-01/OK` and uncommitted edits to `paper_rebalance.py`,
+> `ladder_forward_rebalance.py`, `scripts/git-hooks/pre-commit`, and an untracked
+> `test_strict_fill_date.py`. **Nothing in HEAD records that September rebalanced.**
+> If this tree is lost, so is that account, and `rebalance_log.md` reverts to
+> `2026-08-03`, re-opening the month gate on an already-rebalanced month. This
+> session's doc edits land on top of those files and cannot be separated from them.
+>
+> **The trading-guard wrapper fix was PROPOSED and NOT approved** (2026-09-06):
+> a static, recursive, comment-stripping scan of `.bat` targets against the same
+> rules. Design is settled and the empirical basis is in `gotchas.md` /
+> `security.md`; no code was written. See the three OPEN items below.
 
 > **2026-08-11 (record CY) — PRD M6 is REDEFINED to IMPLEMENTATION SHORTFALL and
 > is done on the code side.** M6.1 (fetch) and M6.2 (pair + report) are built,
@@ -589,6 +643,18 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   whether today is a weekly/biweekly rebalance day (holiday-aware; biweekly parity is
   ordinal-weeks-since-2026-04-27, immune to 53-ISO-week years). Ends with its own
   `verify_run --mode daily`. Logs: `var/last_ladder_run.log`
+  **Since 2026-08-26 (record DM) it passes `strict_fill_date=True`: any leg whose
+  reference bar is not `as_of`'s own close is SKIPPED, not filled carry-forward.**
+  Prompted by 08-24, when 41 exits across 19 sleeves filled off the 08-21 bar
+  (TPL 383.64 vs the true 373.45) for **$457.00** of proceeds the real bar did not
+  support. A skipped leg is self-healing — due-ness is period-based, so the next
+  rebalance inside the period retries it. **First live exercise: 2026-08-31**
+  (both cadences due). Note an aggregate coverage gate would NOT have caught this:
+  08-24 settled at 5,144 closes over a 5,000 floor while five held names were
+  missing, and 08-26 is BLOCKED at 4,267 while 211/216 held names have a close —
+  the guard has to be per-ticker. **`monthly_rebalance.py` is deliberately NOT
+  wired** (identical exposure, runs 6:03pm so MORE exposed; one-line change,
+  Evan's call — open item).
 - **`\llm rebal`** — Monthly, day 1, 5:59 PM. **Despite the name it is NOT a
   rebalance**: its action is a `mouse_event` wake-nudge, i.e. a wake fired 4
   minutes before the 6:03 PM `monthy-llm-rebalance` Claude task below.
@@ -629,7 +695,7 @@ them **committing to this repo** (local only — the push clause was removed 202
 
 | Task | Cron | State | What it does |
 |---|---|---|---|
-| `monthy-llm-rebalance` | `0 18 * * *` (~6:03pm daily) | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
+| `monthy-llm-rebalance` | **`0 18 1-5 * *`** (~6:03pm, days 1-5 ONLY) — **4th drift, live-read 2026-09-06; was `0 18 * * *`. NOT restored, Evan's call.** Next run 2026-10-01. | **enabled** | The monthly rebalance. Self-gates on `rebalance_log.md`. **The typo is load-bearing — never rename.** |
 | `daily-trade-check` | `0 7 * * 1-5` (~7:07am weekdays) | **enabled** | Pre-market research report → appends to `daily_report.md`, renders the HTML twin, then /landing-check, then `git add` (those 2 files only) + `commit`. **Local only — never pushes** (audit DI.3/E5) |
 | `daily-trade-check-2` | `0 19 * * 1-5` (7:00pm weekdays) | **enabled** | Post-close analysis report, same append + landing-check + commit. **Local only — never pushes** (audit DI.3/E5). Moved from `0 18` to `0 19` on 2026-08-04 (record CQ.3/E2) because it was reading `paper_nav`/`paper_positions` mid-rebalance. **Found drifted back to `0 17` (5:00pm, 15 min before `TradingDailyMTM`) on 2026-08-18 and restored to `0 19` (record DG) - third documented cron drift on this machine; read the live list, never this table** |
 | `hellow` | `0 12,17,22 * * *` (12:00 / 17:00 / 22:00 daily) | **enabled** | Evan's own routine (prompt: `Hello (just say hi back)`). Created 2026-08-20 23:25. **Intentional - Evan confirmed it stays** (record DK.2). Documented here because an undocumented enabled task is the exact condition that made the two deleted strays hard to reason about. Note the 17:00 fire is ~15 min before `TradingDailyMTM`. |
@@ -638,6 +704,7 @@ them **committing to this repo** (local only — the push clause was removed 202
 | `daily-audit` | `0 7 * * *` (~7:05am daily) | **enabled** | Runs `/audit` + `/landing-check` on active projects (this project's audits land here, in HANDOFF, and in the record). Found live 2026-08-16 (audit finding T-5) — was undocumented here entirely. |
 | ~~`cohort-0706-deploy`~~ | ~~manual~~ | **absent** | One-time 07-06 cohort deploy, fired 2026-07-07. NOT in the live task list as of 2026-08-18 (record DG); DE T-5 wrote "disabled" over an earlier correct read of "absent" |
 | `check-0803-rebalance` | one-time | disabled | Post-mortem of the 08-03 rebalance, fired 2026-08-04 |
+| `audit-all-projects-2026-08-21` | one-time | disabled | Cold `/audit` sweep of all 11 projects under `D:\ClaudeCode`, 2 Opus workers each, findings only. Fired 2026-08-22. Added to this table 2026-09-06 — it was live and in no doc. |
 
 > ✅ **Cron re-confirmed 2026-08-05 20:13 CDT** — the record CN note asked a future
 > session to re-list `monthy-llm-rebalance` because the confirming call was
@@ -745,6 +812,42 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 ---
 
 ## Monthly operations (first trading day of each month)
+
+> ✅ **September 2026 IS rebalanced — but BY HAND, and the automation is still
+> broken.** Records **DN** (18:15, the block) → **DO** (20:14, independent audit
+> confirming it) → **DP** (22:20, the resolution). Read in that order.
+>
+> **2026-09-01, done:** Evan ran the six decisions + `rebalance.bat` himself at
+> 21:55 CDT. Exit 0 in 14m40s, stamped **`2026-09-01 / OK`**, `verify_run
+> --mode monthly` **PASS 76/76**, frozen tests **d=±0.0000pp** on all 4 configs,
+> Alpaca **128 orders, all HTTP 200** (accepted at submit — *not* proof of fills;
+> `verify_run` never calls the API). Sleeve book verified against
+> `paper_positions` directly, because an un-rebalanced sleeve passes verify too.
+>
+> 🛑 **STILL BLOCKED for 2026-10-01 and every month after. BLOCKED-ON-EVAN.**
+> The `monthy-llm-rebalance` task fired on time on 09-01, the month gate opened,
+> the data gate passed — then every decision-logging call was **denied by
+> `scripts/hooks/pretooluse-trading-guard.js`** (rule 3, installed 2026-08-20,
+> record DK). No bypass flag exists, so the task cannot complete its own Step 3.
+> 09-01 was the first monthly rebalance since that hook shipped; DK verified the
+> rules fire, not what else they fire on. **September was rescued by hand inside
+> four hours — that is Evan being awake, not a mechanism.** Decide one of:
+> give the hook a narrow override the scheduled task's own launch env can present
+> (record DO.1's shape — *not* a loosened regex), or accept that monthly
+> rebalances are manual and change the task file to say so.
+>
+> ⚠️ **Open (DN.3 / DO.1 finding 2): the guard is bypassed wholesale by `cmd /c
+> rebalance.bat`** — PROVEN empirically on 09-01, which ran through it. The hook
+> only sees the command string handed to the Bash tool, never the subprocesses it
+> spawns, so the wrapper runs four guarded operations (live Alpaca orders
+> included) untouched. Evan invoking it is the intended path; the point is that an
+> *agent* is one `cmd /c` from the same thing. Unfixed.
+>
+> ⚠️ **Open (DN.4 / DO.1 findings 3-4): `overlay_prep` under-reports what is
+> owed.** Its stock section carries a decision forward when the #1 name is
+> unchanged, but the consumer does an **exact-date** lookup and refuses without a
+> same-day row — the gather says "nothing owed", then the rebalance refuses. It
+> also prints a ticker-blind `latest_decision` under the wrong name. Unfixed.
 
 **Now automated** via the `monthy-llm-rebalance` Claude scheduled task (cron
 `0 18 * * *`, ~6:03pm local — shifted back from a drifted `30 17`/~5:33pm on

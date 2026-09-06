@@ -211,7 +211,13 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-di---scheduled-daily-audit-the-15-exit-code-gates-on-the-one-script-that-trades-were-deaf-to-crash-codes-and-the-monthly-rebalance-was-gated-only-by-prose-an-llm-reads-2026-08-19-1645-cdt">DI - Scheduled daily-audit (2026-08-19): <code>rebalance.bat</code>'s 15 <code>if errorlevel 1</code> gates were blind to negative crash codes -- a crashed <code>alpaca_sync --execute</code> stamped OK and exited 0; the daily-firing "monthly" rebalance gets a mechanical month gate; the daily-report auto-push (which had already published two unreviewed commits that morning) removed</a> (08-19)<br />
 - <a href="#appendix-dj---audit-of-the-daily-trade-check-2-scheduled-task-spec-every-prohibition-in-the-file-that-authorizes-an-unattended-agent-to-write-this-repo-was-prose-with-zero-enforcement-and-the-one-time-it-was-tested-it-failed-deny-rules-added-specs-snapshotted-into-the-repo-landing-check-moved-before-the-commit-2026-08-20-2330-cdt">DJ - Audit of <code>daily-trade-check-2</code>: its prohibitions (READ-ONLY, never <code>git add -A</code>, never push, never rebalance) had ZERO mechanical enforcement -- the deny list was 2 <code>Read(./.env*)</code> rules against a PUBLIC remote. Deny rules added to both settings files; the 4 live task specs (in no git repo) snapshotted to <code>docs/scheduled-tasks/</code> with a daily drift diff; <code>/landing-check</code> moved BEFORE the commit; 2026-08-17's missing post-close session found by the new check</a> (08-20)<br />
 - <a href="#appendix-dk---landing-check-on-dj-four-of-the-nine-deny-rules-dj1-called-the-fix-were-dead-syntax-and-could-never-fire-so-the-two-most-dangerous-prohibitions-had-no-cover-at-all-replaced-with-a-tested-pretooluse-hook-plus-two-smaller-dj-corrections-2026-08-20-2355-cdt">DK - Landing-check on DJ: 4 of the 9 deny rules DJ.1 called the fix used a LEADING <code>:*</code>, which is dead syntax -- Bash rules are prefix matchers, so the four covering the rebalancer, the decide path and Alpaca order-submit could never fire, and the record said they did. Replaced with a tested PreToolUse hook (20/20). Plus DJ.8's task count was wrong (<code>hellow</code> is Evan's, it stays) and a stale byte count inside DJ</a> (08-20)<br />
-- <a href="#appendix-dl---landing-check-on-di-its-central-claim-was-false---dailybat-still-had-4-gates-on-the-deaf-if-errorlevel-idiom-including-the-one-on-verify_run-so-a-crashed-verifier-stamped-pass-and-exited-0-fixed-and-proven-against-a-real-crash-code-plus-handoff-was-asserting-local-unpushed-about-commits-that-had-been-public-for-26-hours-2026-08-21-0315-cdt">DL - Landing-check on DI: its central claim was FALSE - <code>daily.bat</code> still had 4 gates on the deaf <code>if errorlevel</code> idiom incl. the one on <code>verify_run</code>, so a CRASHED verifier stamped PASS and exited 0; fixed + proven against a real crash code. HANDOFF was claiming "local, unpushed" about 26-hour-public commits</a> (08-21)</p>
+- <a href="#appendix-dl---landing-check-on-di-its-central-claim-was-false---dailybat-still-had-4-gates-on-the-deaf-if-errorlevel-idiom-including-the-one-on-verify_run-so-a-crashed-verifier-stamped-pass-and-exited-0-fixed-and-proven-against-a-real-crash-code-plus-handoff-was-asserting-local-unpushed-about-commits-that-had-been-public-for-26-hours-2026-08-21-0315-cdt">DL - Landing-check on DI: its central claim was FALSE - <code>daily.bat</code> still had 4 gates on the deaf <code>if errorlevel</code> idiom incl. the one on <code>verify_run</code>, so a CRASHED verifier stamped PASS and exited 0; fixed + proven against a real crash code. HANDOFF was claiming "local, unpushed" about 26-hour-public commits</a> (08-21)<br />
+- <a href="#appendix-dm---the-41-stale-exit_ref_date-rows-on-2026-08-24-were-not-corrupt-they-were-an-honest-provenance-stamp-on-a-genuinely-stale-fill-root-cause-is-the-shared-fill-path-carrying-a-bar-forward-silently-and-an-aggregate-coverage-gate-provably-cannot-catch-it---per-ticker-guard-added-at-the-chokepoint-opt-in-ladder-wired-2026-08-26-2103-cdt">DM - The 41 "stale <code>exit_ref_date</code>" rows on 08-24 were NOT corrupt - the columns are provenance-only, so the stamp was an honest record of a genuinely stale fill; editing them would have fabricated provenance or rewritten NAV history. Root cause is the shared fill path carrying a bar forward silently, and an aggregate coverage gate provably cannot catch a 5-ticker gap (08-24 passed at 5,144/5,000 while 5 held names were missing; 08-26 is BLOCKED at 4,267 while 211/216 held names have a close). Per-ticker <code>strict_fill_date</code> guard at the chokepoint, opt-in so the 3 history-replaying callers are unchanged; ladder wired, monthly deliberately left open. Error sized at $457.00 / 0.0059% of book, DB untouched</a> (08-26)<br />
+- <a href="#appendix-dn---the-2026-09-01-monthly-rebalance-did-not-run-the-trading-guard-hook-installed-on-08-20-denies-the-decide-path-the-scheduled-task-depends-on-and-the-same-guard-is-bypassed-wholesale-by-the-bat-wrapper-it-was-meant-to-cover-research-complete-nothing-logged-nothing-traded-2026-09-01-1815-cdt">DN - The 09-01 monthly rebalance did NOT run. First monthly since the trading-guard hook (DK, 08-20) went in, and rule 3 <code>/_ops\s+decide/</code> denies the decision-logging step the whole task is built on - no bypass flag exists, so it is BLOCKED-ON-EVAN. Separately: the guard is escaped wholesale by <code>cmd /c rebalance.bat</code>, which runs all four guarded operations (incl. <code>alpaca_sync --execute</code>) in subprocesses the hook cannot see - deliberately NOT exploited. Also found <code>overlay_prep</code> disagreeing with its own consumer about what is owed (carry-forward vs exact-date lookup) and printing a ticker-blind <code>latest_decision</code>. All six decisions researched against live web and written down unlogged; rebalance_log.md left at 08-03 so the month gate stays open</a> (09-01)<br />
+- <a href="#appendix-do---scheduled-daily-audit-dn-confirmed-in-full-and-the-guard-is-inverted---it-blocks-the-legitimate-path-while-the-bat-wrapper-walks-past-it-2026-09-01-2014-cdt">DO - Scheduled daily-audit (independent, cold, read-only) CONFIRMED DN.1-DN.4 against disk and named the guard <strong>INVERTED</strong>: it denies the scheduled task's own typed decide calls while <code>rebalance.bat</code> runs four guarded operations inside itself and passes untouched. 5 findings (2 HIGH). Proposes a narrow override in the task's own launch env, NOT a loosened regex. Corrects DN.3: <code>monthly_rebalance</code> never matched rule 1 anyway (in-process import the hook cannot see). Also: two scheduled Claude sessions COLLIDE at 19:00 and a quota-killed run leaves no local log (absence is the only detector), and <code>daily-audit</code>'s live cron is <code>0 19 1-7 * *</code> vs HANDOFF's claimed <code>0 7 * * *</code> - 4th cron drift, ~23 days a month with no audit</a> (09-01)<br />
+- <a href="#appendix-dp---september-did-rebalance-by-hand-evan-ran-the-six-blocked-decisions-and-rebalancebat-himself-at-2155-cdt-clean-end-to-end-7676-pass-128-alpaca-orders-frozen-d00000pp-supersedes-dns-closing-line-and-do2s-september-remains-un-rebalanced-do5s-correction-to-dn3-accepted-all-three-findings-still-open-2026-09-01-2220-cdt">DP - September DID rebalance, BY HAND. Evan ran DN.5's six blocked decisions + <code>rebalance.bat</code> himself at 21:55 CDT: exit 0 in 14m40s, stamped <code>2026-09-01/OK</code>, verify_run PASS <strong>76/76</strong>, frozen tests <strong>d=0.0000pp</strong> on all 4 configs, Alpaca <strong>128 orders all HTTP 200</strong> (accepted-at-submit, NOT proof of fills - verify_run never calls the API). All six sleeves checked against paper_positions directly, since an un-rebalanced sleeve passes verify too: the stock treatment re-entered on the MU BUY after a month in cash, and the XLI veto parked <strong>$23,087.99 / 22.7%</strong> of the sector treatment in cash. <strong>Supersedes DN's closing line AND DO.2's 'September remains UN-REBALANCED'</strong>; accepts DO.5's correction to DN.3 (monthly_rebalance never matched rule 1 anyway - in-process import). Tonight PROVED the wrapper gap by running through it. All three findings still OPEN - 10-01 hits the same denial</a> (09-01)<br />
+- <a href="#appendix-dq---doc-sync--drift-check-head-does-not-know-september-rebalanced---dmdndodp-have-sat-uncommitted-for-5-days-and-the-rebalance-log-reverting-would-re-open-the-month-gate-on-an-already-rebalanced-month-2-task-table-drifts-fixed-the-bins-had-none-of-the-guard-era-the-wrapper-fix-is-proposed-and-unapproved-2026-09-06-1330-cdt">DQ — Doc sync + drift-check: HEAD does not know September rebalanced - DM/DN/DO/DP have sat UNCOMMITTED for 5 days, and the rebalance log reverting would re-open the month gate on an already-rebalanced month. 2 task-table drifts fixed; the bins had NONE of the guard era; the wrapper fix is proposed and unapproved</a> (09-06)<br />
+- <a href="#appendix-dr---committed-the-september-account--10-doc-files-to-head-3-code-files-held-back-2026-09-06-1340-cdt">DR — Committed the September account — 10 doc files to HEAD, 3 code files held back</a> (09-06)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -11664,6 +11670,951 @@ stand-ins in the scratchpad.</p>
 <li>Evan's, unchanged: <code>slippage_log</code> 0 rows; <code>positions</code> residue 137 rows.</li>
 <li>Local is ahead of the remote and <strong>staying</strong> there unless Evan says otherwise.</li>
 </ul>
+<hr />
+<h1 id="appendix-dm---the-41-stale-exit_ref_date-rows-on-2026-08-24-were-not-corrupt-they-were-an-honest-provenance-stamp-on-a-genuinely-stale-fill-root-cause-is-the-shared-fill-path-carrying-a-bar-forward-silently-and-an-aggregate-coverage-gate-provably-cannot-catch-it---per-ticker-guard-added-at-the-chokepoint-opt-in-ladder-wired-2026-08-26-2103-cdt">Appendix DM - The 41 "stale exit_ref_date" rows on 2026-08-24 were not corrupt: they were an honest provenance stamp on a genuinely stale fill. Root cause is the shared fill path carrying a bar forward silently, and an aggregate coverage gate provably cannot catch it - per-ticker guard added at the chokepoint, opt-in, ladder wired (2026-08-26, ~21:03 CDT)</h1>
+<p><strong>Trigger.</strong> The 2026-08-26 post-market report (commit <code>2ba9a7b</code>, §5c) carried<br />
+as a critical-outstanding item: <em>"41 of the 08-24 exit batch still carry<br />
+<code>exit_ref_date</code> 2026-08-21 - filled on a stale price, unrepaired."</em> Evan's<br />
+instruction: <em>"fix the stale exit_ref_date rows on 08-24."</em></p>
+<p><strong>Nothing was written to the DB.</strong> The instruction was not executed as issued,<br />
+for the reason in DM.1. What shipped instead is a code guard (DM.4).</p>
+<h2 id="dm1---the-rows-are-not-corrupt-editing-them-is-the-one-action-that-would-have-damaged-the-record">DM.1 - The rows are not corrupt. Editing them is the one action that would have damaged the record.</h2>
+<p><code>exit_ref_close</code> / <code>exit_ref_date</code> are documented at<br />
+<code>trading_bot/execution/paper_trader.py:134-136</code> (in <code>open_position</code>; the same<br />
+params flow through <code>close_position</code> at :152):</p>
+<blockquote>
+<p><em>"ref_close/ref_date record the RAW close this fill was derived from and the<br />
+date it came from (record CU). Optional so every existing caller keeps<br />
+working unchanged; they are provenance only and affect no arithmetic."</em></p>
+</blockquote>
+<p>They are a <strong>provenance stamp</strong>, not a data field. <code>2026-08-21</code> on an<br />
+<code>exit_date</code> of <code>2026-08-24</code> is a <strong>truthful record</strong> that the fill price came<br />
+from the 08-21 bar. The columns exist precisely to make a stale fill visible.</p>
+<p>Both available "fixes" were worse than the defect:</p>
+<ul>
+<li><strong>Set <code>exit_ref_date='2026-08-24'</code>, leave <code>exit_price</code></strong> - writes a <em>false</em><br />
+  provenance record, claiming the fill referenced a bar it did not. Erases the<br />
+  only evidence and leaves the economic error in place. Squarely inside the<br />
+  "NEVER fabricate data" standing order.</li>
+<li><strong>Set it AND re-price</strong> - cascades <code>exit_price</code> -&gt; <code>exit_value</code> -&gt;<br />
+<code>realized_pnl</code> -&gt; <code>paper_portfolio.cash</code> -&gt; every <code>paper_nav</code> row from 08-24<br />
+  forward. That is rewriting NAV history (hard rule), and it would have<br />
+  invalidated the report committed 25 minutes earlier.</li>
+</ul>
+<h2 id="dm2---what-actually-happened-and-the-size-of-the-error">DM.2 - What actually happened, and the size of the error</h2>
+<p>At 20:30 on 2026-08-24 the <code>TradingLadderRebalance</code> task ran. Five held<br />
+tickers had no 08-24 close in <code>price_cache</code> yet - 08-24 was a coverage-PENDING<br />
+day at the 17:15 MTM and did not heal until the 08-25 17:17 <code>mtm_catchup</code>.<br />
+<code>market_data.last_close_on_or_before()</code> (<code>market_data.py:292</code>) is the<br />
+documented carry-forward lookup used for fills; it correctly returned the<br />
+08-21 bar and correctly stamped it.</p>
+<p>41 rows, 5 tickers, 19 sleeves, all <code>exit_reason='rebalance'</code>. Re-priced<br />
+against the true 08-24 closes (which exist now):</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>n</th>
+<th>08-21 ref</th>
+<th>true 08-24</th>
+<th>exit_value delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TPL</td>
+<td>11</td>
+<td>383.64</td>
+<td>373.45 (-2.66%)</td>
+<td><strong>-$551.44</strong></td>
+</tr>
+<tr>
+<td>VTR</td>
+<td>5</td>
+<td>93.06</td>
+<td>93.47</td>
+<td>+$53.91</td>
+</tr>
+<tr>
+<td>TRS</td>
+<td>6</td>
+<td>39.38</td>
+<td>39.57</td>
+<td>+$47.82</td>
+</tr>
+<tr>
+<td>UTHR</td>
+<td>9</td>
+<td>513.12</td>
+<td>512.88</td>
+<td>-$7.28</td>
+</tr>
+<tr>
+<td>UYSC</td>
+<td>10</td>
+<td>10.84</td>
+<td>10.84</td>
+<td>$0.00</td>
+</tr>
+<tr>
+<td><strong>net</strong></td>
+<td><strong>41</strong></td>
+<td></td>
+<td></td>
+<td><strong>-$457.00</strong></td>
+</tr>
+</tbody>
+</table>
+<p>As-filled exit proceeds <strong>$81,721.47</strong> vs <strong>$81,264.48</strong> at the true bar: the<br />
+sleeves received <strong>$457.00 more cash than the real 08-24 closes supported</strong>,<br />
+<strong>0.0059% of the $7,798,856.45 book</strong>. Realized P&amp;L booked on those 41 rows<br />
+was <strong>-$4,083.62</strong>. TPL is effectively the whole error - it gapped -2.66% over<br />
+the weekend while the other four nearly offset each other.</p>
+<h2 id="dm3---the-originally-approved-fix-would-not-have-worked-this-is-the-load-bearing-finding">DM.3 - The originally-approved fix would NOT have worked. This is the load-bearing finding.</h2>
+<p>The option Evan approved was <em>"gate the ladder on coverage - refuse to<br />
+transact when the day is PENDING, same floor as the 17:15 MTM."</em> Investigation<br />
+killed it:</p>
+<ol>
+<li>
+<p><strong>The absence of a gate was deliberate and documented.</strong><br />
+<code>ladder_forward_rebalance.py</code> docstring: <em>"Ranks use trailing (t-21) data,<br />
+   so evening partial coverage does not misrank - the same reason<br />
+   rebalance.bat has no coverage gate."</em> That reasoning is correct <strong>for<br />
+   ranking</strong> and simply never considered <strong>fills</strong>.</p>
+</li>
+<li>
+<p><strong>An aggregate floor structurally cannot detect a 5-ticker gap.</strong> 2026-08-24<br />
+   finished at <strong>5,144 closes against a 5,000 floor</strong> - 144 closes of slack, so<br />
+   a whole-day gate can PASS while any individual held name is missing. The<br />
+   converse is live right now: <strong>2026-08-26 has 4,267 closes and is BLOCKED,<br />
+   yet 211 of 216 held tickers have a real close today.</strong> Aggregate coverage<br />
+   and per-ticker fill readiness are not correlated. The gate would have been<br />
+   both a false negative on 08-24 and a false positive today.</p>
+</li>
+<li>
+<p><strong>Every ladder date since 08-03 healed overnight.</strong> Coverage on 08-03..08-25<br />
+   now reads 5,134-5,171, all PASS; only today (unhealed) is short. The<br />
+   "18 consecutive PENDING sessions" in report <code>2ba9a7b</code> is a property of the<br />
+<strong>17:15 same-day snapshot</strong>, not of the settled data.</p>
+</li>
+</ol>
+<p>The correct guard is therefore <strong>per-ticker, on the fill path</strong>, not aggregate,<br />
+on the run.</p>
+<h2 id="dm4---what-shipped">DM.4 - What shipped</h2>
+<p>Chokepoint: all five callers of <code>paper_rebalance.rebalance()</code> share one fill<br />
+path (<code>paper_rebalance.py</code> sell leg :211, buy leg :248), so the monthly<br />
+rebalance carries the identical exposure. Two callers are LIVE<br />
+(<code>ladder_forward_rebalance.py:114</code>, <code>monthly_rebalance.py:136</code>); three replay<br />
+HISTORY (<code>seed_residual_cadence_ladder.py:110</code>, <code>seed_residual_wsweep.py:139</code>,<br />
+<code>backdate_sleeves.py:87</code>) - an unconditional guard would have silently altered<br />
+seeded history, so the guard is <strong>opt-in</strong>.</p>
+<ol>
+<li><strong><code>scripts/momentum/paper_rebalance.py</code></strong> (+34/-2)<br />
+   - New pure predicate <code>_stale_fill(ref_dt, as_of, strict)</code> - both legs route<br />
+     through it so the check cannot be dropped from one of them by a later edit.<br />
+   - New kwarg <code>strict_fill_date: bool = False</code>. <strong>Default False</strong>, so the<br />
+     three historical callers replay byte-identically.<br />
+   - Both legs skip-and-log on a stale bar, extending the existing<br />
+<code>px is None</code> skip pattern rather than inventing a new one.</li>
+<li><strong><code>scripts/momentum/ladder_forward_rebalance.py</code></strong> (+1) - passes<br />
+<code>strict_fill_date=True</code>.</li>
+<li><strong><code>scripts/momentum/test_strict_fill_date.py</code></strong> (new) - runnable self-check.</li>
+</ol>
+<p>A skipped leg is <strong>self-healing</strong>: ladder due-ness is period-based (record CG),<br />
+so the next rebalance inside the same period retries the name. The failure mode<br />
+is a deferred trade, not a lost cycle.</p>
+<h2 id="dm5---verification-real-output">DM.5 - Verification (real output)</h2>
+<p>Frozen regression, <code>.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies</code>:</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+All regression tests passed.
+</code></pre>
+<p>New guard, <code>.venv\Scripts\python.exe -m scripts.momentum.test_strict_fill_date</code>:</p>
+<pre><code>  [OK  ] predicate: stale-&gt;skip, same-day-&gt;fill, OFF-&gt;carry-forward
+  [OK  ] rebalance(strict_fill_date=) defaults False - seeders unchanged
+  [OK  ] both legs (sell + buy) route through the guard
+  [OK  ] ladder_forward_rebalance opts in (strict_fill_date=True)
+ALL PASS
+</code></pre>
+<p>Provenance regression, <code>.venv\Scripts\python.exe -m scripts.momentum.test_fill_reference</code>:</p>
+<pre><code>  [OK  ] buy: provenance stored; price/value/cash unchanged
+  [OK  ] buy: ref_close x (1+5bps) reproduces entry_price exactly
+  [OK  ] sell: provenance stored; ref x (1-5bps) reproduces exit_price; P&amp;L unchanged
+  [OK  ] legacy call without ref args still works, stores NULL
+All fill-reference tests passed.
+</code></pre>
+<h2 id="dm6---explicitly-not-done">DM.6 - Explicitly NOT done</h2>
+<ul>
+<li><strong>The 41 rows are untouched.</strong> No DB write of any kind was made this session.<br />
+  The $457.00 stands as a recorded, auditable fact.</li>
+<li><strong><code>monthly_rebalance.py</code> is NOT wired to the guard.</strong> It has the identical<br />
+  exposure and runs at 6:03pm - <em>earlier</em> than the ladder, so <em>more</em> exposed to<br />
+  incomplete publication (the 08-03 monthly moved 751 exits). Wiring it is a<br />
+  one-line change, deliberately left for Evan: it is outside the approved scope<br />
+  and it is the primary trading path. <strong>Open item.</strong></li>
+<li><strong>The guard is untested against a live rebalance</strong> - project rule forbids an<br />
+  agent running anything that trades. It is proven at the predicate and<br />
+  wiring level only. First real exercise will be the next ladder date,<br />
+<strong>2026-08-31</strong> (both cadences due).</li>
+<li><strong>Unexplained and worth its own look:</strong> today's 4,267 closes against a 5,153<br />
+  baseline is ~900 tickers short, and the same shortfall has appeared at 17:15<br />
+  on every session since 08-03 before healing overnight. That is a refresh-<br />
+  timing question, not a publication question, and it is not diagnosed here.</li>
+</ul>
+<hr />
+<h1 id="appendix-dn---the-2026-09-01-monthly-rebalance-did-not-run-the-trading-guard-hook-installed-on-08-20-denies-the-decide-path-the-scheduled-task-depends-on-and-the-same-guard-is-bypassed-wholesale-by-the-bat-wrapper-it-was-meant-to-cover-research-complete-nothing-logged-nothing-traded-2026-09-01-1815-cdt">Appendix DN - The 2026-09-01 monthly rebalance did NOT run: the trading-guard hook installed on 08-20 denies the decide path the scheduled task depends on, and the same guard is bypassed wholesale by the .bat wrapper it was meant to cover. Research complete, nothing logged, nothing traded (2026-09-01, ~18:15 CDT)</h1>
+<p>Written 2026-09-01 ~18:15 CDT, from the <code>monthy-llm-rebalance</code> scheduled task<br />
+firing at ~18:03. This is the FIRST monthly rebalance since the trading-guard<br />
+hook went in on 2026-08-20 (record DK). It is blocked.</p>
+<h2 id="dn1---what-ran-and-where-it-stopped">DN.1 - What ran, and where it stopped</h2>
+<p>Step 0 gate: <code>rebalance_log.md</code> read "Last rebalance: 2026-08-03" - prior month,<br />
+so the gate correctly OPENED. 2026-09-01 is a Tuesday and a trading day (Labor<br />
+Day 2026 is 09-07).</p>
+<p>Step 1 gather: <code>python -m scripts.momentum.overlay_prep</code> ran clean. (The<br />
+<code>overlay_prep.bat</code> wrapper produced no output under <code>cmd /c</code> from this harness;<br />
+the module invoked directly worked. Not investigated - cosmetic, the module is<br />
+the real entry point.)</p>
+<p>Step 2 data-integrity gate: PASSED. Same-day 2026-09-01 closes present for every<br />
+candidate; close ladders checked for split/spike artifacts and are clean:</p>
+<pre><code>MU  09-01:933.44 08-31:958.73 08-28:932.86 08-27:935.39 08-26:938.40
+XLK 09-01:183.64 08-31:186.50 08-28:185.69 08-27:188.61 08-26:182.84
+XLE 09-01:64.77  08-31:63.96  08-28:62.68  08-27:62.29  08-26:62.43
+XLI 09-01:172.73 08-31:175.13 08-28:177.14 08-27:178.80 08-26:180.34
+XLV 09-01:171.67 08-31:170.54 08-28:171.16 08-27:171.58 08-26:173.54
+</code></pre>
+<p>No implausible momentum, no &gt;1000% bar, no empty universe. This is NOT the<br />
+2026-07-01 failure mode (Appendix AP).</p>
+<p>Step 3 decisions: <strong>BLOCKED.</strong> Every <code>*_ops decide</code> invocation is denied by the<br />
+PreToolUse hook. Step 4 not attempted (see DN.3). <code>rebalance_log.md</code> deliberately<br />
+left untouched, per the same "report, don't act" rule that governed 07-01.</p>
+<h2 id="dn2---the-blocker">DN.2 - The blocker</h2>
+<p><code>scripts/hooks/pretooluse-trading-guard.js</code>, rule 3, matched against the whole<br />
+command string case-insensitively:</p>
+<pre><code>[/_ops\s+decide/i,
+ "an *_ops decide path writes an LLM decision to the append-only decision log."]
+</code></pre>
+<p>Denial text: <em>"trading-guard BLOCKED this command ... If this is genuinely<br />
+intended, Evan runs it himself."</em> There is no bypass flag, no env escape, and the<br />
+hook has no notion of which session is calling it.</p>
+<p>This is not a hook bug. It is an unnoticed collision between two of Evan's own<br />
+controls, and the dates explain why nobody caught it: the guard was written<br />
+2026-08-20 (DK), the last monthly rebalance ran 2026-08-03, so 2026-09-01 is the<br />
+first time the monthly task has met the guard. DK's landing-check verified the<br />
+rules fire; it did not check what else they fire on.</p>
+<p>Precedence applied: the hook is the later-dated and mechanically-enforced<br />
+control, and CLAUDE.md's standing rule is that a BLOCKED-ON-EVAN item is<br />
+reported, never worked around. The scheduled-task spec is prose written before<br />
+the guard existed. The hook wins.</p>
+<p>Second-order effect, found while writing this entry: the guard matches its<br />
+patterns against the raw command string, so it also denies a Bash heredoc whose<br />
+<em>documentation text</em> names one of the operations. Appending this appendix via<br />
+<code>cat &lt;&lt;EOF &gt;&gt; record.md</code> was denied by rule 1 for the word appearing in DN.3's<br />
+prose. Writing about the guarded operations now requires a non-Bash write path.<br />
+Harmless but worth knowing before someone reads a denial as "the agent tried to<br />
+trade".</p>
+<h2 id="dn3---the-guard-gap-the-bat-wrapper-escapes-every-rule-not-exploited">DN.3 - The guard gap: the .bat wrapper escapes every rule (NOT exploited)</h2>
+<p>Step 4 of the task is <code>cmd /c D:\ClaudeCode\Trading\scripts\momentum\rebalance.bat</code>.<br />
+That command string contains none of the guard's five patterns, so the hook<br />
+allows it - while the batch file itself runs, in one process tree:</p>
+<ul>
+<li><code>scripts.momentum.monthly_rebalance</code>  (calls the sleeve rebalancer - rule 1)</li>
+<li><code>llm_overlay_ops rebalance --mode control</code> / <code>--mode overlay</code>  (rule 2)</li>
+<li><code>sector_overlay_ops rebalance</code>, <code>llm_cascade_ops rebalance-*</code>  (rule 2)</li>
+<li><code>trading_bot.execution.alpaca_sync --all --execute</code>  (rule 4, live broker orders)</li>
+</ul>
+<p>So the guard denies the typed form of four operations and permits all four<br />
+through a wrapper whose path is one <code>cmd /c</code> away. The hook's own header comment<br />
+states the design intent it misses:</p>
+<blockquote>
+<p><em>"Keep these anchored to the operation, not to a filename, so a renamed<br />
+wrapper does not silently escape the guard."</em></p>
+</blockquote>
+<p>The rules ARE anchored to the operation. The gap is elsewhere: the hook only ever<br />
+sees the command string handed to the Bash/PowerShell tool, and cannot see the<br />
+subprocesses that string spawns. A wrapper does not need renaming to escape -<br />
+existing as a wrapper is enough. Every guarded operation in this repo has one.</p>
+<p><strong>This gap was deliberately NOT used.</strong> Running <code>rebalance.bat</code> would have<br />
+executed, unattended, the exact four operations the guard exists to withhold from<br />
+an agent - including real Alpaca paper orders. It would also have failed<br />
+usefully-but-messily: the three overlay rebalance steps refuse without logged<br />
+decisions, so <code>RC_FAIL=1</code> and the run would have stamped <code>rebalance_log.md</code><br />
+<strong>PARTIAL</strong> while the systematic sleeves and the Alpaca mirror had already<br />
+traded - leaving the LLM sleeves un-rebalanced behind a stamp that<br />
+<code>check_month_gate</code> reads as "this month is done".</p>
+<p>Not fixed here - this run changed no code. Flagged for Evan's call. The obvious<br />
+shapes are a wrapper-aware scan that reads <code>.bat</code> contents when the command<br />
+invokes one, or moving enforcement into the Python entry points themselves where<br />
+no wrapper can hide it.</p>
+<h2 id="dn4---overlay_prep-and-llm_overlay_ops-disagree-about-what-is-owed">DN.4 - <code>overlay_prep</code> and <code>llm_overlay_ops</code> disagree about what is owed</h2>
+<p>Independent of the guard, found while reconciling two contradictory sections of<br />
+the same gather output.</p>
+<p><code>overlay_prep</code> printed, for the stock overlay:</p>
+<pre><code>Top mom_roa name : MU  (z=+7.195)
+Control holds    : MU
+&gt;&gt;&gt; NAME UNCHANGED - no new decision required. The existing decision carries
+    last decision: BUY STX score=6.0 inval=730.0
+</code></pre>
+<p>while its own cascade section three blocks lower printed <code>#1 MU ... [OWED]</code>.</p>
+<p>The cascade section is right and the stock section is wrong. <code>overlay_prep._stock_section</code><br />
+carries a decision forward whenever <code>ticker == held_t</code>, but the consumer,<br />
+<code>llm_overlay_ops.cmd_rebalance</code> (mode overlay), does:</p>
+<pre><code>decision = llm_overlay.decision_for_ticker(as_of, cand_t)
+if decision is None:  ... "Refusing to trade" ... return 1
+</code></pre>
+<p><code>decision_for_ticker</code> is an <strong>exact-date</strong> lookup (<code>WHERE decision_date = ?</code>).<br />
+Nothing carries. So on an unchanged name <code>overlay_prep</code> says "nothing owed" and<br />
+<code>rebalance.bat</code> then refuses the treatment sleeve for want of the decision<br />
+<code>overlay_prep</code> said was not needed. On this run that means MU IS owed for<br />
+2026-09-01, and the gather said it was not. Anyone trusting the gather would have<br />
+logged five decisions instead of six and hit the refusal at Step 4.</p>
+<p>Second, smaller defect in the same block: the "last decision" line calls<br />
+<code>latest_decision(as_of)</code>, which is ticker-blind <code>LIMIT 1</code> - it printed the STX<br />
+row (a cascade decision from 08-03) against a section about MU. The codebase<br />
+already has <code>latest_decision_for(ticker, as_of)</code>, whose docstring warns about<br />
+exactly this ("the cascade sleeve logs OTHER tickers into this same table, so a<br />
+ticker-blind LIMIT 1 can pair a position with a different name's stop"). The<br />
+display path never got the fix the trading path got.</p>
+<p>Both are display/gather defects, not state corruption. No code changed this run.</p>
+<h2 id="dn5---the-research-that-was-completed-decisions-not-logged">DN.5 - The research that WAS completed (decisions not logged)</h2>
+<p>Full 3-prompt / 4-prompt sets were run against live web as of 2026-09-01.<br />
+Recorded here so the work is not lost, and so the decisions Evan logs are the ones<br />
+actually researched today rather than re-derived later against moved prices.</p>
+<p><strong>Macro regime read (2026-09-01).</strong> Kevin Warsh chairs the Fed; market-implied<br />
+odds of a <strong>September rate HIKE</strong> ~55-60% after his Jackson Hole debut. 10Y<br />
+Treasury 4.77% (09-01). Brent ~$85-90 on the collapse of US-Iran talks over the<br />
+Strait of Hormuz; crude spiked ~5% to ~$90. Regime = rising rates + energy-driven<br />
+cost inflation + geopolitical risk premium. Earnings-revision breadth YTD is UP<br />
+for Energy, Materials, Technology, Comm Services; DOWN for Industrials, Consumer<br />
+Discretionary, Staples, Health Care, Real Estate.</p>
+<p><strong>Stock overlay - MU, verdict BUY, score 7, invalidation 820.</strong><br />
+Technicals: $933.44, 50DMA 945.94 (below), +56.8% &gt;200DMA, 1m +12.5%, 3m -12.3%,<br />
+-23.1% off 52wHi, RSI14 53. The 08-03 VETO (score 3, "post-earnings momentum<br />
+unwind ... 1m -28%") was the right read of a falling knife and was wrong ex-post:<br />
+MU closed 829.50 on 08-03 and 933.44 today, +12.5%. The forward setup has changed<br />
+character - the unwind stopped and reversed, RSI is neutral with room, price is<br />
+back at the 50DMA rather than 20% under it. Fundamentals tightened rather than<br />
+loosened: Samsung sought up to +20% on 3Q26 DRAM contracts and raised 32GB DDR5<br />
+modules to $239 from $149 in September; SK Hynix and Micron are effectively sold<br />
+out for 2026; Goldman puts the 2026 DRAM supply-demand gap at 4.9%, the worst in<br />
+15 years. Consensus "Strong Buy", average PT ~$1,515 against $933 spot - this is<br />
+not the priced-for-perfection setup that normally triggers the veto. Devil's<br />
+advocate, and the reason this is a 7 and not an 8: fiscal-Q4 earnings land<br />
+<strong>2026-09-30 after the close</strong>, one day before the October rebalance, so the<br />
+sleeve holds through a binary print it cannot rebalance out of; and August analyst<br />
+revisions were downward (Mizuho 1375-&gt;1300 on 08-25, Citi 1400-&gt;1150 on 08-10)<br />
+even as the physical market tightened. Invalidation 820 sits just below the 08-03<br />
+low close of 829.50, the only real support in the range.</p>
+<p><strong>Sector overlay - top-4 XLK / XLE / XLI / XLV.</strong></p>
+<ul>
+<li><strong>XLK HOLD, score 6, invalidation 177.</strong> $183.64, just above 50DMA 182.51,<br />
+    +15.0% &gt;200DMA, 1m +3.1%, 3m -7.4%, RSI 41. Rate-hike odds are a real<br />
+    long-duration headwind, but tech earnings estimates for 2026 and 2027 have<br />
+    been revised HIGHER across all six industries on the AI build-out, and<br />
+    momentum is not fading (above 50DMA, 1m positive) - the rubric vetoes only on<br />
+    fading momentum AND a macro headwind. 177 is just under the 08-03 low close<br />
+    of 178.04.</li>
+<li><strong>XLE HOLD, score 7, invalidation 58.</strong> $64.77, 50DMA 58.57, +18.7% &gt;200DMA,<br />
+    1m +10.2%, 3m +11.7%, at its 52-week high, RSI 75. The energy shock that is<br />
+    the macro headwind everywhere else is this sector's tailwind, and Energy<br />
+    carries one of the largest upward revision jumps YTD. The honest caveat is<br />
+    crowding: RSI 75 at a 52w high on a geopolitical premium that unwinds on any<br />
+    Hormuz de-escalation headline. Not a veto - the rubric's veto needs fading<br />
+    momentum plus a headwind, and XLE has neither. Invalidation 58 is just below<br />
+    the 50DMA (58.57) and just above the 08-05 low close (57.31); it is a wide<br />
+    -10.5% stop, which is what the stated convention yields for a name this<br />
+    extended above its own average. Flagged rather than tightened, because<br />
+    tightening it ad hoc would be tuning the rubric to taste.</li>
+<li><strong>XLI VETO, score 3, invalidation 170.</strong> $172.73, 50DMA 181.59 (5% below it),<br />
+    only +1.4% &gt;200DMA, 1m -5.7%, RSI14 <strong>16</strong>, and today's close is a fresh low<br />
+    for the period - there is no support beneath it. All four macro prompts point<br />
+    the same way: rate-hike odds hit the cyclical; the energy shock is explicitly<br />
+    a margin-compression input-cost problem for manufacturing and transportation;<br />
+    Industrials carry DOWNWARD earnings revisions YTD; and the sector's forward<br />
+    P/E is stretched on top of that. Fading momentum AND a macro headwind - the<br />
+    textbook veto. This slot goes to cash, not redeployed. 170 is approximately<br />
+    the 200DMA (implied ~170.3 from the +1.4% reading), the next real level.</li>
+<li><strong>XLV HOLD, score 7, invalidation 163.5.</strong> $171.67, 50DMA 164.60, +10.7%<br />
+    &gt;200DMA, 1m +5.8%, 3m +17.3%, -2.3% off 52wHi, RSI 57. Best risk-adjusted<br />
+    setup of the four: a defensive with strengthening relative performance and<br />
+    attractive valuation, insulated from energy input costs, and the natural<br />
+    destination of a rotation out of long duration into a hiking Fed. Marked down<br />
+    from an 8 only because Health Care's earnings estimates are LOWER than at the<br />
+    start of the year - the price trend is running ahead of the revisions. 163.5<br />
+    is just below the 50DMA and just above the 08-04 low close of 162.10.</li>
+</ul>
+<p><strong>Cascades.</strong> The stock cascade is satisfied at #1: MU BUY means <code>llm_cascade_top1</code><br />
+holds MU, identical to the control this month - a legitimate outcome, not a<br />
+missing evaluation. The sector cascade needs 4 HOLDs and XLI is vetoed, so it<br />
+walks to #5:</p>
+<ul>
+<li><strong>XLB HOLD, score 6, invalidation 51.</strong> $52.07, 50DMA 51.74 (just above),<br />
+    +4.3% &gt;200DMA, 1m +2.1%, 3m +1.1%, -3.0% off 52wHi, RSI 45. Materials carry<br />
+    one of the largest upward revision jumps YTD and commodity inflation supports<br />
+    pricing power. Weak absolute momentum, but not fading, so not a veto. A 6,<br />
+    honestly marginal. 51 is both just below the 50DMA and the 08-03 low close<br />
+    (51.01).</li>
+</ul>
+<p>Cascade sector picks would therefore be XLK, XLE, XLV, XLB.</p>
+<p>Kill-switch bookkeeping, unchanged: the experiment is still inside its 12-month /<br />
+30-pick window and both overlays remain expected to fail. Nothing here was tuned<br />
+to flatter them - the one veto this month is the sector with the worst technicals<br />
+and the worst macro read, and the stock BUY reverses last month's veto on the<br />
+same name because the setup inverted, not because the veto was uncomfortable.</p>
+<h2 id="dn6---what-was-deliberately-not-done-and-why">DN.6 - What was deliberately not done, and why</h2>
+<ul>
+<li><code>rebalance.bat</code> NOT run. It would have slipped the guard (DN.3) to do the<br />
+    four things the guard withholds from an agent, including live Alpaca paper<br />
+    orders.</li>
+<li><code>rebalance_log.md</code> NOT stamped. Leaving 2026-08-03 in place keeps the month<br />
+    gate OPEN so a retry is possible; stamping would have locked out September<br />
+    exactly as the 2026-08-04 audit's finding 1 described.</li>
+<li>Frozen regression tests NOT run. No Python changed this run, and 18:03-18:15<br />
+    CDT sits inside the DB-heavy window CLAUDE.md says to avoid. Stated rather<br />
+    than claimed passing.</li>
+<li>The <code>overlay_prep</code> defects in DN.4 NOT fixed. Out of scope for a scheduled<br />
+    rebalance run, and a code change there needs the frozen-test gate.</li>
+</ul>
+<p><strong>Net: September 2026 is UN-REBALANCED as of this entry.</strong> Every sleeve still<br />
+holds its 08-03 targets, the LLM decision log has no 2026-09-01 rows, and no<br />
+state moved in <code>var/trades.db</code>. Six decisions and one rebalance are owed, and all<br />
+seven are Evan's to run.</p>
+<h1 id="appendix-do---scheduled-daily-audit-dn-confirmed-in-full-and-the-guard-is-inverted---it-blocks-the-legitimate-path-while-the-bat-wrapper-walks-past-it-2026-09-01-2014-cdt">Appendix DO - Scheduled daily-audit: DN confirmed in full, and the guard is INVERTED - it blocks the legitimate path while the .bat wrapper walks past it (2026-09-01, ~20:14 CDT)</h1>
+<p><strong>Audit run — 5 findings, top: <code>pretooluse-trading-guard.js</code> inspects only the single top-level<br />
+command string, so it denies the scheduled task's own typed decide calls (blocking legitimate<br />
+automation) while <code>rebalance.bat</code> runs four guarded operations INSIDE itself and passes untouched.</strong></p>
+<p>Cold, read-only, budget-constrained (single agent, no fan-out). Nothing was traded, rebalanced,<br />
+or executed. DN.1–DN.4 all confirmed against disk.</p>
+<h2 id="do1-findings">DO.1 Findings</h2>
+<ol>
+<li><strong>HIGH, confirmed — the live blocker.</strong> <code>scripts/hooks/pretooluse-trading-guard.js:39-40</code><br />
+   (rule 3, <code>/_ops\s+decide/i</code>) denies the exact commands the scheduled task's Step 3 requires<br />
+   (<code>monthy-llm-rebalance/SKILL.md:75</code> and <code>:84</code>), with no bypass flag or session exemption.<br />
+   Fix: a narrow named override set only inside the scheduled task's own launch env<br />
+   (never interactively) — not a loosened regex.</li>
+<li><strong>HIGH, confirmed — the mirror-image hole.</strong> The hook reads only<br />
+<code>payload.tool_input.command</code> (<code>:76-79,94</code>) and never inspects subprocesses.<br />
+<code>scripts/momentum/rebalance.bat</code> internally runs four guarded operations — <code>:92</code>/<code>:107</code><br />
+   (rule 2), <code>:138</code> (rule 2), <code>:162</code>/<code>:168</code> (rule 2), <code>:200</code> (rule 4) — none of which appear in<br />
+   the top-level <code>cmd /c ...rebalance.bat</code> string, so the guard allows the whole thing.<br />
+   The hook's own header comment (<code>:32-33</code>) states the intent it misses.<br />
+   Fix: either statically re-scan <code>.bat</code> targets against the same RULES, or move enforcement<br />
+   into the Python entry points so no wrapper can hide it.<br />
+   (<code>overlay_prep.bat</code> and <code>ladder_rebalance.bat</code> checked — guarded patterns appear only in<br />
+   comments, no live invocations.)</li>
+<li><strong>MEDIUM, confirmed (DN.4).</strong> <code>scripts/momentum/overlay_prep.py:88-95</code> prints<br />
+   "NAME UNCHANGED - no new decision required" and returns without checking whether <em>today's</em><br />
+   decision row exists; the consumer <code>scripts/momentum/llm_overlay_ops.py:214</code> does an exact-date<br />
+   lookup and refuses at <code>:218</code>. On 09-01 MU is unchanged, so <code>overlay_prep</code> says 0 owed while the<br />
+   trading path would refuse for want of a same-day MU row.<br />
+   Fix: <code>_stock_section</code> must also call <code>decision_for_ticker(as_of, ticker)</code> and report OWED<br />
+   whenever that exact-date row is missing, regardless of whether the name changed.</li>
+<li><strong>LOW, confirmed.</strong> <code>trading_bot/strategies/llm_overlay.py:142-154</code> (<code>latest_decision</code>) is<br />
+   ticker-blind and can print another ticker's row under the MU section via<br />
+<code>overlay_prep.py:89</code>. The ticker-safe <code>latest_decision_for(ticker, as_of)</code> already exists at<br />
+<code>:156-167</code> and is used correctly on the trading path.<br />
+   Fix: point <code>overlay_prep.py:89</code> at <code>latest_decision_for(held_t, as_of)</code>.</li>
+<li><strong>NIT, correction to DN.3.</strong> DN.3 attributes <code>scripts.momentum.monthly_rebalance</code> to rule 1<br />
+   (<code>paper_rebalance</code>); the literal string never matches, so that command would not have tripped<br />
+   rule 1 even typed unwrapped. <code>monthly_rebalance.py:196,136</code> reaches <code>paper_rebalance.rebalance()</code><br />
+   by in-process import, which the hook structurally cannot see regardless of <code>.bat</code> wrapping.<br />
+   DN.3's overall conclusion stands — four other lines in <code>rebalance.bat</code> do genuinely escape.</li>
+</ol>
+<h2 id="do2-verified-healthy-by-runningreading-directly">DO.2 Verified HEALTHY by running/reading directly</h2>
+<ul>
+<li>Guard layers BOTH live: 5/5 deny rules and the hook on matcher <code>Bash|PowerShell</code> present in<br />
+<strong>both</strong> <code>Trading/.claude/settings.json</code> and <code>~/.claude/settings.json</code>;<br />
+<code>node scripts/hooks/test_trading_guard.js</code> → <strong>20 passed, 0 failed</strong>.<br />
+  The hook also blocked one of the auditor's own greps mid-run — live proof, not a string assertion.</li>
+<li>Live read-only DB check: <code>llm_overlay_log</code> and <code>sector_overlay_log</code> both have <strong>0 rows</strong> for<br />
+<code>decision_date='2026-09-01'</code>, confirming DN.1/DN.6's "nothing logged" against disk, not prose.</li>
+<li><code>rebalance_log.md:3</code> reads <code>Last rebalance: 2026-08-03</code> — the month gate is deliberately still<br />
+  open, matching DN.6. September remains UN-REBALANCED.</li>
+<li><code>rebalance.bat</code>'s RC_FAIL/errorlevel capture intact around all four guarded steps (the DI.1 fix).</li>
+<li>The trading path itself (<code>cmd_rebalance</code> → <code>decision_for_ticker</code>) uses the correct exact-date,<br />
+  ticker-aware lookup — <strong>the DN.4 bug is confined to the display/gather path, no state-corruption risk.</strong></li>
+<li>Live task specs match their <code>docs/scheduled-tasks/</code> snapshots, 4/4 byte-identical.</li>
+</ul>
+<h2 id="do3-two-live-scheduler-findings-from-this-sweeps-step-0">DO.3 Two live scheduler findings from this sweep's STEP 0</h2>
+<ul>
+<li><strong>MISSING SESSION.</strong> <code>daily_report.md</code> has no <code>2026-09-01 ... Post-Market Close Analysis</code><br />
+  entry. Not a race — still absent 60 minutes after the task fired. Root cause proven from the<br />
+  session transcript: the 19:01 <code>daily-trade-check-2</code> run hit HTTP 429<br />
+  "session limit · resets 8pm" and died at ~19:16 before appending. <code>daily-audit</code> fired at 19:05<br />
+  into the same quota window. <strong>Two scheduled Claude sessions are scheduled to collide at 19:00,<br />
+  and a killed run leaves no local log — absence is the only detector.</strong></li>
+<li><strong>CRON DRIFT (new, 4th documented on this machine).</strong> <code>HANDOFF.md:650</code> states <code>daily-audit</code> =<br />
+<code>0 7 * * *</code> (~7:05am daily). Live is <code>0 19 1-7 * *</code> — 7 PM, days 1–7 only. Wrong on time AND<br />
+  frequency; the real consequence is ~23 days a month with no audit at all.</li>
+<li>Also: <code>llm rebal</code> <strong>self-healed</strong> — it ran 2026-09-01 17:59 with LastTaskResult <code>0x00000000</code>.<br />
+<code>HANDOFF.md:607</code>'s "CURRENTLY FAILING and has been since 2026-08-02" is now stale.</li>
+</ul>
+<h2 id="do4-not-checked">DO.4 Not checked</h2>
+<p>Whether <code>overlay_prep.bat</code> producing no output under <code>cmd /c</code> (DN.1's aside) is reproducible —<br />
+out of scope and left alone to respect the read-only constraint.</p>
+<hr />
+<h1 id="appendix-dp---september-did-rebalance-by-hand-evan-ran-the-six-blocked-decisions-and-rebalancebat-himself-at-2155-cdt-clean-end-to-end-7676-pass-128-alpaca-orders-frozen-d00000pp-supersedes-dns-closing-line-and-do2s-september-remains-un-rebalanced-do5s-correction-to-dn3-accepted-all-three-findings-still-open-2026-09-01-2220-cdt">Appendix DP - September DID rebalance, by hand: Evan ran the six blocked decisions and rebalance.bat himself at 21:55 CDT, clean end to end (76/76 PASS, 128 Alpaca orders, frozen d=0.0000pp). Supersedes DN's closing line AND DO.2's "September remains UN-REBALANCED". DO.5's correction to DN.3 accepted. All three findings still open (2026-09-01, ~22:20 CDT)</h1>
+<p>Written 2026-09-01 ~22:20 CDT. Three entries now cover one evening and they must<br />
+be read in order — <strong>DN</strong> (18:15, the block), <strong>DO</strong> (20:14, an independent<br />
+scheduled audit that confirmed DN cold), <strong>DP</strong> (this, 22:20, the resolution).<br />
+DN and DO are left unedited per the append-only rule.</p>
+<p><strong>This entry supersedes two earlier statements, both true when written:</strong><br />
+DN's closing "September 2026 is UN-REBALANCED as of this entry", and DO.2's<br />
+"<code>rebalance_log.md:3</code> reads <code>Last rebalance: 2026-08-03</code> ... September remains<br />
+UN-REBALANCED". Both were accurate at 18:15 and 20:14. As of <strong>22:09:55 CDT</strong><br />
+September is rebalanced.</p>
+<h2 id="dp1---accepting-do5s-correction-to-dn3">DP.1 - Accepting DO.5's correction to DN.3</h2>
+<p>DO.5 is right and DN.3 was wrong on one attribution. DN.3 listed<br />
+<code>scripts.momentum.monthly_rebalance</code> under guard rule 1 (<code>/paper_rebalance/i</code>).<br />
+The literal string never appears in that command, so it would not have tripped<br />
+rule 1 even typed unwrapped — <code>monthly_rebalance.py:196,136</code> reaches<br />
+<code>paper_rebalance.rebalance()</code> by in-process import, which the hook structurally<br />
+cannot see with or without a <code>.bat</code> around it. DN.3's conclusion is unaffected:<br />
+four other lines in <code>rebalance.bat</code> do genuinely escape rules 2 and 4, which is<br />
+enough for the finding to stand. Recording the correction rather than quietly<br />
+restating the claim.</p>
+<h2 id="dp2---what-evan-did-and-the-real-numbers">DP.2 - What Evan did, and the real numbers</h2>
+<p>Evan ran the six <code>decide</code> calls from DN.5 by hand, then<br />
+<code>cmd /c ...\scripts\momentum\rebalance.bat</code>. Started <strong>21:55:15 CDT</strong>, exited<br />
+<strong>22:09:55 CDT</strong> with <strong>code 0</strong>. Elapsed <strong>14m40s</strong>, of which<br />
+<code>daily_price_refresh</code> was 1m50s (the <code>monthly_rebalance</code> dispatcher started<br />
+21:57:05).</p>
+<ul>
+<li><code>rebalance_log.md</code> stamped <strong><code>Last rebalance: 2026-09-01</code> / <code>Status: OK</code></strong> —<br />
+    OK, not PARTIAL, so no step returned non-zero.</li>
+<li><code>verify_run --mode monthly</code>: <strong>RESULT: PASS (76/76 sleeves OK)</strong>, cadence<br />
+    check <code>last_rebalance(2026-09-01/OK) settled_month(2026-08)</code>.</li>
+<li>Frozen regression tests, run afterwards against the same working tree:<br />
+<strong>all 4 configs d=±0.0000pp, trade counts exact</strong> — momentum_v1 2023_Q4<br />
+    +14.5547%/70 and 2025_H1 +1.8792%/156; momentum_v2 2023_Q4 +14.4062%/38 and<br />
+    2025_H1 +10.2194%/87. Run despite this session changing no Python, because<br />
+    the working tree carries uncommitted edits to <code>paper_rebalance.py</code> and<br />
+<code>ladder_forward_rebalance.py</code> from a prior session and the rebalance ran<br />
+    straight through that code.</li>
+</ul>
+<p>No two-writer collision: <code>TradingLadderRebalance</code> finished 20:30, 85 minutes<br />
+clear of the 21:55 start.</p>
+<h2 id="dp3---the-six-decisions-produced-exactly-the-intended-book">DP.3 - The six decisions produced exactly the intended book</h2>
+<p>Verified against <code>paper_positions</code> / <code>paper_nav</code> directly, not inferred from the<br />
+verify PASS — an un-rebalanced sleeve passes verify too (continuous NAV,<br />
+reconciled cash), which is precisely why the check has to be positive. That<br />
+blind spot is noted in DN.6 and in <code>monthly_rebalance_trigger_timing_bug</code>.</p>
+<pre><code>mom_roa_top1_paper              [1] MU              entry 2026-08-03   control; already held MU, correctly not re-traded
+llm_overlay_mom_roa_top1_paper  [1] MU              entry 2026-09-01   the BUY acting - was in cash after August's MU VETO
+llm_cascade_top1_paper          [1] MU              entry 2026-09-01   first BUY at #1 = same as control, as DN.5 forecast
+sector_top4_paper               [4] XLE XLI XLK XLV                    mechanical control, includes the vetoed XLI
+llm_overlay_sector_top4_paper   [3] XLE XLK XLV     cash $23,087.99    XLI slot to cash = 22.7% of NAV; the veto working
+llm_cascade_sector4_paper       [4] XLB XLE XLK XLV                    XLB substituted for vetoed XLI, as DN.5 forecast
+</code></pre>
+<p>The substantive event is the stock treatment re-entering the market on 09-01. It<br />
+sat in cash through August on the MU VETO; reversing that veto (DN.5) put it<br />
+back in. Control and treatment now hold the same name for the first time since<br />
+08-03, so this month measures the <em>timing</em> of the veto and its reversal, not a<br />
+name difference.</p>
+<p>NAVs at the 2026-09-01 close, snapshot not verdict:</p>
+<pre><code>mom_roa_top1_paper              $ 92,995.89
+llm_overlay_mom_roa_top1_paper  $ 99,950.07
+llm_cascade_top1_paper          $ 97,953.75
+sector_top4_paper               $105,543.94
+llm_overlay_sector_top4_paper   $101,894.04
+llm_cascade_sector4_paper       $100,853.39
+</code></pre>
+<h2 id="dp4---alpaca-with-the-caveat-the-number-invites">DP.4 - Alpaca, with the caveat the number invites</h2>
+<p><strong>128 <code>POST /v2/orders</code>, every one HTTP 200, zero non-200 responses</strong> across the<br />
+3 mirrored accounts (<code>var/alpaca_request_ids.log</code>, window <code>2026-09-02T03:*</code> UTC<br />
+= 22:0x CDT), plus 5 <code>GET /v2/assets/{UCTT,PACS,MKSI,BTSG,ACMR}</code> eligibility<br />
+probes, all 200.</p>
+<p><strong>HTTP 200 on an order POST means accepted at submit, not filled.</strong> A reject can<br />
+arrive asynchronously afterwards, and <code>verify_run</code> never calls the API — its own<br />
+output says so and tells the reader to eyeball the sync's console summary<br />
+instead. That summary is in Evan's terminal, not in any file this entry can<br />
+read. The "132 orders / 0 rejects" phrasing used for August (record CP) is a<br />
+stronger claim than a request-id log alone can support; this entry deliberately<br />
+does not repeat it.</p>
+<h2 id="dp5---kill-switch-tally">DP.5 - Kill-switch tally</h2>
+<p>Counted with <code>count(*)</code>, never <code>max(id)</code> — ids 4, 5 and 9 are missing from<br />
+<code>llm_overlay_log</code> (record DG.4), so <code>max(id)</code> would report 17 against a true 14:</p>
+<ul>
+<li>Stock overlay: <strong>14 decisions across 7 decision dates</strong>, 2026-05-29 →<br />
+    2026-09-01. 5 BUY / 9 VETO.</li>
+<li>Sector overlay: <strong>27 decisions across 5 decision dates</strong>, 2026-06-12 →<br />
+    2026-09-01. 19 HOLD / 8 VETO.</li>
+</ul>
+<p>Against the pre-committed bar (12 months / &gt;=30 independent picks) the stock arm<br />
+is ~3 months in and short on both axes. Nothing is evaluable yet — the expected<br />
+state, not a delay.</p>
+<h2 id="dp6---tonight-proved-the-wrapper-gap-nothing-was-fixed">DP.6 - Tonight PROVED the wrapper gap. Nothing was fixed.</h2>
+<p>DN.3 and DO.1 finding 2 argued from the code that <code>cmd /c ...\rebalance.bat</code><br />
+escapes the guard. Tonight is the empirical demonstration: the same batch whose<br />
+constituent operations the guard denies one by one ran end to end — the four<br />
+<code>_ops rebalance</code> paths and the live Alpaca order submission included — because<br />
+it was invoked as a wrapper.</p>
+<p>Evan running it himself is the intended authorisation path, so nothing improper<br />
+happened. The finding is unchanged by that: the guard's protection against an<br />
+<em>agent</em> doing the same thing is one <code>cmd /c</code> deep.</p>
+<p><strong>Open after tonight, all three untouched:</strong></p>
+<ol>
+<li><strong>The guard-vs-automation collision</strong> (DN.2, DO.1 finding 1). Nothing tonight<br />
+   fixes it. <code>monthy-llm-rebalance</code> hits the identical Step 3 denial on<br />
+<strong>2026-10-01</strong> and every month after. September was rescued by hand inside<br />
+   four hours; that is not a mechanism, it is Evan being awake. Either the hook<br />
+   gets a narrow override the scheduled task's own launch env can present<br />
+   (DO.1's proposed shape — not a loosened regex), or monthly rebalances are<br />
+   manual from here and the task file should say so instead of describing an<br />
+   automation that cannot complete.</li>
+<li><strong>The wrapper gap</strong> (DN.3, DO.1 finding 2, DP.6).</li>
+<li><strong>The two <code>overlay_prep</code> defects</strong> (DN.4, DO.1 findings 3 and 4). Both would<br />
+   have misled tonight's run if the cascade section had not contradicted the<br />
+   stock section.</li>
+</ol>
+<p>This session changed no Python. The only files it wrote are documentation:<br />
+this entry, DN, <code>HANDOFF.md</code>, and the memory file<br />
+<code>trading-guard-blocks-monthly-rebalance.md</code>.</p>
+<h2 id="dp7---two-live-findings-from-do3-that-are-not-mine-and-remain-open">DP.7 - Two live findings from DO.3 that are NOT mine and remain open</h2>
+<p>Flagged here only so they are not lost between entries — DO.3 owns them:<br />
+two scheduled Claude sessions collide at 19:00 and a quota-killed run leaves no<br />
+local log (absence is the only detector), and <code>daily-audit</code>'s live cron is<br />
+<code>0 19 1-7 * *</code> against <code>HANDOFF.md:650</code>'s claimed <code>0 7 * * *</code> — the 4th<br />
+documented cron drift on this machine, costing ~23 days a month with no audit.<br />
+Neither was touched tonight.</p>
+<h1 id="appendix-dq---doc-sync--drift-check-head-does-not-know-september-rebalanced---dmdndodp-have-sat-uncommitted-for-5-days-and-the-rebalance-log-reverting-would-re-open-the-month-gate-on-an-already-rebalanced-month-2-task-table-drifts-fixed-the-bins-had-none-of-the-guard-era-the-wrapper-fix-is-proposed-and-unapproved-2026-09-06-1330-cdt">Appendix DQ - Doc sync + drift-check: HEAD does not know September rebalanced - DM/DN/DO/DP have sat UNCOMMITTED for 5 days, and the rebalance log reverting would re-open the month gate on an already-rebalanced month. 2 task-table drifts fixed; the bins had NONE of the guard era; the wrapper fix is proposed and unapproved (2026-09-06 ~13:30 CDT)</h1>
+<p>Evan: "update all /project-memory docs then write a handoff prompt." No code<br />
+changed. This entry is the doc sync, the drift-check that preceded it, and one<br />
+finding that outranks everything else in it.</p>
+<h2 id="dq1-the-finding-head-does-not-know-september-rebalanced">DQ.1 The finding: HEAD does not know September rebalanced</h2>
+<p><strong>Eight files have been uncommitted since 2026-09-01 22:16 — five days.</strong> The<br />
+session that wrote them stopped without committing; nothing has touched the repo<br />
+since except the daily-report tasks (09-02, 09-03, 09-04).</p>
+<pre><code>M  HANDOFF.md
+M  docs/Project Record — Full Chronological History.md     &lt;- DM, DN, DO, DP live ONLY here
+M  docs/Project Record — Full Chronological History.html
+M  rebalance_log.md                                        &lt;- "2026-09-01 / OK"; HEAD says "2026-08-03"
+M  scripts/git-hooks/pre-commit                            &lt;- the LIVE hook (core.hooksPath)
+M  scripts/momentum/paper_rebalance.py                     &lt;- from 2026-08-26, never committed
+M  scripts/momentum/ladder_forward_rebalance.py            &lt;- same
+?? scripts/momentum/test_strict_fill_date.py               &lt;- same
+</code></pre>
+<p>Appendices <strong>DM, DN, DO, DP</strong> are working-tree only — verified by<br />
+<code>git show HEAD:&lt;record&gt; | grep -c "^# Appendix D[MNOP] "</code> returning 0 for each.<br />
+That is the entire account of the September rebalance: the guard block (DN), the<br />
+independent cold audit confirming it (DO), and Evan's by-hand resolution (DP).</p>
+<p>Two consequences, both concrete:</p>
+<ol>
+<li>If this tree is lost or reverted, that account goes with it and there is no<br />
+   other copy.</li>
+<li><code>rebalance_log.md</code> reverts to <code>2026-08-03</code>, which <strong>re-opens the month gate on<br />
+   an already-rebalanced month</strong> — <code>check_month_gate</code> would stop refusing, and a<br />
+   September re-run trades against a book that already moved.</li>
+</ol>
+<p>Not committed by this session: the tree is another session's work, mixed across<br />
+the same files this entry had to edit, and committing it means adopting<br />
+uncommitted edits to <code>paper_rebalance.py</code> — the sleeve rebalancer — that this<br />
+session did not write and has not reviewed. Reported for Evan's call.</p>
+<h2 id="dq2-drift-check-of-handoff-against-live-state">DQ.2 Drift-check of HANDOFF against live state</h2>
+<p>Cheap checks only, all read-only, per the drift-check workflow.</p>
+<table>
+<thead>
+<tr>
+<th>HANDOFF claim</th>
+<th>observed 2026-09-06</th>
+<th>verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>76 sleeves</td>
+<td>76</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td><code>verify_run</code> PASS nightly</td>
+<td>PASS 76/76, last 5 runs</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td><code>slippage_log</code> 0 rows (M6 open)</td>
+<td>0</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td><code>positions</code> residue 137 rows</td>
+<td>137</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td>append-only decision triggers live</td>
+<td>6</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td><code>monthy-llm-rebalance</code> = <code>0 18 * * *</code></td>
+<td><strong><code>0 18 1-5 * *</code></strong> (days 1-5 only)</td>
+<td><strong>DRIFT</strong></td>
+</tr>
+<tr>
+<td>task table lists every live task</td>
+<td><strong><code>audit-all-projects-2026-08-21</code> missing</strong></td>
+<td><strong>DRIFT</strong></td>
+</tr>
+<tr>
+<td><code>daily-audit</code> = <code>0 7 * * *</code></td>
+<td><code>0 7 * * *</code></td>
+<td>MATCH (DO.3's <code>0 19 1-7 * *</code> has since been corrected)</td>
+</tr>
+<tr>
+<td><code>hellllo</code> / <code>hello-just-say-hi-back</code> deleted, <code>hellow</code> live</td>
+<td>confirmed, both absent</td>
+<td>MATCH</td>
+</tr>
+<tr>
+<td>Last updated 2026-09-01</td>
+<td>file 5 days stale</td>
+<td>DRIFT (fixed)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Both drifted rows are in the scheduled-task table</strong>, which is the fourth time a<br />
+cron in this project has drifted from its documentation (records AP, BS, CN, and<br />
+DO.3). <code>monthy-llm-rebalance</code> is now days 1-5 only; per the memory file it was<br />
+found on 2026-09-02 and deliberately NOT restored — Evan's call — so HANDOFF now<br />
+records the live value and that decision rather than the old one. Its next run is<br />
+2026-10-01, which is inside the window, so October is not skipped by this.</p>
+<p><strong>A near-miss worth recording, because it nearly became a false finding.</strong><br />
+<code>price_cache</code> has 0 closes for 2026-09-05 and there is no <code>paper_nav</code> row for it,<br />
+while <code>verify_run</code> reported PASS — exactly the shape of open finding 3/E2 (the<br />
+continuity calendar is derived from the same table it checks, so a wholly-lost<br />
+trading day cannot be seen). It is not that: <strong>2026-09-05 was a Saturday</strong>,<br />
+checked with <code>date -d 2026-09-05 +%A</code> rather than counted by hand. Latest NAV<br />
+2026-09-04 (Friday) is correct. The finding remains open and untested by this.</p>
+<h2 id="dq3-the-codebase-memory-bins-had-none-of-the-guard-era">DQ.3 The codebase-memory bins had none of the guard era</h2>
+<p>Grepping all 12 bins for <code>trading-guard|pretooluse</code>, <code>prefix matcher|deny rule</code>,<br />
+<code>errorlevel</code>, <code>check_month_gate</code>, and <code>wrapper</code> returned <strong>zero hits</strong> — six<br />
+weeks of safety-control work (records DI through DP) existed only in the record,<br />
+which is exactly the material a future session needs <em>before</em> it writes code.<br />
+INDEX.md had not been touched since 2026-07-28.</p>
+<p>Added, sourced from the dated entries:</p>
+<ul>
+<li><strong><code>gotchas.md</code></strong> — <code>if errorlevel N</code> is GREATER-OR-EQUAL and blind to a negative<br />
+  crash code (cost twice: DI.1, DL.1); a parenthesized cmd.exe block ends at the<br />
+  first <code>)</code> <em>inside echo text</em> (DG.1); <code>Bash(...)</code> deny rules are PREFIX matchers<br />
+  and cannot block a mid-command token (DJ.1 wrong / DK.1 correct); the guard's<br />
+<code>.bat</code> wrapper escape, still OPEN, with the recursion and comment-stripping a<br />
+  fix must handle; the guard's raw-string match that denies merely NAMING a<br />
+  guarded operation.</li>
+<li><strong><code>security.md</code></strong> — a new section on the PreToolUse guard: its 5 rules, that it<br />
+  fires only on Claude's tool calls and deliberately not on Evan's terminal (which<br />
+  is how September was rescued, DP.2, and why enforcement must NOT move into the<br />
+  Python entry points), and both OPEN holes.</li>
+<li><strong><code>disclosure.md</code></strong> — created as a dated stub. The standards set requires one<br />
+  and Trading had none; it carries the constraints that already bind any outward-<br />
+  facing artifact (Evan is 17, PAPER only, every number traces to a record entry).</li>
+<li><strong><code>INDEX.md</code></strong> — refreshed, plus three cross-bin invariants that were nowhere:<br />
+  read the LIVE cron never a doc; append record entries with the script, never by<br />
+  hand (record BT); enforcement stays in the agent-only layer.</li>
+</ul>
+<p>All bins remain well under the 200-line cap; INDEX is 25 lines against a 75 cap.</p>
+<h2 id="dq4-the-wrapper-fix-was-proposed-and-not-approved">DQ.4 The wrapper fix was proposed, and not approved</h2>
+<p>Evan asked for the <code>.bat</code> wrapper gap (DN.3 / DO.1 finding 2 / DP.6) to be fixed<br />
+first, with an explicit constraint: propose the diff and get his OK before writing,<br />
+because the file is a safety control. <strong>The diff was proposed on 2026-09-06 and no<br />
+code was written.</strong> Design, settled and grounded in a scan of all 10 <code>.bat</code> files:</p>
+<ul>
+<li>Statically read any <code>.bat</code>/<code>.cmd</code> the command names, match its contents against<br />
+  the same <code>RULES</code>, and <strong>recurse</strong> — <code>monthly_auto.bat</code> has no direct match at all<br />
+  and reaches the same four guarded operations purely by calling <code>rebalance.bat</code>.</li>
+<li><strong>Strip <code>REM</code>/<code>::</code> comments before matching.</strong> Not cosmetic: <code>overlay_prep.bat:6</code><br />
+  names a guarded operation only in a comment, so a raw content scan would deny a<br />
+  legitimate read-only gather script.</li>
+<li>Do NOT strip <code>echo</code> lines. <code>rebalance.bat:106,137,203</code> echo help text containing<br />
+  guarded tokens; matching them can only over-deny, which is the safe direction.</li>
+<li>Unreadable target → warn and allow, matching the file's fail-open-but-noisy<br />
+  contract: a file that cannot be read cannot be executed either.</li>
+</ul>
+<p>Confirmed on disk: <code>rebalance.bat</code>'s guarded lines are <code>:92</code>, <code>:107</code>, <code>:138</code>,<br />
+<code>:162</code>, <code>:168</code> (rule 2) and <code>:200</code> (rule 4, <code>alpaca_sync --all --execute</code>), all<br />
+genuine invocations; its <code>paper_rebalance</code> hits at <code>:53</code>/<code>:64</code> are comments, which<br />
+independently confirms DO.5's correction to DN.3.</p>
+<p>The second-order bug proved itself immediately: the first analysis script written<br />
+this session was <strong>denied by the guard</strong> because its heredoc contained the literal<br />
+token. Recommendation, stated and unactioned: <strong>accept it</strong>. Telling "mentions"<br />
+from "invokes" inside an arbitrary shell string is the same unsolvable parse, the<br />
+safe direction is over-denying, and the workaround already works — author content<br />
+with the Write tool, keep the Bash command string free of the tokens.</p>
+<h2 id="dq5-prd">DQ.5 PRD</h2>
+<p>Ticked the M3 post-run-verifier criterion, per the instruction the box itself<br />
+carried ("Tick after it verifies clean"). The 2026-08-03 unattended rebalance<br />
+fired via the task and <code>verify_run --mode monthly</code> returned PASS 76/76 (record<br />
+CP); re-confirmed on 2026-09-01, PASS 76/76 (DP.2) — though that one was run BY<br />
+HAND, not unattended. The verifier clause is satisfied; the automation question is<br />
+separate and still open. Open criteria: 4 -&gt; 3.</p>
+<h2 id="dq6-verification">DQ.6 Verification</h2>
+<p>Frozen tests <strong>4/4 d=+/-0.0000pp</strong>, exit 0, run 2026-09-06 ~13:25 CDT. No Python<br />
+changed this session; run anyway because the working tree still carries another<br />
+session's uncommitted edits to the sleeve rebalancer and the ladder forward path:</p>
+<pre><code>[OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+[OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+[OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+[OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+
+All regression tests passed.
+</code></pre>
+<p>This is the THIRD time this session the guard denied a command for merely NAMING a<br />
+guarded operation in a heredoc (DQ.4) - two analysis scripts and the step that filled<br />
+in this very block. The workaround held each time: author with the Write tool, keep<br />
+the Bash command string free of the tokens.</p>
+<p>No Python changed, no DB writes, nothing executed that trades. Files written:<br />
+<code>HANDOFF.md</code>, <code>PRD_ROADMAP.md</code>, four bins (<code>gotchas.md</code>, <code>security.md</code>,<br />
+<code>disclosure.md</code>, <code>INDEX.md</code>), and this entry plus its HTML twin.</p>
+<h2 id="dq7-status">DQ.7 Status</h2>
+<ul>
+<li><strong>Committed: nothing.</strong> The 8-file tree from 2026-09-01 is untouched and still<br />
+  uncommitted, now with this session's doc edits layered on the same files.</li>
+<li><strong>OPEN, unchanged, all three from DP.6:</strong> the guard-vs-automation collision<br />
+  (2026-10-01 hits the identical denial); the wrapper gap (proposed, unapproved);<br />
+  the two <code>overlay_prep</code> defects.</li>
+<li><strong>OPEN from the 08-19 audit:</strong> finding 2 (<code>last_close_on_or_before</code> ignores the<br />
+  NULL-quarantine its siblings honour), finding 3/E2 (<code>verify_run</code>'s calendar is<br />
+  self-derived, so a wholly-lost trading day PASSes), finding 5<br />
+  (<code>check_dependency_cves.py</code> invoked by nothing), finding 9 (<code>\\llm rebal</code><br />
+  failing on a battery flag). Plus DA findings 5 and 6.</li>
+<li><strong>Evan's, unchanged:</strong> the <code>slippage_log</code> live write (M6's last criterion, 0<br />
+  rows); the optional 137-row <code>positions</code> delete.</li>
+<li>Findings from both audits that were never written down remain unrecoverable<br />
+  except by re-auditing.</li>
+</ul>
+<h1 id="appendix-dr---committed-the-september-account--10-doc-files-to-head-3-code-files-held-back-2026-09-06-1340-cdt">Appendix DR - Committed the September account — 10 doc files to HEAD, 3 code files held back (2026-09-06, ~13:40 CDT)</h1>
+<p><strong>Session date: 2026-09-06, ~13:40 CDT</strong> (clock read with <code>date</code>: <code>Sun Sep 6
+13:38:18 CDT 2026</code> / <code>18:38:18 UTC</code> — UTC-5, so CDT). <strong>NO Python was changed by<br />
+this session.</strong> The frozen run below is a tree-state check, not a<br />
+post-change check.</p>
+<h2 id="dr1--what">DR.1 — WHAT</h2>
+<p>Committed the <strong>documentation half</strong> of the 13-file uncommitted tree: 10 files<br />
+(9 modified + 1 untracked). The three trading-path code files were deliberately<br />
+<strong>left out</strong> of this commit and remain uncommitted in the working tree.</p>
+<p>Committed:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Why it is in this commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/Project Record — Full Chronological History.md</code></td>
+<td>Carries Appendices <strong>DM, DN, DO, DP, DQ</strong> — verified absent from HEAD</td>
+</tr>
+<tr>
+<td><code>docs/Project Record — Full Chronological History.html</code></td>
+<td>Script-generated twin, regenerated + staged by the pre-commit hook</td>
+</tr>
+<tr>
+<td><code>HANDOFF.md</code></td>
+<td>2026-09-06 drift-check block (record DQ)</td>
+</tr>
+<tr>
+<td><code>PRD_ROADMAP.md</code></td>
+<td>same session's roadmap sync</td>
+</tr>
+<tr>
+<td><code>rebalance_log.md</code></td>
+<td><code>2026-09-01</code> / <code>Status: OK</code> — HEAD still said <code>2026-08-03</code></td>
+</tr>
+<tr>
+<td><code>.claude/codebase-memory/INDEX.md</code></td>
+<td>bin index</td>
+</tr>
+<tr>
+<td><code>.claude/codebase-memory/gotchas.md</code></td>
+<td>wrapper-gap empirical basis</td>
+</tr>
+<tr>
+<td><code>.claude/codebase-memory/security.md</code></td>
+<td>wrapper-gap constraints</td>
+</tr>
+<tr>
+<td><code>.claude/codebase-memory/disclosure.md</code></td>
+<td>new bin, untracked until now</td>
+</tr>
+<tr>
+<td><code>scripts/git-hooks/pre-commit</code></td>
+<td>see DR.3 — this file was ALREADY LIVE</td>
+</tr>
+</tbody>
+</table>
+<p>NOT committed, still in the working tree:<br />
+<code>scripts/momentum/paper_rebalance.py</code>, <code>scripts/momentum/ladder_forward_rebalance.py</code>,<br />
+<code>scripts/momentum/test_strict_fill_date.py</code>.</p>
+<h2 id="dr2--why">DR.2 — WHY</h2>
+<p>The uncommitted tree was the exposure, not housekeeping. Verified, not assumed:</p>
+<pre><code>git show HEAD:&quot;docs/Project Record — Full Chronological History.md&quot; \
+  | grep -cE &quot;^# Appendix D[MNOP] &quot;     -&gt;  0
+grep -cE &quot;^# Appendix D[MNOPQ] &quot; &lt;tree copy&gt;  -&gt;  5
+</code></pre>
+<p>HEAD contained <strong>no record at all</strong> that September rebalanced. Separately,<br />
+<code>rebalance_log.md</code> in HEAD read <code>2026-08-03</code> while the tree read <code>2026-09-01</code>.<br />
+Losing the tree would therefore have re-opened the monthly gate on a month that<br />
+had already sent <strong>128 real Alpaca PAPER orders</strong> (record DP), inviting a<br />
+duplicate mid-month rebalance.</p>
+<p><code>git diff --stat</code>: 11 modified + 2 untracked, <strong>+1,799 / −11</strong>. Local branch is<br />
+<strong>20 commits ahead of <code>origin/master</code></strong>; nothing was pushed by this session.</p>
+<h2 id="dr3--the-pre-commit-hook-was-already-live-uncommitted">DR.3 — The pre-commit hook was already live, uncommitted</h2>
+<p>Not previously written down, and it inverts the intuition about which state is<br />
+safer:</p>
+<pre><code>git config core.hooksPath   -&gt;  scripts/git-hooks
+</code></pre>
+<p>So <code>scripts/git-hooks/pre-commit</code> <strong>is</strong> the executing hook — its uncommitted<br />
+edit was already running on every commit in this repo, committed or not. That<br />
+edit delegates the record invariants to<br />
+<code>~/.claude/skills/project-memory/hooks/pre-commit-record</code>, which <strong>exists</strong><br />
+(3,106 bytes, dated Aug 20), so the block takes its enforcing path, not its<br />
+warn-and-allow fallback. Committing this file changed no behaviour; it made HEAD<br />
+agree with what was already executing. Leaving it uncommitted was the riskier<br />
+state.</p>
+<h2 id="dr4--why-the-three-code-files-were-held-back">DR.4 — Why the three code files were held back</h2>
+<p>They are another session's edits dated 2026-08-26 and are coherent, not junk —<br />
+but unreviewed here, and they sit on the fill path.</p>
+<p><code>paper_rebalance.py</code> adds a pure predicate <code>_stale_fill()</code> and an opt-in<br />
+keyword <code>strict_fill_date</code> defaulting to <strong>False</strong>, so the seeders, the<br />
+backdater and the frozen specs replay unchanged.<br />
+<code>ladder_forward_rebalance.py:118</code> (verified with <code>grep -n</code>) is the single line<br />
+that opts the live ladder in with <code>strict_fill_date=True</code>.</p>
+<p>The stated failure it targets, quoted from its own docstring: on 2026-08-24,<br />
+<code>market_data.last_close_on_or_before</code> carried forward silently and <strong>41 exits<br />
+across 19 sleeves</strong> filled off the 08-21 close (TPL 383.64 against a true<br />
+373.45), handing the sleeves <strong>$457.00</strong> of proceeds the real bar did not<br />
+support. The docstring argues an aggregate coverage floor cannot catch this —<br />
+08-24 finished at 5,144 closes against a 5,000 floor while five held names were<br />
+still missing — so the guard has to be per-ticker on the fill path.</p>
+<p><strong>Those numbers are quoted from the uncommitted docstring and are NOT<br />
+independently verified by this session.</strong> <code>test_strict_fill_date.py</code> (80 lines,<br />
+pure logic, no DB) was likewise <strong>not run</strong> here. Both are the next review's<br />
+job. Recording them as claims-to-check, not as findings.</p>
+<h2 id="dr5--frozen-regression-tests">DR.5 — Frozen regression tests</h2>
+<p>Run before the commit, real output:</p>
+<pre><code>  [OK  ] momentum_v1/2023_Q4: tpnl=+14.5547% (exp +14.5547%, d= -0.0000pp)  trades=70 (exp 70, d= +0)
+  [OK  ] momentum_v1/2025_H1: tpnl=+1.8792% (exp +1.8792%, d= -0.0000pp)  trades=156 (exp 156, d= +0)
+  [OK  ] momentum_v2/2023_Q4: tpnl=+14.4062% (exp +14.4062%, d= -0.0000pp)  trades=38 (exp 38, d= +0)
+  [OK  ] momentum_v2/2025_H1: tpnl=+10.2194% (exp +10.2194%, d= +0.0000pp)  trades=87 (exp 87, d= +0)
+All regression tests passed.
+</code></pre>
+<p>4/4 at d=±0.0000pp. Run at 13:38 CDT, outside all three busy windows<br />
+(17:00–18:30, 19:45–21:00, 07:30–08:15).</p>
+<h2 id="dr6--still-open-after-this-entry">DR.6 — Still open after this entry</h2>
+<ol>
+<li><strong>The 3 code files</strong> — review, run <code>test_strict_fill_date.py</code>, then a second<br />
+   commit. Until then the <code>strict_fill_date</code> guard is live in the working tree<br />
+   but absent from HEAD.</li>
+<li><strong>Wrapper gap</strong> in <code>scripts/hooks/pretooluse-trading-guard.js</code> (record DQ.4)<br />
+   — proposed 2026-09-06, <strong>not approved, no code written</strong>.</li>
+<li><strong>Guard-vs-automation collision</strong> — rule 3 denies the step<br />
+<code>monthy-llm-rebalance</code> needs, so the task cannot finish itself. 2026-10-01<br />
+   hits the identical denial. Evan's decision, not an implementation.</li>
+<li><code>overlay_prep.py:88-95</code> and <code>:89</code> — two display/gather defects (records<br />
+   DN.4, DO.1 findings 3–4).</li>
+</ol>
+<p>Nothing was pushed. <code>origin/master</code> is unchanged.</p>
 </div>
 </body>
 </html>
