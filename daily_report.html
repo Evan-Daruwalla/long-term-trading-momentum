@@ -128531,6 +128531,927 @@ mtm_catchup: catch-up done: marked=0 skipped_pre_rebalance=0 latest=2026-09-10 c
 4. <strong>The w6040 peak appearing on the weekly or biweekly calendar</strong>, the revised bar for §6a's parameter question.<br />
 5. <strong>XLB recovering above $51.00, or not.</strong> It is the first case where the no-stop cascade holds a position its own thesis has invalidated.<br />
 6. <strong>A non-$10.65 KFII or non-$10.9x UYSC print</strong> would mean a deal or liquidation is moving. KFII's deadline is 2026-11-06.</p>
+<h2 id="report-2026-09-11-friday--pre-market-overnight-research">Report: 2026-09-11 (Friday) — Pre-Market Overnight Research</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong> — Compiled 07:07–07:21 CDT, on-schedule fire. <strong>RULE 0g, FOURTH SESSION: <code>max(nav_date)</code> is 2026-09-09. 2026-09-10 is UNMARKED for all 76 sleeves</strong>, and this run fires before the 07:45 <code>TradingMorningMTM</code> heal, so nothing has been done about it yet. Every 09-10 NAV and move below is <strong>INDICATIVE</strong> (cash + Σ qty × latest close ≤ 09-10). The cache still holds <strong>4,315 closes for 09-10, unchanged overnight</strong>. Held-name coverage is <strong>98.8701%</strong> of position value. The only four unpriced names are two SPACs and two cancelled securities. <strong>Book: 09-09 re-valued $7,729,037.68 → 09-10 INDICATIVE $7,627,673.74, −1.3115%</strong>, against SPY <strong>−0.5994%</strong>, a <strong>−0.71pp relative day</strong>. <strong>NEW FINDING — THAT −1.3115% OVERSTATES THE ECONOMIC LOSS, BECAUSE INSW WENT EX-DIVIDEND $5.05 ON 09-10 AND THE PAPER LEDGER NEVER CREDITS DIVIDENDS.</strong> Yesterday's post-market entry booked INSW's −2.370% close (−$2,889.33 across 43 sleeves) as a loss. On a total-return basis INSW was <strong>+2.457%</strong>. The uncredited dividend is <strong>$5,883.50</strong>, which would make the book <strong>−1.2353%</strong>. The ledger ignoring dividends is a documented convention (record CW), so this is not a new bug. What is new is the size of one ex-date and the fact that a report misread it. <strong>Pre-market:</strong> futures up (Investrade: Dow +0.57%, S&amp;P +0.56%, Nasdaq +0.62%) ahead of <strong>August CPI at 8:30 ET</strong> (consensus <strong>+0.4% m/m, +3.4% y/y; core +0.2% / +2.4%</strong>). 10-year <strong>4.938%</strong>, Brent <strong>$103.65 (−$3.98)</strong>. The memory trio is bouncing with the tape, not against it: <strong>MU $987.93 (+1.08%)</strong>, <strong>STX $871.40 (+1.05%)</strong>, <strong>WDC $465.40 (+0.97%)</strong>, which is <strong>+$8,419.99 (+0.1104% of book)</strong> before the open. LRCX is +1.71%. <strong>The residual ladder's 09-09 factor gradient REVERSED on 09-10.</strong> The ROA-heavy end (<code>mm=5</code>) beat the momentum-heavy end (<code>mm=95</code>) in all three cadences, by 0.26–0.54pp. That confirms yesterday's warning that one day's reading is not a factor verdict. <strong>Correction to the 2026-09-10 pre-market entry:</strong> it said the three cadences hold "materially different name sets". Measured today, all 49 of the <code>mm=5</code> monthly names are held by all three cadences, and 36 names are shared at <code>mm=95</code>. Its "three-way replication" was mostly one portfolio counted up to three times (§6.1). <strong>LLM overlay:</strong> 14 stock decisions (<code>count(*)</code>), 27 sector. The single-name arms all hold MU and all printed −4.8955%/−4.8960%, so nothing separated them. Treatment <strong>$104,653.54</strong>, control <strong>$97,372.59</strong>. The MU stop at $820.00 has <strong>19.20%</strong> headroom at the close. Sector: <strong>XLV headroom 1.32%</strong>, and <strong>XLB (cascade) closed 0.47% below its $51.00 level</strong>. <strong>Critical outstanding:</strong> (1) 09-10 unmarked, with the 07:45 heal pending; (2) <strong>UYSC's current business-combination deadline is 2026-10-01</strong>, 20 days out ($40,987.50, 20 sleeves), extendable in $450,000 three-month steps to 2027-04-01; (3) <strong>KFII's IPO date is now resolved as February 2025</strong> (priced 2025-02-04, units traded 2025-02-05), so the 09-09 entry's "late 2021" was wrong; (4) the benchmark sleeves' stale 09-09 mark is still in <code>paper_nav</code>; (5) APGE/CRNX are still carried as open equity; (6) FOMC 09-15/16 with a hike at <strong>nearly 70%</strong> (CME FedWatch via FXStreet); MU reports 09-30.</p>
+</blockquote>
+<hr />
+<h3 id="0--data-integrity-and-operational-status_6">0 — Data integrity and operational status</h3>
+<p><strong>0a. Clock.</strong> <code>date</code> at compile start: <code>Fri Sep 11 07:07:36 CDT 2026</code> (UTC <code>12:07:36</code>). Draft written from <code>Fri Sep 11 07:16:48 CDT 2026</code>; <code>date</code> immediately before the append: <code>Fri Sep 11 07:21:33 CDT 2026</code>. Offset <strong>UTC−5 → CDT</strong>. Timestamps are CDT unless marked ET/EDT.</p>
+<p><strong>0b. Market-open check.</strong> Friday 2026-09-11 is a normal US trading day. Labor Day (09-07) is behind us, and index futures are quoting a live pre-market session (§2). Sections 1–6 run in full.</p>
+<p><strong>0c. Duplicate check.</strong> <code>grep -n "## Report: 2026-09-11" daily_report.md</code> before this append returned <strong>no lines</strong>. The last two headers are <code>45680: 2026-09-10 Pre-Market</code> and <code>46092: 2026-09-10 Post-Market</code>. This is not a re-fire.</p>
+<p><strong>0d. Cron echo (records CQ.3 / DG).</strong> Read from the live scheduled-tasks list:</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>taskId</code></td>
+<td><code>daily-trade-check</code></td>
+</tr>
+<tr>
+<td><code>cronExpression</code></td>
+<td><code>0 7 * * 1-5</code></td>
+</tr>
+<tr>
+<td>rendered schedule</td>
+<td>At 07:07 AM, Monday through Friday</td>
+</tr>
+<tr>
+<td><code>jitterSeconds</code></td>
+<td>443</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>lastRunAt</code></td>
+<td>2026-09-11T12:07:28.099Z = <strong>2026-09-11 07:07:28 CDT</strong> (this run)</td>
+</tr>
+<tr>
+<td><code>nextRunAt</code></td>
+<td>2026-09-14T12:07:23.000Z = <strong>2026-09-14 07:07:23 CDT</strong> (Monday; the weekend is correctly skipped)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>No drift and no late fire.</strong> Siblings, from the same source: <code>daily-trade-check-2</code> = <code>0 19 * * 1-5</code>, <code>lastRunAt</code> 2026-09-11T00:01:20Z, <code>nextRunAt</code> 2026-09-12T00:00:22Z. <code>daily-audit</code> = <code>0 7 * * *</code>, <code>lastRunAt</code> 2026-09-11T12:05:06Z. <code>monthy-llm-rebalance</code> = <strong><code>0 18 1-5 * *</code></strong>, still the day-1-through-5 window found 2026-09-02 and left in place at Evan's direction. Its <code>lastRunAt</code> is 2026-09-05T23:03:04Z and its <code>nextRunAt</code> is <strong>2026-10-01T23:03:03Z</strong>.</p>
+<p><strong>0e.</strong> Every query opened the DB with <code>sqlite3.connect('file:var/trades.db?mode=ro', uri=True)</code>. Scratch scripts lived in the session scratchpad. No write path was touched.</p>
+<p><strong>0f. The 07:45 morning heal has NOT run at compile time.</strong> <code>var/last_morning_run.log</code> is stamped <strong>2026-09-10 07:47</strong>, which is yesterday's run, the one that healed 09-09. <strong>This is the schedule, not a prediction:</strong> <code>TradingMorningMTM</code> fires at 07:45, about 28 minutes after this compile finished. Whether it marks 09-10 depends on whether its refresh returns at least 5,000 closes for 09-10, and that fact does not exist yet.</p>
+<p><strong>0g. MARK STATE — FAILS. Every 09-10 number in this report is INDICATIVE.</strong></p>
+<table>
+<thead>
+<tr>
+<th>nav_date</th>
+<th>sleeves marked</th>
+<th>book total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-01</td>
+<td>76</td>
+<td>$7,607,664.18</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td>76</td>
+<td>$7,683,366.40</td>
+</tr>
+<tr>
+<td>2026-09-03</td>
+<td>76</td>
+<td>$7,710,307.20</td>
+</tr>
+<tr>
+<td>2026-09-04</td>
+<td>76</td>
+<td>$7,747,404.93</td>
+</tr>
+<tr>
+<td>2026-09-08</td>
+<td>76</td>
+<td>$7,751,793.02</td>
+</tr>
+<tr>
+<td>2026-09-09</td>
+<td>76</td>
+<td>$7,732,974.45 (healed 09-10 07:47; SPY stale, see 0g-ter)</td>
+</tr>
+<tr>
+<td><strong>2026-09-10</strong></td>
+<td><strong>0</strong></td>
+<td><strong>UNMARKED</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>var/ops_status.log</code>, evening verdict lines only (the interleaved <code>coverage=n/a</code> lines are omitted): <code>[OPS 2026-09-08] coverage=PENDING</code>, <code>[OPS 2026-09-09] coverage=PENDING</code>, <code>[OPS 2026-09-10] coverage=PENDING verify=PASS</code>. That makes <strong>three consecutive PENDING evenings</strong>, each healed or pending the next morning. <code>verify=PASS</code> is not evidence that sleeves moved; <code>var/last_daily_run.log</code> ends <code>RESULT: PASS (76/76 sleeves OK)</code> on an evening that marked nothing.</p>
+<p><strong>0g-bis. Coverage — unchanged overnight.</strong> Closes cached per date:</p>
+<table>
+<thead>
+<tr>
+<th>key_date</th>
+<th>closes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-04</td>
+<td>5,133</td>
+</tr>
+<tr>
+<td>2026-09-08</td>
+<td>5,131</td>
+</tr>
+<tr>
+<td>2026-09-09</td>
+<td><strong>5,129</strong> (was 3,897 at yesterday's pre-market compile; healed by the 09-10 07:47 run)</td>
+</tr>
+<tr>
+<td><strong>2026-09-10</strong></td>
+<td><strong>4,315</strong> (below the 5,000 floor; the same count the 5:15pm run refused)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>814 tickers have a 09-09 close and no 09-10 close. Zero have the reverse</strong>, so the 09-10 set is again a strict subset, the signature of a partial fetch. <strong>The 09-09 heal worked:</strong> only 3 tickers now have a 09-08 close and no 09-09 close, down from 1,234 yesterday morning.</p>
+<p><strong>0g-ter. Held names unpriced on 09-10: 4 of 218.</strong> Coverage of position value is <strong>98.8701%</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>last cached close</th>
+<th>value carried</th>
+<th>sleeves</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UYSC</td>
+<td>$10.93 (09-09)</td>
+<td>$40,987.50</td>
+<td>20</td>
+<td>SPAC; 09-10 close <strong>not verified today</strong> (stockanalysis history page showed no 09-09/09-10 rows)</td>
+</tr>
+<tr>
+<td>KFII</td>
+<td>$10.65 (09-09)</td>
+<td>$34,995.90</td>
+<td>19</td>
+<td>SPAC; <a href="https://stockanalysis.com/stocks/kfii/">stockanalysis</a> reports <strong>$10.65 on Sep 10, 2026</strong>, so carrying it flat is correct</td>
+</tr>
+<tr>
+<td>APGE</td>
+<td>$135.07 (09-03)</td>
+<td>$8,112.43</td>
+<td>6</td>
+<td>cancelled (AbbVie cash-out 09-03)</td>
+</tr>
+<tr>
+<td>CRNX</td>
+<td>$84.95 (09-02)</td>
+<td>$1,801.45</td>
+<td>2</td>
+<td>cancelled (Vertex acquisition 09-01)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The benchmark sleeves' 09-09 mark is still stale in <code>paper_nav</code></strong> (post-market finding, 2026-09-10). <code>spy_benchmark_paper</code> is marked at <strong>$106,287.38</strong>, but re-valued at the real 09-09 SPY close of $762.40 it is <strong>$105,793.38</strong>. <code>spy_benchmark_0701_paper</code> is marked at <strong>$101,954.00</strong> against a re-valued <strong>$101,480.14</strong>. Every indicative number below uses the re-valued 09-09 base, so the stale mark does not leak into today's day-moves. Book-wide, the marked 09-09 total overstates the re-valued one by <strong>$3,936.77</strong>.</p>
+<p><strong>0h. Price anomalies — two flagged, both cleared.</strong> Two held tickers printed an <strong>identical</strong> close on 09-09 and 09-10: <strong>FSLY $22.71</strong> (4 sleeves) and <strong>QUIK $10.73</strong> (2 sleeves). An unchanged close is what a stale carried-forward row looks like, so I checked both against an outside source rather than assuming. <a href="https://stockanalysis.com/stocks/fsly/history/">stockanalysis FSLY history</a> shows Sep 9 O 22.69 / H 24.59 / L 22.09 / <strong>C 22.71</strong> on 10,506,270 shares, and Sep 10 O 22.00 / H 23.19 / L 21.82 / <strong>C 22.71</strong> on 6,144,184. <a href="https://stockanalysis.com/stocks/quik/history/">stockanalysis QUIK history</a> shows Sep 9 O 11.02 / H 11.02 / L 10.63 / <strong>C 10.73</strong> on 216,515, and Sep 10 O 10.49 / H 10.79 / L 10.41 / <strong>C 10.73</strong> on 319,692. The bars differ and the volumes differ, <strong>so both flat closes are real coincidences, not stale rows.</strong> No held ticker moved more than 20% on 09-10.</p>
+<p><strong>0i. Dividend not credited (see §1 and §6.2).</strong> INSW went ex-dividend <strong>$5.05 on 2026-09-10</strong>. The ledger code (<code>paper_mtm.py</code>, <code>mtm_catchup.py</code>, and the paper rebalancer) contains no dividend handling. The backtest broker's <code>dividends_received</code> path (<a href="trading_bot/execution/broker.py:175">broker.py:175-184</a>) is not used by paper sleeves. That the sim does not credit dividends is documented in record CW (2026-08-07, line 8539).</p>
+<p><strong>0j. Rebalance lock.</strong> 2026-09-11 is not the 1st trading day of the month. No query raised <code>database is locked</code>.</p>
+<p><strong>0k. Frozen tests.</strong> Not run, because this session made <strong>zero Python changes</strong> and the <code>d=±0.0000pp</code> gate applies only to code changes. I'm stating that so the absence doesn't read as a skipped gate.</p>
+<hr />
+<h3 id="1--portfolio-standings-from-the-last-close_1">1 — Portfolio standings from the last close</h3>
+<p><strong>Book:</strong></p>
+<table>
+<thead>
+<tr>
+<th>basis</th>
+<th>book total</th>
+<th>move</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-09 marked (<code>paper_nav</code>)</td>
+<td>$7,732,974.45</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2026-09-09 re-valued (real SPY close)</td>
+<td>$7,729,037.68</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>2026-09-10 INDICATIVE, price-return (ledger basis)</strong></td>
+<td><strong>$7,627,673.74</strong></td>
+<td><strong>−$101,363.93, −1.3115%</strong></td>
+</tr>
+<tr>
+<td>2026-09-10 INDICATIVE, + INSW $5.05 dividend</td>
+<td>$7,633,557.24</td>
+<td>−1.2353%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Book −1.3115% vs SPY −0.5994% (757.83 / 762.40): −0.71pp relative</strong> on the ledger's own basis. The S&amp;P 500 index closed <strong>7,591.70, −0.58%</strong>, the Nasdaq Composite <strong>26,081.72, −0.65%</strong>, and the Dow <strong>52,064.10, −316.56 (−0.6%)</strong>, the <strong>fourth straight decline</strong> (<a href="https://www.alainguillot.com/stock-market-recap-september-10-2026/">Alain Guillot recap, 2026-09-10</a>; <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-10-2026">TheStreet, 2026-09-10</a>).</p>
+<p><strong>Benchmarks and systematic sleeves (09-10 indicative vs the re-valued 09-09 base):</strong></p>
+<table>
+<thead>
+<tr>
+<th>sleeve</th>
+<th>09-09 marked</th>
+<th>09-09 re-valued</th>
+<th>09-10 indicative</th>
+<th>move</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spy_benchmark_paper</code></td>
+<td>$106,287.38</td>
+<td>$105,793.38</td>
+<td>$105,159.23</td>
+<td>−0.5994%</td>
+</tr>
+<tr>
+<td><code>spy_benchmark_0701_paper</code></td>
+<td>$101,954.00</td>
+<td>$101,480.14</td>
+<td>$100,871.84</td>
+<td>−0.5994%</td>
+</tr>
+<tr>
+<td><code>qqq_benchmark_paper</code></td>
+<td>$106,253.80</td>
+<td>$106,253.80</td>
+<td>$105,123.49</td>
+<td>−1.0638%</td>
+</tr>
+<tr>
+<td><code>qqq_benchmark_0706_paper</code></td>
+<td>$99,099.36</td>
+<td>$99,099.36</td>
+<td>$98,045.16</td>
+<td>−1.0638%</td>
+</tr>
+<tr>
+<td><code>mom_v1_paper</code></td>
+<td>$86,078.67</td>
+<td>$85,986.81</td>
+<td>$84,256.65</td>
+<td>−2.0121%</td>
+</tr>
+<tr>
+<td><code>mom_v1_0701_paper</code></td>
+<td>$92,600.07</td>
+<td>$92,498.36</td>
+<td>$90,717.68</td>
+<td>−1.9251%</td>
+</tr>
+<tr>
+<td><code>mom_v2_paper</code></td>
+<td>$85,315.77</td>
+<td>$85,140.86</td>
+<td>$83,208.11</td>
+<td>−2.2701%</td>
+</tr>
+<tr>
+<td><code>mom_v2_0701_paper</code></td>
+<td>$90,220.83</td>
+<td>$90,028.26</td>
+<td>$88,069.50</td>
+<td>−2.1757%</td>
+</tr>
+<tr>
+<td><code>mom_roa_6535_paper</code></td>
+<td>$86,986.07</td>
+<td>$86,894.88</td>
+<td>$84,813.62</td>
+<td>−2.3951%</td>
+</tr>
+<tr>
+<td><code>mom_roa_6535_0701_paper</code></td>
+<td>$90,069.73</td>
+<td>$89,979.70</td>
+<td>$87,879.37</td>
+<td>−2.3342%</td>
+</tr>
+<tr>
+<td><code>residual_roa_6535_paper</code></td>
+<td>$102,508.50</td>
+<td>$102,498.05</td>
+<td>$101,418.42</td>
+<td>−1.0533%</td>
+</tr>
+<tr>
+<td><code>residual_roa_6535_0701_paper</code></td>
+<td>$96,731.22</td>
+<td>$96,723.34</td>
+<td>$95,735.40</td>
+<td>−1.0214%</td>
+</tr>
+<tr>
+<td><code>sector_top4_full_paper</code></td>
+<td>$107,005.49</td>
+<td>$107,005.49</td>
+<td>$106,115.78</td>
+<td>−0.8315%</td>
+</tr>
+<tr>
+<td><code>sector_top4_paper</code></td>
+<td>$105,474.73</td>
+<td>$105,474.73</td>
+<td>$104,618.96</td>
+<td>−0.8114%</td>
+</tr>
+</tbody>
+</table>
+<p>The gap between "marked" and "re-valued" on the momentum sleeves (for example $86,078.67 vs $85,986.81 on <code>mom_v1_paper</code>) is part of the $3,936.77 heal-time overstatement the 2026-09-10 post-market entry quantified. It does not change the 09-10 move, which is measured from the re-valued base. <strong>The six momentum sleeves lost 1.93–2.40% on a −0.60% tape, roughly 3–4× the market.</strong> This is the memory/semicap concentration at work (below).</p>
+<p><strong>Concentration</strong> (09-09 closes, on $7,703,600.48 of priced position value):</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>value</th>
+<th>weight</th>
+<th>sleeves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MU</td>
+<td>$530,538</td>
+<td><strong>6.89%</strong></td>
+<td>62</td>
+</tr>
+<tr>
+<td>SPY</td>
+<td>$207,274</td>
+<td>2.69%</td>
+<td>2</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td>$205,353</td>
+<td>2.67%</td>
+<td>2</td>
+</tr>
+<tr>
+<td>STX</td>
+<td>$161,383</td>
+<td>2.09%</td>
+<td>65</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td>$144,284</td>
+<td>1.87%</td>
+<td>65</td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td>$135,069</td>
+<td>1.75%</td>
+<td>54</td>
+</tr>
+<tr>
+<td>INSW</td>
+<td>$121,887</td>
+<td>1.58%</td>
+<td>43</td>
+</tr>
+<tr>
+<td>XLE</td>
+<td>$112,931</td>
+<td>1.47%</td>
+<td>4</td>
+</tr>
+<tr>
+<td>AAPL</td>
+<td>$112,561</td>
+<td>1.46%</td>
+<td>47</td>
+</tr>
+<tr>
+<td>JNJ</td>
+<td>$111,984</td>
+<td>1.45%</td>
+<td>48</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MU + STX + WDC = 10.85%.</strong> Sector labels: Technology <strong>24.75%</strong>, Healthcare <strong>22.91%</strong>, plus <strong>1.32%</strong> under the duplicate <code>Health Care</code> label (XLV only; taxonomy split, reported 2026-09-10) = <strong>24.23%</strong> true healthcare. Energy is <strong>11.32%</strong>.</p>
+<p><strong>Largest 09-10 book-$ movers</strong> (cache closes):</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>09-09</th>
+<th>09-10</th>
+<th>move</th>
+<th>book-$</th>
+<th>sleeves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MU</td>
+<td>$1,027.77</td>
+<td>$977.41</td>
+<td>−4.900%</td>
+<td>−$25,996</td>
+<td>62</td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td>$315.84</td>
+<td>$298.01</td>
+<td>−5.645%</td>
+<td>−$7,625</td>
+<td>54</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td>$482.28</td>
+<td>$460.93</td>
+<td>−4.427%</td>
+<td>−$6,387</td>
+<td>65</td>
+</tr>
+<tr>
+<td>SCCO</td>
+<td>$209.26</td>
+<td>$194.14</td>
+<td>−7.225%</td>
+<td>−$6,251</td>
+<td>36</td>
+</tr>
+<tr>
+<td>STX</td>
+<td>$885.92</td>
+<td>$862.33</td>
+<td>−2.663%</td>
+<td>−$4,297</td>
+<td>65</td>
+</tr>
+<tr>
+<td>EDRY</td>
+<td>$61.08</td>
+<td>$63.89</td>
+<td>+4.601%</td>
+<td>+$4,074</td>
+<td>33</td>
+</tr>
+<tr>
+<td>AAPL</td>
+<td>$315.34</td>
+<td>$326.57</td>
+<td>+3.561%</td>
+<td>+$4,009</td>
+<td>47</td>
+</tr>
+<tr>
+<td>AMAT</td>
+<td>$468.85</td>
+<td>$454.01</td>
+<td>−3.165%</td>
+<td>−$3,455</td>
+<td>50</td>
+</tr>
+<tr>
+<td>BTSG</td>
+<td>$61.99</td>
+<td>$57.88</td>
+<td>−6.630%</td>
+<td>−$3,367</td>
+<td>28</td>
+</tr>
+<tr>
+<td>AXGN</td>
+<td>$47.27</td>
+<td>$41.85</td>
+<td>−11.466%</td>
+<td>−$3,018</td>
+<td>13</td>
+</tr>
+<tr>
+<td><strong>INSW</strong></td>
+<td>$104.62</td>
+<td>$102.14</td>
+<td><strong>−2.370% price / +2.457% total return</strong></td>
+<td><strong>−$2,889 price, +$5,884 dividend</strong></td>
+<td>43</td>
+</tr>
+<tr>
+<td>KLAC</td>
+<td>$182.91</td>
+<td>$177.18</td>
+<td>−3.133%</td>
+<td>−$2,423</td>
+<td>35</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CORRECTION TO THE 2026-09-10 POST-MARKET ENTRY'S READING OF INSW.</strong> INSW's −2.370% was not a loss. The $5.05 dividend came off the price on the ex-date. Two sources agree on the dates: the company's Q2 release says the dividend is payable <strong>2026-09-24 to holders of record at the close on 2026-09-10</strong> (<a href="https://www.intlseas.com/newsroom/news/news-details/2026/International-Seaways-Reports-Second-Quarter-2026-Results/default.aspx">International Seaways, 2026-08-07</a>), and <a href="https://stockanalysis.com/stocks/insw/dividend/">stockanalysis</a> lists <strong>ex-date Sep 10, 2026, $5.050, pay Sep 24</strong>. Under T+1 settlement the ex-date equals the record date. <strong>Net of the dividend, INSW added +$2,994.17 to the book on 09-10, not −$2,889.33.</strong> The ledger will never see that $5,883.50, neither on 09-10 nor on the 09-24 payment date, because it has no dividend path. The rest of that post-market entry stands; this is the one figure it misread.</p>
+<p>A source conflict: <a href="https://www.ad-hoc-news.de/boerse/news/corporate-news/micron-technology-stock-heads-into-the-open-after-a-4-7-percent-drop/70085757">ad-hoc-news</a> reports MU "fell 4.7 percent to USD 977.41". But 977.41 / 1,027.77 is <strong>−4.900%</strong>, which matches <a href="https://stockanalysis.com/stocks/mu/">stockanalysis</a> (−$50.36, −4.90%) and our cache. <strong>The 4.7% figure is the outlier and is flagged, not used.</strong></p>
+<hr />
+<h3 id="2--overnight-and-pre-market-moves_2">2 — Overnight and pre-market moves</h3>
+<p><strong>The market has not opened.</strong> Everything below is a 09-10 close or a quoted pre-market print with its timestamp.</p>
+<p><strong>Index futures</strong> (<a href="https://investrade.com/morning-preview-september-11-2026/">Investrade Morning Preview, 2026-09-11</a>; the page gives no time, fetched ~07:10 CDT):</p>
+<table>
+<thead>
+<tr>
+<th>contract</th>
+<th>level</th>
+<th>change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dow</td>
+<td>52,393</td>
+<td>+298.00 (+0.57%)</td>
+</tr>
+<tr>
+<td>S&amp;P 500</td>
+<td>7,641</td>
+<td>+42.25 (+0.56%)</td>
+</tr>
+<tr>
+<td>Nasdaq</td>
+<td>29,316</td>
+<td>+181.00 (+0.62%)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Source conflict, flagged and not averaged:</strong> <a href="https://www.fxstreet.com/news/dow-jones-futures-rise-ahead-of-us-cpi-inflation-data-202609110730">FXStreet</a>, stamped <strong>07:30 GMT (03:30 ET)</strong>, had Dow +0.46% and S&amp;P +0.44% but <strong>Nasdaq 100 −0.45%</strong>. That is an earlier snapshot, and TheStreet's 09-11 headline has Nasdaq futures edging higher. I publish Investrade's later figures. The Nasdaq sign at 03:30 ET is unresolved.</p>
+<p><strong>Overseas</strong> (Investrade): Nikkei <strong>−1,259 to 64,011</strong>, Shanghai −46 to 3,888, Hang Seng −149 to 24,805, DAX +172 to 25,533, FTSE 100 +56 to 10,665. MSCI Asia Pacific fell <strong>1.7%, its steepest one-day drop in three weeks</strong> (<a href="https://www.tickmill.com/blog/daily-market-outlook-september-11-2026">Tickmill, 2026-09-11</a>). <strong>Asia caught Thursday's US selloff overnight; the US tape is now rebounding against it.</strong></p>
+<p><strong>Held-name pre-market prints</strong> (<a href="https://stockanalysis.com/">stockanalysis.com</a>, fetched 2026-09-11 ~07:10–07:13 CDT):</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>09-10 close</th>
+<th>pre-market</th>
+<th>time (EDT)</th>
+<th>move</th>
+<th>book-$</th>
+<th>sleeves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MU</td>
+<td>$977.41</td>
+<td>$987.93</td>
+<td>8:08 AM</td>
+<td>+1.076%</td>
+<td>+$5,430.47</td>
+<td>62</td>
+</tr>
+<tr>
+<td>STX</td>
+<td>$862.33</td>
+<td>$871.40</td>
+<td>8:05 AM</td>
+<td>+1.052%</td>
+<td>+$1,652.22</td>
+<td>65</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td>$460.93</td>
+<td>$465.40</td>
+<td>8:07 AM</td>
+<td>+0.970%</td>
+<td>+$1,337.30</td>
+<td>65</td>
+</tr>
+<tr>
+<td><strong>memory trio</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>+$8,419.99 (+0.1104% of book)</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td>$298.01</td>
+<td>$303.10</td>
+<td>8:06 AM</td>
+<td>+1.708%</td>
+<td>+$2,176.73</td>
+<td>54</td>
+</tr>
+<tr>
+<td>AMAT</td>
+<td>$454.01</td>
+<td>$461.16</td>
+<td>8:09 AM</td>
+<td>+1.57%</td>
+<td>—</td>
+<td>50</td>
+</tr>
+<tr>
+<td>SPY</td>
+<td>$757.83</td>
+<td>$762.20</td>
+<td>8:08 AM</td>
+<td>+0.577%</td>
+<td>+$1,188.07</td>
+<td>2</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td>$708.69</td>
+<td>$713.02</td>
+<td>8:10 AM</td>
+<td>+0.61%</td>
+<td>—</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Memory is moving about 1.7–1.9× SPY this morning, the same way.</strong> That is ordinary high-beta behaviour. Yesterday morning it was the opposite (memory −1.8% to −2.2% against SPY −0.12%). <strong>The pre-market bounce takes back 22.95% of the trio's −$36,680.54 09-10 loss</strong> (+$8,419.99 / −$36,680.54, the loss figure from the 2026-09-10 post-market entry). A page-label note for future runs: stockanalysis again labels the <em>09-09</em> close as "Previous Close (Sep 10)" on the MU and SPY pages. The arithmetic (pre-market − change = 09-10 close) reconciles; the date label lags by one session.</p>
+<p><strong>Named pre-market movers — a negative worth recording.</strong> Oracle is <strong>"higher by about 7% after earnings last night"</strong> (<a href="https://investrade.com/morning-preview-september-11-2026/">Investrade</a>). <strong>ORCL is held by zero sleeves.</strong> A search summary gave Oracle revenue, EPS, and RPO figures, but it labelled the quarter inconsistently and quoted a close of $149.40 I could not reconcile. <strong>I publish none of those figures.</strong> The only portfolio relevance is a possible AI-capex read-through to MU/LRCX/AMAT, and I have no sourced figure to support it.</p>
+<hr />
+<h3 id="3--catalyst-and-macro-review_1">3 — Catalyst and macro review</h3>
+<p><strong>Today, 8:30 AM ET — August CPI</strong> (<a href="https://investrade.com/morning-preview-september-11-2026/">Investrade</a>). The same consensus appears in a Dow Jones poll quoted in a <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-11-2026">TheStreet</a> search excerpt; that page itself returned HTTP 403.</p>
+<table>
+<thead>
+<tr>
+<th>measure</th>
+<th>consensus</th>
+<th>prior (July)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPI m/m</td>
+<td><strong>+0.4%</strong></td>
+<td>+0.1%</td>
+</tr>
+<tr>
+<td>CPI y/y</td>
+<td><strong>+3.4%</strong></td>
+<td>+3.4%</td>
+</tr>
+<tr>
+<td>Core m/m</td>
+<td>+0.2%</td>
+<td>+0.2%</td>
+</tr>
+<tr>
+<td>Core y/y</td>
+<td>+2.4%</td>
+<td>+2.5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A pre-release "actual" was rejected.</strong> One search summary presented August CPI "results", including <strong>core +0.4% m/m</strong>, attributed to a CNN article dated 09-11. At compile time it was 8:14–8:16 ET, <strong>before the 8:30 ET release</strong>. The CNN page returned HTTP 451 and could not be fetched. <strong>Those figures are unverifiable and not published.</strong></p>
+<p><strong>Yesterday's input, confirmed:</strong> August PPI <strong>+0.4% m/m</strong> (in line), <strong>+5.4% y/y</strong> against a 5.3% forecast, core <strong>+0.2% m/m</strong>, softer than expected (<a href="https://www.fxstreet.com/news/dow-jones-futures-rise-ahead-of-us-cpi-inflation-data-202609110730">FXStreet</a>).</p>
+<p><strong>Fed.</strong> The FOMC meets <strong>2026-09-15/16</strong>, with a statement, press conference, and Summary of Economic Projections on the 16th (<a href="https://www.tickmill.com/blog/daily-market-outlook-september-11-2026">Tickmill</a>; <a href="https://finance.yahoo.com/economy/policy/articles/fomc-september-2026-odds-rate-163505675.html">Yahoo Finance</a>). CME FedWatch puts a 25bp <strong>hike</strong> at <strong>"nearly 70%", down from 72%</strong> earlier in the Asian session (<a href="https://www.fxstreet.com/news/dow-jones-futures-rise-ahead-of-us-cpi-inflation-data-202609110730">FXStreet</a>). <strong>The market is pricing a hike, not a cut, five days out.</strong> That is the regime the 24.75% Technology weight sits in.</p>
+<p><strong>Rates.</strong> 10-year <strong>4.938%</strong> (<a href="https://investrade.com/morning-preview-september-11-2026/">Investrade</a>). Tickmill has it "toward 4.96%" after an under-subscribed Treasury buyback. <strong>I publish Investrade's figure and flag the other</strong>; they are consistent with a yield near 4.94–4.96% but differ at the precision printed.</p>
+<p><strong>Oil.</strong> Brent <strong>$103.65 (−$3.98)</strong>, WTI <strong>$98.97 (−$3.51)</strong> (<a href="https://investrade.com/morning-preview-september-11-2026/">Investrade</a>). Both changes reconcile exactly against Thursday's settles of <strong>$107.63</strong> and <strong>$102.48</strong> (Brent +5.9% and WTI +6.7% on the day; <a href="https://www.alainguillot.com/stock-market-recap-september-10-2026/">Alain Guillot recap</a>). <strong>Two other sources give different levels:</strong> <a href="https://tradingeconomics.com/commodity/brent-crude-oil">tradingeconomics</a> $106.11 (−1.41%), and <a href="https://www.tickmill.com/blog/daily-market-outlook-september-11-2026">Tickmill</a> $107.86 after "flirting with $110". Neither is time-stamped against Investrade's quote. <strong>I publish the figure that reconciles to the settle and flag the rest as other-time snapshots; I did not average them.</strong> Oil giving back some of Thursday's spike is one plausible reason futures are up.</p>
+<p><strong>Memory: the 09-10 catalyst was macro, not a thesis break.</strong> JPMorgan <strong>initiated SK Hynix at Overweight with a $245 target</strong>, and the complex fell anyway: SK Hynix −5% to $189.47, MU −3% to $999.24, WDC −3% to $465.50, all at 9:22 AM ET (<a href="https://247wallst.com/investing/2026/09/10/memory-stocks-slide-as-rates-and-oil-swamp-jpmorgans-overweight-call-sk-hynix-sinks-5-western-digital-drops-3-micron-slips/">24/7 Wall St., 2026-09-10</a>). The article blames the 4.91% 10-year and WTI above $100. <strong>A bullish initiation that can't hold the stock up against yields is the sign of a crowded, rate-sensitive trade.</strong> This book has 10.85% in it. Separately, MU, Samsung, SK Hynix, and the Roundhill Memory ETF are each <strong>more than 20% below recent closing highs</strong>, which that source calls a memory bear market (<a href="https://finance.yahoo.com/markets/article/micron-samsung-sk-hynix-just-dragged-memory-stocks-into-a-bear-market-154549356.html">Yahoo Finance</a>; undated in the fetched excerpt, so treat it as background).</p>
+<p><strong>Semicap: no dated catalyst found for LRCX's −5.645%.</strong> Available coverage attributes the week's weakness to oil above $100 and yields weighing on growth names (<a href="https://www.ad-hoc-news.de/boerse/news/corporate-news/lam-research-stock-heads-into-the-open-after-a-nasdaq-led-drop/70079952">ad-hoc-news</a>). LRCX next reports <strong>2026-10-21</strong> (<a href="https://stockanalysis.com/stocks/lrcx/">stockanalysis</a>). <strong>Reported as unattributed</strong>, the same finding as yesterday's KLAC.</p>
+<p><strong>Copper (SCCO −7.225%, 36 sleeves, −$6,251).</strong> Copper stocks reversed after a Reuters report that <strong>the White House has not decided on refined-copper tariffs</strong>, with affordability concerns ahead of the midterms. Freeport was −8%, and Teck and Southern Copper −7% (<a href="https://247wallst.com/investing/2026/09/10/copper-stocks-tumble-as-tariff-doubt-reverses-record-rally-freeport-mcmoran-sinks-8-teck-resources-and-southern-copper-drop-7/">24/7 Wall St., 2026-09-10</a>; <a href="https://seekingalpha.com/news/4641556-copper-stocks-slump-as-white-house-tariff-plan-reportedly-stalls">Seeking Alpha</a>). <strong>This is a policy binary, not a fundamentals move.</strong> A later tariff decision could reverse it just as fast.</p>
+<p><strong>Shipping.</strong> The Baltic Dry Index fell <strong>99 points to 3,521 on 2026-09-10</strong> (<a href="https://www.hellenicshippingnews.com/baltic-dry-index-falls-to-3521-down-99-points/">Hellenic Shipping News</a>), which implies 3,620 on 09-09, consistent with the post-market entry's "−2.7%". EDRY still gained <strong>+4.601%</strong>. INSW's apparent decline was the dividend (§1). Deutsche Bank reaffirmed Buy on INSW on 2026-09-01, and the analyst average target moved to about $102 from about $99 (<a href="https://simplywall.st/stocks/us/energy/nyse-insw/international-seaways">search summary of Simply Wall St</a>; single-sourced).</p>
+<p><strong>Healthcare (24.23% true weight).</strong> XLV closed <strong>$165.66 (−0.552%)</strong>. I found no 09-10 or 09-11 sector-specific catalyst. EXEL (1.35%, 41 sleeves, −1.543%) remains the subject of law-firm securities investigations over its 2026 guidance cut, per a search summary; that is background, with no new dated event.</p>
+<hr />
+<h3 id="4--llm-overlay-status_3">4 — LLM overlay status</h3>
+<p><strong>Counts use <code>count(*)</code>, never <code>max(id)</code>: <code>llm_overlay_log</code> = 14, <code>sector_overlay_log</code> = 27.</strong> No new decision since 2026-09-01 (latest <code>id</code> 17, MU BUY, score 7.0, invalidation $820.00).</p>
+<p><strong>Single-name arms — all hold MU, all blind on the day:</strong></p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>cash</th>
+<th>MU basis</th>
+<th>09-10 indicative</th>
+<th>day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>llm_overlay_mom_roa_top1_paper</code> (treatment)</td>
+<td>$100.00</td>
+<td>$933.9067 (09-01)</td>
+<td><strong>$104,653.54</strong></td>
+<td>−4.8955%</td>
+</tr>
+<tr>
+<td><code>llm_cascade_top1_paper</code> (cascade)</td>
+<td>$98.00</td>
+<td>$933.9067 (09-01)</td>
+<td>$102,563.27</td>
+<td>−4.8955%</td>
+</tr>
+<tr>
+<td><code>mom_roa_top1_paper</code> (control)</td>
+<td>$82.69</td>
+<td>$829.9147 (08-03)</td>
+<td>$97,372.59</td>
+<td>−4.8960%</td>
+</tr>
+</tbody>
+</table>
+<p>MU at $977.41 is <strong>+17.77%</strong> on the control's basis and <strong>+4.66%</strong> on the treatment's. The <strong>$820.00 invalidation has 19.20% headroom</strong> at the close and <strong>20.48%</strong> at the $987.93 pre-market print. The separation between arms comes entirely from history (the 07-07 BE veto and the 08-03 MU veto, detailed in the 2026-09-10 pre-market entry). <strong>Nothing that happens to MU before 10-01 can separate the three arms, because they hold the same name.</strong></p>
+<p><strong>Sector arms (09-10 indicative):</strong></p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>cash</th>
+<th>holdings</th>
+<th>NAV</th>
+<th>day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>llm_overlay_sector_top4_paper</code> (treatment)</td>
+<td>$23,087.99</td>
+<td>XLV, XLE, XLK</td>
+<td>$101,265.46</td>
+<td><strong>−0.6545%</strong></td>
+</tr>
+<tr>
+<td><code>sector_top4_paper</code> (control)</td>
+<td>$24.83</td>
+<td>XLE, XLK, XLI, XLV</td>
+<td>$104,618.96</td>
+<td>−0.8114%</td>
+</tr>
+<tr>
+<td><code>sector_top4_full_paper</code> (continuous twin)</td>
+<td>$24.88</td>
+<td>XLI, XLE, XLK, XLV</td>
+<td>$106,115.78</td>
+<td>−0.8315%</td>
+</tr>
+<tr>
+<td><code>llm_cascade_sector4_paper</code> (cascade)</td>
+<td>$22.26</td>
+<td>XLV, XLE, XLK, XLB</td>
+<td>$99,667.85</td>
+<td>−0.9272%</td>
+</tr>
+</tbody>
+</table>
+<p>The treatment's 22.80% cash cushioned it for a second session (09-09 and 09-10). It is still <strong>−3.35pp behind the control</strong> since the 07-06 reset (+1.2655% vs +4.6190%).</p>
+<p><strong>Distance to the 2026-09-01 logged levels at the 09-10 close:</strong></p>
+<table>
+<thead>
+<tr>
+<th>ETF</th>
+<th>verdict</th>
+<th>level</th>
+<th>close</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XLB</td>
+<td>HOLD 6.0</td>
+<td>$51.00</td>
+<td>$50.76</td>
+<td><strong>−0.47% (below)</strong>; held only by the cascade, which by design fires no stop (record CR)</td>
+</tr>
+<tr>
+<td>XLV</td>
+<td>HOLD 7.0</td>
+<td>$163.50</td>
+<td>$165.66</td>
+<td><strong>+1.32%</strong>; held by all four sector arms</td>
+</tr>
+<tr>
+<td>XLI</td>
+<td>VETO 3.0</td>
+<td>$170.00</td>
+<td>$170.55</td>
+<td>+0.32%; held only by the two control sleeves; the meaning of a VETO row's level is not interpreted here</td>
+</tr>
+<tr>
+<td>XLK</td>
+<td>HOLD 6.0</td>
+<td>$177.00</td>
+<td>$185.22</td>
+<td>+4.64%</td>
+</tr>
+<tr>
+<td>XLE</td>
+<td>HOLD 7.0</td>
+<td>$58.00</td>
+<td>$64.93</td>
+<td>+11.95%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>XLV is the live one.</strong> A 1.32% move, which is less than one bad healthcare day, reaches the level on the sector the LLM rated highest (7.0) outside energy.</p>
+<p><strong>Kill switch:</strong> 14 stock decisions against a 30-pick / 12-month budget. Neither is close.</p>
+<hr />
+<h3 id="5--risk-flags-and-upcoming-events_3">5 — Risk flags and upcoming events</h3>
+<ol>
+<li><strong>CPI at 8:30 ET today.</strong> Consensus is +0.4% / +3.4%, core +0.2% / +2.4%. With FedWatch at nearly 70% for a hike on 09-16 and the 10-year at 4.938%, <strong>a core print of +0.3% or higher feeds straight into hike odds and multiples</strong>, and the book's measured beta this week is well above 1: −1.31% vs SPY −0.60% on 09-10.</li>
+<li><strong>FOMC 2026-09-15/16</strong>, with an SEP/dot-plot meeting. It is the first potential hike of 2026.</li>
+<li><strong>Memory/semicap concentration: MU+STX+WDC 10.85%, plus LRCX 1.75% and AMAT (50 sleeves).</strong> On 09-10 the trio alone lost $36,680, and an Overweight initiation could not support the complex against rates. <strong>MU fiscal Q4 lands 2026-09-30</strong> (<a href="https://stockanalysis.com/stocks/mu/">stockanalysis</a>), with 62 of 76 sleeves exposed.</li>
+<li><strong>UYSC deadline 2026-10-01 — NEW, dated.</strong> The sponsor's affiliate lent <strong>$450,000</strong> to extend the business-combination deadline <strong>"from July 1, 2026, to October 1, 2026"</strong> (<a href="https://www.stocktitan.net/sec-filings/UYSC/425-uy-scuti-acquisition-corp-business-combination-communication-730b5cd27a26.html">StockTitan summary of the 425 filing, accepted 2026-07-06</a>). The charter allows up to four such three-month extensions, <strong>to 2027-04-01</strong>, each needing a $450,000 trust deposit (<a href="https://www.stocktitan.net/sec-filings/UYSC/8-k-uy-scuti-acquisition-corp-reports-material-event-cd5f0d601c3b.html">StockTitan summary of the 8-K filed 2026-03-31</a>). The target is Isdera Group Limited (Xinghui Automotive Technology), with a merger agreement dated 2025-07-18. The March extension's redemption price was about <strong>$10.38/share</strong>. <strong>$40,987.50 across 20 residual sleeves rides on a funded extension or a closing within 20 days.</strong> Liquidation at trust value would be roughly a 5% loss against the $10.93 carry, if trust value is still near $10.38. That value is not re-verified here.</li>
+<li><strong>KFII: $34,995.90 across 19 sleeves.</strong> The IPO date conflict from the 2026-09-10 post-market is <strong>resolved: K&amp;F Growth Acquisition Corp. II priced 25,000,000 units at $10.00 on 2025-02-04, units began trading 2025-02-05, and the IPO closed 2025-02-06 at 28,750,000 units with the over-allotment</strong> (<a href="https://www.barchart.com/story/news/30769287/kf-growth-acquisition-corp-ii-announces-the-pricing-of-250000000-initial-public-offering">Barchart</a>; <a href="https://www.spacinsider.com/news/intel/kf-growth-acquisition-corp-ii-kfiiu-prices-250m-ipo">SPACInsider</a>; <a href="https://www.sec.gov/Archives/edgar/data/2029976/000121390025013045/ea0230614-8k_kfgrow2.htm">SEC 8-K</a>). <strong>The 2026-09-09 entry's "IPO'd in late 2021" is wrong.</strong> The 11-06 deadline cited in earlier entries was not re-verified today.</li>
+<li><strong>Coverage failure, fourth session.</strong> 09-10 still has 4,315 closes. The 07:45 heal has healed 09-08 and 09-09 on successive mornings, so the data exists and the evening path isn't getting it. Yesterday's hypothesis (contiguous batch failures in the S–U band) remains untested.</li>
+<li><strong>XLV 1.32% above its $163.50 level</strong>, and <strong>XLB already 0.47% below $51.00</strong> in the cascade.</li>
+<li><strong>Copper tariff binary:</strong> SCCO in 36 sleeves, −7.225% on a <em>non-decision</em>.</li>
+<li><strong>Ledger hygiene, unchanged:</strong> APGE ($8,112.43) and CRNX ($1,801.45) are carried as open equity after their cash-outs. The benchmark sleeves' 09-09 <code>paper_nav</code> row is stale by SPY's whole 09-09 move. <strong>All 19 weekly-ladder sleeves hold 51–53 names against 50</strong> (4 at 51, 9 at 52, 6 at 53). The biweekly ladder holds 48–49 and the monthly 46–49. The last weekly-ladder rebalance was stamped 2026-09-09T01:32:16Z (2026-09-08 20:32 CDT).</li>
+<li><strong>Uncredited dividends:</strong> INSW's $5.05 × 1,165.049 shares = <strong>$5,883.50</strong>, payable 09-24, will never reach the ledger (§6.2).</li>
+</ol>
+<p><strong>Falsifiable next reads:</strong> a CPI core of +0.2% or lower takes pressure off the 70% hike odds, and +0.3% or higher does the reverse. The 07:45 heal either marks 09-10 for 76/76 or it doesn't, and if it doesn't, that is the first time the morning heal has failed this week. MU must hold $820.00. UYSC must file an extension or a closing notice before 2026-10-01.</p>
+<hr />
+<h3 id="6--strategic-insights-structural-edge_1">6 — Strategic insights: structural edge</h3>
+<p><strong>6.1 — The residual ladder's one-day factor gradient reversed within 24 hours, which answers the 2026-09-10 question.</strong></p>
+<p>Yesterday's pre-market entry recorded a near-monotone gradient on 09-09: the momentum-heavy end beat the ROA-heavy end by about 1.3pp in all three cadences. It treated the three-cadence agreement as independent replication. <strong>On 09-10 the ends swapped:</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>mm</code></th>
+<th>monthly</th>
+<th>weekly</th>
+<th>biweekly</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td><strong>−0.8883%</strong></td>
+<td><strong>−0.9212%</strong></td>
+<td><strong>−0.8412%</strong></td>
+</tr>
+<tr>
+<td>10</td>
+<td>−0.8951%</td>
+<td>−0.9056%</td>
+<td>−0.8431%</td>
+</tr>
+<tr>
+<td>30</td>
+<td>−1.2972%</td>
+<td>−1.1755%</td>
+<td><strong>−1.4246%</strong></td>
+</tr>
+<tr>
+<td>50</td>
+<td>−0.9661%</td>
+<td>−1.2068%</td>
+<td>−1.1853%</td>
+</tr>
+<tr>
+<td>75</td>
+<td>−1.0944%</td>
+<td>−0.8553%</td>
+<td>−0.8131%</td>
+</tr>
+<tr>
+<td>80</td>
+<td><strong>−1.5094%</strong></td>
+<td>−1.1281%</td>
+<td>−1.1441%</td>
+</tr>
+<tr>
+<td>95</td>
+<td>−1.2828%</td>
+<td>−1.1830%</td>
+<td>−1.3824%</td>
+</tr>
+</tbody>
+</table>
+<p>ROA-heavy beat momentum-heavy by <strong>0.39pp / 0.26pp / 0.54pp</strong> (monthly / weekly / biweekly). The shape is <strong>not</strong> monotone: monthly's worst sleeve is <code>mm</code>=80 (−1.5094%) and biweekly's is <code>mm</code>=30 (−1.4246%).</p>
+<p><strong>Why three cadences agreeing was not three replications — measured today, and a correction to the 2026-09-10 pre-market entry.</strong> That entry said the cadences "hold materially different name sets". Open-position overlap per <code>mm</code>, from <code>paper_positions</code>:</p>
+<table>
+<thead>
+<tr>
+<th><code>mm</code></th>
+<th>open names (mo / wk / 2wk)</th>
+<th>in all three</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>49 / 52 / 49</td>
+<td><strong>49</strong></td>
+</tr>
+<tr>
+<td>30</td>
+<td>49 / 52 / 49</td>
+<td>45</td>
+</tr>
+<tr>
+<td>50</td>
+<td>48 / 52 / 48</td>
+<td>39</td>
+</tr>
+<tr>
+<td>95</td>
+<td>46 / 51 / 48</td>
+<td>36</td>
+</tr>
+</tbody>
+</table>
+<p>At <code>mm</code>=5, <strong>every</strong> monthly and biweekly name is also held by the other two cadences. Even at <code>mm</code>=95, 36 names are shared. The three <code>w0595</code> sleeves were initialised within five minutes of each other on 2026-07-17 (<code>paper_portfolio.initialized_at</code> 18:55:58Z, 18:57:29Z, 19:00:51Z UTC). <strong>Same-day agreement across cadences is mostly one portfolio counted up to three times.</strong> "Materially different name sets" is wrong, and so is the inference built on it. This ties back to record CW (2026-08-07), which traced the whole ladder gradient to the 05-01 stock selection and one month. <strong>Daily gradient reads are the wrong unit.</strong> The history-wide query proposed yesterday is still the right next step, and today's reversal makes it more necessary, not less.</p>
+<p><strong>6.2 — The ledger's price-return-only basis penalises exactly the names the energy-shock tilt has concentrated into.</strong></p>
+<p>Record CW documented that the sim credits no dividends, and argued this is harmless because "BH and actual are on the same basis". That holds for a <em>within-sleeve</em> comparison. <strong>It does not hold across sleeves or against the benchmark when yields differ.</strong> stockanalysis states INSW's annual dividend as <strong>$12.61</strong> and its yield as <strong>12.35%</strong> (<a href="https://stockanalysis.com/stocks/insw/dividend/">stockanalysis</a>). At the current 1,165.049 shares across 43 sleeves, that is <strong>$14,691.27 a year of real cash the ledger will never book</strong> from one name, if the trailing rate continues, which is not guaranteed. One ex-date alone was <strong>0.0771% of the whole book</strong>. The effect is systematic in one direction: <strong>sleeves that tilt toward high-yield energy and shipping names are measured worse than they perform</strong>, relative to low-yield growth sleeves and the benchmark. <strong>The data to fix the measurement isn't in the DB:</strong> only <strong>90 of 218</strong> held tickers have a <code>dividends_json</code> row, <strong>INSW has none</strong>, and <strong>zero</strong> cached rows carry an ex-date on or after 2026-08-01. Computing this needs a dividend source this project doesn't currently cache. <strong>A read-only dividend-accrual report per sleeve would be a measurement, not a strategy.</strong> It's Evan's call whether the added data source is worth it.</p>
+<p><strong>6.3 — Today's memory bounce is beta; yesterday's selloff was macro. Neither is thesis information.</strong></p>
+<p>On 09-10 the trio fell with a rate/oil shock even though an Overweight initiation landed the same morning. On 09-11 it is up about 1.7–1.9× SPY in a broad rebound. <strong>Both moves are consistent with memory trading as a leveraged bet on the rate path</strong>, not on memory pricing. The name-specific test is <strong>MU's 09-30 print</strong>, and before that, CPI and the 09-16 FOMC matter more to 10.85% of this book than any memory-industry headline.</p>
+<p><strong>6.4 — No new sleeve concept is supported today.</strong> One correction (INSW), one resolved conflict (KFII's IPO date), one dated new risk (UYSC 10-01), one reversal that retires a one-day claim (6.1), and one measurement gap worth sizing (6.2). No deployable idea.</p>
+<hr />
 </div>
 </body>
 </html>
