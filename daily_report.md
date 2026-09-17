@@ -49690,3 +49690,231 @@ The 09-11, 09-08 and 08-31 bases are as marked. The 09-14 base carries the $927.
 **7e. Next binaries.** **MU fiscal Q4, 2026-09-30 AMC**, the only position in all three single-name LLM arms and the book's largest holding ($478,287.84 across 62 sleeves). **October rebalance 2026-10-01 (~18:03 CDT)**, where the trading-guard hook is expected to deny the decision-logging step again (BLOCKED-ON-EVAN). **Saudi East-West pipeline**: a partial restart "within days" is the stated plan, and both the 14.25% energy weight and the refiner/upstream split in §7b hang on whether that happens. **XLV** is 2.6116% from its $163.50 invalidation, the nearest live sector-overlay stop.
 
 ---
+
+## Report: 2026-09-17 (Thursday) — Pre-Market Overnight Research
+
+> **DAILY SUMMARY** — Compiled 07:07–07:25 CDT, on-schedule fire (cron `0 7 * * 1-5`, `nextRunAt` 2026-09-18T12:07:23Z, no drift). **Rule 0g fires: 2026-09-16 is still UNMARKED.** `max(nav_date)` = 2026-09-15 (76 rows, $7,553,999.84 as marked), and zero rows are dated 09-16. The 17:17 MTM counted **4,280 closes against a 5,000 floor** and left the day pending. **The 07:45 `TradingMorningMTM` heal has not run at compile time**; this entry reports that schedule and does not predict its result. **Last night's 20:30 ladder run did nothing, as expected:** `weekly: last=2026-09-15 … due=False | biweekly: last=2026-09-15 … due=False`. So the 123 sells skipped on 09-15 still wait for **weekly 2026-09-21 / biweekly 2026-09-28**. Zero `paper_positions` rows carry an entry or exit date on or after 09-16. **Book: 09-16 INDICATIVE $7,545,176.05, −$54,823.95 / −0.7214% below the $7,600,000 seed.** That is identical to last night's figure, rebuilt from the DB plus the same two sourced closes (V $370.93, VSAT $70.95, both re-checked). **$51,163.88 (0.6804% of position value) is still carried** (UYSC, APGE, CRNX). **Pre-market (07:44–08:11 EDT, stockanalysis.com): a broad risk-on bounce led by memory and semicap.** **LRCX +3.93% ($279.80), WDC +3.12% ($430.00), AMAT +3.04% ($428.00), STX +2.91% ($805.98), SCCO +2.43% ($194.50), MU +2.11% ($946.14)**, against **SPY +0.99% ($761.52), QQQ +1.33% ($714.09)**. **XLE −0.34% ($63.81) and VLO −0.69% ($400.50)** as oil extends Wednesday's drop. Across 25 priced holdings (**37.16% of position value**) the estimated pre-market P&L is **+$39,409.86, +0.5223% of the book**. The sample is semi-heavy, so this is not a forecast. **MU's stated catalyst:** commercial production began at its $2.75B Sanand, Gujarat assembly-and-test plant ([TipRanks](https://www.tipranks.com/news/why-is-micron-stock-rising-in-pre-market-today); its timestamp is inconsistent, see §2). **Macro: futures up after the Fed's first hike since 2023** (Dow +0.70%, S&P +0.80%, Nasdaq +1.05%, undated snapshot, [Investrade](https://investrade.com/morning-preview-september-17-2026/)). **Oil lower again** after Saudi Arabia offered extra crude via ship-to-ship transfers off Oman's Sohar port. Quoted Brent prints range from **$103.95 to $105.70** depending on time and source; no single figure is published. **08:30 ET data (jobless claims, housing starts, Philly Fed) lands after compile time; not reported.** **Not held, but on-thesis for §6:** GNRC **+29.63% pre-market ($227.00)** on an Amazon backup-power supply deal worth **up to $8B**, with a warrant attached ([SEC 8-K](https://www.sec.gov/Archives/edgar/data/0001474735/000143774926030550/gnrc20260915_8k.htm)). **LLM overlay: 14 stock decisions (`count(*)`, NOT `max(id)`=17), 27 sector, unchanged since 09-01.** All three single-name arms hold MU, so treatment-vs-control stays **blind at +6.9030pp** at the close. **MU's $820 invalidation has 12.9939% headroom (15.3829% at the pre-market $946.14).** **The cascade's XLB is −1.2549% below its $51.00 invalidation at the close; the pre-market $50.79 narrows that to −0.4118%.** **Critical outstanding:** (1) 09-16 unmarked, heal pending; (2) 38 force-marked 09-15 ladder rows are still $1,528.80 above recompute, and verify PASSes over them; (3) the 09-14 SPY rows are still overstated **$927.06**; (4) the 123 skipped ladder sells cannot retry until 09-21/09-28; (5) the refresh rate limit has hit five sessions running; (6) MU FQ4 **2026-09-30 AMC**; (7) the October rebalance on **10-01**, where the trading-guard denial is expected again (BLOCKED-ON-EVAN).
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned **`Thu Sep 17 07:07:58 CDT 2026`**, and `date +%z` returned **`-0500`**, so the zone is **CDT**. All times are local unless marked ET/EDT/GMT/IST.
+
+**0b. Market-open check.** Thursday 2026-09-17 is a normal US equity session, not a holiday. Full report follows.
+
+**0c. Duplicate check.** `grep -n "## Report: 2026-09-1[67]" daily_report.md` returned three lines: **line 49030 (09-16 Pre-Market)**, line 49042 (that entry's own 0c text) and **line 49310 (09-16 Post-Market)**. No 2026-09-17 header existed, so this is not a re-fire.
+
+**0d. Cron echo** (live `list_scheduled_tasks` read, ~07:08 CDT):
+
+| field | value |
+|---|---|
+| `taskId` | `daily-trade-check` |
+| `cronExpression` | **`0 7 * * 1-5`** |
+| `schedule` | At 07:07 AM, Monday through Friday |
+| `enabled` | true |
+| `jitterSeconds` | 443 |
+| `lastRunAt` | 2026-09-17T12:07:50.409Z = **2026-09-17 07:07:50 CDT** (this run) |
+| `nextRunAt` | 2026-09-18T12:07:23.000Z = **2026-09-18 07:07:23 CDT** |
+
+**No drift.** Siblings from the same read: `daily-trade-check-2` `0 19 * * 1-5` (`lastRunAt` 2026-09-17T00:01:14.461Z, `nextRunAt` 2026-09-18T00:00:22.000Z); `daily-audit` `0 7 * * *` (`lastRunAt` 2026-09-17T12:05:28.569Z); `monthy-llm-rebalance` **`0 18 1-5 * *`** (`lastRunAt` 2026-09-05T23:03:04.113Z, `nextRunAt` **2026-10-01T23:03:03.000Z**), all unchanged from last night's echo.
+
+**0e. DB read-only.** Every query used `sqlite3.connect('file:var/trades.db?mode=ro', uri=True)`. No rebalance, MTM or price write was run.
+
+**0f. Morning heal not yet run.** This task fired at 07:07; `TradingMorningMTM` is scheduled for **07:45**. `var/last_morning_run.log` is still timestamped **2026-09-16 07:47**, i.e. yesterday's run. Whether today's heal marks 09-16 depends on whether the 09-16 close count clears the floor by then. I do not predict it.
+
+**0g. MTM state: 2026-09-16 is UNMARKED. Rule 0g fires.**
+
+```
+max(nav_date) in paper_nav = 2026-09-15   (76 rows, $7,553,999.84 as marked)
+paper_nav rows dated 2026-09-16 = 0
+price_cache kind='close' rows: 09-11 5,131 · 09-14 5,120 · 09-15 5,111 · 09-16 4,280
+[OPS 2026-09-16] coverage=PENDING verify=PASS
+```
+
+The 09-16 close count in `price_cache` is **still 4,280**, the same number the 17:17 coverage check saw. Nothing has backfilled 09-16 closes overnight.
+
+**0h. Method for every INDICATIVE figure.** `NAV = paper_portfolio.cash + Σ qty × price` over `status='open'` rows (3,357 rows, 76 sleeves, 221 tickers). `price` is the 09-16 `price_cache` close where present, else a sourced 09-16 close, else the latest DB close carried forward.
+
+| ticker | sleeves | DB last close | sourced 09-16 | status |
+|---|---:|---|---:|---|
+| V | 20 | $375.62 (09-15) | **$370.93** ([stockanalysis](https://stockanalysis.com/stocks/v/history/): 09-15 row $375.62 matches DB) | repaired |
+| VSAT | 2 | $70.61 (09-15) | **$70.95** ([stockanalysis](https://stockanalysis.com/stocks/vsat/history/): 09-15 row $70.61 matches DB) | repaired |
+| UYSC | 20 | $11.00 (09-15) | none | carried, $41,250.00 |
+| APGE | 6 | $135.07 (09-03) | none | carried, $8,112.43 |
+| CRNX | 2 | $84.95 (09-02) | none | carried, $1,801.45 |
+
+DB-only book (V and VSAT carried) is **$7,545,597.27**; with the two repairs it is **$7,545,176.05**, exactly last night's published figure. **Still carried: $51,163.88 = 0.6804% of position value** (last night's figure, same inputs). DB closes for MU ($926.55), SPY ($754.05), QQQ ($704.72), STX ($783.18), WDC ($416.97), TPL ($348.57), TGTX ($55.85), ARWR ($65.79), XLE ($64.03) all match the "regular close" stockanalysis pages fetched this morning to the cent.
+
+**0i. Ladder, 20:30 last night.** `var/last_ladder_run.log`:
+
+> `today=2026-09-16 (+20w from anchor) | weekly: last=2026-09-15 period>=2026-09-14 due=False | biweekly: last=2026-09-15 period>=2026-09-14 due=False`
+> `Both cadences already rebalanced inside their current period; nothing due today.`
+
+Its verify pass printed the same per-sleeve `drift` values as the 17:17 pass (e.g. `residual_w9505_wk_paper drift($-118.71)`, `residual_w1585_2wk_paper drift($-53.97)`) and all [PASS]. **The 38 force-marked 09-15 rows are unchanged** and still sit **$1,528.80** above the recompute (last night's §0h). Reported, not touched.
+
+**0j. Carried defects, unchanged overnight:** the 09-14 SPY rows are still overstated **$927.06** (last night §0j); APGE (12d stale by last night's count) and CRNX (13d) remain carried after their cash-outs; UYSC shows no trade since 09-14 on stockanalysis (last night). The working tree still carries the uncommitted `strict_fill_date` change (`scripts/momentum/paper_rebalance.py`, `ladder_forward_rebalance.py`, untracked `test_strict_fill_date.py`), which produced the 123 skipped sells.
+
+**0k. Anomaly scan.** Scanning every held ticker with both a 09-15 and a 09-16 DB close, exactly two moved more than ±10%: **CIFR +10.80%** (last night's §3c: ERCOT conditional capacity) and **PLSE −10.13%** (2 sleeves, not researched last night or today). All 23 DB closes I compared against this morning's stockanalysis "regular close" figures match to the cent. No KLAC-class (>1000%) move. The only future-dated `price_cache` keys are still RMCF's five NULL `2027-07-27` indicator rows (not `close`, not held; first flagged in an earlier entry).
+
+---
+
+### 1. Portfolio standings from last close (2026-09-16, INDICATIVE)
+
+Standings are last night's post-market 76-row table (§2 of that entry), not re-pasted. No price or position has changed since. This morning's rebuild reproduces its book total to the cent ($7,545,176.05), and spot-checked rows match (e.g. `residual_w6040_paper` 106,346.77, `mom_v2_paper` 80,777.53, `llm_overlay_sector_top4_paper` 101,029.70).
+
+| window | base | change |
+|---|---|---:|
+| day | 09-15 repaired $7,552,471.04 | **−$7,294.99 / −0.0966%** |
+| week to date | 09-11 marked $7,657,847.83 | **−$112,671.78 / −1.4713%** |
+| since seed | $7,600,000.00 | **−$54,823.95 / −0.7214%** |
+
+**Family standings since inception (last night's §5):** benchmark **+2.5253%** > residual ladder **+0.7100%** > LLM treatment −0.8166% > LLM control −1.7987% > residual champion −2.3048% > momentum **−16.0750%**. **Best sleeve** `residual_w6040_paper` **+6.3468%**; **worst** `mom_v2_paper` **−19.2225%**. **Cadence:** monthly **+2.2611%** > weekly +0.4800% > biweekly **−0.6110%**.
+
+**Largest holdings** (share of 09-16 position value, $7,520,347.19 DB-only basis):
+
+| ticker | sleeves | value | weight |
+|---|---:|---:|---:|
+| MU | 62 | $478,287.84 | 6.3599% |
+| SPY | 2 | $205,003.40 | 2.7260% |
+| QQQ | 2 | $202,030.50 | 2.6865% |
+| STX | 65 | $142,667.25 | 1.8971% |
+| INSW | 44 | $128,777.12 | 1.7124% |
+| WDC | 65 | $124,745.32 | 1.6588% |
+| LRCX | 54 | $115,136.08 | 1.5310% |
+| JNJ | 49 | $113,059.15 | 1.5034% |
+
+**Sector weights** (09-15 basis, last night's §3): Technology **23.68%**, Healthcare **20.86%**, Energy 14.25%, Financial Services 10.88%. Technology and Healthcare are the two sectors over 20%.
+
+---
+
+### 2. Overnight and pre-market moves
+
+All quotes are from each ticker's stockanalysis.com page (`https://stockanalysis.com/stocks/<ticker>/` or `/etf/<ticker>/`), fetched 07:08–07:20 CDT. The "vs close" base is the 09-16 close (V and VSAT: the sourced close).
+
+| ticker | sleeves | 09-16 close | pre-market | time (EDT) | move | est. $ |
+|---|---:|---:|---:|---|---:|---:|
+| **MU** | 62 | $926.55 | **$946.14** | 08:08 | **+2.11%** | **+$10,112.42** |
+| **LRCX** | 54 | $269.23 | **$279.80** | 08:10 | **+3.93%** | +$4,520.25 |
+| **STX** | 65 | $783.18 | **$805.98** | 08:09 | **+2.91%** | +$4,153.34 |
+| **WDC** | 65 | $416.97 | **$430.00** | 08:09 | **+3.12%** | +$3,898.20 |
+| **AMAT** | 48 | $415.38 | **$428.00** | 08:10 | **+3.04%** | +$2,848.13 |
+| QQQ | 2 | $704.72 | $714.09 | 08:08 | +1.33% | +$2,686.22 |
+| SPY | 2 | $754.05 | $761.52 | 08:08 | +0.99% | +$2,030.87 |
+| SCCO | 36 | $189.88 | $194.50 | 08:08 | +2.43% | +$1,909.88 |
+| TGTX | 45 | $55.85 | $56.80 | 07:50 | +1.70% | +$1,791.42 |
+| XLK | 4 | $183.93 | $186.84 | 08:09 | +1.58% | +$1,656.71 |
+| INSW | 44 | $109.38 | $110.50 | 07:58 | +1.02% | +$1,318.62 |
+| GOOGL | 44 | $342.87 | $347.13 | 08:10 | +1.24% | +$1,022.33 |
+| AAPL | 43 | $332.41 | $334.02 | 08:08 | +0.48% | +$523.05 |
+| XLI | 2 | $168.71 | $170.50 | 08:04 | +1.06% | +$504.85 |
+| ARWR | 28 | $65.79 | $66.41 | 08:02 | +0.94% | +$418.43 |
+| XLV | 4 | $167.77 | $168.21 | 07:49 | +0.26% | +$268.30 |
+| JNJ | 49 | $267.28 | $267.79 | 07:51 | +0.19% | +$215.73 |
+| XLB | 1 | $50.36 | $50.79 | 07:58 | +0.85% | +$183.55 |
+| TPL | 33 | $348.57 | $349.50 | 08:04 | +0.27% | +$173.88 |
+| V | 20 | $370.93 | $372.35 | 07:59 | +0.38% | +$130.39 |
+| VSAT | 2 | $70.95 | $72.36 | 07:44 | +1.99% | +$39.07 |
+| EXEL | 40 | $56.78 | $56.80 | 07:18 | +0.04% | +$34.95 |
+| EDRY | 39 | $69.28 | $69.20 | 07:47 | −0.12% | −$126.16 |
+| **XLE** | 4 | $64.03 | **$63.81** | 08:04 | **−0.34%** | −$380.41 |
+| **VLO** | 33 | $403.28 | **$400.50** | 08:11 | **−0.69%** | −$524.15 |
+
+**Coverage: 25 names, $2,794,462.04 = 37.16% of position value. Estimated pre-market P&L +$39,409.86 = +0.5223% of the book.** ATEX, SEZL and DAVE pages showed no pre-market quote. Pre-market prints are thin and the sample is overweight semis and storage, so this is a direction, not a forecast.
+
+**Memory and semicap lead.** MU's catalyst, per TipRanks: commercial production began at its **$2.75B Sanand, Gujarat assembly-and-test facility**, with "tens of millions" of chips planned this year and "hundreds of millions" in 2027; first shipments are memory modules to Dell ([TipRanks](https://www.tipranks.com/news/why-is-micron-stock-rising-in-pre-market-today)). A second TipRanks piece says MU, SanDisk and SK Hynix are rising "as the sector extends its recent gains" ([TipRanks](https://www.tipranks.com/news/why-are-memory-chip-stocks-micron-sandisk-and-sk-hynix-rising-in-pre-market-today-sept-17)), which names no new catalyst. **Timestamp flag:** the fetched TipRanks page says **09:58 AM ET**, but it was fetched before ~08:20 ET, and stockanalysis listed it as "2 hours ago". The time is inconsistent, so I use the facts and not the timestamp. **A plant opening is not a reason for a +3–4% move in LRCX/AMAT/WDC**; the more economical reading is a broad rebound (QQQ +1.33%) in the names that sold off into the hike. That reading is unproven.
+
+**Energy splits the other way from yesterday.** On Wednesday, refiners rose while upstream fell (last night §3d). This morning, with crude lower again, **VLO −0.69% and XLE −0.34%**, while **TPL +0.27%**. One pre-market print does not test last night's refiner/upstream hypothesis either way.
+
+---
+
+### 3. Catalyst and macro review
+
+**Fed follow-through.** Futures rose after Wednesday's 25bp hike to 3.75–4.00% (last night's §1, [Federal Reserve](https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm)): **Dow +383.00 (+0.70%) to 52,278; S&P 500 +61.25 (+0.80%) to 7,684; Nasdaq +306.50 (+1.05%) to 29,563** ([Investrade morning preview](https://investrade.com/morning-preview-september-17-2026/), no timestamp on the page). A Bloomberg live-blog summary returned by search attributes the bid to Warsh's inflation resolve "reassuring markets" and gives a **2-year yield of 4.72% (−1bp)** ([Bloomberg](https://www.bloomberg.com/news/articles/2026-09-16/stock-market-today-dow-s-p-live-updates); not fetched, paywalled, so treat as unverified). **10-year: 4.983% (−0.02)** per Investrade. The SPY (+0.99%) and QQQ (+1.33%) pre-market moves above are consistent with those futures moves.
+
+**Oil: lower again, and the sources disagree on the level.**
+
+| source | time | Brent | WTI |
+|---|---|---:|---:|
+| Reuters via Business Standard (search snippet; page returned 403) | 00:49 GMT | $104.59 (−$1.24, −1.2%) | $101.29 (−1.1%) |
+| [HDFC Sky](https://hdfcsky.com/news/brent-crude-oil-price-today-september-17-2026-brent-edges-lower-at-105-70-per-barrel-as-middle-east-supply-fears-ease) | 10:34 IST (05:04 GMT) | $105.70 (−0.09%) | $102.30 (−0.09%) |
+| [Investrade](https://investrade.com/morning-preview-september-17-2026/) | undated | $103.95 (−1.89) | $100.78 (−1.65) |
+
+**No single figure is published.** Every source agrees on direction: lower. **HDFC Sky's −0.09% is the outlier.** All three imply the same ~$105.8 Brent prior close ($104.59 + $1.24 = $105.83; $103.95 + $1.89 = $105.84; $105.70 ÷ 0.9991 ≈ $105.80), which matches last night's Rigzone settle of $105.83. So they disagree on the level, not the base. Either Brent recovered most of an early −1.2% by 05:04 GMT and then fell again, or one print is stale. I cannot tell which. **Cause, consistent across sources:** Saudi Arabia is offering Asian refiners extra loadings through **ship-to-ship transfers off Oman's Sohar port** while the East-West pipeline is repaired (Reuters via Business Standard; HDFC Sky). This adds a second relief route to Wednesday's partial-restart report (last night's §1, Rigzone), and it bears on the book's **14.25% Energy** weight.
+
+**Scheduled today (ET, [Investrade](https://investrade.com/morning-preview-september-17-2026/)):** 08:30 initial jobless claims (est. 208K, prior 206K), continuing claims (est. 1.78M), August housing starts (est. 1.41M) and permits (est. 1.309M), **September Philly Fed (est. 30.5, prior 47.4)**; 10:00 August pending home sales (est. −0.6%). **All print after compile time; none reported here.**
+
+**Held-name items (checked on each ticker's stockanalysis news list; nothing dated today unless stated):**
+- **MU:** Sanand plant (above). Fiscal Q4 **2026-09-30 AMC**.
+- **STX, WDC:** no company item today. The newest WDC item, "outlines new path to scalable storage infrastructure", is 1 day old.
+- **TGTX:** no item today. Items are 2 and 7 days old (BRIUMVI share gains, $1B run-rate commentary), plus a **26-day-old Betaville takeover rumour** ([stockanalysis TGTX](https://stockanalysis.com/stocks/tgtx/)). None explains Wednesday's +5.30%, which stays **unexplained**.
+- **ARWR:** conference transcripts from 1 and 2 days ago; the ARO-DIMER-PA data is 2 days old. Pre-market +0.94% after a −18.4455% two-session drop.
+- **DAVE:** **JPMorgan initiated at Overweight, 2 days ago** ([stockanalysis DAVE](https://stockanalysis.com/stocks/dave/)). That item predates Wednesday's −2.36%, which stays unexplained.
+- **EXEL:** FDA extended its review of a colorectal cancer combination by three months, **6 days ago** ([stockanalysis EXEL](https://stockanalysis.com/stocks/exel/)). Not new, but it is a pending regulatory item on a 40-sleeve holding.
+- **TPL:** nothing newer than a 6-day-old proxy filing. Wednesday's −6.21% stays attributed to oil, unproven.
+- **VLO:** Q3 results scheduled **2026-10-22** ([stockanalysis VLO](https://stockanalysis.com/stocks/vlo/)).
+- **INSW, EDRY, SCCO, SEZL, ATEX:** no item newer than 13 days.
+
+**Not held, but on the data-center-power thread: GNRC +29.63% pre-market ($227.00 vs $175.11).** Per its 8-K dated 2026-09-16, Generac issued Amazon a warrant for **1,693,745 shares at $200.9266**. **307,954** of those vested at once; the rest vest with Amazon's generator payments, up to **$8B** in total. Initial deliveries are expected to total **$2.4B in 2027–2028** ([SEC 8-K](https://www.sec.gov/Archives/edgar/data/0001474735/000143774926030550/gnrc20260915_8k.htm)). Also in the morning notes: Lennar Q3 EPS $1.23 vs $1.29 est.; Citi cut BSX to Neutral (Investrade). **GNRC, LEN and BSX are held by zero sleeves.**
+
+---
+
+### 4. LLM overlay status
+
+**Decision counts: 14 stock (`count(*)` on `llm_overlay_log`; `max(id)` = 17) and 27 sector (`count(*)` = `max(id)` = 27).** Newest stock row: id 17, 2026-09-01, MU BUY, score 7, invalidation $820. Unchanged since 09-01.
+
+**Single-name arm** (inception 2026-07-06; pre-market NAVs are indicative at MU $946.14):
+
+| arm | sleeve | holding | IND NAV 09-16 | since incep. | at pre-market |
+|---|---|---|---:|---:|---:|
+| control | mom_roa_top1_paper | MU | 92,310.07 | −7.6899% | −5.7400% |
+| treatment | llm_overlay_mom_roa_top1_paper | MU | 99,213.05 | −0.7869% | +1.3086% |
+| cascade | llm_cascade_top1_paper | MU | 97,231.44 | −2.7686% | −0.7149% |
+
+**Treatment − control = +6.9030pp at the close.** At the pre-market print it would be +7.0486pp, but only because the same MU move is applied to two different NAV bases. **The comparison stays blind while all three arms hold the same name.** MU's $820 invalidation has **12.9939%** headroom at the close and **15.3829%** at pre-market.
+
+**Sector arm** (inception 2026-07-06):
+
+| arm | sleeve | holdings | IND NAV 09-16 | since incep. | at pre-market |
+|---|---|---|---:|---:|---:|
+| control | sector_top4_paper | XLE, XLK, XLI, XLV | 104,092.53 | +4.0925% | +4.7095% |
+| treatment | llm_overlay_sector_top4_paper | XLV, XLE, XLK + $23,087.99 cash | 101,029.70 | +1.0297% | +1.4078% |
+| cascade | llm_cascade_sector4_paper | XLV, XLE, XLK, XLB | 99,259.44 | −0.7406% | −0.1838% |
+
+**Invalidation levels** (logged 09-01):
+
+| id | ETF | verdict | level | 09-16 close | headroom | at pre-market |
+|---:|---|---|---:|---:|---:|---:|
+| 26 | **XLV** | HOLD 7 | $163.50 | $167.77 | **+2.6116%** (nearest) | +2.8807% |
+| 23 | XLK | HOLD 6 | $177.00 | $183.93 | +3.9153% | +5.5593% |
+| 24 | XLE | HOLD 7 | $58.00 | $64.03 | +10.3966% | +10.0172% |
+| 27 | **XLB** (cascade) | HOLD 6 | $51.00 | $50.36 | **−1.2549%** | −0.4118% |
+
+**The 09-01 XLI VETO:** XLI $168.71 is **−2.3273%** below the $172.73 in its rationale. At the pre-market $170.50 that gap narrows to **−1.2910%**, so a broad rally today erodes the veto's paper win.
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **09-16 unmarked** (§0g). The 07:45 heal is the next chance. If 09-16 coverage stays at 4,280 closes, the day remains pending into tonight's 17:15 run, which will also face 09-17.
+2. **Forced ladder NAV rows** ($1,528.80, 38 sleeves, 09-15) and **SPY 09-14 overstatement** ($927.06): NAV-history questions, Evan's call.
+3. **123 skipped ladder sells** held against the model's own signal until **09-21 (weekly) / 09-28 (biweekly)**.
+4. **Refresh rate limiting**, five sessions running. Last night it hit 132 tickers, 62 of them starting with V. Tonight's refresh decides whether 09-17 is markable.
+5. **Concentration into a gap-up:** MU (6.3599%), STX and WDC (65 sleeves each), LRCX and AMAT together make the book's pre-market estimate mostly a memory/semicap call. The same names fell on 09-15/09-16.
+6. **XLV is 2.6116% above its $163.50 invalidation**, the only live sector-overlay stop within 5%.
+7. **Today 08:30 ET:** claims, housing starts/permits, Philly Fed; **10:00 ET** pending home sales.
+8. **Calendar:** weekly ladder period **09-21**; biweekly **09-28**; **MU FQ4 09-30 AMC** (all three single-name arms and 62 sleeves); **October rebalance 10-01 ~18:03 CDT**, where the trading-guard denial on the decision-logging step is expected again (BLOCKED-ON-EVAN, records DN–DP); **VLO Q3 10-22**.
+
+---
+
+### 6. Strategic insights
+
+**6a. The pre-market tape is a second test of "the book is a semis bet", and it points the same way as the 09-15 → 09-16 sessions.** 25 names priced this morning carry an estimated +0.5223% of book. **$25,532.34 of the +$39,409.86 (64.79%) comes from just MU, LRCX, STX, WDC and AMAT**, which are 12.6933% of position value between them. Each of these names sits in 48–65 of the 76 sleeves, so **the "57-sleeve" ladder behaves on days like this as one memory/semicap position with different wrappers.** The weight-gradient and cadence findings in last night's §6 are measured over sleeves that share this core, and that lowers the effective sample size under any sleeve-count-based significance claim. No change proposed; this caveat belongs on any future ladder result.
+
+**6b. Data-center power has now shown up twice in a week, and the book owns none of it directly.** Wednesday's CIFR +10.80% (ERCOT capacity) and this morning's GNRC +29.63% (Amazon backup-generator supply up to $8B, SEC 8-K) are both **contracted or regulatory events on the power side of AI capex**, not chip demand. A sleeve concept this suggests: **an event-driven "hyperscaler supply-contract" screen** that buys names on 8-K disclosure of a multi-year hyperscaler supply agreement. The weakness is visible already: GNRC's move happened in extended trading, before any end-of-day system could act, so **the edge, if any, would have to come from post-announcement drift, not the gap.** That is testable on historical 8-K Item 1.01 filings, but only with an intraday-free entry rule (next close) and a pre-registered holding period. **No recommendation; it is a research candidate, and the honest prior is that the drift is small once the gap is excluded.**
+
+**6c. Oil relief is arriving by a second route, which bears on the 14.25% energy weight more than the price does.** The Oman ship-to-ship offer (§3) is a workaround that does not depend on repairing the pipeline. If supply fear keeps draining out, the momentum/residual ranking that bought energy on disruption strength will unwind it at the next period ends (**weekly 09-21, biweekly 09-28, monthly 10-01**). Whether any of the 123 skipped sells (§5.3) are energy names would matter here; I have not cross-referenced them against sector today.
+
+**6d. Structural edge: nothing changed overnight.** No NAV moved (the day is unmarked), and pre-market prints are not results. Last night's reads stand: benchmarks lead (+2.5253%), the residual ladder is modestly positive (+0.7100%), momentum is the clear loser (−16.0750%), and monthly cadence remains the one defensible structural signal, now carrying both the skipped-sell contamination caveat and §6a's shared-core caveat.
+
+---
