@@ -142796,6 +142796,820 @@ paper_nav rows dated 2026-09-17 = 0
 </ul>
 <p>MU reports <strong>FQ4 on 2026-09-30 after the close</strong>, one day before the October rebalance, with 6.63% of the book in the name. The <strong>10-01 rebalance faces the same trading-guard denial</strong> that has blocked Step 3 since 2026-09-01 (<strong>BLOCKED-ON-EVAN</strong>).</p>
 <hr />
+<hr />
+<h2 id="report-2026-09-18-friday--pre-market-overnight-research">Report: 2026-09-18 (Friday) — Pre-Market Overnight Research</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong> — Compiled 07:08–07:50 CDT, on-schedule fire (cron <code>0 7 * * 1-5</code>, <code>lastRunAt</code> 2026-09-18T12:08:17Z = 07:08:17 CDT, <code>nextRunAt</code> Monday 2026-09-21T12:07:23Z, <strong>no drift</strong>). <strong>Rule 0g fires: 2026-09-17 is UNMARKED.</strong> <code>max(nav_date)</code> = <strong>2026-09-16</strong> ($7,545,176.05, 76 rows); last night's 17:17 MTM counted <strong>4,079 closes against a 5,000 floor</strong> (baseline median-of-10 = 5,130) and left the day pending. <strong>The 07:45 <code>TradingMorningMTM</code> heal has not run at compile time</strong> — <code>var/last_morning_run.log</code> is still stamped 2026-09-17 07:47; I report the schedule and do not predict its result. Every NAV below is <strong>INDICATIVE</strong>: <code>cash + Σ qty × close</code> over 3,357 open rows / 76 sleeves / 221 tickers, with <strong>219 of 221 tickers at a real 2026-09-17 close</strong> (207 from <code>price_cache</code>, <strong>12 re-sourced from stockanalysis.com this morning</strong>). Only <strong>APGE and CRNX</strong> are carried, <strong>$9,913.88 = 0.1303% of position value</strong> — both delisted after completed cash acquisitions (last night's §0), not stale feeds. <strong>Book: 09-17 INDICATIVE $7,634,238.10</strong>, <strong>+$89,062.05 / +1.1804%</strong> on the day, <strong>+$34,238.10 / +0.4505% above the $7,600,000 seed</strong>, still <strong>−0.3083% week-to-date</strong> and <strong>−0.3756% month-to-date</strong>. That rebuild lands <strong>$12.55 above</strong> last night's published $7,634,225.55 on the same method; <strong>21 of 21 DB closes I re-checked against stockanalysis match to the cent.</strong> <strong>Pre-market is flat-to-mixed, not a continuation of Thursday's +1.18% day.</strong> Across <strong>26 priced holdings (36.0117% of position value)</strong> the estimated pre-market P&amp;L is <strong>+$8,533.60, +0.1118% of the book</strong> — 16 names up, 10 down. Leaders: <strong>GOOGL +2.21% ($355.00)</strong> on Waymo's Singapore launch announcement, <strong>INSW +1.54% ($112.23)</strong> on a single-sourced BTIG target raise to $130, <strong>TGTX +1.19%</strong>, <strong>SCCO +0.86%</strong>, <strong>MU +0.63% ($983.66)</strong>. Laggards: <strong>JNJ −0.64%</strong>, <strong>XLE −0.59%</strong>, <strong>VLO −0.52%</strong>, <strong>SPY −0.23% ($760.85)</strong> against <strong>QQQ +0.21% ($718.40)</strong>. <strong>Macro: index futures disagree across sources at the same 4:00 a.m. ET stamp</strong> — fetched levels give <strong>S&amp;P 7,710.25 (+0.04%), Nasdaq 29,830.25 (+0.29%), Dow 52,148.00 (−0.14%), Russell 2,889.00 (−0.27%)</strong>; a TheStreet snippet claims +0.3%/+0.6%/+0.2%/+0.2%. Published figures are the fetched ones; TheStreet is flagged (its page 403s). <strong>Oil lower again: Brent $103.83 (−0.94%), WTI $101.01 (−0.88%)</strong> on fresh Saudi–Houthi strikes weighed against extra Saudi barrels reaching market. <strong>Today: industrial production 08:15 ET (est +0.3%), Fed Gov. Bowman 08:30 ET, KC Fed's Schmid later, and monthly triple witching at the close.</strong> <strong>MU's overnight item is a negative one:</strong> Reuters reports <strong>CXMT is building a NAND R&amp;D line in Beijing</strong>, extending China's memory push from DRAM into flash — MU is 6.6315% of the book and the #3 NAND supplier. <strong>LLM overlay: 14 stock decisions (<code>count(*)</code>, NOT <code>max(id)</code>=17), 27 sector, unchanged since 09-01.</strong> Single-name treatment−control <strong>+7.2816pp</strong> (+7.3274pp at pre-market) — still <strong>blind</strong>, all three arms hold MU. <strong>XLB closed $50.71, a third session below its $51.00 invalidation (−0.5686%), and the pre-market $50.51 widens that to −0.9608%.</strong> <strong>Critical outstanding:</strong> (1) 09-17 unmarked, heal at 07:45; (2) APGE/CRNX delisted-acquired but still open at $9,913.88 — Evan's call; (3) 38 force-marked 09-15 ladder rows still $1,528.80 above recompute, and verify PASSes over them; (4) 09-14 SPY rows still overstated $927.06; (5) 123 skipped ladder sells cannot retry until <strong>09-21 (weekly) / 09-28 (biweekly)</strong>; (6) <strong>MU FQ4 2026-09-30 AMC</strong>, a binary on 6.63% of the book; (7) October rebalance <strong>10-01</strong>, trading-guard denial expected again (BLOCKED-ON-EVAN).</p>
+</blockquote>
+<hr />
+<h3 id="0-data-integrity-and-operational-status_52">0. Data integrity and operational status</h3>
+<p><strong>0a. Clock.</strong> <code>date</code> returned <strong><code>Fri Sep 18 07:08:25 CDT 2026</code></strong> at the start of the run and <strong><code>Fri Sep 18 07:14:16 CDT 2026</code></strong> mid-compile; <code>date +%z</code> returned <strong><code>-0500</code></strong>, so the zone is <strong>CDT</strong>. All times are local unless marked ET/EDT/GMT.</p>
+<p><strong>0b. Market-open check.</strong> Friday 2026-09-18 is a normal US equity session, not a holiday. It is a <strong>monthly triple-witching expiration</strong> (<a href="https://finance.yahoo.com/markets/stocks/articles/why-nasdaq-p-500-dow-082832323.html">Benzinga via Yahoo Finance</a>), which raises closing-auction volume but does not change the schedule. Full report follows.</p>
+<p><strong>0c. Duplicate check.</strong> <code>grep -n "^## Report:" daily_report.md | tail -12</code> ended at <strong>line 49694 (2026-09-17 Pre-Market)</strong> and <strong>line 49922 (2026-09-17 Post-Market)</strong>. No 2026-09-18 header existed, so this is not a re-fire.</p>
+<p><strong>0d. Cron echo</strong> (live <code>list_scheduled_tasks</code> read, 07:09 CDT):</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>taskId</code></td>
+<td><code>daily-trade-check</code></td>
+</tr>
+<tr>
+<td><code>cronExpression</code></td>
+<td><strong><code>0 7 * * 1-5</code></strong></td>
+</tr>
+<tr>
+<td><code>schedule</code></td>
+<td>At 07:07 AM, Monday through Friday</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>jitterSeconds</code></td>
+<td>443</td>
+</tr>
+<tr>
+<td><code>lastRunAt</code></td>
+<td>2026-09-18T12:08:17.814Z = <strong>2026-09-18 07:08:17 CDT</strong> (this run)</td>
+</tr>
+<tr>
+<td><code>nextRunAt</code></td>
+<td>2026-09-21T12:07:23.000Z = <strong>Monday 2026-09-21 07:07:23 CDT</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>No drift.</strong> Siblings from the same read: <code>daily-trade-check-2</code> <code>0 19 * * 1-5</code> (<code>lastRunAt</code> 2026-09-18T00:00:35.041Z, <code>nextRunAt</code> 2026-09-19T00:00:22.000Z); <code>daily-audit</code> <code>0 7 * * *</code> (<code>lastRunAt</code> 2026-09-18T12:05:56.796Z); <code>monthy-llm-rebalance</code> <strong><code>0 18 1-5 * *</code></strong> (<code>lastRunAt</code> 2026-09-05T23:03:04.113Z, <code>nextRunAt</code> <strong>2026-10-01T23:03:03.000Z</strong>). All unchanged from yesterday's echo.</p>
+<p><strong>0e. DB read-only.</strong> Every query used <code>sqlite3.connect('file:var/trades.db?mode=ro', uri=True)</code>. No rebalance, MTM or price write was run.</p>
+<p><strong>0f. Morning heal not yet run.</strong> This task fired at 07:08; <code>TradingMorningMTM</code> is scheduled for <strong>07:45</strong>. <code>var/last_morning_run.log</code> is still timestamped <strong>2026-09-17 07:47</strong> — yesterday's run, which is what healed 09-16. Whether today's heal marks 09-17 depends on whether the 09-17 close count clears the floor by then. <strong>I do not predict it.</strong></p>
+<p><strong>0g. MTM state: 2026-09-17 is UNMARKED. Rule 0g fires.</strong></p>
+<pre><code>max(nav_date) in paper_nav = 2026-09-16   (76 rows, $7,545,176.05 as marked)
+paper_nav rows dated 2026-09-17 = 0
+price_cache kind='close' counts: 09-10 5,129 · 09-11 5,131 · 09-14 5,126 · 09-15 5,122 · 09-16 5,105 · 09-17 4,079
+</code></pre>
+<p>From <code>var/last_daily_run.log</code>, verbatim:</p>
+<blockquote>
+<p><code>Coverage check: date=2026-09-17  closes=4079  baseline(median of 10)=5130  floor=5000 [max(5000, 90%*5130=4617)]</code><br />
+<code>COVERAGE FAIL: only 4079 closes on 2026-09-17 (&lt; floor 5000). Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.</code><br />
+<code>catch-up done: marked=0 skipped_pre_rebalance=0 latest=2026-09-17 coverage_ok=False pending=2026-09-17</code></p>
+</blockquote>
+<p><strong>Note the 09-16 count is now 5,105</strong>, up from the 4,280 this task saw yesterday morning — that day healed normally. The pattern is a same-day publication shortfall, not a permanent gap.</p>
+<p><strong>0h. Method for every INDICATIVE figure.</strong> <code>NAV = paper_portfolio.cash + Σ qty × price</code> over <code>status='open'</code> rows (<strong>3,357 rows, 76 sleeves, 221 tickers</strong>). <code>price</code> is the 09-17 <code>price_cache</code> close where present (207 tickers), else a 09-17 close sourced this morning (12 tickers), else the latest DB close carried forward (2 tickers).</p>
+<p><strong>Fourteen held tickers had no 09-17 DB close at compile time.</strong> Twelve were re-sourced:</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th style="text-align: right;">sleeves</th>
+<th>DB last close</th>
+<th style="text-align: right;">sourced 09-17 close</th>
+<th>source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SCCO</td>
+<td style="text-align: right;">36</td>
+<td>$189.88 (09-16)</td>
+<td style="text-align: right;"><strong>$196.11</strong></td>
+<td><a href="https://stockanalysis.com/stocks/scco/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>VICR</td>
+<td style="text-align: right;">27</td>
+<td>$183.91 (09-16)</td>
+<td style="text-align: right;"><strong>$216.39</strong></td>
+<td><a href="https://stockanalysis.com/stocks/vicr/history/">history page</a></td>
+</tr>
+<tr>
+<td>TGTX</td>
+<td style="text-align: right;">45</td>
+<td>$55.85 (09-16)</td>
+<td style="text-align: right;"><strong>$56.47</strong></td>
+<td><a href="https://stockanalysis.com/stocks/tgtx/history/">history page</a></td>
+</tr>
+<tr>
+<td>UTHR</td>
+<td style="text-align: right;">27</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$497.27</strong></td>
+<td><a href="https://stockanalysis.com/stocks/uthr/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>TER</td>
+<td style="text-align: right;">6</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$353.13</strong></td>
+<td><a href="https://stockanalysis.com/stocks/ter/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>TRGP</td>
+<td style="text-align: right;">16</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$285.07</strong></td>
+<td><a href="https://stockanalysis.com/stocks/trgp/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>SPHR</td>
+<td style="text-align: right;">30</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$144.94</strong></td>
+<td><a href="https://stockanalysis.com/stocks/sphr/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>SUN</td>
+<td style="text-align: right;">5</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$78.81</strong></td>
+<td><a href="https://stockanalysis.com/stocks/sun/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>TEN</td>
+<td style="text-align: right;">8</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$52.81</strong></td>
+<td><a href="https://stockanalysis.com/stocks/ten/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>UFCS</td>
+<td style="text-align: right;">15</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$54.30</strong></td>
+<td><a href="https://stockanalysis.com/stocks/ufcs/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>UYSC</td>
+<td style="text-align: right;">20</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$10.99</strong></td>
+<td><a href="https://stockanalysis.com/stocks/uysc/">stockanalysis</a></td>
+</tr>
+<tr>
+<td>KFII</td>
+<td style="text-align: right;">19</td>
+<td>(09-16)</td>
+<td style="text-align: right;"><strong>$10.66</strong></td>
+<td><a href="https://stockanalysis.com/stocks/kfii/">stockanalysis</a></td>
+</tr>
+</tbody>
+</table>
+<p>Two are carried, and neither is a feed problem: <strong>APGE $8,112.43</strong> (6 sleeves, last close 2026-09-03) and <strong>CRNX $1,801.45</strong> (2 sleeves, last close 2026-09-02), <strong>$9,913.88 = 0.1303% of position value</strong>, both delisted after completed cash acquisitions per last night's §0.</p>
+<p><strong>The 12 repairs are worth $10,793.26.</strong> The DB-only rebuild (all 14 carried) gives <strong>$7,623,444.84</strong> with <strong>$509,271.93 = 6.7025%</strong> of position value stale; the repaired rebuild gives <strong>$7,634,238.10</strong> with only 0.1303% stale. <strong>Publishing the DB-only number would have understated the book by 0.14%</strong> — the missing tickers are alphabetically clustered (S–V plus KFII), which is the rate-limit signature, and that cluster is not price-neutral.</p>
+<p><strong>Reconciliation to last night:</strong> my repaired total <strong>$7,634,238.10</strong> vs last night's published <strong>$7,634,225.55</strong> — a <strong>+$12.55</strong> difference on the same stated method, 0.00016% of the book. Not investigated further; reported so the two entries do not silently disagree.</p>
+<p><strong>Cross-check:</strong> for 21 tickers I compared this morning's sourced "regular close" against the DB's own 09-17 close — MU $977.50, STX $803.13, WDC $423.87, LRCX $269.31, SPY $762.60, QQQ $716.92, INSW $110.53, JNJ $270.22, XLE $64.48, AAPL $337.00, XLK $188.06, XLV $168.81, XLB $50.71, XLI $169.01, VLO $412.53, AMAT $417.40, GOOGL $347.33, TPL $347.20, V $369.93, ARWR $67.74, EDRY $71.85. <strong>21/21 match to the cent.</strong></p>
+<p><strong>0i. Ladder, 20:30 last night.</strong> <code>var/last_ladder_run.log</code>, verbatim:</p>
+<blockquote>
+<p><code>today=2026-09-17 (+20w from anchor) | weekly: last=2026-09-15 period&gt;=2026-09-14 due=False | biweekly: last=2026-09-15 period&gt;=2026-09-14 due=False</code><br />
+<code>Both cadences already rebalanced inside their current period; nothing due today.</code></p>
+</blockquote>
+<p><code>RESULT: PASS (76/76 sleeves OK)</code>. The <strong>123 sells skipped on 09-15</strong> still wait for <strong>weekly 2026-09-21 / biweekly 2026-09-28</strong>. Zero <code>paper_positions</code> rows carry an entry or exit date on or after 2026-09-17.</p>
+<p><strong>0j. Carried defects, unchanged overnight.</strong> The <strong>38 force-marked 09-15 ladder rows still sit $1,528.80 above recompute</strong> and <code>verify_run</code> PASSes over them; the <strong>09-14 SPY rows are still overstated $927.06</strong>; APGE and CRNX remain open positions against completed acquisitions. <code>var/ops_status.log</code> shows <code>[OPS 2026-09-17] coverage=PENDING verify=PASS</code> — <strong>a verify PASS is not evidence that any sleeve moved.</strong> The working tree still carries the uncommitted <code>strict_fill_date</code> change (two modified files under <code>scripts/momentum/</code> — the monthly rebalance module and <code>ladder_forward_rebalance.py</code> — plus untracked <code>scripts/momentum/test_strict_fill_date.py</code>), which is what produced the 123 skipped sells.</p>
+<p><strong>0k. Anomaly scan.</strong> Scanning every held ticker with both a 09-16 and a 09-17 close, exactly two moved more than ±10%, and both are explained: <strong>VICR +17.66%</strong> ($183.91 → $216.39, 27 sleeves) on Thursday's Vertical Power Delivery license, and <strong>PSIX +13.62%</strong> ($40.09 → $45.55, 19 sleeves, $25,929.92). No KLAC-class (&gt;1000%) move. Nothing in the repaired price set is future-dated.</p>
+<hr />
+<h3 id="1-portfolio-standings-from-last-close-2026-09-17-indicative">1. Portfolio standings from last close (2026-09-17, INDICATIVE)</h3>
+<table>
+<thead>
+<tr>
+<th>window</th>
+<th>base</th>
+<th style="text-align: right;">change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>day</td>
+<td>09-16 <strong>marked</strong> $7,545,176.05</td>
+<td style="text-align: right;"><strong>+$89,062.05 / +1.1804%</strong></td>
+</tr>
+<tr>
+<td>week to date</td>
+<td>09-11 <strong>marked</strong> $7,657,847.83</td>
+<td style="text-align: right;"><strong>−$23,609.73 / −0.3083%</strong></td>
+</tr>
+<tr>
+<td>month to date</td>
+<td>08-31 <strong>marked</strong> $7,663,021.17</td>
+<td style="text-align: right;"><strong>−$28,783.07 / −0.3756%</strong></td>
+</tr>
+<tr>
+<td>since seed</td>
+<td>$7,600,000.00</td>
+<td style="text-align: right;"><strong>+$34,238.10 / +0.4505%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Thursday's session recovered the whole Fed-day drawdown and then some, but <strong>the book is still down on the week and on the month.</strong> The +1.18% day is INDICATIVE — it becomes a marked NAV only if the 07:45 heal or tonight's 17:15 run clears the coverage floor.</p>
+<p><strong>Family standings since inception, equal-weight mean of sleeve returns</strong> (indicative, on the <strong>repaired</strong> 09-17 price set of §0h — not the DB-only set, which understates every family holding one of the 12 re-sourced tickers; membership stated so the groups are reproducible):</p>
+<table>
+<thead>
+<tr>
+<th>family</th>
+<th>members</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mean return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QQQ benchmark</td>
+<td><code>qqq_benchmark_paper</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><strong>+6.3443%</strong></td>
+</tr>
+<tr>
+<td>sector systematic</td>
+<td><code>sector_top4_paper</code> +5.0755%, <code>sector_top4_full_paper</code> +6.6230%</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><strong>+5.8493%</strong></td>
+</tr>
+<tr>
+<td>SPY benchmark</td>
+<td><code>spy_benchmark_paper</code>, <code>spy_benchmark_0701_paper</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><strong>+3.6639%</strong></td>
+</tr>
+<tr>
+<td>LLM overlay treatments</td>
+<td><code>llm_overlay_*</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><strong>+3.3065%</strong></td>
+</tr>
+<tr>
+<td>LLM cascades</td>
+<td><code>llm_cascade_*</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><strong>+1.4482%</strong></td>
+</tr>
+<tr>
+<td>residual ladder</td>
+<td><code>residual_w*</code></td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;"><strong>+1.5300%</strong></td>
+</tr>
+<tr>
+<td>residual champion</td>
+<td><code>residual_roa_6535_paper</code>, <code>residual_roa_6535_0701_paper</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><strong>−1.1135%</strong></td>
+</tr>
+<tr>
+<td>momentum</td>
+<td><code>mom_*</code> excluding <code>top1</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;"><strong>−13.6984%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Best sleeve</strong> <code>residual_w6040_paper</code> <strong>+7.7513%</strong> ($107,751.27); <strong>worst</strong> <code>mom_v2_paper</code> <strong>−16.7764%</strong> ($83,223.62). The momentum family remains the clear structural loser and the ordering has not changed.</p>
+<p><strong>Cadence, within the 57-sleeve residual ladder:</strong> <strong>monthly +3.1106%</strong> (n=19) &gt; weekly +1.3151% (n=19) &gt; <strong>biweekly +0.1643%</strong> (n=19). Monthly still leads, and the gap to biweekly widened on Thursday's tape.</p>
+<p><strong>Largest holdings</strong> (repaired 09-17 prices, $7,608,988.02 position-value basis):</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th style="text-align: right;">sleeves</th>
+<th style="text-align: right;">value</th>
+<th style="text-align: right;">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MU</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">$504,588.39</td>
+<td style="text-align: right;"><strong>6.6315%</strong></td>
+</tr>
+<tr>
+<td>SPY</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">$207,327.88</td>
+<td style="text-align: right;">2.7248%</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">$205,528.03</td>
+<td style="text-align: right;">2.7011%</td>
+</tr>
+<tr>
+<td>STX</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">$146,301.43</td>
+<td style="text-align: right;">1.9227%</td>
+</tr>
+<tr>
+<td>INSW</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">$130,131.06</td>
+<td style="text-align: right;">1.7102%</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">$126,809.59</td>
+<td style="text-align: right;">1.6666%</td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">$115,170.29</td>
+<td style="text-align: right;">1.5136%</td>
+</tr>
+<tr>
+<td>JNJ</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">$114,302.77</td>
+<td style="text-align: right;">1.5022%</td>
+</tr>
+<tr>
+<td>EDRY</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">$113,307.45</td>
+<td style="text-align: right;">1.4891%</td>
+</tr>
+<tr>
+<td>XLE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">$111,495.76</td>
+<td style="text-align: right;">1.4653%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sector weights</strong> (repaired 09-17): <strong>Technology 24.10%</strong>, <strong>Healthcare 20.90%</strong>, Energy 14.10%, Financial Services 10.64%, Industrials 6.60%, Communication Services 6.05%, Index 5.43%, Consumer Cyclical 3.65%. Technology and Healthcare are the two sectors over 20%.</p>
+<hr />
+<h3 id="2-overnight-and-pre-market-moves_22">2. Overnight and pre-market moves</h3>
+<p>All quotes are from each ticker's stockanalysis.com page (<code>https://stockanalysis.com/stocks/&lt;ticker&gt;/</code> or <code>/etf/&lt;ticker&gt;/</code>), fetched <strong>07:10–07:25 CDT (08:10–08:25 EDT)</strong>. The base is each name's <strong>09-17 close</strong> as established in §0h.</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th style="text-align: right;">sleeves</th>
+<th style="text-align: right;">09-17 close</th>
+<th style="text-align: right;">pre-market</th>
+<th>time (EDT)</th>
+<th style="text-align: right;">move</th>
+<th style="text-align: right;">est. $</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GOOGL</strong></td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">$347.33</td>
+<td style="text-align: right;"><strong>$355.00</strong></td>
+<td>08:10</td>
+<td style="text-align: right;"><strong>+2.2083%</strong></td>
+<td style="text-align: right;"><strong>+$1,840.67</strong></td>
+</tr>
+<tr>
+<td><strong>INSW</strong></td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">$110.53</td>
+<td style="text-align: right;"><strong>$112.23</strong></td>
+<td>—</td>
+<td style="text-align: right;"><strong>+1.5380%</strong></td>
+<td style="text-align: right;"><strong>+$2,001.47</strong></td>
+</tr>
+<tr>
+<td><strong>TGTX</strong></td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">$56.47</td>
+<td style="text-align: right;"><strong>$57.14</strong></td>
+<td>07:52</td>
+<td style="text-align: right;"><strong>+1.1865%</strong></td>
+<td style="text-align: right;">+$1,263.42</td>
+</tr>
+<tr>
+<td><strong>SCCO</strong></td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">$196.11</td>
+<td style="text-align: right;"><strong>$197.80</strong></td>
+<td>07:45</td>
+<td style="text-align: right;"><strong>+0.8618%</strong></td>
+<td style="text-align: right;">+$698.64</td>
+</tr>
+<tr>
+<td><strong>MU</strong></td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">$977.50</td>
+<td style="text-align: right;"><strong>$983.66</strong></td>
+<td>08:09</td>
+<td style="text-align: right;"><strong>+0.6302%</strong></td>
+<td style="text-align: right;"><strong>+$3,179.81</strong></td>
+</tr>
+<tr>
+<td>VICR</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">$216.39</td>
+<td style="text-align: right;">$217.70</td>
+<td>08:07</td>
+<td style="text-align: right;">+0.6054%</td>
+<td style="text-align: right;">+$272.38</td>
+</tr>
+<tr>
+<td>TER</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">$353.13</td>
+<td style="text-align: right;">$355.20</td>
+<td>08:03</td>
+<td style="text-align: right;">+0.5862%</td>
+<td style="text-align: right;">+$60.24</td>
+</tr>
+<tr>
+<td>LRCX</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">$269.31</td>
+<td style="text-align: right;">$270.15</td>
+<td>08:04</td>
+<td style="text-align: right;">+0.3119%</td>
+<td style="text-align: right;">+$359.23</td>
+</tr>
+<tr>
+<td>STX</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">$803.13</td>
+<td style="text-align: right;">$805.30</td>
+<td>08:07</td>
+<td style="text-align: right;">+0.2702%</td>
+<td style="text-align: right;">+$395.30</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">$423.87</td>
+<td style="text-align: right;">$425.01</td>
+<td>08:08</td>
+<td style="text-align: right;">+0.2690%</td>
+<td style="text-align: right;">+$341.06</td>
+</tr>
+<tr>
+<td>AMAT</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">$417.40</td>
+<td style="text-align: right;">$418.50</td>
+<td>08:09</td>
+<td style="text-align: right;">+0.2635%</td>
+<td style="text-align: right;">+$248.25</td>
+</tr>
+<tr>
+<td>ARWR</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">$67.74</td>
+<td style="text-align: right;">$67.88</td>
+<td>07:15</td>
+<td style="text-align: right;">+0.2067%</td>
+<td style="text-align: right;">+$94.49</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">$716.92</td>
+<td style="text-align: right;">$718.40</td>
+<td>08:09</td>
+<td style="text-align: right;">+0.2064%</td>
+<td style="text-align: right;">+$424.29</td>
+</tr>
+<tr>
+<td>XLK</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">$188.06</td>
+<td style="text-align: right;">$188.30</td>
+<td>08:08</td>
+<td style="text-align: right;">+0.1276%</td>
+<td style="text-align: right;">+$136.64</td>
+</tr>
+<tr>
+<td>TPL</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">$347.20</td>
+<td style="text-align: right;">$347.49</td>
+<td>07:52</td>
+<td style="text-align: right;">+0.0835%</td>
+<td style="text-align: right;">+$54.22</td>
+</tr>
+<tr>
+<td>AAPL</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">$337.00</td>
+<td style="text-align: right;">$337.21</td>
+<td>08:10</td>
+<td style="text-align: right;">+0.0623%</td>
+<td style="text-align: right;">+$68.22</td>
+</tr>
+<tr>
+<td>XLI</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">$169.01</td>
+<td style="text-align: right;">$168.90</td>
+<td>08:08</td>
+<td style="text-align: right;">−0.0651%</td>
+<td style="text-align: right;">−$31.02</td>
+</tr>
+<tr>
+<td>XLV</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">$168.81</td>
+<td style="text-align: right;">$168.50</td>
+<td>07:59</td>
+<td style="text-align: right;">−0.1836%</td>
+<td style="text-align: right;">−$189.03</td>
+</tr>
+<tr>
+<td><strong>SPY</strong></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">$762.60</td>
+<td style="text-align: right;"><strong>$760.85</strong></td>
+<td>08:09</td>
+<td style="text-align: right;"><strong>−0.2295%</strong></td>
+<td style="text-align: right;">−$475.77</td>
+</tr>
+<tr>
+<td>V</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">$369.93</td>
+<td style="text-align: right;">$368.59</td>
+<td>08:06</td>
+<td style="text-align: right;">−0.3622%</td>
+<td style="text-align: right;">−$123.04</td>
+</tr>
+<tr>
+<td>TRGP</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">$285.07</td>
+<td style="text-align: right;">$284.00</td>
+<td>08:09</td>
+<td style="text-align: right;">−0.3753%</td>
+<td style="text-align: right;">−$108.41</td>
+</tr>
+<tr>
+<td><strong>XLB</strong></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">$50.71</td>
+<td style="text-align: right;"><strong>$50.51</strong></td>
+<td>08:08</td>
+<td style="text-align: right;"><strong>−0.3944%</strong></td>
+<td style="text-align: right;">−$85.37</td>
+</tr>
+<tr>
+<td><strong>VLO</strong></td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">$412.53</td>
+<td style="text-align: right;"><strong>$410.40</strong></td>
+<td>08:09</td>
+<td style="text-align: right;"><strong>−0.5163%</strong></td>
+<td style="text-align: right;">−$401.60</td>
+</tr>
+<tr>
+<td>TEN</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">$52.81</td>
+<td style="text-align: right;">$52.50</td>
+<td>07:21</td>
+<td style="text-align: right;">−0.5870%</td>
+<td style="text-align: right;">−$105.85</td>
+</tr>
+<tr>
+<td><strong>XLE</strong></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">$64.48</td>
+<td style="text-align: right;"><strong>$64.10</strong></td>
+<td>08:09</td>
+<td style="text-align: right;"><strong>−0.5893%</strong></td>
+<td style="text-align: right;">−$657.08</td>
+</tr>
+<tr>
+<td><strong>JNJ</strong></td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">$270.22</td>
+<td style="text-align: right;"><strong>$268.50</strong></td>
+<td>07:51</td>
+<td style="text-align: right;"><strong>−0.6365%</strong></td>
+<td style="text-align: right;"><strong>−$727.56</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coverage: 26 names, $2,740,129.31 = 36.0117% of position value. Estimated pre-market P&amp;L +$8,533.60 = +0.1118% of the book. Breadth is 16 up, 10 down.</strong> Pre-market prints are thin and the sample is overweight semis, storage and tankers, so this is a direction, not a forecast. The INSW page gave no quote timestamp; every other row carries one.</p>
+<p><strong>No pre-market quote was published</strong> for EDRY, NRC, SPHR, UFCS, SUN, KFII, UYSC or UTHR at fetch time. The EDRY page returned its <strong>09-17 close $71.85 (+3.71%)</strong> stamped 4:00 PM EDT with no extended-hours print; that figure is a close, not a pre-market quote, and is not in the table.</p>
+<p><strong>The tape is not a continuation.</strong> Thursday was a broad +1.18% recovery led by semis; this morning <strong>SPY is negative (−0.2295%) while QQQ is positive (+0.2064%)</strong>, and the semis that drove Thursday are up only 0.26–0.31% (LRCX, STX, WDC, AMAT). <strong>The two largest pre-market contributors are single-name news, not sector beta:</strong> GOOGL (+$1,840.67) and INSW (+$2,001.47). MU's +$3,179.81 is the biggest dollar line purely because it is 6.63% of the book.</p>
+<hr />
+<h3 id="3-catalyst-and-macro-review_42">3. Catalyst and macro review</h3>
+<p><strong>Index futures: two sources disagree at the same timestamp.</strong></p>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>stamp</th>
+<th>S&amp;P 500</th>
+<th>Nasdaq</th>
+<th>Dow</th>
+<th>Russell 2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://finance.yahoo.com/markets/stocks/articles/why-nasdaq-p-500-dow-082832323.html">Benzinga via Yahoo Finance</a> (fetched)</td>
+<td>4:00 a.m. ET</td>
+<td><strong>7,710.25 (+3.00, +0.04%)</strong></td>
+<td><strong>29,830.25 (+87.25, +0.29%)</strong></td>
+<td><strong>52,148.00 (−72.00, −0.14%)</strong></td>
+<td><strong>2,889.00 (−7.90, −0.27%)</strong></td>
+</tr>
+<tr>
+<td>TheStreet (search snippet; <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-18-2026">page</a> returned <strong>HTTP 403</strong>)</td>
+<td>4:00 a.m. ET</td>
+<td>+0.3%</td>
+<td>+0.6%</td>
+<td>+0.2%</td>
+<td>+0.2%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>I publish the fetched levels and flag TheStreet as the outlier</strong> — it is the source I could not open, it gives no levels, and it disagrees on the <em>sign</em> for Dow and Russell. The SPY (−0.2295%) and QQQ (+0.2064%) pre-market prints in §2 are consistent with the fetched set, not with TheStreet's. Also from the fetched page: <strong>VIX 15.40 (−0.04, −0.26%)</strong>, <strong>gold 4,419.10 (+19.40, +0.44%)</strong>.</p>
+<p><strong>Oil lower for a third session.</strong> <strong>Brent $103.83 (−0.94%)</strong> and <strong>WTI $101.01 (−0.88%)</strong> (<a href="https://www.cnbc.com/2026/09/18/oil-prices-today-brent-wti-saudi-arabia-houthi.html">CNBC, 2026-09-18</a>; the page 403s on direct fetch, figures from its indexed summary). The stated driver is a <strong>two-sided balance: fresh strikes between Saudi Arabia and Yemen's Houthis against signs that additional Saudi crude is reaching market</strong> — the same relief route reported Wednesday and Thursday. Both figures are consistent with Thursday's settles (Brent $104.82, WTI $101.91 per CNBC, last night's §0): −0.94% off $104.82 is $103.83 to the cent, and −0.88% off $101.91 is $101.01. <strong>Flagged outlier:</strong> the Yahoo/Benzinga page's commodity widget shows <strong>"Crude Oil (Oct 26) 96.16, −1.07 (−1.10%)"</strong>, roughly $5 below every WTI print this week. That is not reconcilable with the settle series, so I do not publish it as WTI. This matters for the book's <strong>14.10% Energy</strong> weight.</p>
+<p><strong>Scheduled today (ET):</strong> <strong>08:15 industrial production</strong> (est. <strong>+0.3%</strong>, prior +0.2%); <strong>08:30 Fed Governor Michelle Bowman</strong>; <strong>Kansas City Fed President Jeff Schmid</strong> before the close (<a href="https://au.investing.com/news/stock-market-news/industrial-production-data-and-fed-speakers-highlight-fridays-calendar-93CH-4647794">Investing.com</a>, <a href="https://www.fxstreet.com/economic-calendar/event/2bec3fa7-46ac-4427-8f64-9132fdddd232">FXStreet calendar</a>). <strong>Monthly triple witching at the close.</strong> <strong>All of it lands after compile time; none is reported here.</strong> Bowman is the first governor to speak since Wednesday's hike, so the rate path is live risk into a triple-witching close.</p>
+<p><strong>Held-name items</strong> (each ticker's stockanalysis news list; nothing dated today unless stated):</p>
+<ul>
+<li><strong>MU (62 sleeves, 6.6315%) — a negative overnight item.</strong> Reuters reports <strong>CXMT is setting up a NAND flash R&amp;D production line and a research institute at its new Beijing plant</strong>, and is discussing NAND strategy with customers including an AI-systems/supercomputer startup. <strong>Samsung led NAND in Q2 at 29.3% share, SK Hynix second, Micron third.</strong> The article does <strong>not</strong> say when the line starts or whether CXMT will scale to commercial manufacturing (<a href="https://www.933thedrive.com/2026/09/18/exclusive-chinas-cxmt-eyes-flash-memory-push-amid-global-shortage-firm-to-take-on-samsung-ymtc/">Reuters exclusive, 2026-09-18</a>). CXMT's DRAM entry has moved MU before — the 08-03 selloff was attributed to it (<a href="https://invezz.com/news/2026/08/03/why-are-micron-sk-hynix-other-memory-stocks-falling-cxmt-might-hold-the-clue/">Invezz</a>). <strong>MU is nonetheless +0.63% pre-market</strong>, so the tape is not pricing this as a near-term threat. <strong>MU FQ4 lands 2026-09-30 AMC.</strong></li>
+<li><strong>GOOGL (44 sleeves, $83,353.19) — +2.21%, the cleanest catalyst on the board.</strong> Waymo announced <strong>today</strong> it will launch fully autonomous ride-hailing in <strong>Singapore, publicly in 2028</strong> — its first market outside the US. An initial fleet of Jaguar I-PACE vehicles arrives "in the coming months"; trained specialists drive manually through 2027 to learn local road geometry and monsoon conditions; initial service targets <strong>western Singapore, Labrador and HarbourFront</strong> (<a href="https://mothership.sg/2026/09/waymo-self-driving-cars-singapore-2028/">Mothership</a>, <a href="https://stratnewsglobal.com/technology/waymo-singapore-launch/">StratNews Global</a>). The stockanalysis page also lists target raises to <strong>$485 (Tigress)</strong> and <strong>$450 (Evercore)</strong>. <strong>A 2028 launch is not a 2026 earnings event</strong>; a +2.2% move on it is sentiment, and I would not carry it into any model.</li>
+<li><strong>INSW (44 sleeves, $130,131.06) — +1.54% on a single-sourced item.</strong> The stockanalysis news list showed, ~45 minutes before my fetch, <strong>"International Seaways price target raised to $130 from $100 at BTIG"</strong> (TheFly), analyst Gregory Lewis, Buy maintained (<a href="https://stockanalysis.com/stocks/insw/">stockanalysis INSW</a>). <strong>A targeted search did not corroborate it</strong> — indexed BTIG history runs $70 (Feb) → $90 (Apr) → $100 (Jun 2026), with the highest indexed street target at $120 and Jefferies at $108 (Aug). The $130 step is consistent with that progression and with a fresh item not yet indexed, but <strong>it rests on one source and is flagged as such.</strong></li>
+<li><strong>VICR (27 sleeves) — Thursday's +17.66%</strong> on the Vertical Power Delivery license to an AI OEM plus two New Hampshire fab-site acquisitions; <strong>+0.61% pre-market</strong>, so no give-back yet.</li>
+<li><strong>SCCO (36 sleeves) — +0.86% with no company news</strong>; the newest item on its page is a <strong>14-day-old</strong> earnings-slides filing. Copper strength, not a catalyst.</li>
+<li><strong>TGTX (45 sleeves) — +1.19%</strong>; newest item is a <strong>3-day-old</strong> H.C. Wainwright conference transcript (IV therapy for relapsing MS gaining share, $1B run-rate targeted by year-end). Wednesday's +5.30% remains <strong>unexplained</strong>.</li>
+<li><strong>STX (65 sleeves):</strong> newest item is <strong>4 days old</strong> — Seagate research that 99% of organizations expect AI-driven storage growth while only 38% say they are prepared. <strong>WDC (65 sleeves):</strong> newest is <strong>2 days old</strong> (AI Infrastructure Summit). Neither explains Thursday's moves or this morning's +0.27%.</li>
+<li><strong>ARWR (28 sleeves) — +0.21%</strong>; the ARO-DIMER-PA interim data is <strong>3 days old</strong>.</li>
+<li><strong>JNJ (49 sleeves) — −0.64%, the largest pre-market drag.</strong> Newest item is a <strong>20-hour-old</strong> Deutsche Bank Healthcare Summit appearance (double-digit growth targets across MedTech and pharma). Nothing negative is dated; the move tracks XLV (−0.18%), not a company event.</li>
+<li><strong>VLO (33 sleeves) — −0.52%</strong> with crude lower; newest item is a 19-hour-old Schwab Network segment. <strong>Q3 results 2026-10-22.</strong></li>
+<li><strong>TPL (33 sleeves) — +0.08%</strong>; nothing newer than a <strong>7-day-old</strong> proxy filing.</li>
+<li><strong>NRC (39 sleeves, $93,964.88) — Thursday's −5.35% to $20.87 is still unexplained.</strong> The newest item on its page is <strong>4 days old</strong> (an ETF Trends piece on the nuclear fuel chain, which is about the Nuclear Regulatory Commission, <strong>not</strong> NRC Health — a ticker/name collision, not a catalyst). Next newest are 16 days old. <strong>A −5.35% day on a 39-sleeve holding with no dated cause is the largest unexplained move in the book.</strong></li>
+<li><strong>UTHR (27 sleeves):</strong> no pre-market print; <strong>earnings 2026-10-28</strong>. <strong>TER, TRGP, SPHR, SUN, TEN, UFCS, KFII, UYSC, EDRY:</strong> no item dated today.</li>
+</ul>
+<hr />
+<h3 id="4-llm-overlay-status_48">4. LLM overlay status</h3>
+<p><strong>Decision counts: 14 stock</strong> (<code>count(*)</code> on <code>llm_overlay_log</code>; <strong><code>max(id)</code> = 17</strong>, and the ids have gaps — never use <code>max(id)</code> for this tally) <strong>and 27 sector</strong> (<code>count(*)</code> = <code>max(id)</code> = 27). Newest stock row: <strong>id 17, 2026-09-01, MU, BUY, score 7, invalidation $820</strong>. <strong>Unchanged since 09-01</strong>; the next decisions are due at the 10-01 rebalance.</p>
+<p><strong>Single-name arm</strong> (inception 2026-07-06; all three arms hold MU):</p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>sleeve</th>
+<th style="text-align: right;">IND NAV 09-17</th>
+<th style="text-align: right;">since incep.</th>
+<th style="text-align: right;">at pre-market $983.66</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control</td>
+<td><code>mom_roa_top1_paper</code></td>
+<td style="text-align: right;">97,381.56</td>
+<td style="text-align: right;"><strong>−2.6184%</strong></td>
+<td style="text-align: right;">−2.0053%</td>
+</tr>
+<tr>
+<td>treatment</td>
+<td><code>llm_overlay_mom_roa_top1_paper</code></td>
+<td style="text-align: right;">104,663.17</td>
+<td style="text-align: right;"><strong>+4.6632%</strong></td>
+<td style="text-align: right;">+5.3221%</td>
+</tr>
+<tr>
+<td>cascade</td>
+<td><code>llm_cascade_top1_paper</code></td>
+<td style="text-align: right;">102,572.71</td>
+<td style="text-align: right;"><strong>+2.5727%</strong></td>
+<td style="text-align: right;">+3.2185%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Treatment − control = +7.2816pp</strong> at the close, <strong>+7.3274pp</strong> at the pre-market print. <strong>The comparison stays blind: all three arms hold the same ticker, so the gap moves only because the share counts differ.</strong> It is not evidence about the overlay. <strong>MU's $820 invalidation has +19.2073% headroom at the close and +19.9585% at pre-market</strong> — the widest it has been, and the CXMT item in §3 is the first dated threat to it since the decision was logged.</p>
+<p><strong>Sector arm</strong> (inception 2026-07-06):</p>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>sleeve</th>
+<th>holdings</th>
+<th style="text-align: right;">IND NAV 09-17</th>
+<th style="text-align: right;">since incep.</th>
+<th style="text-align: right;">at pre-market</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control</td>
+<td><code>sector_top4_paper</code></td>
+<td>XLE, XLK, XLI, XLV</td>
+<td style="text-align: right;">105,075.48</td>
+<td style="text-align: right;"><strong>+5.0755%</strong></td>
+<td style="text-align: right;">+4.8707%</td>
+</tr>
+<tr>
+<td>treatment</td>
+<td><code>llm_overlay_sector_top4_paper</code></td>
+<td>XLV, XLE, XLK + $23,087.99 cash</td>
+<td style="text-align: right;">101,949.74</td>
+<td style="text-align: right;"><strong>+1.9497%</strong></td>
+<td style="text-align: right;">+1.7762%</td>
+</tr>
+<tr>
+<td>cascade</td>
+<td><code>llm_cascade_sector4_paper</code></td>
+<td>XLV, XLE, XLK, XLB</td>
+<td style="text-align: right;">100,323.67</td>
+<td style="text-align: right;"><strong>+0.3237%</strong></td>
+<td style="text-align: right;">+0.0637%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Treatment − control = −3.1257pp; cascade − control = −4.7518pp.</strong> The macro veto arm is still losing to its control, which is the honest prior stated when it was seeded.</p>
+<p><strong>Invalidation levels</strong> (logged 2026-09-01):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">id</th>
+<th>ETF</th>
+<th>verdict</th>
+<th style="text-align: right;">level</th>
+<th style="text-align: right;">09-17 close</th>
+<th style="text-align: right;">headroom</th>
+<th style="text-align: right;">at pre-market</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">26</td>
+<td><strong>XLV</strong></td>
+<td>HOLD 7</td>
+<td style="text-align: right;">$163.50</td>
+<td style="text-align: right;">$168.81</td>
+<td style="text-align: right;"><strong>+3.2477%</strong></td>
+<td style="text-align: right;">+3.0581%</td>
+</tr>
+<tr>
+<td style="text-align: right;">23</td>
+<td>XLK</td>
+<td>HOLD 6</td>
+<td style="text-align: right;">$177.00</td>
+<td style="text-align: right;">$188.06</td>
+<td style="text-align: right;">+6.2486%</td>
+<td style="text-align: right;">+6.3842%</td>
+</tr>
+<tr>
+<td style="text-align: right;">24</td>
+<td>XLE</td>
+<td>HOLD 7</td>
+<td style="text-align: right;">$58.00</td>
+<td style="text-align: right;">$64.48</td>
+<td style="text-align: right;">+11.1724%</td>
+<td style="text-align: right;">+10.5172%</td>
+</tr>
+<tr>
+<td style="text-align: right;">27</td>
+<td><strong>XLB</strong> (cascade)</td>
+<td>HOLD 6</td>
+<td style="text-align: right;">$51.00</td>
+<td style="text-align: right;">$50.71</td>
+<td style="text-align: right;"><strong>−0.5686%</strong></td>
+<td style="text-align: right;"><strong>−0.9608%</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">25</td>
+<td>XLI</td>
+<td><strong>VETO 3</strong></td>
+<td style="text-align: right;">$170.00</td>
+<td style="text-align: right;">$169.01</td>
+<td style="text-align: right;">−0.5824%</td>
+<td style="text-align: right;">−0.6471%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>XLB has now closed below its $51.00 invalidation three sessions running</strong>, and the pre-market $50.51 widens the breach to −0.9608%. It is the cascade's only at-risk slot, and <strong>nothing acts on it until the 10-01 rebalance</strong> — the overlay has no intra-month stop mechanism.</p>
+<hr />
+<h3 id="5-risk-flags-and-upcoming-events_50">5. Risk flags and upcoming events</h3>
+<ol>
+<li><strong>2026-09-17 unmarked</strong> (§0g). The 07:45 heal is the next chance; if 09-17 coverage stays at 4,079 the day carries into tonight's 17:15 run, which will also face 09-18. <strong>Three of the last four sessions needed a heal.</strong></li>
+<li><strong>The refresh rate limit has now hit six sessions running</strong>, and its footprint this morning was the alphabetical block S–V plus KFII. <strong>That cluster was worth $10,793.26 of book value</strong> (§0h) — the shortfall is not price-neutral, so a DB-only read on any of these mornings is biased, not merely incomplete.</li>
+<li><strong>APGE and CRNX are delisted after completed cash acquisitions but still sit as open positions worth $9,913.88.</strong> This is a reconciliation Evan must call; it is not something this task touches.</li>
+<li><strong>Forced ladder NAV rows</strong> ($1,528.80 across 38 sleeves, 09-15) and the <strong>09-14 SPY overstatement</strong> ($927.06) remain in NAV history, with <code>verify_run</code> PASSing over both.</li>
+<li><strong>123 skipped ladder sells</strong> are held against the model's own signal until <strong>09-21 (weekly) / 09-28 (biweekly)</strong>, driven by the uncommitted <code>strict_fill_date</code> change in the working tree.</li>
+<li><strong>Triple witching at today's close</strong>, with <strong>Bowman at 08:30 ET</strong> — the first governor to speak since the hike. Elevated closing-auction volume on a day when 76 sleeves mark to the close.</li>
+<li><strong>MU is 6.6315% of the book with FQ4 on 2026-09-30 AMC</strong>, and now carries a dated competitive item (CXMT NAND, §3). All three single-name LLM arms hold it, so the overlay experiment is exposed to the same binary.</li>
+<li><strong>NRC −5.35% on 09-17 with no dated cause</strong> (39 sleeves, $93,964.88).</li>
+<li><strong>Calendar:</strong> weekly ladder <strong>09-21</strong>; biweekly <strong>09-28</strong>; <strong>MU FQ4 09-30 AMC</strong>; <strong>October rebalance 10-01 ~18:03 CDT</strong>, where the trading-guard denial on the decision-logging step is expected again (BLOCKED-ON-EVAN, records DN–DP); <strong>VLO Q3 10-22</strong>; <strong>UTHR earnings 10-28</strong>.</li>
+</ol>
+<hr />
+<h3 id="6-strategic-insights_24">6. Strategic insights</h3>
+<p><strong>6a. This morning is the first tape in a week that separates the book from its semis core, and the separation is small.</strong> The five memory/semicap names — MU, STX, WDC, LRCX, AMAT — are <strong>$987,070.09 = 12.9724% of position value</strong> across 48–65 sleeves each. On Thursday they drove the +1.18% day. This morning they contribute <strong>+$4,523.65 of the +$8,533.60 estimate (53.01%)</strong>, but only because MU is large: the four non-MU names together add <strong>+$1,343.84</strong>, moving 0.26–0.31%. <strong>The two biggest single-name contributors are GOOGL (+$1,840.67) and INSW (+$2,001.47), neither of which is a semi.</strong> That is a useful negative: the book is not <em>only</em> a semis bet, but on any day the semis move together it behaves like one. <strong>The caveat from yesterday's §6a stands and is now better measured:</strong> ladder results computed across 57 sleeves that share this core have a much smaller effective sample than 57, and any significance claim built on sleeve count is overstated.</p>
+<p><strong>6b. The CXMT item is the first dated test of a structural assumption the book has never had to defend.</strong> The momentum and residual rankings put MU into 62 of 76 sleeves on price and ROA, with no view on competitive position. Reuters now reports China's DRAM leader extending into NAND, where <strong>Micron is the #3 supplier behind Samsung (29.3%) and SK Hynix</strong> (<a href="https://www.933thedrive.com/2026/09/18/exclusive-chinas-cxmt-eyes-flash-memory-push-amid-global-shortage-firm-to-take-on-samsung-ymtc/">Reuters, 2026-09-18</a>). <strong>The honest read is that this is not actionable today</strong> — it is an R&amp;D line with no stated timeline, the stock is up pre-market, and the prior CXMT scare (08-03) reversed. But it is exactly the kind of slow competitive erosion that a 12-1 momentum signal prices only after it shows up in returns, and the book will be carrying <strong>6.63% in one name through FQ4 earnings on 09-30</strong> while it plays out. <strong>No trade implied; this is a pre-registered note so that a later MU drawdown is not re-explained after the fact.</strong></p>
+<p><strong>6c. The overlay experiment is producing no information and will not until 10-01.</strong> Fourteen stock decisions in 3.5 months, unchanged since 09-01, with all three single-name arms in the same ticker: the <strong>+7.2816pp</strong> spread is a share-count artifact, not a skill measurement. <strong>The sector arm is the only one carrying real signal, and it reads negative</strong> — treatment <strong>−3.1257pp</strong>, cascade <strong>−4.7518pp</strong> against control. That is consistent with the prior stated when it was seeded (macro is where an LLM should have least edge). <strong>The kill-switch tally matters here: at 14 of 30 stock decisions, the experiment is not yet at its own evaluation point</strong>, so the correct action is to keep logging and not to read the current spread as a result either way.</p>
+<p><strong>6d. A viable sleeve concept this week's data supports, and its honest weakness.</strong> Three of the last four large held-name moves — VICR +17.66% (AI power-delivery license), PSIX +13.62%, and yesterday's un-held GNRC +29.63% pre-market (Amazon supply agreement) — were <strong>contracted commercial agreements disclosed outside market hours</strong>, all on the <em>supply</em> side of AI build-out rather than the chips themselves. The screen that keeps suggesting itself is an <strong>8-K Item 1.01 hyperscaler-supply-agreement event study</strong>. <strong>Its weakness is now measurable rather than hypothetical:</strong> VICR gapped and then went nowhere (+0.61% pre-market the next morning), GNRC's move happened entirely in extended trading, and any end-of-day system enters at the <em>next</em> close, after the gap. <strong>The testable question is therefore narrow: is there post-announcement drift once the announcement gap is excluded?</strong> That is answerable on historical filings with a pre-registered next-close entry and a fixed holding period. <strong>Honest prior: the drift is small and the strategy is mostly the gap you cannot have.</strong> No recommendation.</p>
+<p><strong>6e. Structural edge: unchanged, and one ordering worth watching.</strong> Benchmarks still lead (QQQ +6.3443%, SPY family +3.6639%), the residual ladder is modestly positive (+1.5300%), momentum is deeply negative (−13.6984%), and <strong>monthly cadence (+3.1106%) still beats weekly (+1.3151%) and biweekly (+0.1643%)</strong>. <strong>The sector systematic pair (+5.8493%) is now the second-best family in the book and beats the SPY benchmark</strong>, which is the one result that has strengthened rather than decayed over the last month. It rests on 2 sleeves and 4 ETFs, so it is not a claim yet — but if it holds through the 10-01 rebalance it is the most defensible non-benchmark result on the board, and worth a dedicated held-out test rather than continued passive observation.</p>
 </div>
 </body>
 </html>
