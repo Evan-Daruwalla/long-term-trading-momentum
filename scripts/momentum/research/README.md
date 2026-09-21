@@ -3,7 +3,9 @@
 Experiment scripts. NONE are production. Kept for forensic record and
 re-running if the audit baselines change.
 
-Output goes to `var/data_audit/*.json` and `*.out`.
+Output goes to **either** `var/data_audit/` **or** `var/momentum/`, depending on
+the script — 20 write the former, 15 the latter (counted 2026-09-20, audit
+finding 39; this line previously claimed `var/data_audit/` for all of them).
 
 ## What's in here
 

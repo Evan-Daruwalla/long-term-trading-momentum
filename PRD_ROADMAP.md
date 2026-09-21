@@ -646,7 +646,11 @@ live snapshot. Still defer to the record on any disagreement.]** → record Appe
 append-only ground truth; when anything disagrees with it, the record wins.
 
 **Work order:** M1 → M2 → M3 (hard target: before 2026-08-01) → M4 → M5 → M6 ~~(gated on August
-fills)~~ **[UNGATED 2026-08-05 — M1–M5 and M7 are done; M6.1 is the next open task]**. One task per sitting: implement → frozen tests → verify per the task's done-check →
+fills)~~ **[UNGATED 2026-08-05 — M1–M5 and M7 are done. ~~M6.1 is the next open task~~ —
+CORRECTED 2026-09-20 (audit finding 34): M6.1 closed 2026-08-05, M6.2 redefined
+and closed 2026-08-11, M6.3 closed 2026-08-11 (record CY). The only M6 item
+still open is Evan's live `slippage_log` write. See the M6 section below, which
+was correct all along; this summary line was never updated.]**. One task per sitting: implement → frozen tests → verify per the task's done-check →
 record entry → commit.
 
 **Gotchas that will bite you:**

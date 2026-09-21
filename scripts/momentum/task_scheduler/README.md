@@ -1,5 +1,22 @@
 # Windows Task Scheduler setup for paper-trade automation
 
+> # ⚠️ SUPERSEDED — DO NOT FOLLOW THIS FILE
+>
+> **Marked 2026-09-20 (audit finding 16).** The two tasks described below
+> (`MomentumPaperDaily`, `MomentumPaperRebalance`) **do not exist in the live
+> Windows scheduler** — verified with `schtasks /query`, 0 matches for
+> `MomentumPaper`. The XML files are still on disk but nothing imports them.
+>
+> Importing them would create tasks that fire at **16:30**, an hour and a
+> quarter before the real 17:15 pipeline, and would collide with it.
+>
+> **The live automation is five differently-named tasks** — `TradingDailyMTM`
+> (17:15), `TradingMorningMTM` (07:45), `TradingLadderRebalance` (20:30),
+> `TradingWeeklyBackup` (Sun 09:00) and `TradingDashboard` (at logon) — plus
+> the `monthy-llm-rebalance` Claude agent task. **`HANDOFF.md`'s scheduled-task
+> table is the live source.** This file is kept only as a record of the
+> original bootstrap method.
+
 Two XML files here that import as scheduled tasks. They run `daily.bat`
 and `rebalance.bat` on the right cadence.
 

@@ -658,9 +658,14 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 - **`\llm rebal`** — Monthly, day 1, 5:59 PM. **Despite the name it is NOT a
   rebalance**: its action is a `mouse_event` wake-nudge, i.e. a wake fired 4
   minutes before the 6:03 PM `monthy-llm-rebalance` Claude task below.
-  **CURRENTLY FAILING and has been since 2026-08-02** — `LastTaskResult`
+  ~~**CURRENTLY FAILING and has been since 2026-08-02** — `LastTaskResult`
   `-2147020576` (0x800710E0, "operator or administrator refused the request")
-  with `StopIfGoingOnBatteries=True`. **This is the identical failure documented
+  with `StopIfGoingOnBatteries=True`.~~ **CORRECTED 2026-09-20 (audit finding 9):
+  this is FALSE as of today.** Live `schtasks /query /v` reads `Last Run Time:
+  9/1/2026 5:59:00 PM`, `Last Result: 0` — it succeeded. The claim was true when
+  written and was never re-checked. `StopIfGoingOnBatteries=True` is still set,
+  so the failure mode remains available; it just has not fired since 08-02.
+  **This is the identical failure mode documented
   for `TradingWeeklyBackup` above**, whose fix (clear the power flags, set
   `StartWhenAvailable`) was applied 2026-07-28 and never applied here. Next
   opportunity 2026-09-01 — the same run DH's new `rc=2` decide guard first
@@ -850,7 +855,10 @@ New experiments closed 2026-06-09 (see `docs/research_2026-06-09_algo_candidates
 > also prints a ticker-blind `latest_decision` under the wrong name. Unfixed.
 
 **Now automated** via the `monthy-llm-rebalance` Claude scheduled task (cron
-`0 18 * * *`, ~6:03pm local — shifted back from a drifted `30 17`/~5:33pm on
+`0 18 1-5 * *`, ~6:03pm local on days 1-5 ONLY — **corrected here 2026-09-20,
+audit finding 33: this line said `0 18 * * *` and contradicted the task table
+above, which has the live value. Read the live cron, never a doc.** Shifted back
+from a drifted `30 17`/~5:33pm on
 2026-07-11 per Evan, to clear a rebalance-day two-writer overlap with the 5:15pm
 daily MTM; record BS; self-gates on `rebalance_log.md` so only the first
 trading day of the month does real work).

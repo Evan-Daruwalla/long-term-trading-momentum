@@ -5,6 +5,13 @@ venv/
 .env
 *.env
 alpaca_keys.env
+# Audit finding 11 (2026-09-20): the three patterns above cover `.env`,
+# anything ENDING in `.env`, and the exact keys file -- but NOT a suffix
+# appended after `.env`. Verified with `git check-ignore -v`: before this line,
+# `alpaca_keys.env.backup`, `alpaca_keys.env.bak` and `.env.local` were all
+# UNIGNORED. (`*.bak_*` below catches only the dated `.bak_<date>` convention.)
+*.env.*
+.env.*
 var/
 *.db
 *.db-journal

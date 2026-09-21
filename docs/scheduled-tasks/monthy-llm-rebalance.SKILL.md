@@ -6,7 +6,8 @@ description: Run the monthy LLM rebalance
 IF rebalance_log.md SHOWS THAT THE MONTHY REBALANCE HAS RUN ALREADY THIS MONTH STOP READING AND END THE RESPONSE.
 
 This is the Trading project's monthly paper-trading rebalance (D:\ClaudeCode\Trading). It fires
-daily at 5:30pm local (after the 5:15pm `TradingDailyMTM` close pipeline lands real closes) but
+on days 1-5 of each month at ~6:03pm local (cron `0 18 1-5 * *`, after the 5:15pm
+`TradingDailyMTM` close pipeline lands real closes) but
 should only do real work on the FIRST trading day of each calendar month — every other day is a
 no-op via the gate below. There are 4 systematic factor sleeves, 3 LLM-experiment pairs (a stock
 overlay, a sector overlay, and a cascade variant of each sharing the same decision logs), a 7/1

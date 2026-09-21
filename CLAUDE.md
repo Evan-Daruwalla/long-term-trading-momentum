@@ -51,8 +51,16 @@ old versions of this file — a stale roster here caused confusion before).
 - **price_cache convention**: closes are split-adjusted, dividend-UNadjusted
   (yfinance `auto_adjust=False`). Every writer honors it; never add one that
   doesn't. (daily_price_refresh violated it until the 2026-06-09 audit.)
-- **Never run concurrent `factor_backtest` against the same DB** — silent
-  corruption. Always sequential.
+- **Never run concurrent `factor_backtest` against the same DB.** Always
+  sequential. **Updated 2026-09-20 (audit):** the original hazard — `_wipe_state()`
+  running destructive `DELETE`s against live `positions`/`portfolio_state` — was
+  CLOSED on 2026-08-12 (record CZ) by shadowing both tables into per-connection
+  TEMP tables. Proven by running `scripts/momentum/test_backtest_state_isolation.py`
+  (7/7). What remains, and what this rule now protects, is **`price_cache` write
+  contention**: `price_cache` is deliberately NOT shadowed, so a backtest reading
+  it while `daily_price_refresh` writes it is a real collision, mitigated only by
+  `busy_timeout=30000` in `db.py`. Nothing enforces the separation in code — it is
+  schedule-based only (07:45 / 17:15 / ~18:03 / 20:30).
 - **NAV/decision history is sacred**: LLM decisions are never backdated, NAV
   history never rewritten. Data that looks wrong gets REPORTED in the record;
   deleting/fixing is Evan's call.
