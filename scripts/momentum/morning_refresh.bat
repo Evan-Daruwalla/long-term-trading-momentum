@@ -39,7 +39,19 @@ set REFRESH_NOTE=--note "morning refresh failed rc=%REFRESH_RC% - catch-up may u
 echo.
 echo === Catch-up MTM: mark every now-settled missing trading day, all sleeves ===
 .venv\Scripts\python.exe -m scripts.momentum.mtm_catchup
+set CATCHUP_RC=%errorlevel%
+REM Audit 2026-09-20, finding 7: this call captured NO exit code at all, unlike
+REM its sibling daily.bat:67. Whatever mtm_catchup returned was discarded by the
+REM next command, so a genuine crash on the 7:45am run was invisible -- verify_run
+REM below decides the task result, and a catchup crash only shows up if it also
+REM happens to produce a verify-visible inconsistency the same day.
+REM rc=2 means "today is still PENDING", which is the NORMAL morning outcome and
+REM must not fail the task. `if errorlevel 2` is GREATER-OR-EQUAL and would also
+REM swallow argparse's 2 and cmd's 9009, so compare the captured value exactly.
+if "%CATCHUP_RC%"=="2" goto catchup_ok
+if not "%CATCHUP_RC%"=="0" goto catchup_error
 
+:catchup_ok
 echo.
 echo === Post-run verification (daily) ===
 REM verify_run is the LAST python command so its exit code is this task's
@@ -56,3 +68,8 @@ exit /b %VERIFY_RC%
 :verify_ok
 .venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage n/a --verify PASS %REFRESH_NOTE%
 exit /b 0
+
+:catchup_error
+echo ERROR: mtm_catchup failed rc=%CATCHUP_RC%. See output above.
+.venv\Scripts\python.exe -m scripts.momentum.ops_stamp --coverage n/a --verify n/a --note "morning mtm_catchup error rc=%CATCHUP_RC%"
+exit /b %CATCHUP_RC%

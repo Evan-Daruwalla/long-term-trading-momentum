@@ -23,7 +23,12 @@ call scripts\restart_dashboard.bat
 echo.
 echo ############## 2/2  Refresh prices + MTM all sleeves ##############
 call scripts\momentum\daily.bat
-if errorlevel 1 goto :daily_failed
+set DAILY_RC=%errorlevel%
+REM Audit 2026-09-20, finding 12: `if errorlevel 1` is GREATER-OR-EQUAL and so is
+REM blind to a negative code. daily.bat currently always leaves via an explicit
+REM `exit /b 0` or `exit /b 1`, so this was inert -- but it stops being inert the
+REM moment daily.bat is refactored to fall off the end or be killed mid-run.
+if not "%DAILY_RC%"=="0" goto :daily_failed
 
 echo.
 echo ============================================================
