@@ -110,6 +110,15 @@ assert _UNIVERSE_MIN_PRICE == _EXPECTED_UNIVERSE_MIN_PRICE, (
 assert _UNIVERSE_MIN_HISTORY == _EXPECTED_UNIVERSE_MIN_HISTORY, (
     f"momentum_v1 expects universe.MIN_HISTORY_DAYS={_EXPECTED_UNIVERSE_MIN_HISTORY}, "
     f"got {_UNIVERSE_MIN_HISTORY}.")
+# Audit 2026-09-20, finding 24: _EXPECTED_HALF_SPREAD_BPS was declared above,
+# under the same "fail loudly" comment and alongside two guards that work, but
+# was referenced nowhere -- dead code shaped exactly like a guard, in the file
+# most explicitly marked frozen. A maintainer skimming it would reasonably
+# believe spread drift was caught the same way universe drift is. Now it is.
+assert HALF_SPREAD_BPS == _EXPECTED_HALF_SPREAD_BPS, (
+    f"momentum_v1 is FROZEN at half_spread_bps={_EXPECTED_HALF_SPREAD_BPS}, "
+    f"got {HALF_SPREAD_BPS}. Changing it silently re-prices every frozen "
+    f"regression baseline.")
 
 
 @dataclass(frozen=True)

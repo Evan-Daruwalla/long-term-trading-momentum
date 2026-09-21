@@ -60,7 +60,24 @@ from __future__ import annotations
 from datetime import date
 
 from trading_bot.factors import mom_roa_zscore, sector_momentum
-from trading_bot.factors.universe import tradeable_universe
+from trading_bot.factors.universe import (
+    tradeable_universe,
+    MIN_PRICE_USD as _UNIVERSE_MIN_PRICE,
+    MIN_HISTORY_DAYS as _UNIVERSE_MIN_HISTORY,
+)
+
+# Audit 2026-09-20, finding 23 -- same gap as llm_overlay.py. The cascade arm
+# walks down the SAME ranking past a veto, so its candidate set must stay
+# identical to mom_roa_6535's for the three-arm comparison to mean anything.
+_EXPECTED_UNIVERSE_MIN_PRICE   = 5.0
+_EXPECTED_UNIVERSE_MIN_HISTORY = 252
+
+assert _UNIVERSE_MIN_PRICE == _EXPECTED_UNIVERSE_MIN_PRICE, (
+    f"llm_cascade expects universe.MIN_PRICE_USD={_EXPECTED_UNIVERSE_MIN_PRICE}, "
+    f"got {_UNIVERSE_MIN_PRICE}. Selection parity with mom_roa_6535 is broken.")
+assert _UNIVERSE_MIN_HISTORY == _EXPECTED_UNIVERSE_MIN_HISTORY, (
+    f"llm_cascade expects universe.MIN_HISTORY_DAYS={_EXPECTED_UNIVERSE_MIN_HISTORY}, "
+    f"got {_UNIVERSE_MIN_HISTORY}. Selection parity with mom_roa_6535 is broken.")
 from trading_bot.strategies import llm_overlay, sector_overlay
 
 STARTING_CASH = 100_000.0

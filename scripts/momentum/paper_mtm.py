@@ -51,7 +51,12 @@ log = logging.getLogger("paper_mtm")
 # ~7 trading days. Chosen against the observed lag distribution in this project:
 # the routine same-day gap heals within 24h (record BH/BI) and the worst real
 # outage, the 2026-07-09 hole, settled the next afternoon (record BO/BP).
-MAX_CARRY_FORWARD_DAYS = 10
+#
+# Audit finding 21 (2026-09-20): the definition moved to market_data, next to
+# the lookup it bounds, so the LLM-experiment ops modules can share ONE value
+# instead of each restating it. Re-exported here because this module's own
+# staleness reporting (below) reads it by the bare name.
+MAX_CARRY_FORWARD_DAYS = market_data.MAX_CARRY_FORWARD_DAYS
 
 
 def log_price_health(strategy_name: str, as_of: date, nav: dict) -> None:

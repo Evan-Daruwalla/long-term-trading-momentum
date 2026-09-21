@@ -289,6 +289,36 @@ def price_on_date(ticker: str, target_date: date) -> float | None:
     return price
 
 
+# How many days a carried-forward close may be before it is worth shouting
+# about. Canonical home, audit finding 21 (2026-09-20): this lived only in
+# paper_mtm, so the three LLM-experiment ops modules -- which drive the
+# exit/mark/invalidation-stop logic for 6 live sleeves -- had no bound at all.
+# They called last_close_on_or_before(...)[0], discarding the very date that
+# makes staleness detectable. A halted or delisted holding carried an
+# arbitrarily old price into a stop decision, silently.
+MAX_CARRY_FORWARD_DAYS = 10
+
+
+def last_close_checked(ticker: str, as_of: date, *,
+                       max_age_days: int = MAX_CARRY_FORWARD_DAYS,
+                       context: str = "") -> float | None:
+    """`last_close_on_or_before`, but it complains when the bar is stale.
+
+    Returns the price alone, so it drops into the `...[0]` call sites that
+    discarded the date. Report-only by design: the caller's behaviour is
+    unchanged, the staleness simply stops being invisible. Callers that must
+    REFUSE a stale bar use the strict_fill_date guard on the fill path instead.
+    """
+    px, ref_dt = last_close_on_or_before(ticker, as_of)
+    if px is not None and ref_dt is not None:
+        age = (as_of - ref_dt).days
+        if age > max_age_days:
+            log.warning("STALE CARRY-FORWARD %s: using the %s close, %d day(s) "
+                        "old at as_of %s%s", ticker, ref_dt, age, as_of,
+                        f" [{context}]" if context else "")
+    return px
+
+
 def last_close_on_or_before(ticker: str, as_of: date
                             ) -> tuple[float | None, date | None]:
     """Most-recent cached close on `as_of` or the nearest prior trading day.

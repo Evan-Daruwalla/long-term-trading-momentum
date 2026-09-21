@@ -211,14 +211,14 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
         print("\n=== DRY RUN — no DB writes ===")
         print(f"\nSELLS ({len(sells)}):")
         for p in sells:
-            px = market_data.last_close_on_or_before(p["ticker"], as_of)[0]
+            px = market_data.last_close_checked(p["ticker"], as_of)
             mtm = px * p["qty"] if px else 0
             pnl = mtm - p["entry_value"]
             print(f"  {p['ticker']:6s}  qty={p['qty']:.2f}  entry=${p['entry_price']:.2f}  "
                   f"now=${px or 0:.2f}  pnl=${pnl:+.2f}")
         print(f"\nBUYS ({len(buys)}):")
         for t in buys[:20]:
-            px = market_data.last_close_on_or_before(t, as_of)[0]
+            px = market_data.last_close_checked(t, as_of)
             print(f"  {t:6s}  px=${px or 0:.2f}  mom_score={target_score.get(t, 0):+.4f}")
         if len(buys) > 20:
             print(f"  ... and {len(buys) - 20} more")

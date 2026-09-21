@@ -148,6 +148,37 @@ def main() -> int:
           f"never-priced name falls back to entry_price "
           f"(missing={nav['missing_count']}, NAV=${nav['total_nav']:,.2f})")
 
+    # 4. market_data.last_close_checked (audit finding 21, 2026-09-20).
+    #    The three LLM-experiment ops modules called last_close_on_or_before(..)[0],
+    #    throwing away the date that makes staleness detectable, so a halted or
+    #    delisted holding carried an arbitrarily old price into an
+    #    invalidation-stop decision with nothing logged. The helper must return
+    #    the SAME price (it is report-only) while making the staleness audible.
+    cap = _Capture()
+    market_data.log.addHandler(cap)
+    try:
+        fresh_raw = market_data.last_close_on_or_before("FRSH", AS_OF)[0]
+        fresh_checked = market_data.last_close_checked("FRSH", AS_OF)
+        fresh_msgs = "\n".join(m for _, m in cap.records)
+
+        cap.records.clear()
+        stale_raw = market_data.last_close_on_or_before("DEAD", AS_OF)[0]
+        stale_checked = market_data.last_close_checked("DEAD", AS_OF)
+        stale_msgs = "\n".join(m for _, m in cap.records)
+    finally:
+        market_data.log.removeHandler(cap)
+
+    check(fresh_checked == fresh_raw and stale_checked == stale_raw,
+          "last_close_checked returns the same price as the raw lookup "
+          "(report-only, no behaviour change)")
+    check("STALE CARRY-FORWARD" not in fresh_msgs,
+          "a fresh bar logs no staleness warning")
+    check("STALE CARRY-FORWARD" in stale_msgs and "DEAD" in stale_msgs
+          and "30 day(s) old" in stale_msgs,
+          f"a bar older than MAX_CARRY_FORWARD_DAYS "
+          f"({market_data.MAX_CARRY_FORWARD_DAYS}d) IS named in a warning, "
+          f"with ticker and age")
+
     dbmod.close_thread_connection()
     try:
         shutil.rmtree(tmp)

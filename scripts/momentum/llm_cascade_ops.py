@@ -39,7 +39,7 @@ def _nav(strategy_name: str, as_of: date) -> float:
     pf = paper_trader.get(strategy_name)
     val = 0.0
     for p in paper_trader.list_open(strategy_name):
-        px = market_data.last_close_on_or_before(p["ticker"], as_of)[0] or p["entry_price"]
+        px = market_data.last_close_checked(p["ticker"], as_of) or p["entry_price"]
         val += p["qty"] * px
     return pf.cash + val
 
@@ -100,7 +100,7 @@ def cmd_rebalance_sector(args) -> int:
 
     trades = 0
     for p in sells:
-        px = market_data.last_close_on_or_before(p["ticker"], as_of)[0]
+        px = market_data.last_close_checked(p["ticker"], as_of)
         if px is None or px <= 0:
             log.warning("  skip sell %s: no price at %s", p["ticker"], as_of)
             continue
@@ -116,7 +116,7 @@ def cmd_rebalance_sector(args) -> int:
         trades += 1
 
     for t in buys:
-        px = market_data.last_close_on_or_before(t, as_of)[0]
+        px = market_data.last_close_checked(t, as_of)
         if px is None or px <= 0:
             log.warning("  skip buy %s: no price at %s", t, as_of)
             continue

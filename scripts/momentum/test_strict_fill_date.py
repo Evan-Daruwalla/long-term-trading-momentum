@@ -66,12 +66,39 @@ def test_ladder_opts_in() -> None:
     print("  [OK  ] ladder_forward_rebalance opts in (strict_fill_date=True)")
 
 
+# Every module that rebalances a LIVE sleeve on a schedule. The replay callers
+# (seed_residual_cadence_ladder, seed_residual_wsweep, backdate_sleeves) are
+# deliberately absent: they must keep filling off carried-forward bars to
+# reproduce history byte-identically, which is what test_default_is_off guards.
+LIVE_SCHEDULED_CALLERS = ("ladder_forward_rebalance.py", "monthly_rebalance.py")
+
+
+def test_every_live_caller_opts_in() -> None:
+    """Audit 2026-09-20, finding 25.
+
+    The guard shipped 2026-08-26 opted in exactly ONE of the two live callers.
+    The monthly path -- the one that trades the whole roster -- was missed and
+    stayed unguarded for 25 days. A per-caller assertion is the only thing that
+    makes a third live caller fail loudly instead of silently reopening it."""
+    here = Path(paper_rebalance.__file__).parent
+    missing = [
+        name for name in LIVE_SCHEDULED_CALLERS
+        if "strict_fill_date=True" not in (here / name).read_text(encoding="utf-8")
+    ]
+    assert not missing, (
+        f"live scheduled caller(s) not opted in to strict_fill_date: {missing}. "
+        "A live rebalance may fill off a stale bar (see the 2026-08-24 incident)."
+    )
+    print(f"  [OK  ] all {len(LIVE_SCHEDULED_CALLERS)} live scheduled callers opt in")
+
+
 def main() -> int:
     print("test_strict_fill_date")
     test_predicate()
     test_default_is_off()
     test_both_legs_guarded()
     test_ladder_opts_in()
+    test_every_live_caller_opts_in()
     print("ALL PASS")
     return 0
 

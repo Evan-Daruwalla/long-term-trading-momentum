@@ -8,13 +8,18 @@ CREDENTIALS come from the environment (never hard-coded, never committed):
   APCA_API_KEY_ID      - your Alpaca key id
   APCA_API_SECRET_KEY  - your Alpaca secret
   APCA_API_BASE_URL    - optional; defaults to the PAPER endpoint
-                         (https://paper-api.alpaca.markets). Point at
-                         https://api.alpaca.markets only when going live.
+                         (https://paper-api.alpaca.markets). Setting it to
+                         the live host is REFUSED -- see below.
 
-The default base URL is the PAPER endpoint on purpose: nothing in this module
-can touch a live account unless you explicitly set APCA_API_BASE_URL to the
-live host. This module does NOT place orders on its own — callers do, and the
-caller (you) owns that decision.
+The PAPER endpoint is not merely the default, it is enforced. Audit finding 26
+(2026-09-20): this docstring previously said a live account was reachable by
+"explicitly setting APCA_API_BASE_URL", and that was accurate and dangerous --
+one environment variable, inherited by every scheduled cmd.exe, was the entire
+boundary, and the `is_live` property that supposedly guarded it was read by no
+code path at all. `__init__` now raises unless a caller passes
+`allow_live=True` in code. Changing the environment variable is no longer
+sufficient, deliberately. This module does NOT place orders on its own —
+callers do, and the caller (you) owns that decision.
 
 Every response carries an `X-Request-ID`; Alpaca asks you to persist recent ones
 for support tickets (they can't be queried later). We log each one and append it
@@ -52,9 +57,25 @@ class AlpacaError(RuntimeError):
 class AlpacaClient:
     def __init__(self, *, base_url: str | None = None,
                  key_id: str | None = None, secret_key: str | None = None,
-                 timeout: float = 15.0):
+                 timeout: float = 15.0, allow_live: bool = False):
         self.base_url = (base_url or os.environ.get("APCA_API_BASE_URL")
                          or PAPER_BASE_URL).rstrip("/")
+        # Audit 2026-09-20, finding 26. `alpaca_sync.py:21` and record line 3187
+        # both claim this client "hard-guards the live host". It did not: the
+        # live URL was reachable by setting ONE environment variable, and
+        # `is_live` was referenced nowhere except its own definition and a
+        # smoke-test print -- no code path consulted it. A stray User-scope
+        # APCA_API_BASE_URL would be inherited by every scheduled cmd.exe,
+        # including rebalance.bat's alpaca_sync step. Now the claim is true:
+        # reaching the live host takes a deliberate, in-code allow_live=True.
+        # Evan is 17 and this account is PAPER only.
+        if self.base_url == LIVE_BASE_URL and not allow_live:
+            raise AlpacaError(
+                0, None,
+                f"REFUSING the LIVE Alpaca host ({LIVE_BASE_URL}). This project "
+                f"is paper-only. If a live endpoint is ever genuinely intended, "
+                f"pass AlpacaClient(allow_live=True) explicitly in code -- "
+                f"setting APCA_API_BASE_URL is not enough, by design.")
         self._key = key_id or os.environ.get("APCA_API_KEY_ID")
         self._secret = secret_key or os.environ.get("APCA_API_SECRET_KEY")
         if not self._key or not self._secret:
@@ -147,10 +168,16 @@ class AlpacaClient:
                      type: str = "market", time_in_force: str = "day",
                      **extra) -> dict:
         """Submit an order. Exactly one of qty / notional must be given.
-        Honors the configured base_url, so this is a paper order unless
-        APCA_API_BASE_URL points at the live host."""
+
+        Always a PAPER order: __init__ refuses the live host unless a caller
+        passes allow_live=True in code (audit finding 26, 2026-09-20). The
+        endpoint is logged on every submission so the destination is always
+        recoverable from the log, not merely assumed."""
         if (qty is None) == (notional is None):
             raise ValueError("Pass exactly one of qty= or notional=.")
+        log.info("submit_order %s %s %s -> %s", side, symbol,
+                 f"qty={qty}" if qty is not None else f"notional={notional}",
+                 self.base_url)
         body: dict[str, Any] = {"symbol": symbol, "side": side, "type": type,
                                 "time_in_force": time_in_force, **extra}
         if qty is not None:

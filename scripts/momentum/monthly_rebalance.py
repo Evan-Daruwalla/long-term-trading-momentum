@@ -138,6 +138,15 @@ def _rebalance_phase(as_of, dry_run, paper_rebalance, momentum_v2, existing) -> 
                 starting_cash=momentum_v2.STARTING_CASH,
                 top_n=top_n, half_spread_bps=momentum_v2.HALF_SPREAD_BPS,
                 dry_run=dry_run, broker_realistic=True,
+                # Audit 2026-09-20, finding 25. The ladder opted in on
+                # 2026-08-26; this path -- the one that actually trades the
+                # monthly roster -- never did, so the 2026-08-24 stale-fill
+                # bug stayed live here for 25 days. rebalance.bat:47-53's own
+                # comment says this path runs when same-day publication is
+                # INCOMPLETE by design (~4,400 of ~5,200 closes), so the
+                # precondition for that incident is this path's normal
+                # operating state, not a tail case.
+                strict_fill_date=True,
             )
             log.info("    %s: %d position change(s)%s",
                      name, n, " (dry-run, nothing written)" if dry_run else "")

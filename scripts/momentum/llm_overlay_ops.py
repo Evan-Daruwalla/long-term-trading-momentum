@@ -70,7 +70,7 @@ def _set_single_position(*, strategy_name: str, target: str | None,
 
     # 1. Sell current holding (if any)
     if cur is not None:
-        px = market_data.last_close_on_or_before(cur["ticker"], as_of)[0]
+        px = market_data.last_close_checked(cur["ticker"], as_of)
         if px is None or px <= 0:
             log.warning("[%s] no price for %s at %s — cannot sell; aborting.",
                         strategy_name, cur["ticker"], as_of)
@@ -89,7 +89,7 @@ def _set_single_position(*, strategy_name: str, target: str | None,
 
     # 2. Buy target (if any). VETO/cash target => stay in cash.
     if target is not None:
-        px = market_data.last_close_on_or_before(target, as_of)[0]
+        px = market_data.last_close_checked(target, as_of)
         if px is None or px <= 0:
             log.warning("[%s] no price for target %s at %s — staying in cash.",
                         strategy_name, target, as_of)
@@ -126,7 +126,7 @@ def cmd_candidate(args) -> int:
         log.error("No candidate at %s (empty universe?).", as_of)
         return 1
     ticker, z = cand
-    px = market_data.last_close_on_or_before(ticker, as_of)[0]
+    px = market_data.last_close_checked(ticker, as_of)
     print("=" * 70)
     print(f"LLM-OVERLAY CANDIDATE  (as_of {as_of})")
     print("=" * 70)
@@ -262,7 +262,7 @@ def cmd_check_invalidation(args) -> int:
                  "check.", pos["ticker"])
         return 0
     inval = decision["invalidation_level"]
-    px = market_data.last_close_on_or_before(pos["ticker"], as_of)[0]
+    px = market_data.last_close_checked(pos["ticker"], as_of)
     if px is None:
         log.warning("[overlay] no price for %s at %s — cannot check stop.",
                     pos["ticker"], as_of)

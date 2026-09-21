@@ -56,7 +56,7 @@ def _nav(strategy_name: str, as_of: date) -> float:
     pf = paper_trader.get(strategy_name)
     val = 0.0
     for p in paper_trader.list_open(strategy_name):
-        px = market_data.last_close_on_or_before(p["ticker"], as_of)[0] or p["entry_price"]
+        px = market_data.last_close_checked(p["ticker"], as_of) or p["entry_price"]
         val += p["qty"] * px
     return pf.cash + val
 
@@ -74,7 +74,7 @@ def cmd_candidate(args) -> int:
     print(f"SECTOR-OVERLAY CANDIDATES  (as_of {as_of})  top-{sector_overlay.TOP_N}")
     print("=" * 70)
     for ticker, score in cands:
-        px = market_data.last_close_on_or_before(ticker, as_of)[0]
+        px = market_data.last_close_checked(ticker, as_of)
         name = sector_momentum.SECTOR_NAMES.get(ticker, ticker)
         print(f"\n### {ticker} ({name})  mom={score:+.3f}  "
               f"close={'$%.2f' % px if px else 'n/a'}")
@@ -152,7 +152,7 @@ def cmd_rebalance(args) -> int:
     trades = 0
     # 1. Sells (rotated-out or newly-vetoed) -> cash
     for p in sells:
-        px = market_data.last_close_on_or_before(p["ticker"], as_of)[0]
+        px = market_data.last_close_checked(p["ticker"], as_of)
         if px is None or px <= 0:
             log.warning("  skip sell %s: no price at %s", p["ticker"], as_of)
             continue
@@ -169,7 +169,7 @@ def cmd_rebalance(args) -> int:
 
     # 2. Buys (new HOLD sectors) at the fixed slot, clamped to available cash
     for t in buys:
-        px = market_data.last_close_on_or_before(t, as_of)[0]
+        px = market_data.last_close_checked(t, as_of)
         if px is None or px <= 0:
             log.warning("  skip buy %s: no price at %s", t, as_of)
             continue
@@ -225,7 +225,7 @@ def cmd_check_invalidation(args) -> int:
         if dec is None or dec["invalidation_level"] is None:
             continue
         inval = dec["invalidation_level"]
-        px = market_data.last_close_on_or_before(pos["ticker"], as_of)[0]
+        px = market_data.last_close_checked(pos["ticker"], as_of)
         if px is None:
             log.warning("[sector-overlay] no price for %s at %s — skip stop.",
                         pos["ticker"], as_of)

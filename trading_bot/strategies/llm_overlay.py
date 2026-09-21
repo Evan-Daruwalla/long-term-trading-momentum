@@ -63,7 +63,28 @@ from datetime import date, datetime, timezone
 
 from trading_bot.config import DB_PATH
 from trading_bot.factors import mom_roa_zscore
-from trading_bot.factors.universe import tradeable_universe
+from trading_bot.factors.universe import (
+    tradeable_universe,
+    MIN_PRICE_USD as _UNIVERSE_MIN_PRICE,
+    MIN_HISTORY_DAYS as _UNIVERSE_MIN_HISTORY,
+)
+
+# Audit 2026-09-20, finding 23. This module's docstring promises candidate
+# selection "identical and mechanical" to mom_roa_6535's -- that parity is the
+# entire control-vs-treatment premise of the LLM-overlay experiment. But
+# mom_roa_6535 asserts the universe defaults and this module did not, so a
+# future edit to universe.py would crash the sibling loudly while this one
+# silently started picking from a different filter, invalidating the
+# comparison with no signal that it had happened.
+_EXPECTED_UNIVERSE_MIN_PRICE   = 5.0
+_EXPECTED_UNIVERSE_MIN_HISTORY = 252
+
+assert _UNIVERSE_MIN_PRICE == _EXPECTED_UNIVERSE_MIN_PRICE, (
+    f"llm_overlay expects universe.MIN_PRICE_USD={_EXPECTED_UNIVERSE_MIN_PRICE}, "
+    f"got {_UNIVERSE_MIN_PRICE}. Selection parity with mom_roa_6535 is broken.")
+assert _UNIVERSE_MIN_HISTORY == _EXPECTED_UNIVERSE_MIN_HISTORY, (
+    f"llm_overlay expects universe.MIN_HISTORY_DAYS={_EXPECTED_UNIVERSE_MIN_HISTORY}, "
+    f"got {_UNIVERSE_MIN_HISTORY}. Selection parity with mom_roa_6535 is broken.")
 from trading_bot.strategies import mom_roa_6535
 
 
