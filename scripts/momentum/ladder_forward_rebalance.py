@@ -115,6 +115,7 @@ def _rebalance_sleeves(names, as_of, paper_rebalance, paper_mtm):
                 as_of=as_of, strategy_name=name, starting_cash=100_000.0,
                 top_n=TOP_N, half_spread_bps=HALF_SPREAD_BPS,
                 dry_run=False, broker_realistic=True,
+                strict_fill_date=True,
             )
             nav = paper_mtm.compute_nav(name, as_of)
             paper_mtm.write_nav(name, as_of, nav)

@@ -127,14 +127,36 @@ def _alpaca_client_or_none():
         return None
 
 
+def _stale_fill(ref_dt: date | None, as_of: date, strict: bool) -> bool:
+    """True when a leg must be skipped: its reference bar is not as_of's close.
+
+    Pure so the guard is testable without driving a whole rebalance
+    (test_strict_fill_date.py). Both legs go through here, so the check cannot
+    be silently dropped from one of them."""
+    return bool(strict) and ref_dt != as_of
+
+
 def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
               top_n: int, half_spread_bps: float, dry_run: bool,
-              broker_realistic: bool = False) -> int:
+              broker_realistic: bool = False,
+              strict_fill_date: bool = False) -> int:
     """Returns the number of position changes (sells + buys).
 
     broker_realistic (default False, so backtests/frozen specs are unchanged):
     buy WHOLE shares of non-fractionable names and drop untradable/inactive ones,
-    matching what the Alpaca mirror can actually execute (see fractionability.py)."""
+    matching what the Alpaca mirror can actually execute (see fractionability.py).
+
+    strict_fill_date (default False, so the seeders/backdater replay history
+    unchanged): refuse any leg whose reference bar is not as_of's own close.
+    market_data.last_close_on_or_before carries forward silently, so on an
+    evening whose publication is still incomplete a leg fills against a bar
+    days old. 2026-08-24: 41 exits across 19 sleeves filled off the 08-21
+    close (TPL 383.64 vs the true 373.45), handing the sleeves $457.00 of
+    proceeds the real bar did not support. An aggregate coverage gate cannot
+    catch this - 08-24 finished at 5,144 closes, comfortably over the 5,000
+    floor, while five held names were still missing at 20:30 - so the guard
+    has to be per-ticker, here on the fill path. A skipped leg is self-healing:
+    due-ness is period-based, so the next rebalance inside the period retries."""
     paper_trader.init(strategy_name=strategy_name, starting_cash=starting_cash)
     market_data.preload_caches()
     pf = paper_trader.get(strategy_name)
@@ -212,6 +234,10 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
         if px is None or px <= 0:
             log.warning("  Skip sell %s: no price at %s", p["ticker"], as_of)
             continue
+        if _stale_fill(ref_dt, as_of, strict_fill_date):
+            log.warning("  Skip sell %s: stale bar %s for as_of %s; retries on the "
+                        "next rebalance in this period", p["ticker"], ref_dt, as_of)
+            continue
         fill = px * (1.0 - spread)
         realized = paper_trader.sell(
             position_id=p["id"], qty=p["qty"], fill_price=fill, as_of=as_of,
@@ -248,6 +274,10 @@ def rebalance(*, as_of: date, strategy_name: str, starting_cash: float,
             px, ref_dt = market_data.last_close_on_or_before(t, as_of)
             if px is None or px <= 0:
                 log.warning("  Skip buy %s: no price at %s", t, as_of)
+                continue
+            if _stale_fill(ref_dt, as_of, strict_fill_date):
+                log.warning("  Skip buy %s: stale bar %s for as_of %s; retries on the "
+                            "next rebalance in this period", t, ref_dt, as_of)
                 continue
             fill = px * (1.0 + spread)
             qty = dollar_per / fill

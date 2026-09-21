@@ -217,7 +217,10 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-do---scheduled-daily-audit-dn-confirmed-in-full-and-the-guard-is-inverted---it-blocks-the-legitimate-path-while-the-bat-wrapper-walks-past-it-2026-09-01-2014-cdt">DO - Scheduled daily-audit (independent, cold, read-only) CONFIRMED DN.1-DN.4 against disk and named the guard <strong>INVERTED</strong>: it denies the scheduled task's own typed decide calls while <code>rebalance.bat</code> runs four guarded operations inside itself and passes untouched. 5 findings (2 HIGH). Proposes a narrow override in the task's own launch env, NOT a loosened regex. Corrects DN.3: <code>monthly_rebalance</code> never matched rule 1 anyway (in-process import the hook cannot see). Also: two scheduled Claude sessions COLLIDE at 19:00 and a quota-killed run leaves no local log (absence is the only detector), and <code>daily-audit</code>'s live cron is <code>0 19 1-7 * *</code> vs HANDOFF's claimed <code>0 7 * * *</code> - 4th cron drift, ~23 days a month with no audit</a> (09-01)<br />
 - <a href="#appendix-dp---september-did-rebalance-by-hand-evan-ran-the-six-blocked-decisions-and-rebalancebat-himself-at-2155-cdt-clean-end-to-end-7676-pass-128-alpaca-orders-frozen-d00000pp-supersedes-dns-closing-line-and-do2s-september-remains-un-rebalanced-do5s-correction-to-dn3-accepted-all-three-findings-still-open-2026-09-01-2220-cdt">DP - September DID rebalance, BY HAND. Evan ran DN.5's six blocked decisions + <code>rebalance.bat</code> himself at 21:55 CDT: exit 0 in 14m40s, stamped <code>2026-09-01/OK</code>, verify_run PASS <strong>76/76</strong>, frozen tests <strong>d=0.0000pp</strong> on all 4 configs, Alpaca <strong>128 orders all HTTP 200</strong> (accepted-at-submit, NOT proof of fills - verify_run never calls the API). All six sleeves checked against paper_positions directly, since an un-rebalanced sleeve passes verify too: the stock treatment re-entered on the MU BUY after a month in cash, and the XLI veto parked <strong>$23,087.99 / 22.7%</strong> of the sector treatment in cash. <strong>Supersedes DN's closing line AND DO.2's 'September remains UN-REBALANCED'</strong>; accepts DO.5's correction to DN.3 (monthly_rebalance never matched rule 1 anyway - in-process import). Tonight PROVED the wrapper gap by running through it. All three findings still OPEN - 10-01 hits the same denial</a> (09-01)<br />
 - <a href="#appendix-dq---doc-sync--drift-check-head-does-not-know-september-rebalanced---dmdndodp-have-sat-uncommitted-for-5-days-and-the-rebalance-log-reverting-would-re-open-the-month-gate-on-an-already-rebalanced-month-2-task-table-drifts-fixed-the-bins-had-none-of-the-guard-era-the-wrapper-fix-is-proposed-and-unapproved-2026-09-06-1330-cdt">DQ — Doc sync + drift-check: HEAD does not know September rebalanced - DM/DN/DO/DP have sat UNCOMMITTED for 5 days, and the rebalance log reverting would re-open the month gate on an already-rebalanced month. 2 task-table drifts fixed; the bins had NONE of the guard era; the wrapper fix is proposed and unapproved</a> (09-06)<br />
-- <a href="#appendix-dr---committed-the-september-account--10-doc-files-to-head-3-code-files-held-back-2026-09-06-1340-cdt">DR — Committed the September account — 10 doc files to HEAD, 3 code files held back</a> (09-06)</p>
+- <a href="#appendix-dr---committed-the-september-account--10-doc-files-to-head-3-code-files-held-back-2026-09-06-1340-cdt">DR — Committed the September account — 10 doc files to HEAD, 3 code files held back</a> (09-06)<br />
+- <a href="#appendix-ds---scheduled-daily-audit-the-trade-guard-is-inverted--it-denies-the-read-only-step-the-monthly-automation-needs-and-permits-five-wrappers-that-trade-live-and-its-own-self-check-is-green-2026-09-08-0740-cdt">DS — Scheduled daily-audit: the trade guard is INVERTED — it denies the read-only step the monthly automation needs and permits five wrappers that trade live, and its own self-check is green</a> (09-08)<br />
+- <a href="#appendix-dt---scheduled-daily-audit-dss-inverted-trade-guard-is-still-live-two-days-on-two-new-escapes---exec-abbreviation-and-git--c-push-and-the-self-check-is-still-green-2026-09-10-0712-cdt">DT — Scheduled daily-audit: DS's inverted trade guard is still live two days on, two new escapes (--exec abbreviation and git -C push), and the self-check is still green</a> (09-10)<br />
+- <a href="#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt">DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard</a> (09-17)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -12615,6 +12618,428 @@ All regression tests passed.
    DN.4, DO.1 findings 3–4).</li>
 </ol>
 <p>Nothing was pushed. <code>origin/master</code> is unchanged.</p>
+<h1 id="appendix-ds---scheduled-daily-audit-the-trade-guard-is-inverted--it-denies-the-read-only-step-the-monthly-automation-needs-and-permits-five-wrappers-that-trade-live-and-its-own-self-check-is-green-2026-09-08-0740-cdt">Appendix DS - Scheduled daily-audit: the trade guard is INVERTED — it denies the read-only step the monthly automation needs and permits five wrappers that trade live, and its own self-check is green (2026-09-08 07:40 CDT)</h1>
+<p>Read-only cold audit under the scheduled <code>daily-audit</code> task. Nothing was changed, deleted,<br />
+committed, pushed, or run that trades. Manifest 266 tracked + 1 untracked = 267 files,<br />
+reconciled two ways. Trading was classified ACTIVE by the churn override: the last audit<br />
+(record DO) is inside the 7-day window, but <strong>10</strong> non-audit commits have landed after it.</p>
+<p><strong>Result: 39 findings, 7 edge cases, 3 architecture findings, 5 refutations. Top item: the trading-guard is<br />
+inverted — it denies the read-only step the monthly automation needs and permits five wrappers<br />
+that trade live by default. The next monthly fire, 2026-10-01, hits the identical denial that<br />
+already broke 2026-09-01.</strong></p>
+<h2 id="the-headline-detectors-work-escalation-does-not-and-the-one-blocking-control-is-backwards">The headline: detectors work, escalation does not, and the one blocking control is backwards</h2>
+<h3 id="a1--the-guard-is-a-filename-denylist-pretending-to-be-an-operation-denylist">A1 — The guard is a filename denylist pretending to be an operation denylist</h3>
+<p>Its own header says to keep rules anchored to the operation, "not to a filename, so a renamed<br />
+wrapper does not silently escape the guard." All five rules are filenames. Probed against the<br />
+<strong>live hook</strong> with real PreToolUse payloads, re-run by the orchestrator after the workers<br />
+reported:</p>
+<pre><code>DENY  | paper_rebalance
+ALLOW | ladder_forward_rebalance      &lt;- dry_run=False hardcoded
+ALLOW | monthly_rebalance             &lt;- --dry-run is store_true, so the default is LIVE
+ALLOW | rebalance.bat                 &lt;- submits real Alpaca orders
+ALLOW | ladder_rebalance.bat
+ALLOW | start_all.bat
+ALLOW | alpaca_sync --all --e         &lt;- argparse abbreviation
+ALLOW | alpaca_sync --all --exec
+DENY  | alpaca_sync --all --execute
+ALLOW | git -C &lt;path&gt; push
+DENY  | cd &lt;path&gt; &amp;&amp; git push
+DENY  | cat .../paper_rebalance.py    &lt;- reading the file is blocked
+</code></pre>
+<p><strong>The last two rows are the inversion in one line: the guard blocks <em>reading</em> the file and<br />
+permits <em>running</em> the wrapper that trades.</strong> Records DN/DO/DP already documented the <code>.bat</code><br />
+half as open. New this sweep: the two module-level dispatchers, the argparse abbreviation, and<br />
+the <code>git -C</code> form. Three new escapes found in one pass is the treadmill made visible.</p>
+<p><strong>The decision, and it is not a patch: denylist by operation-shape, or allowlist the read-only<br />
+and dry-run invocations?</strong> Applying the symptom patches below without answering this buys the<br />
+next three escapes.</p>
+<h3 id="a2--detection-is-solved-escalation-is-not-three-artifacts-zero-automated-readers">A2 — Detection is solved; escalation is not. Three artifacts, zero automated readers</h3>
+<p><code>var/anomaly_report.log</code> has flagged the same two cancelled securities on 2026-09-03, -04, -05,<br />
+-06 and -07 — five consecutive nights. <code>check_anomalies.py:182</code> returns 0 unconditionally and<br />
+<code>daily.bat:78</code> is commented "Report-only by design". <code>var/backup.log</code> and <code>var/ops_status.log</code><br />
+have the same shape: a writer and no reader. Nothing reached HANDOFF, the record, or an exit<br />
+code. The only reason this surfaced at all is that a scheduled Claude task happened to read the<br />
+log this morning.</p>
+<p>"A giant move can be legitimate news" justifies report-only for a MOVE flag. It does not<br />
+justify it for a missing close on a <strong>held</strong> name on a <strong>settled</strong> session. Either split the<br />
+exit code, or move the per-position check into <code>verify_run</code>, which already hard-fails and is<br />
+exit-code-gated in all four <code>.bat</code> files.</p>
+<h3 id="a3--drift000-is-the-health-signal-and-a-frozen-quote-produces-it">A3 — <code>drift($+0.00)</code> is the health signal, and a frozen quote produces it</h3>
+<p><code>verify_run</code> prints <code>[PASS] … drift($+0.00)</code> and <code>RESULT: PASS (76/76 sleeves OK)</code> while a<br />
+sleeve marks a security at a price that stopped existing. The drift check measures price<br />
+<em>movement</em>; a delisted ticker's carried-forward price never moves, so <strong>the failure mode reads<br />
+as maximal health.</strong> This is the same carry-forward mechanism <code>strict_fill_date</code> was built for,<br />
+one layer up — in the mark-to-market path instead of the fill path. The decision is whether<br />
+<code>verify_run</code> gains a staleness axis: newest price date per held ticker against the target<br />
+settled date.</p>
+<h2 id="findings">Findings</h2>
+<p>Every one below was reproduced this session by the auditor or re-derived by the orchestrator.</p>
+<h3 id="critical">CRITICAL</h3>
+<ul>
+<li><strong>C1 — <code>scripts/hooks/pretooluse-trading-guard.js:34-44</code>.</strong> The guard allows <code>rebalance.bat</code>,<br />
+<code>monthly_rebalance</code> and <code>ladder_forward_rebalance</code>; all three trade live by default, and<br />
+<code>rebalance.bat:200</code> submits real broker orders. Fix: add the two dispatcher module names and<br />
+  the three <code>.bat</code> names to <code>RULES</code>.</li>
+<li><strong>C2 — the monthly task cannot finish itself, and it has a date.</strong> The live<br />
+<code>monthy-llm-rebalance</code> spec's Step 3 is a read-only decision step that guard rule 3 <strong>denies</strong>;<br />
+  its Step 4, which actually trades, is <strong>allowed</strong>. This already caused a real failure on<br />
+  2026-09-01, when Evan ran the six blocked decisions and the rebalance by hand (record DP).<br />
+<strong>The next fire, 2026-10-01, hits the identical denial.</strong> Fix: narrow rule 3 so the<br />
+  append-only decision-log write is distinguished from a trade.</li>
+</ul>
+<h3 id="high">HIGH</h3>
+<ul>
+<li><strong>C3 — <code>trading_bot/execution/alpaca_sync.py:186</code>.</strong> No <code>allow_abbrev=False</code> anywhere in the<br />
+  repo, so argparse accepts <code>--e</code>, <code>--ex</code>, <code>--exec</code> and <code>--execu</code> as <code>--execute</code>, while the<br />
+  guard regex requires the literal. Fix at the source with <code>allow_abbrev=False</code>, not in the regex.</li>
+<li><strong>C4 — $9,913.88 is marked on securities whose shares no longer exist</strong>, 0.128% of the<br />
+  $7,747,404.93 book, across 6 + 2 open rows in two tickers. The <code>delistings</code> table has 3 rows<br />
+  and neither ticker is among them, and one sleeve <em>bought</em> one of them on 2026-09-01. Zero<br />
+  mentions in HANDOFF, the record, or the PRD. <strong>The repair is Evan's call</strong> under this<br />
+  project's rule that NAV and decision history are sacred; the durable fix is the staleness<br />
+  check in A2/A3 so the next one is caught.</li>
+<li><strong>C5 — <code>HANDOFF.md:646</code> is false in HEAD.</strong> It asserts in the present tense that the ladder<br />
+  has passed a strict fill-date flag since 2026-08-26; HEAD's ladder module has no such<br />
+  argument, because that change is one of the three code files deliberately held back (DR.4).<br />
+  The disclosure banner at <code>:36-44</code> exists but <code>:646</code> was never updated to match. Fix: prefix<br />
+  the line with "in the working tree only (uncommitted)".</li>
+<li><strong>C6 — <code>.env</code> is readable by every local user.</strong> It inherits Users read and Authenticated<br />
+  Users modify, and it holds populated two-factor recovery codes. The sibling key file has the<br />
+  correct owner-only ACL — the hardening was applied to one file and not the other. Fix:<br />
+  strip inheritance and grant the owner only.</li>
+<li><strong>C7 — <code>git -C &lt;path&gt; push</code> bypasses BOTH layers.</strong> The settings deny rule is a prefix<br />
+  matcher, and the hook regex requires <code>git</code> immediately followed by <code>push</code>. The repo is<br />
+<strong>public</strong> and currently sits <strong>23 commits ahead</strong> of its remote. Fix: loosen the hook regex<br />
+  to allow anything between <code>git</code> and <code>push</code>.</li>
+<li><strong>C8 — the guard's own self-check passes 20/20 while the guard is inverted.</strong> Its DENY list<br />
+  contains zero <code>.bat</code> files, zero dispatcher modules and zero abbreviated flags, so its green<br />
+  is not evidence of anything. <strong>This matters beyond the finding: the daily-audit STEP 0e check<br />
+  RUNS this suite and reports the gate healthy on its output.</strong> The audit spec was written to<br />
+  avoid exactly this trap — it says to run the self-check rather than assert rule strings,<br />
+  because "asserting a string that cannot fire is a green light on a dead gate." The suite is<br />
+  now the same kind of green light one level up. Fix: add the eight ALLOW rows above to the<br />
+  DENY array; the suite goes red and the open finding becomes visible to every future sweep.</li>
+<li><strong>C9 — <code>HANDOFF.md:600</code> and <code>:871</code> both call <code>monthy-llm-rebalance</code> "daily-firing".</strong> The<br />
+  live cron is days 1-5 only, next run 2026-10-01. <code>HANDOFF.md:698</code> already carries the correct<br />
+  value, so the file contradicts itself.</li>
+<li><strong>C10 — the executing task spec says it "fires daily at 5:30pm"</strong>, wrong on both time and<br />
+  cadence, in both the live copy and its committed snapshot. This is the prompt the model reads<br />
+  to reason about its own cadence. <strong>A worker proposed a replacement value that is itself the<br />
+  stale pre-2026-09-02 cron — do not apply that version.</strong></li>
+</ul>
+<h3 id="medium">MEDIUM</h3>
+<ul>
+<li><strong>C11</strong> — "NAV and decision history is sacred" gets two enforcement levels: the overlay logs<br />
+  have 6 abort triggers, <code>paper_nav</code> has <strong>0</strong> and is written with an upsert. Verdict:<br />
+  unenforceable as written.</li>
+<li><strong>C12</strong> — "never run concurrent factor backtests, silent corruption" has zero mechanism. The<br />
+  database busy timeout serializes single statements, not multi-statement sequences.</li>
+<li><strong>C13 — <code>CLAUDE.md:35</code> says "6 scheduled tasks, verified 2026-07-28".</strong> Live: 8 Windows tasks<br />
+  plus 5 enabled Claude cron tasks. Fix: replace the count with an instruction to read the live<br />
+  lists, since this is the fourth documented drift on this machine.</li>
+<li><strong>C14</strong> — the wake-nudge Windows task still fires on day 1 only, while the Claude task now<br />
+  fires days 1-5. Retry days 2-5 have no purpose-built nudge.</li>
+<li><strong>C15 — the committed snapshot of the daily-audit spec is 77 lines against a 96-line live<br />
+  copy, 21 lines differing.</strong> The other three snapshots are byte-identical. The one spec that<br />
+  has drifted is the audit's own. (Independently caught by STEP 0c this morning; the drift is<br />
+  benign in direction — the live copy has <em>more</em> safety text, the record-append instructions<br />
+  added after the 2026-09-01 TOC breakage — but the snapshot is the artifact under version<br />
+  control and it no longer matches.)</li>
+<li><strong>C16-C18</strong> — three doc counts wrong: "all 3 paper sleeves" against 76 in the database; 29<br />
+  research scripts against 39; 5 warm scripts against 8.</li>
+<li><strong>C17</strong> — two READMEs cite a function name that does not exist; the real name differs. The<br />
+  record's hit on the old name is historical and correct for its date — leave it.</li>
+<li><strong>C19</strong> — a memory bin says graphify's incremental update mis-accounts on this repo and to do<br />
+  a full rebuild, while <code>daily.bat:102</code> runs the incremental update every trading day. One of<br />
+  the two is stale, and the global instruction to query the graph first makes it matter.</li>
+<li><strong>C20</strong> — two orphaned scheduler XML files describe tasks that no longer exist; re-importing<br />
+  either would stand up a second rebalance trigger with no coordination with the month gate.</li>
+<li><strong>C21</strong> — a sibling script calls the catch-up step with no exit-code check where <code>daily.bat</code><br />
+  captures it and branches on failure. Same script, two call sites, one guarded.</li>
+<li><strong>C22</strong> — 3 blind <code>if errorlevel 1</code> gates survive in two files. The DI.1 fix that converted 15<br />
+  of them to explicit capture landed in <code>rebalance.bat</code> only, which now has 17 explicit captures<br />
+  and 0 blind.</li>
+</ul>
+<h3 id="low">LOW</h3>
+<p>C23 CLI defaults ignore the selected strategy and default to LIVE; C24 HANDOFF calls a coverage<br />
+step a gate when the step falls through and only the library function gates; C25 eight<br />
+cross-module constant contracts are plain <code>assert</code>, stripped under <code>python -O</code>; C26 the deny<br />
+list covers <code>.env</code> globs but not the bare-named key file; C27 a price-sanity guard is<br />
+one-directional and misses the implausibly-low case; C28 a doc labels a July timestamp CST<br />
+inside daylight time; C29 record front matter says "Appendices A-X" against 122; C30 two empty<br />
+unused key variables; C31 a script with zero references anywhere; C32 a dead import and a<br />
+builtin-shadowing parameter; C33 two batch files referenced in no doc; C34 the single holiday<br />
+price row, already reported by the daily entry and never escalated — an instance of A2, not a<br />
+new defect; C35 a stale 37-line dead copy of the pre-commit hook sits in the shadowed<br />
+<code>.git/hooks/</code> location beside the live 75-line one, the exact "edited file is not the executed<br />
+file" shape from 2026-08-05; C36 the HANDOFF timestamp is a forward-guess three minutes ahead<br />
+of the commit it describes; C37 a third of the lock file is tooling, not application deps.</p>
+<h2 id="edge-cases">Edge cases</h2>
+<p>E1 and E2 are <strong>observed</strong>, not constructed: an agent session can invoke the monthly dispatcher<br />
+or the abbreviated execute flag today and the guard returns ALLOW. E3 is observed and live —<br />
+the frozen-mark case above. E4: the retry budget for a partial rebalance fell from ~28 days to<br />
+2-5 days when the cron narrowed to days 1-5, and nothing documents that. E5: killing a backtest<br />
+mid-write leaves truncated JSON that passes an existence check and crashes the resume path.<br />
+E6: corrupt position rows are read as ground truth with no provenance check and mirrored live<br />
+by the next scheduled run. E7: whether the Claude scheduler applies daylight-time rules or a<br />
+fixed offset <strong>could not be determined</strong> — re-query the next-run times for all four cron tasks<br />
+on 2026-11-02, because a fixed offset would silently move the 48-minute safety gap.</p>
+<h2 id="verified-true--load-bearing-negatives">Verified true — load-bearing negatives</h2>
+<ul>
+<li><strong>Search tooling is trustworthy right now.</strong> The 2026-08-05 malformed-glob bug does not<br />
+  reproduce; two independent search paths agree on the same file count. Every other negative<br />
+  rests on this one.</li>
+<li><strong>The record at rest is clean.</strong> 122 appendices, letters unique and contiguous, TOC and<br />
+  heading sets identical with both differences empty, zero CRLF, and all 63 commits touching<br />
+  the file show zero deletions — it has never been edited in place. The HTML twin matches.</li>
+<li><strong>HANDOFF's live numbers are exact</strong>, re-queried read-only this morning: 76 sleeves, 0<br />
+  slippage rows, 137 residue rows, 8,386 position rows with 3,256 open, 6 append-only triggers,<br />
+  latest marks 2026-09-04 at 76/76, zero duplicate sleeve-date pairs, zero non-positive NAV,<br />
+  and <strong>zero foreign-key orphans</strong> in either table.</li>
+<li><strong>The month gate's self-check passes 8/8</strong>, reproduced.</li>
+<li><strong>The held-back test passes.</strong> Record DR.4 logged it as not run; it was run this session and<br />
+  returns ALL PASS 4/4, which closes that half of DR.6's first open item.</li>
+<li><strong>The holiday price row is handled by design</strong> — the coverage check anticipates exactly a lone<br />
+  volatility-index close stamped with a non-session date, and its minimum-count floor excludes<br />
+  it. The live run passes with 5,133 closes against a 5,000 floor.</li>
+<li><strong>All 10 batch files are pure ASCII</strong>, so the documented parse-corruption class is absent, and<br />
+  no stray builtin-shadowing root file exists today.</li>
+<li><strong>No secret was ever committed on any ref</strong>, verified with a mechanism sanity-check to prove<br />
+  the query shape actually returns rows when it should.</li>
+<li><strong>The price-adjustment convention is honored</strong> by all 20 real writers; the 5 files using the<br />
+  other setting were checked individually and none write to the price cache.</li>
+<li><strong>The ledger epoch is honored and exit-code-gated in all four entry points.</strong></li>
+<li><strong>Starting cash and half-spread are identical across all 12 definition sites</strong>, and no<br />
+  basis-point value is consumed without dividing by 10,000 first.</li>
+<li><strong>The dashboard binds to loopback only.</strong></li>
+<li><strong>Dependencies are exactly what is declared</strong> — 9 direct pins agree with the 96-line lock, the<br />
+  installed environment matches with zero drift, and the consistency check reports no broken<br />
+  requirements.</li>
+<li><strong>Zero import cycles</strong> across 200 modules and 442 edges, verified two ways; the library layer<br />
+  never imports the scripts layer.</li>
+<li><strong>LLM decisions cannot be injected</strong> — all three operator modules intersect the decision log<br />
+  against an independently generated candidate list before acting.</li>
+</ul>
+<h2 id="corrections-to-this-audits-own-work-and-to-mine">Corrections to this audit's own work, and to mine</h2>
+<p>The auditor's early file enumerations piped through a text filter doing a path filter's job,<br />
+which silently dropped every batch-file line beginning with the virtual-environment python<br />
+path. It was caught when two implementations disagreed, re-run correctly, and the one<br />
+load-bearing negative it touched was re-verified clean both ways. Recorded because the audit<br />
+method's value depends on its failures being visible.</p>
+<p><strong>Mine: this morning's STEP 0e reported the trade/push guard healthy on the strength of its<br />
+self-check returning 20 passed, 0 failed.</strong> That report was wrong in substance. The suite is<br />
+green because it tests none of the twelve cases above. C8 is the finding; the correction to the<br />
+sweep is that STEP 0e must probe the live hook with real payloads, not read a suite's summary<br />
+line.</p>
+<h2 id="coverage-and-what-was-not-swept">Coverage and what was not swept</h2>
+<p>Methods swept: invariants, call-site contracts, error paths, static analysis, churn targeting,<br />
+threat modelling, concurrency, architecture, compliance, all four edge-case generators, all<br />
+eight documentation methods across 45 docs, and the cross-domain pass.</p>
+<p><strong>Partial or not swept, stated as gaps rather than glossed:</strong></p>
+<ul>
+<li><strong>Frozen regression tests NOT run</strong> — deliberate. They are a factor backtest, this project<br />
+  forbids concurrent backtest runs, and the clock sat inside the documented 07:30-08:15 busy<br />
+  window with a scheduled mark-to-market firing at 07:45. Run them outside the three busy<br />
+  windows.</li>
+<li><strong>No fuzzing</strong> — no toolchain present and none added. The three highest-value harness targets<br />
+  are the month gate, the stale-fill predicate, and the coverage function.</li>
+<li><strong>No mutation testing</strong> — no tool available, so a manual floor was applied instead, which is<br />
+  what produced C8.</li>
+<li><strong>The dividend-adjustment convention was NOT verified.</strong> Confirming that specific historical<br />
+  rows are split-adjusted but dividend-unadjusted needs an external unadjusted-price reference,<br />
+  which a read-only pass cannot supply. This is the convention a refresh script violated until<br />
+  2026-06-09, so it stays open.</li>
+<li><strong>The Alpaca order and fill counts cited in the roadmap were NOT checked.</strong> No fills or orders<br />
+  table exists in the live schema — only a 361-row asset-metadata table — so that claim is<br />
+  backed by a log file or the broker API, not by the database.</li>
+<li>Five older audit and revalidation documents were sampled but not claim-verified.</li>
+</ul>
+<h3 id="three-gaps-closed-after-the-first-write-up">Three gaps closed after the first write-up</h3>
+<p>A later worker returned and closed three of the gaps above; they are recorded as closed rather<br />
+than left standing:</p>
+<ul>
+<li><strong>Database integrity is clean on the live 5 GB file.</strong> The integrity pragma returns <code>ok</code> and<br />
+  the foreign-key pragma returns 0 violations, both run to completion.</li>
+<li><strong>CVE status WAS determined, and the audit's own tooling claim was wrong.</strong> The auditor<br />
+  reported it undeterminable because a general-purpose scanner is not installed. <strong>This project<br />
+  ships its own checker</strong>, and running it against the lock file found <strong>7 packages carrying<br />
+  advisories</strong> with a real exit code of 1. Both of its planted canaries correctly returned<br />
+  advisories. Two lessons: the seven advisories are a live finding needing triage, and the<br />
+  audit method should look for a project-local checker before declaring a method unavailable.</li>
+<li><strong><code>verify_run --mode daily</code> passes 76/76 live</strong>, with NAV continuity, ledger-cash<br />
+  reconciliation, pre-inception checks, position counts and rebalance cadence all clean.</li>
+</ul>
+<h3 id="two-further-findings-from-that-worker">Two further findings from that worker</h3>
+<ul>
+<li><strong>Low — <code>scripts/momentum/experiment_report.py:121-122</code>,</strong> reproduced verbatim into a<br />
+  committed report doc. The reading hint under the <em>sector</em> overlay section was copied from the<br />
+  stock-experiment text and tells the reader a working BUY signal wants approvals to exceed<br />
+  vetoes. Sector verdicts are HOLD and VETO; there is no BUY. Human-facing only, no arithmetic<br />
+  is wrong. Fix: build the hint from the verdict names instead of hardcoding them.</li>
+<li><strong>Info — 90 of 6,184 NAV rows carry a nominally negative cash balance</strong>, all on the benchmark<br />
+  sleeve, all at a magnitude of about 1.5e-11. That is floating-point summation dust from a<br />
+  single buy-and-hold trade, seven orders of magnitude below the project's own reconciliation<br />
+  tolerance. No checker asserts non-negative cash, so nothing missed it. No fix needed; if such<br />
+  a check is ever added, clamp at the tolerance rather than at literal zero.</li>
+</ul>
+<h3 id="five-apparent-violations-investigated-and-refuted">Five apparent violations investigated and REFUTED</h3>
+<p>Recorded because a refuted finding is worth as much as a confirmed one, and re-finding these<br />
+next sweep would waste the same effort: NULL provenance columns on most position rows are the<br />
+designed default of an optional migration that affects no arithmetic; 63,377 price rows above<br />
+$100,000 across 86 tickers are the already-named, already-mitigated reverse-split ghost class,<br />
+and none of the sampled tickers was ever held; the kill-switch that never disables anything is<br />
+specified as a human decision criterion in the roadmap and in every strategy docstring; the two<br />
+anomaly checkers that always exit 0 say so in their own docstrings and in every doc that<br />
+mentions them; and the rebalance-log format still parses correctly against the gate's live<br />
+regexes, so the stamp-versus-gate mismatch that was hypothesised does not exist today.</p>
+<h3 id="one-write-to-disclose">One write to disclose</h3>
+<p>The audit was specified read-only. Running the project's own sanctioned read-only checker<br />
+<code>verify_run --mode daily</code> triggered its designed side effect of <strong>appending one dated PASS<br />
+block to <code>var/verify_report.log</code></strong> — the same append-only log the nightly scheduled runs write<br />
+to. No database mutation, no trade, no code or doc file touched. Disclosed rather than omitted,<br />
+because "read-only" that quietly appends is the kind of claim this project audits others for.</p>
+<p>The landing-check agent had not returned when the auditor wrote up. Nothing above depends on<br />
+it — every finding is a reproduction rather than an unverified worker claim.</p>
+<h2 id="landing-check--record-dr-vs-disk">Landing-check — record DR vs disk</h2>
+<p>DR's claims hold. Re-derived: the commit contains exactly the 10 files its table lists; the<br />
+five prior appendices were genuinely absent from HEAD before it; the rebalance log moved from<br />
+its August stamp to the September one; the hooks path and its delegate exist and are<br />
+executable; and the project is 23 commits ahead of its public remote with none pushed, which<br />
+reconciles as the 20 DR reported plus DR itself plus two later daily reports.</p>
+<p>The one DR claim now superseded is DR.4's note that the held-back test had not been run. It has<br />
+been, and it passes.</p>
+<h1 id="appendix-dt---scheduled-daily-audit-dss-inverted-trade-guard-is-still-live-two-days-on-two-new-escapes---exec-abbreviation-and-git--c-push-and-the-self-check-is-still-green-2026-09-10-0712-cdt">Appendix DT - Scheduled daily-audit: DS's inverted trade guard is still live two days on, two new escapes (--exec abbreviation and git -C push), and the self-check is still green (2026-09-10 07:12 CDT)</h1>
+<p>Read-only scheduled <code>daily-audit</code> run. Nothing was changed, committed, pushed, or run<br />
+that trades. STEP 1 classified all 8 record-bearing projects: 7 SKIP-AUDITED (each had an<br />
+audit inside the 7-day window with fewer than 10 non-audit commits after it), 1 INACTIVE<br />
+(World Models Research, last entry 2026-09-01, zero commits since the 2026-09-03 cutoff).<br />
+No project reached STEP 2. This entry records the STEP 0 Trading-only fixed checks, which<br />
+is where the whole finding set came from.</p>
+<p><strong>Result: DS's headline CRIT is UNFIXED and re-confirmed live at 2026-09-10 07:10 CDT, two<br />
+days after it was recorded. Two escapes DS did not name were found. The guard's own<br />
+self-check still prints <code>20 passed, 0 failed</code> over all of it.</strong></p>
+<h2 id="the-re-probe-same-result-as-ds-plus-two-more">The re-probe: same result as DS, plus two more</h2>
+<p>The live hook at <code>scripts/hooks/pretooluse-trading-guard.js</code> was fed real PreToolUse<br />
+payloads (no command was executed). Verbatim result:</p>
+<pre><code>DENY  | paper_rebalance
+ALLOW | ladder_forward_rebalance (module)
+ALLOW | monthly_rebalance (module)
+ALLOW | rebalance.bat
+ALLOW | ladder_rebalance.bat
+ALLOW | start_all.bat
+ALLOW | alpaca_sync --all --e      &lt;- NEW, not in DS
+ALLOW | alpaca_sync --all --exec   &lt;- NEW, not in DS
+DENY  | alpaca_sync --all --execute
+ALLOW | git -C &lt;path&gt; push
+DENY  | cd &lt;path&gt; &amp;&amp; git push
+DENY  | cat paper_rebalance.py     &lt;- reading the file is blocked
+</code></pre>
+<p>Two findings DS did not carry:</p>
+<p><strong><code>--e</code> and <code>--exec</code> submit live orders.</strong> <code>trading_bot/execution/alpaca_sync.py:183</code><br />
+constructs <code>argparse.ArgumentParser()</code> without <code>allow_abbrev=False</code>, so abbreviation is on,<br />
+and the parser has only three long options: <code>--all</code>, <code>--sleeve</code>, and the execute flag. <code>--e</code><br />
+is therefore unambiguous and resolves to the execute flag. The guard's rule is the literal<br />
+regex <code>alpaca_sync[^
+]*--execute</code> (case-insensitive), so a two-character truncation turns a blocked live-order submit into an<br />
+allowed one. <code>rebalance.bat:200</code> is the caller that submits real Alpaca orders.</p>
+<p><strong><code>git -C &lt;path&gt; push</code> is unguarded in BOTH layers.</strong> The hook rule is the regex <code>\bgit\s+push\b</code>,<br />
+which the intervening <code>-C &lt;path&gt;</code> breaks; the settings.json rule <code>Bash(git push:*)</code> is a<br />
+prefix matcher and the command does not begin with those two words. Trading has a live<br />
+public remote (<code>origin</code> -&gt; <code>github.com/Evan-Daruwalla/long-term-trading-momentum</code>), so this<br />
+is a real publish path, which is the exact hazard record DI.3 exists to prevent.</p>
+<p><strong>Correction to a first reading of the <code>_ops</code> rules.</strong> The rules <code>_ops\s+rebalance</code> and<br />
+<code>_ops\s+decide</code> require whitespace directly after <code>_ops</code>, so the path form<br />
+<code>llm_overlay_ops.py decide</code> (the form HANDOFF:594 documents) escapes them. The automated<br />
+path does NOT: <code>rebalance.bat:92/107/138</code> uses the module form<br />
+<code>-m scripts.momentum.llm_overlay_ops rebalance</code>, where the tokens are adjacent and the rules do<br />
+fire. The gap is real but is limited to a hand-typed path invocation, not to the monthly<br />
+automation.</p>
+<h2 id="why-the-self-check-is-not-evidence">Why the self-check is not evidence</h2>
+<p><code>scripts/hooks/test_trading_guard.js</code> passed 20/20 this morning. Its DENY list contains ten<br />
+shapes, every one of which the existing rules already match; not one of the<br />
+ALLOW-when-it-should-DENY shapes above is in it. The suite asserts the rules against<br />
+themselves. The task spec's own warning -- asserting a string that cannot fire is a green<br />
+light on a dead gate -- applies here in mirror image: asserting only the strings that DO<br />
+fire is equally a green light. The file's header comment states the intended design ("Keep<br />
+these anchored to the operation, not to a filename, so a renamed wrapper does not silently<br />
+escape the guard"); all five rules are anchored to filenames or literal flags.</p>
+<h2 id="the-other-step-0-checks">The other STEP 0 checks</h2>
+<ul>
+<li><strong>Missing session: none.</strong> Every weekday in the window (2026-09-03, -04, -07, -08, -09)<br />
+  carries both a Pre-Market and a Post-Market header in <code>daily_report.md</code>. 2026-09-07 is a<br />
+  correct Labor Day no-op on both sides, not a truncation. 2026-09-10 was not yet due at<br />
+  probe time (07:07 fire, 07:05 read).</li>
+<li><strong>Duplicate session: none</strong> in the window.</li>
+<li><strong>Cron drift: none.</strong> All four enabled tasks read live match the HANDOFF table:<br />
+<code>monthy-llm-rebalance</code> <code>0 18 1-5 * *</code>, <code>daily-trade-check</code> <code>0 7 * * 1-5</code>,<br />
+<code>daily-trade-check-2</code> <code>0 19 * * 1-5</code>, <code>daily-audit</code> <code>0 7 * * *</code>. <code>hellow</code><br />
+<code>0 12,17,22 * * *</code> also matches. No fifth drift.</li>
+<li><strong>Spec drift: one.</strong> The live <code>daily-audit/SKILL.md</code> has ~20 lines the committed snapshot<br />
+<code>docs/scheduled-tasks/daily-audit.SKILL.md</code> lacks (the append-record-entry procedure added<br />
+  after the 2026-09-01 TOC break). The drift is benign in content but the snapshot is stale,<br />
+  which is the condition the check exists to catch. <code>daily-trade-check</code>,<br />
+<code>daily-trade-check-2</code> and <code>monthy-llm-rebalance</code> are byte-identical to their snapshots.</li>
+<li><strong>Snapshots missing: three live task dirs have none</strong> -- <code>hellow</code> (ENABLED, fires 3x<br />
+  daily), <code>check-0803-rebalance</code> (disabled), <code>audit-all-projects-2026-08-21</code> (disabled).<br />
+  Only <code>hellow</code> matters: an enabled task whose spec is in no repo can be edited with nothing<br />
+  to diff against.</li>
+<li><strong>Guard layers present.</strong> Both <code>Trading/.claude/settings.json</code> and<br />
+<code>~/.claude/settings.json</code> carry all five deny rules and register<br />
+<code>scripts\hooks\pretooluse-trading-guard.js</code> on matcher <code>Bash|PowerShell</code>. The hook is<br />
+  demonstrably live -- it blocked FOUR of this run's own read-only commands (three probe<br />
+  scripts and the first attempt to append this very entry) because their <em>text</em> contained a<br />
+  denied token. That is the over-block half of the inversion, observed rather than inferred,<br />
+  and it now has a measurable cost: writing this audit record required encoding the tokens.</li>
+</ul>
+<h2 id="carried-forward-not-acted-on">Carried forward, not acted on</h2>
+<p>Two rebalance source files have been sitting uncommitted:<br />
+<code>scripts/momentum/paper_rebalance.py</code> and <code>scripts/momentum/ladder_forward_rebalance.py</code>,<br />
+plus an untracked <code>scripts/momentum/test_strict_fill_date.py</code>. DS itself is still<br />
+uncommitted in the record. Whether the guard is rebuilt by operation-shape or by allowlist<br />
+is the decision DS put to Evan and it is still open; nothing here was patched.</p>
+<h1 id="appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt">Appendix DU - Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard (2026-09-17 07:20 CDT)</h1>
+<p><strong>Scheduled <code>daily-audit</code> run, 2026-09-17 ~07:05–07:20 CDT. Read-only: nothing fixed, nothing committed.</strong> Classified ACTIVE on churn: DT (2026-09-10 07:12) is inside the 7-day window, but 10 non-audit commits (all daily reports) landed after it, and three trade-path files are still uncommitted. <strong>Audit run — 22 findings, top: the trade guard's escapes are unchanged since DS/DT, 7 days on.</strong></p>
+<h2 id="step-0-fixed-checks">STEP 0 (fixed checks)</h2>
+<ul>
+<li>Missing/duplicate session: none. 2026-09-08 to 2026-09-16 each have exactly one Pre-Market and one Post-Market header. 2026-09-17 is not due yet.</li>
+<li>Spec drift: <code>daily-audit</code> live SKILL.md is 19 lines ahead of <code>docs/scheduled-tasks/daily-audit.SKILL.md</code> (the append-record-entry section). The other 3 snapshots are byte-identical. No snapshot exists for <code>hellow</code> (enabled) or the 2 disabled one-shots.</li>
+<li>Cron drift: none. All 5 enabled crons match the HANDOFF table (lines 698–704).</li>
+<li>Guard live: both settings files carry all 5 deny rules and register <code>pretooluse-trading-guard.js</code> on <code>Bash|PowerShell</code>. Self-check: 20 passed, 0 failed.</li>
+</ul>
+<h2 id="findings-severity-ranked-tier-in-brackets">Findings (severity-ranked; tier in brackets)</h2>
+<ol>
+<li><strong>CRIT [CONFIRMED]</strong> Guard escapes, re-probed 2026-09-17 by feeding command strings to the guard only (nothing was executed). ALLOWED: <code>alpaca_sync --all --exec</code>, <code>--e</code>, <code>git -C &lt;dir&gt; push</code>, <code>cmd /c scripts\momentum\rebalance.bat</code>. <code>trading_bot/execution/alpaca_sync.py:183</code> still has no <code>allow_abbrev=False</code>. Nothing changed in <code>scripts/hooks/</code> after DK.</li>
+<li><strong>HIGH [REPORTED]</strong> More escapes of the same kind: quote splits (<code>paper_reb''alance</code>) and a flag between <code>_ops</code> and <code>rebalance</code>. Architecture question, see A1.</li>
+<li><strong>HIGH [CONFIRMED]</strong> <code>scripts/momentum/monthly_rebalance.py:136-140</code> calls rebalance() without <code>strict_fill_date</code>. The stale-bar class (08-24 incident) is guarded only on the ladder path. verify_run's ledger check cannot see a stale-priced fill.</li>
+<li><strong>HIGH [CONFIRMED]</strong> The 3 trade-path files have been uncommitted since 2026-08-26 (mtime 21:00–21:01 CDT) and run nightly from the working tree. DS and DT are uncommitted as well. HANDOFF was last updated 2026-09-06 and does not mention DS/DT. The HTML twin stops at DR. Both gates now pass: <code>test_strict_fill_date</code> ALL PASS, and frozen tests 4/4 at d=±0.0000pp (07:08–07:09 CDT).</li>
+<li>MED [CONFIRMED] <code>HANDOFF.md:852-853</code> says the cron is <code>0 18 * * *</code>. Live is <code>0 18 1-5 * *</code> (line 698 is correct).</li>
+<li>MED [CONFIRMED] <code>HANDOFF.md:661-668</code> says <code>\llm rebal</code> has been "CURRENTLY FAILING" since 08-02. schtasks shows Last Run 9/1/2026 5:59 PM, Last Result 0.</li>
+<li>MED [CONFIRMED] The guard denies read-only commands. <code>git diff scripts/momentum/&lt;paper-rebalance file&gt;</code> was blocked in this run, and so was a grep whose pattern contained the push token.</li>
+<li>MED [CONFIRMED] <code>.claude/settings.json:32-33</code> Read deny covers only <code>./.env</code> and <code>./.env.*</code>. <code>alpaca_keys.env</code> is not covered.</li>
+<li>MED [CONFIRMED] <code>scripts/momentum/daily.bat:102</code> runs incremental <code>graphify.exe update</code>. <code>.claude/codebase-memory/gotchas.md:11</code> says incremental shrinks this graph.</li>
+<li>MED [REPORTED] <code>PRD_ROADMAP.md:104,649</code> still says "M6.1 is the next open task". The M6 body records M6.1–M6.3 closed.</li>
+<li>MED [REPORTED] <code>CLAUDE.md:35-42</code> says "6 total" scheduled tasks and omits <code>daily-trade-check</code>, <code>daily-trade-check-2</code>, <code>daily-audit</code>, <code>hellow</code>.</li>
+<li>MED [REPORTED] No lock across <code>rebalance.bat</code> / <code>ladder_rebalance.bat</code>. The month gate is a TOCTOU gap: it is read at <code>rebalance.bat:30</code> and stamped at ~<code>:213</code>.</li>
+<li>MED [CONFIRMED] daily-audit snapshot drift (STEP 0).</li>
+<li>LOW [CONFIRMED] <code>trading_bot/strategies/llm_overlay.py:131-134</code> inserts the ticker without <code>.upper()</code>. The <code>sector_overlay.py:144</code> sibling does uppercase it, and <code>overlay_auto_decide.py:152</code> passes the ticker raw. Rows affected: 0 of 14.</li>
+<li>LOW [CONFIRMED] <code>trading_bot/db.py:386-389</code> swallows every <code>OperationalError</code> as "column already exists".</li>
+<li>LOW [REPORTED] <code>trading_bot/dashboard/web.py:1034</code> has <code>except Exception: pass</code>. <code>web.py:169-179</code> swallows yfinance failures without logging.</li>
+<li>LOW [REPORTED] Record front matter line 31 says "Appendices A–X" (124 exist). DT prose errors: <code>rebalance.bat:138</code> is <code>sector_overlay_ops</code>, and the self-check DENY list has 9 entries, not 10.</li>
+<li>LOW [REPORTED] 15 unused imports (e.g. <code>trading_bot/scoring/scorer.py:21</code>, <code>trading_bot/factors/regime.py:25</code>).</li>
+<li>LOW [REPORTED] <code>scripts/check_dependency_cves.py</code> is invoked by nothing.</li>
+<li>LOW [CONFIRMED] Orphan task dirs <code>hello</code>, <code>hellllo</code>, <code>hellohello</code>, <code>hello-just-say-hi-back</code>, <code>cohort-0706-deploy</code> sit under <code>~/.claude/scheduled-tasks/</code> but are absent from the live task list.</li>
+<li>LOW [REPORTED] <code>scripts/form4/warm_splits.py:40-56</code> never re-warms a ticker that already has a splits row (retired path).</li>
+<li>LOW [REPORTED] <code>trading_bot/factors/universe.py:89-142</code> caches for the process lifetime with no invalidation. Safe today: short-lived CLI callers only.</li>
+</ol>
+<h2 id="architecture-evans-call">Architecture (Evan's call)</h2>
+<ul>
+<li><strong>A1.</strong> The guard is a denylist over command text. Three audits in a row have found new bypasses, and it also blocks read-only work. Patching one regex at a time is a treadmill. The choice: move to deny-by-default on trade-path entry points (module plus <code>.bat</code> names, with an allowlist of read verbs), or accept prose plus review.</li>
+<li><strong>A2.</strong> Should the ladder-only <code>strict_fill_date</code> opt-in extend to the monthly path? Doing so skips legs instead of filling stale, so a month could close partly rebalanced.</li>
+</ul>
+<h2 id="verified-true">Verified true</h2>
+<p>Frozen tests 4/4 at d=±0.0000pp. <code>test_strict_fill_date</code> ALL PASS. Guard self-check 20/0. Both guard layers present. <code>verify_run</code> 76/76 PASS on 2026-09-16 20:30. Record structure: 124 appendices, TOC balanced, 0 CRLF (worker-reported). py_compile 101/101 on shard B. All 7 shard-B yfinance writers set <code>auto_adjust=False</code>. The lock file matches the venv (only pip differs).</p>
+<h2 id="coverage-and-cost">Coverage and cost</h2>
+<p>The trade-path shard got 22 files deep-read, 94 grep-only, and 4 unswept (<code>scripts/*.bat</code> dashboard wrappers). Shard B: 101/101 compiled, about 20 read in full. Docs: 11 swept, 5 sampled, 28 not swept (old audit/research docs, 9 bins). Not swept: M5 churn, M10 mutation, M11 fuzzing, M14 dependency graph, X4. The wave-1 targeting worker was skipped. M6 is partial: frozen tests, strict-fill test and guard probes only. Cost: 4 Sonnet agents, 233 tool calls, ~719K subagent tokens, ~15 min wall clock.</p>
 </div>
 </body>
 </html>
