@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-22 ~14:32 CDT** — this file is the only live snapshot
+**Last updated: 2026-09-22 ~15:58 CDT (record DW)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -32,8 +32,16 @@ Appendix AZ).
 > hand on 09-22 after the weekly ladder had rebalanced on 09-21, so **17 of 76
 > sleeves carry a falsified 2026-09-17 cash figure** — max cash delta $25.90,
 > summed absolute NAV delta $6,135.89. **BLOCKED-ON-EVAN:** restore from the
-> ledger replay / delete the 17 rows / leave and document. Do NOT re-mark
-> 2026-09-21 until `compute_nav` takes an as-of cash.
+> ledger replay / delete the 17 rows / leave and document.
+>
+> **2026-09-22 ~15:58 CDT (record DW) — code fixed, rows NOT.** `compute_nav`
+> now replays the ledger when the sleeve traded after `as_of` (test
+> `test_compute_nav_asof.py` 5/5 fixed, 2/5 on old code; frozen 4/4 ±0.0000pp;
+> uncommitted). **Correction to the above:** the 17 rows also carry today's
+> POSITION SET (n_open 53→61 etc., 197 summed) — a restore must rewrite cash,
+> positions_value, total_nav and n_open, not cash alone. Versus the ledger
+> replay the summed |NAV| delta is **$289.20** (max $78.68); DV's $6,135.89 is
+> unreconciled. Re-marking 2026-09-21 is now code-safe once it clears the floor.
 >
 > **The audit's own headline:** record appendices DS/DT/DU are three runs of
 > this project's `daily-audit` that had already found several of these, and

@@ -221,7 +221,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ds---scheduled-daily-audit-the-trade-guard-is-inverted--it-denies-the-read-only-step-the-monthly-automation-needs-and-permits-five-wrappers-that-trade-live-and-its-own-self-check-is-green-2026-09-08-0740-cdt">DS — Scheduled daily-audit: the trade guard is INVERTED — it denies the read-only step the monthly automation needs and permits five wrappers that trade live, and its own self-check is green</a> (09-08)<br />
 - <a href="#appendix-dt---scheduled-daily-audit-dss-inverted-trade-guard-is-still-live-two-days-on-two-new-escapes---exec-abbreviation-and-git--c-push-and-the-self-check-is-still-green-2026-09-10-0712-cdt">DT — Scheduled daily-audit: DS's inverted trade guard is still live two days on, two new escapes (--exec abbreviation and git -C push), and the self-check is still green</a> (09-10)<br />
 - <a href="#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt">DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard</a> (09-17)<br />
-- <a href="#appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt">DV — Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row</a> (09-22)</p>
+- <a href="#appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt">DV — Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row</a> (09-22)<br />
+- <a href="#appendix-dw---compute_nav-marks-a-past-date-with-that-dates-book---and-the-dv-fault-was-positions-too-not-just-cash-2026-09-22-1558-cdt">DW — compute_nav marks a past date with that date's book - and the DV fault was positions too, not just cash</a> (09-22)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -13235,6 +13236,85 @@ two-threshold straddle) still stands; the repair mechanism is what is defective.
   attributed, each caught by the claim-check hook. All four came from reading a<br />
   number off derived or nested output rather than a direct <code>grep -n</code>. Noted so<br />
   the pattern is on record, not just the individual slips.</li>
+</ul>
+<h1 id="appendix-dw---compute_nav-marks-a-past-date-with-that-dates-book---and-the-dv-fault-was-positions-too-not-just-cash-2026-09-22-1558-cdt">Appendix DW - compute_nav marks a past date with that date's book - and the DV fault was positions too, not just cash (2026-09-22, ~15:58 CDT)</h1>
+<h2 id="what">WHAT</h2>
+<p><code>paper_mtm.compute_nav</code> now marks a past date with that date's book. When the<br />
+sleeve's ledger has any entry or exit AFTER <code>as_of</code>, cash and the open set come<br />
+from <code>historical_state.state_at()</code> (the ledger replay). Otherwise the old<br />
+live-portfolio path runs, unchanged. Code-only; no DB row was written.</p>
+<ul>
+<li><code>scripts/momentum/paper_mtm.py</code> — <code>compute_nav</code> (the one chokepoint; 9 modules<br />
+  call it, per grep).</li>
+<li>NEW <code>scripts/momentum/test_compute_nav_asof.py</code> — fixture DB, 5 checks.</li>
+</ul>
+<h2 id="why--and-a-correction-to-dv">WHY — and a correction to DV</h2>
+<p>DV and the 09-22 handoff described the fault as CASH only. <strong>It is cash AND the<br />
+position set.</strong> <code>compute_nav</code> also took the open positions from <code>list_open()</code>,<br />
+which is today's. The 17 damaged 2026-09-17 rows carry the 09-21 open count:<br />
+<code>residual_w1090_wk_paper</code> stores n_open 61 on 09-17, while 09-16, 09-18 and the<br />
+ledger replay all say 53. Across the 17 rows the n_open error sums to 197.</p>
+<p>Measured against the ledger replay (<code>historical_state.nav_at</code>), read-only, 09-22<br />
+~15:55 CDT, all 76 sleeves' 2026-09-17 rows:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rows that differ from replay</td>
+<td>17 of 76 (all <code>residual_w*_wk_paper</code>)</td>
+</tr>
+<tr>
+<td>summed abs cash delta</td>
+<td>$155.39 (max $25.90, <code>residual_w7525_wk_paper</code>)</td>
+</tr>
+<tr>
+<td>summed abs n_open delta</td>
+<td>197 (per row +8 to +16)</td>
+</tr>
+<tr>
+<td>summed abs total_nav delta</td>
+<td><strong>$289.20</strong> (max $78.68, <code>residual_w8515_wk_paper</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>DV's "summed absolute NAV delta $6,135.89" is <strong>not reproduced</strong> by this method.<br />
+This entry does not say which is right. DV's baseline was not recorded here and<br />
+was not re-derived. The $289.20 figure is stored row vs ledger replay.</p>
+<p>Consequence for the pending decision: a "restore" must rewrite cash,<br />
+positions_value, total_nav AND n_open_positions from the replay. Cash alone<br />
+leaves the rows wrong.</p>
+<p>Why the daily path was never hit: <code>mtm_catchup</code> guard (d) refuses to mark a day<br />
+before the sleeve's last rebalance. <code>remark_nav_day</code> and <code>backdate_sleeves</code> had<br />
+no such guard. The seeders interleave rebalance and mark, so at mark time there<br />
+is no later activity and they stay on the unchanged path.</p>
+<h2 id="how-verified">HOW verified</h2>
+<ul>
+<li>New test on fixed code: 5/5. <strong>On the old code (paper_mtm stashed): 2/5</strong> —<br />
+  the 3 past-date checks fail (cash $99,500 vs $95,000; NAV $100,500 vs<br />
+  $100,200). The test catches the bug.</li>
+<li>Live-DB parity, read-only (a <code>mode=ro</code> connection injected as the thread<br />
+  connection): new <code>compute_nav</code> vs ledger replay for all 76 sleeves at<br />
+  2026-09-17 and 2026-09-21 — max |d| $0.000000, n_open mismatches 0.</li>
+<li>2026-09-21 new <code>compute_nav</code> vs its 19 stored rows differs by up to $117.84.<br />
+  That is the unchanged live path (no later activity on 09-21); the gap is price<br />
+  coverage that arrived after the 20:30 rebalance-day mark. Not caused by this<br />
+  change. 09-21 is still sub-floor per DV.</li>
+<li><code>test_carry_forward_bound</code>: all passed.</li>
+<li>Frozen tests: 4/4, d=±0.0000pp (v1 2023_Q4 +14.5547%/70, v1 2025_H1<br />
+  +1.8792%/156, v2 2023_Q4 +14.4062%/38, v2 2025_H1 +10.2194%/87).</li>
+</ul>
+<h2 id="still-open">Still open</h2>
+<ul>
+<li>BLOCKED-ON-EVAN: the 17 rows (restore from replay / delete / leave+document).</li>
+<li><code>test_compute_nav_asof.py</code> is not wired into <code>daily.bat</code> — same gap as the 9<br />
+  orphaned tests in DV stage 6.</li>
+<li>2026-09-21 re-mark is now safe code-wise once it clears the coverage floor.</li>
+<li>Nothing committed.</li>
 </ul>
 </div>
 </body>

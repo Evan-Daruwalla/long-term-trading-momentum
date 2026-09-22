@@ -15,7 +15,8 @@ Usage:
   python -m scripts.momentum.paper_mtm --strategy mom_v2_paper
 
 NAV components:
-  - cash (from paper_portfolio.cash)
+  - cash (from paper_portfolio.cash; from the ledger replay in historical_state
+    when the sleeve has traded after as_of — record DV)
   - positions_value = sum(qty × close_at(as_of)) for all open positions
   - total_nav = cash + positions_value
 
@@ -40,6 +41,7 @@ from datetime import date
 
 from trading_bot.db import connect, init_db
 from trading_bot.execution import market_data, paper_trader
+from scripts.momentum import historical_state
 from scripts.momentum.check_coverage import coverage_status
 
 logging.basicConfig(level=logging.INFO,
@@ -95,7 +97,24 @@ def compute_nav(strategy_name: str, as_of: date) -> dict:
     """Returns {cash, positions_value, total_nav, n_open, missing_count,
     aged_count, median_age_days, stale_tickers}."""
     pf = paper_trader.get(strategy_name)
+    cash = pf.cash
     open_positions = paper_trader.list_open(strategy_name)
+    # Record DV (2026-09-22): the live cash + open set is only the as-of state
+    # when the ledger has no activity AFTER as_of. Re-marking a past date the
+    # sleeve has traded since used to pair TODAY's cash and positions with
+    # as_of closes (17 sleeves' 2026-09-17 rows: 09-21 cash, n_open 53 -> 61).
+    # Then the ledger replay is the as-of state. The no-later-activity path is
+    # left untouched so the nightly mark stays bit-identical.
+    with connect() as conn:
+        later = conn.execute(
+            "SELECT 1 FROM paper_positions WHERE strategy_name=? "
+            "AND (entry_date > ? OR exit_date > ?) LIMIT 1",
+            (strategy_name, as_of.isoformat(), as_of.isoformat())).fetchone()
+        if later:
+            st = historical_state.state_at(
+                historical_state.load_history(conn, strategy_name),
+                as_of.isoformat())
+            cash, open_positions = st["cash"], st["open_positions"]
     positions_value = 0.0
     missing = 0
     ages: list[int] = []
@@ -116,9 +135,9 @@ def compute_nav(strategy_name: str, as_of: date) -> dict:
     aged = sum(1 for a in ages if a > 3)
     median_age = sorted(ages)[len(ages) // 2] if ages else 0
     nav = {
-        "cash": pf.cash,
+        "cash": cash,
         "positions_value": positions_value,
-        "total_nav": pf.cash + positions_value,
+        "total_nav": cash + positions_value,
         "n_open": len(open_positions),
         "missing_count": missing,
         "aged_count": aged,
