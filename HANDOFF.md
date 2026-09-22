@@ -10,250 +10,55 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-06 ~13:45 CDT** — this file is the only live snapshot
+**Last updated: 2026-09-22 ~14:32 CDT** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
-Appendix AZ). The 07-17 date sat here through the CE/CH/CJ–CN/CP/CQ work and was
-itself an audit finding (22).
+Appendix AZ).
 
-> **2026-09-06 ~13:40 CDT (record DR) — THE SEPTEMBER ACCOUNT IS NOW IN HEAD.**
-> The 13-file uncommitted tree is down to **3 files**. Committed the 10-file
-> documentation half: the record (carrying Appendices **DM, DN, DO, DP, DQ**, all
-> verified absent from HEAD beforehand), its HTML twin, this file,
-> `PRD_ROADMAP.md`, `rebalance_log.md` (HEAD said `2026-08-03`, tree says
-> `2026-09-01`/`OK` — so the month gate no longer re-opens on an
-> already-rebalanced month), the four `codebase-memory` bins, and
-> `scripts/git-hooks/pre-commit`. Frozen tests 4/4 d=±0.0000pp before the commit.
-> **NO Python changed by this session. Nothing pushed** — still ahead of
-> `origin/master`, now by 21 commits.
->
-> **`git config core.hooksPath` = `scripts/git-hooks`, so that `pre-commit` edit
-> was ALREADY the executing hook** while uncommitted, and its delegate
-> `~/.claude/skills/project-memory/hooks/pre-commit-record` exists — it takes the
-> enforcing path, not the warn-and-allow fallback. Committing it changed no
-> behaviour; it made HEAD agree with what already ran.
->
-> **STILL UNCOMMITTED, deliberately: the 3 trading-path code files** —
-> `scripts/momentum/paper_rebalance.py` (adds the pure `_stale_fill()` predicate
-> and an opt-in `strict_fill_date`, default **False** so seeders/backdater/frozen
-> specs replay unchanged), `scripts/momentum/ladder_forward_rebalance.py:118` (the
-> one line opting the live ladder in), and untracked
-> `scripts/momentum/test_strict_fill_date.py`. Another session's 2026-08-26 work,
-> unreviewed here, on the fill path. **The guard is live in the tree but absent
-> from HEAD.** Its docstring's numbers (41 exits / 19 sleeves / $457.00 off the
-> 08-21 close) are QUOTED, not verified here; the test was not run. Next session
-> reviews, runs it, and commits separately.
->
-> Clock note: the `~13:45 CDT` stamp above was ahead of the real clock — `date`
-> read `13:38:18 CDT` at the start of this session.
+> **Kept short on purpose.** On 2026-09-22 this file was 923 lines / 70 KB —
+> ~18k tokens to reach a dozen actionable lines, in the document whose entire
+> job is to be read first. 239 lines of dated narrative that the record already
+> carried were replaced by the pointer table below (every appendix letter
+> verified to exist before deletion). **History goes in the record. If you find
+> yourself pasting a narrative block here, write an appendix and link it.**
 
-> **2026-09-06 (record DQ) — doc sync + drift-check. NO code changed.** Five days
-> of nobody touching this repo except the daily-report tasks. Drift-check of this
-> file against live state: **2 drifted rows, both in the scheduled-task table**
-> (fixed below), everything else MATCH — 76 sleeves, `verify_run` PASS 76/76 on the
-> last 5 runs, `slippage_log` still **0 rows**, `positions` residue still **137**,
-> the 6 append-only decision-log triggers present, `paper_positions` 8,386 rows /
-> 3,256 open, latest `paper_nav` **2026-09-04** (09-05 was a SATURDAY — not a gap).
+> **2026-09-22 ~14:30 CDT (record DV) — COLD AUDIT EXECUTED, AND A DATA DEFECT
+> IT CAUSED.** A full `/audit` produced 39 findings; 5 commits shipped
+> (`5b44107` `94c1215` `62c4680` `0f01fa8` `cc93239`). Frozen tests 4/4 at
+> d=±0.0000pp. Details in record **DV**; do not re-summarize them here.
 >
-> **THE TREE HAS 8 UNCOMMITTED FILES, untouched since 2026-09-01 22:16.** They are
-> another session's work and include record Appendices **DM, DN, DO, DP** — the
-> whole account of the September rebalance — plus `rebalance_log.md` stamped
-> `2026-09-01/OK` and uncommitted edits to `paper_rebalance.py`,
-> `ladder_forward_rebalance.py`, `scripts/git-hooks/pre-commit`, and an untracked
-> `test_strict_fill_date.py`. **Nothing in HEAD records that September rebalanced.**
-> If this tree is lost, so is that account, and `rebalance_log.md` reverts to
-> `2026-08-03`, re-opening the month gate on an already-rebalanced month. This
-> session's doc edits land on top of those files and cannot be separated from them.
+> **⚠️ `verify_run` is FAILING 59/76 right now, and it is a real data fault.**
+> `paper_mtm.compute_nav` takes cash from the LIVE portfolio row, so re-marking
+> a HISTORICAL date backdates today's cash onto it. 2026-09-17 was re-marked by
+> hand on 09-22 after the weekly ladder had rebalanced on 09-21, so **17 of 76
+> sleeves carry a falsified 2026-09-17 cash figure** — max cash delta $25.90,
+> summed absolute NAV delta $6,135.89. **BLOCKED-ON-EVAN:** restore from the
+> ledger replay / delete the 17 rows / leave and document. Do NOT re-mark
+> 2026-09-21 until `compute_nav` takes an as-of cash.
 >
-> **The trading-guard wrapper fix was PROPOSED and NOT approved** (2026-09-06):
-> a static, recursive, comment-stripping scan of `.bat` targets against the same
-> rules. Design is settled and the empirical basis is in `gotchas.md` /
-> `security.md`; no code was written. See the three OPEN items below.
+> **The audit's own headline:** record appendices DS/DT/DU are three runs of
+> this project's `daily-audit` that had already found several of these, and
+> nothing acted — that task is spec'd READ-ONLY (no commits, no HANDOFF edits),
+> so its findings sat uncommitted and this file never mentioned them.
 
-> **2026-08-11 (record CY) — PRD M6 is REDEFINED to IMPLEMENTATION SHORTFALL and
-> is done on the code side.** M6.1 (fetch) and M6.2 (pair + report) are built,
-> tested and run; M6.3's memo is written and recommends **no change** to
-> `HALF_SPREAD_BPS`. **One thing is outstanding and it is Evan's:** the live
-> `slippage_log` write (Claude's live-DB writes are classifier-refused). Proven
-> on a copy — 166 rows, re-run appends 0. One line, from the repo root:
-> `.venv\Scripts\python.exe -m scripts.momentum.slippage_tracker --alpaca-csv var\alpaca_fills_2026-07-01_2026-08-06.csv --execute`
-> Details and the full numbers in the Known-limitations entry below.
+### Recent history — read the appendix, not a copy
 
-> **2026-08-12 (record CZ) — the frozen regression tests no longer write the live
-> DB.** `CLAUDE.md` mandates them after any Python change and separately forbids
-> concurrent `factor_backtest`; the tests ARE a factor_backtest, so the mandated
-> check was the forbidden operation (audit finding CQ.2 #2, open since 08-04).
-> Fixed at the name-resolution layer: `positions`/`portfolio_state` are shadowed
-> into per-connection TEMP tables, `price_cache` is not. A full frozen run now
-> leaves `PRAGMA data_version` unmoved — it writes nothing. **The busy-window
-> guard (17:00–18:30 / 19:45–21:00 / 07:30–08:15) is KEPT** but is now an
-> I/O-contention guard, not a correctness one; dropping it is a judgement call.
-> See the `positions` note under Database for the 137 residue rows this leaves
-> permanent. **Correction (record DB.3):** CZ.5 stamped those rows
-> `entry_time` 2026-08-03T04:36:36Z with `entry_date` 2025-01-02. Both details
-> are wrong — no row carries that stamp, and `entry_date` spans six dates
-> (2025-01-02..2025-06-02, the whole `2025_H1` window). The row count (137),
-> the cash ($39.262514) and the "now permanent" conclusion are correct, and the
-> conclusion is now PROVEN: four snapshots show the table wipe-and-rewritten
-> minutes before each pre-fix frozen run, and a post-fix run on 2026-08-13 left
-> it untouched. Evan's optional `DELETE FROM positions` is durable.
+This section used to carry 240 lines of dated narrative duplicating the record.
+Trimmed 2026-09-22; every letter below was verified to exist before deletion.
 
-> **2026-08-13 (records DA/DB/DC/DD) — the nightly `verify_run` FAIL was a FALSE
-> alarm, and the checker is rebuilt.** The 08-11/08-12 failures were NOT
-> corrupted data. Old check (b) repriced CURRENT positions with TODAY's cache
-> against a stored `total_nav`, so it measured `daily_price_refresh`'s
-> by-design nightly rewrite of a rolling 30-day window (CK.4), not the ledger.
-> Proven to the cent on four sleeves across two nights. **There are no bad
-> 08-10 rows**: all 4,892 `paper_nav` rows satisfy `cash+positions_value=total_nav`,
-> and cash matches the ledger replay everywhere except 846 July rows that are
-> exactly the M7.3 KLAC repair (30/30 sleeves to the cent — CK.5/CM deliberately
-> left historical rows unrepaired).
->
-> Check (b) is now split: **(b1) ledger cash** — every `paper_nav` row since
-> `LEDGER_EPOCH=2026-07-31` must match `historical_state.state_at()`, **hard
-> FAIL**; **(b2) price drift** — the old repricing comparison, **reported, never
-> failed**. The DA crit (only `navs[-1]` was checked, so a good newer row hid a
-> bad older one) is **CLOSED by demonstration**: fault injection on a copy, a
-> corrupted OLDER row FAILs while its newest row reads `drift($+0.00)` — exactly
-> what the old check could not see. **Expect PASS 76/76 nightly now**; the info
-> line changed from `recon(delta $x)` to `ledger(ok/total) drift($x)`.
-> **Still open from the DA audit:** findings 5/6 and E3 (8 edge cases;
-> `morning_refresh.bat:26` was CLOSED 2026-08-16, record DE T-2 — the line here that
-> said otherwise was added by the same commit that fixed it, record DG).
-> **Finding 4 CLOSED 2026-08-19 (record DG.4):** the 3 missing `llm_overlay_log` ids
-> (4/5/9) were destroyed by `INSERT OR REPLACE` on the UNIQUE(date,ticker) key — a
-> same-day re-log deleted the original and burned an id. Both `record_decision`
-> writers are plain INSERT now (re-log raises), and `SCHEMA` carries BEFORE
-> INSERT/UPDATE/DELETE append-only triggers on both decision tables — installed on
-> the live DB by `init_db()` at the next MTM (08-19 17:15). Canary:
-> `test_decision_log_append_only` 15/15. The lost rows are unrecoverable (absent
-> from every backup); id=1/id=3 are the only truly post-dated logs, both pre-automation.
+| Date | What | Record |
+|---|---|---|
+| 2026-09-22 | Cold audit executed, 5 commits; `remark_nav_day` cash-backdating found | **DV** |
+| 2026-09-08 / 09-10 / 09-17 | `daily-audit` runs: trade-guard escapes, monthly path missing the stale-bar guard — unactioned | DS / DT / DU |
+| 2026-09-06 | September account committed to HEAD; doc sync + drift-check | DR / DQ |
+| 2026-08-19 | 15 exit-code gates deaf to crash codes; mechanical month gate added | DI |
+| 2026-08-13 | Nightly `verify_run` FAIL was a false alarm; checker rebuilt (b1 ledger / b2 drift) | DA–DD |
+| 2026-08-12 | Frozen tests stopped writing the live DB (TEMP-table shadowing) | CZ |
+| 2026-08-11 | PRD M6 redefined to implementation shortfall; M6.1–M6.3 closed | CY |
+| 2026-07-11 | Roadmap health check | BR |
+| 2026-07-09 | M2–M5 + M3.5 complete; the 07-09 coverage gap resolved | BO / BP |
+| 2026-07-07 | 07-01/07-06 clean-start cohort deployed | AV |
+| 2026-07-08 | Alpaca mirror 1% cash buffer (`3807f23`) | AY / BA |
 
-> ✅ **2026-08-05 — M6 IS NO LONGER GATED (audit finding 8, record CR).** Every
-> statement below that calls M6 "gated on the 2026-08-01+ Alpaca fills" was true
-> when written and is now HISTORY. The gate condition is met: **231 Alpaca PAPER
-> orders exist, 0 rejects** — 99 on 2026-07-07 (record AV) + 132 on 2026-08-03
-> (record CP: residual_roa_6535_0701 62, mom_roa_6535_0701 69, spy_benchmark_0701 1).
-> **M6 is the next open PRD task, starting at M6.1** — `scripts/momentum/fetch_alpaca_fills.py`,
-> which does not exist yet (verified 2026-08-05). Honest scoping note: the record
-> logs orders SUBMITTED and REJECTED, not orders FILLED. They were DAY orders
-> expected to fill at the next open, but confirming that is precisely M6.1's own
-> done-check ("CSV rows match the order counts the record logged") — so the fill
-> count is an open question M6.1 answers, not a number to assert here.
->
->
-> **2026-08-19 (record DI) — scheduled daily-audit: the 15 exit-code gates on
-> `rebalance.bat` were deaf to crash codes, and the "monthly" rebalance had no
-> mechanical month gate.** `if errorlevel 1` is GREATER-OR-EQUAL, so all 15 step
-> gates were blind to the negative code a killed `python.exe` returns: a crashed
-> `alpaca_sync --execute` left `RC_FAIL=0`, stamped `--status OK` and exited 0,
-> and `verify_run`'s cadence check then read that OK stamp and PASSed.
-> `daily.bat:54-56` documents this exact trap and fixed itself for it after audit
-> 2026-08-12; the one script that actually trades was the one left on the old
-> idiom. All 15 now use explicit capture. Separately, `monthy-llm-rebalance`
-> fires **daily** (`0 18 * * *`) and its only month gate was prose in the task's
-> own Step 0 — a mis-read runs a full rebalance mid-month, when the ranks have
-> moved, and it TRADES. New `check_month_gate.py` is the mechanical gate;
-> **a deliberate mid-month or same-day re-run now needs
-> `rebalance.bat --allow-same-month`.** A PARTIAL stamp still permits the retry.
-> Commits `9d9fd72` (code) + `e926f70` (record) + `251b588` (HANDOFF sync).
-> **All three are PUBLIC** - pushed 2026-08-20 19:18:40 CDT, before E5 removed
-> the push instruction from the trade-check specs. The "local, unpushed" this
-> line used to claim was true when written and false 26 hours later (record DL).
->
-> **Still OPEN from that audit — 8 findings and 6 edge cases**, notably:
-> `market_data.last_close_on_or_before` has no `price IS NOT NULL` filter while
-> its three siblings do, so a NULL-quarantined row shadows the real prior close
-> (42 tickers in the enabling state, 0 rows live today); `verify_run`'s
-> continuity check builds its calendar from `price_cache` itself, so a trading
-> day the cache lost ENTIRELY has 0 rows, is not in the calendar, is not
-> "missing", and PASSes (the realized 07-30/07-31 shape); and
-> `check_dependency_cves.py` is invoked by nothing. Full list in record DI.6.
-> **2026-07-09 — PRD milestones M2 + M3 + M4 + M5 complete, plus amendment M3.5**
-> (record Appendices BB–BN); the two before-2026-08-01 deadline milestones (M2/M3)
-> plus M4 + M5 are in place, and the daily pipeline is now self-healing (M3.5). **M6 (slippage) is the only remaining task and is ~~GATED on the
-> 2026-08-01+ Alpaca PAPER fills — it cannot start until those exist~~ UNGATED as of
-> 2026-08-05, see the note above.** M5 (backup
-> hygiene): `scripts/backup_trades_db.py` (rotating `VACUUM INTO` backups, keep 3,
-> disk-guard), weekly `TradingWeeklyBackup` task (Sun 9am → `var/backup.log`),
-> restore drill passed. M2 (data-quality guardrails): read-only `check_coverage` +
-> `check_anomalies` wired into `daily.bat`, `check_cache_gaps` (in `daily.bat` day-1-gated since 08-16, gate fixed 08-19 record DG). M3
-> (unattended-automation safety): pre-inception NAV guard in `paper_mtm.py`
-> (+regression test), read-only `verify_run` wired into
-> `daily.bat`/`rebalance.bat`/`ladder_rebalance.bat` (monthly_auto.bat is the
-> DORMANT Option-B path, not scheduled), ops-status stamp to `var/ops_status.log` (NOT
-> `daily_report.md` — that's Evan's journal). M4 (experiment-integrity reporting):
-> `experiment_report.py` (kill-switch tracker + control-vs-treatment NAV
-> divergence, `--md`), plus n/30-picks & months/12 counters in the dashboard LLM
-> panel. Interim experiment read: stock treatments AHEAD of control (cash +3.65pp
-> dodging BE, cascade +7.90pp via WDC); sector treatments slightly behind
-> (−0.73/−1.10pp). Tiny n — forward OOS only, not proof.
->
-> **M3.5 catch-up marking DEPLOYED (record Appendix BN) — the daily pipeline now
-> self-heals.** The coverage gate first fired in production 2026-07-09 17:17
-> (4,381 < 5,000 floor), correctly skipping the 07-09 mark. `daily.bat` now runs
-> `scripts/momentum/mtm_catchup.py` after refresh: it marks every SETTLED missing
-> trading day (today included) for all sleeves and leaves still-pending days for
-> the next run. `verify_run` treats a below-floor "today" as PENDING (not a gap),
-> and the daily task exits 0 on a normal pending day (fails only on a real
-> settled-history gap).
->
-> **2026-07-09 gap RESOLVED (record Appendices BO/BP).** 07-09 settled to 5,204
-> closes on 2026-07-10 14:44; catch-up backfilled it and `verify_run` -> PASS
-> 17/17, all 07-09 NAVs verified correct (recompute matches to the cent).
-> **Provenance RESOLVED:** 15 of the 17 rows were pre-marked by a *concurrent*
-> Claude session (`33e12a94`, a "review the CLAUDE.md" task in `D:\ClaudeCode`)
-> that looped `paper_mtm --as-of 2026-07-09 --strategy $s` at 14:41 — ~4 min
-> before this session's catch-up marked the other 2. No corruption (idempotent
-> REPLACE + serialized writers). **Two risks flagged (Appendix BP):** (1)
-> concurrent uncoordinated NAV writers — official marking should have one owner
-> (the `daily.bat` catch-up), still a process convention not code-enforced; (2)
-> raw `paper_mtm --as-of` bypassed the coverage gate (it marked at 4,726 < floor;
-> correct only by luck of held-names-present) — **CLOSED 2026-07-10 (record
-> Appendix BQ): `paper_mtm.main()` now runs the shared `coverage_status()` gate
-> and refuses a sub-floor `--as-of` day (exit 2, no write) unless `--force`.**
-> Next PRD work: only M6 (slippage), ~~gated on the 2026-08-01+ Alpaca fills~~
-> **[UNGATED 2026-08-05 — the fills exist; M6.1 is the next open task]**.
->
-> **2026-07-11 health check (record Appendix BR):** roadmap is complete through
-> M5; ~~M6 stays gated (no Alpaca fills until 2026-08-01+)~~ **[M6 UNGATED
-2026-08-05 — the 08-03 rebalance produced them]**. Read-only `verify_run
-> --mode daily` -> PASS 17/17 (continuity, cent-perfect cash recon, 0
-> pre-inception, 07-10 correctly PENDING); working tree clean, all work committed
-> through BQ. Friday 2026-07-10 17:15 `TradingDailyMTM` was the first live run of
-> the self-healing `daily.bat` and exited 0 (coverage PENDING skip -> catch-up
-> marked=0 -> verify PASS), where the pre-M3.5 flow would have failed the gate.
-
-> ✅ **RESOLVED 2026-08-02 20:00 (record CM) — was: `TradingDailyMTM` FAILING 55/76
-> at 17:18 (record CL.6).** Cured by the same single `remark_nav_day --date
-> 2026-07-31 --execute` that the M7.3 repair needed; live `verify_run --mode daily`
-> is back to **PASS 76/76**. Kept below because the diagnosis recurs: a stale-but-
-> present NAV row is invisible to `mtm_catchup` and mis-reported by `daily.bat`'s
-> banner. Original text:
->
-> ~~**OPEN as of 2026-08-02 17:18 — `TradingDailyMTM` is FAILING, 55/76 (record
-> CL.6).**~~ Not a continuity gap despite `daily.bat`'s banner saying so (continuity
-> is 63/63 everywhere) — all 21 failures are **cash recon**, +$195.18..+$234.40,
-> concentrated on the weekly ladder arm. Cause: the record CI rate-limit backfill
-> restored the 07-30/07-31 closes AFTER those NAV rows had been marked on
-> carry-forward, so the stored `total_nav` is stale against the now-complete cache
-> (this is exactly divergence class 2 from record CK, surfacing live).
-> **`mtm_catchup` will NOT heal it** — it only marks days that are MISSING, and
-> these rows exist. Fix is an explicit re-mark of 2026-07-31, which rewrites an
-> existing NAV row and is therefore Evan's call. The same re-mark also cures the
-> staleness the M7.3 live apply will create for its 31 repaired sleeves.
-
-> **2026-07-07 — the 07-01/07-06 clean-start cohort is DEPLOYED (record
-> Appendix AV).** 11 new sleeves went live on the 2026-07-06 close via the
-> unattended `cohort-0706-deploy` scheduled task; 3 of them are mirrored to
-> Evan's real Alpaca PAPER accounts (99 orders submitted, 0 rejections); and the
-> monthly `monthy-llm-rebalance` scheduled task was re-enabled (first live fire
-> actually 2026-08-03 — 08-01 was a Saturday and the cron had drifted; the August
-> run executed cleanly, 132 Alpaca paper orders / 0 rejects, verify PASS 76/76,
-> see record CN/CP). This sits alongside — not replacing — the continuous May family.
-
-> **2026-07-08**: Alpaca mirror sizing now carries a 1% cash buffer
-> (`trading_bot/execution/alpaca_sync.py`, commit `3807f23`; record Appendix AY).
-> Frozen tests re-run 2026-07-08 ~20:35, d=±0.0000pp on all 4 configs (Appendix BA).
 
 The DB now holds **76 sleeves in four families** (this file is the roster
 source — `CLAUDE.md` holds the durable invariants, not the roster, since
@@ -921,3 +726,71 @@ Manual fallback (same steps) if you ever need to run it by hand:
   `C:\Users\evan.EVANFREDY\.claude\projects\D--ClaudeCode-Trading\memory\`
   (outside git). The bare `memory/` path used here until 2026-07-28 never resolved.
 - `daily_report.md` — owner's daily trading journal
+
+---
+
+## Next-session prompt (paste-ready)
+
+```
+Trading project (D:\ClaudeCode\Trading). Read in this order: HANDOFF.md (top
+block is 2026-09-22, record DV) -> the record's front-matter TOC -> PRD_ROADMAP.md.
+The append-only record is ground truth; HANDOFF is the only live snapshot.
+
+STATE (verified 2026-09-22 ~14:32 CDT):
+- 76 sleeves. Frozen tests 4/4 d=+/-0.0000pp. Tree clean, 52 commits ahead of
+  origin, NOTHING pushed.
+- verify_run is FAILING 59/76 and it is a REAL DATA FAULT, not a false alarm.
+
+DO THIS FIRST -- one decision, then one small fix.
+paper_mtm.py:119 sets "cash": pf.cash (the LIVE portfolio cash) and pairs it
+with positions priced as-of the target date. So re-marking a HISTORICAL date
+backdates today's cash onto it. 2026-09-17 was re-marked by hand on 09-22,
+after the weekly ladder rebalanced 09-21 -> 17 of 76 sleeves now carry a
+falsified 2026-09-17 cash figure. Max cash delta $25.90; summed absolute NAV
+delta $6,135.89. Evidence: 09-16 cash 2.087272, 09-17 0.002087, 09-18 2.087272.
+
+  1. BLOCKED-ON-EVAN: restore the 17 rows' cash from historical_state.state_at()
+     (recommended) / delete the 17 rows / leave and document. CLAUDE.md reserves
+     this call for him. Claude's live-DB writes are classifier-refused anyway.
+  2. Then fix compute_nav to take an as-of cash instead of the live portfolio
+     cash. Code-only.
+  3. Do NOT re-mark 2026-09-21 until (2) lands -- it is sub-floor (4,190 closes)
+     and will need the same repair, and re-marking now repeats the fault.
+
+THEN, the remaining audit stages (record DV.5 has the full list):
+- Stage 5: paper_nav NARROW append-only trigger -- must allow gap-fill and
+  same-day re-mark, block only restatement of a sealed older row; a verbatim
+  copy of the decision-log trigger breaks the daily pipeline AND kills
+  remark_nav_day. Test on a DB copy first. Plus stamp_rebalance_log atomicity
+  (os.replace), alpaca_sync per-account isolation, the 2 cache-poisoning bugs
+  (warm_fundamentals, fetch_earnings_dates).
+- Stage 6: TOL_PCT 0.05 -> 0.001 (NOT 0 -- EXPECTED is stored round(x,4), so
+  the floor is 5e-5), wire the 9 orphaned scripts/momentum/test_*.py into
+  daily.bat, auto_adjust=False in 5 research benchmarks, 16 files carrying
+  stale mom_v2 baselines (truth: in-sample 3.5407, holdout 26.465).
+- Stage 8: the trading guard. SIX proven bypasses (.bat wrapper, string concat,
+  -EncodedCommand, non-Bash tool names, --exec abbreviation, git -C push).
+  EVAN MUST APPROVE THE DIFF BEFORE ANY CODE IS WRITTEN -- his rule, 2026-09-06.
+- A3: staleness detector counting record appendices newer than HANDOFF's stamp
+  (currently the mechanism that let DS/DT/DU go unactioned for 9 days).
+
+BLOCKED-ON-EVAN, small: audit finding 35 (add the Alpaca keys file to the Read
+deny list in .claude/settings.json -- classifier-blocked to Claude); and the
+LIVE copy of the monthy-llm-rebalance task spec still reads "5:30pm" while the
+repo snapshot is corrected, so the two differ by that line.
+
+HARD RULES: never run anything that trades -- no rebalance entry points, no
+*_ops rebalance/decide, no alpaca_sync --execute, no .bat execution. DB
+read-only (file:...?mode=ro). Frozen tests after ANY Python change, real output
+pasted. Stay out of 17:00-18:30 and 19:45-21:00 local for DB-heavy work. Append
+record entries ONLY with
+`node ~/.claude/skills/project-memory/append-record-entry.js`.
+Commit only when asked; never push.
+
+KNOWN FRICTION: the PreToolUse guard denies any Bash command whose STRING merely
+contains a guarded token, so even a grep or a heredoc mentioning one is blocked
+(it fired on this very handoff prompt). Author content with the Write tool and
+keep the Bash command string clean. Cite line numbers ONLY from a direct
+grep -n / sed -n -- four citations were wrong this session, every one read off
+nested or derived output.
+```

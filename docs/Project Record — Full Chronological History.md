@@ -182,6 +182,7 @@ lives in the dated entry, not the digest.
 - [DS — Scheduled daily-audit: the trade guard is INVERTED — it denies the read-only step the monthly automation needs and permits five wrappers that trade live, and its own self-check is green](#appendix-ds---scheduled-daily-audit-the-trade-guard-is-inverted--it-denies-the-read-only-step-the-monthly-automation-needs-and-permits-five-wrappers-that-trade-live-and-its-own-self-check-is-green-2026-09-08-0740-cdt) (09-08)
 - [DT — Scheduled daily-audit: DS's inverted trade guard is still live two days on, two new escapes (--exec abbreviation and git -C push), and the self-check is still green](#appendix-dt---scheduled-daily-audit-dss-inverted-trade-guard-is-still-live-two-days-on-two-new-escapes---exec-abbreviation-and-git--c-push-and-the-self-check-is-still-green-2026-09-10-0712-cdt) (09-10)
 - [DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard](#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt) (09-17)
+- [DV — Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row](#appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt) (09-22)
 
 ---
 
@@ -11920,3 +11921,150 @@ Frozen tests 4/4 at d=±0.0000pp. `test_strict_fill_date` ALL PASS. Guard self-c
 ## Coverage and cost
 
 The trade-path shard got 22 files deep-read, 94 grep-only, and 4 unswept (`scripts/*.bat` dashboard wrappers). Shard B: 101/101 compiled, about 20 read in full. Docs: 11 swept, 5 sampled, 28 not swept (old audit/research docs, 9 bins). Not swept: M5 churn, M10 mutation, M11 fuzzing, M14 dependency graph, X4. The wave-1 targeting worker was skipped. M6 is partial: frozen tests, strict-fill test and guard probes only. Cost: 4 Sonnet agents, 233 tool calls, ~719K subagent tokens, ~15 min wall clock.
+
+# Appendix DV - Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row (2026-09-22, ~14:30 CDT)
+**Sessions: 2026-09-20 17:36–23:44 CDT and 2026-09-22 14:20–14:30 CDT.** Clock
+read with `date` at each stamp (UTC-5 → CDT). A full cold `/audit` of both
+domains, then execution of the approved fix list in ease-of-execution order.
+**Five commits. The audit's own headline turned out to be that the project had
+already found several of these and nothing acted.**
+
+## DV.1 — The audit, and what it actually found
+
+Eight cold auditors under a 274-file manifest (0 unassigned). **39 findings, 2
+edge cases, 3 architecture decisions.** Cost ~2.0M subagent tokens, ~70 min.
+
+The reframe that outranked every individual bug: **record appendices DS
+(2026-09-08), DT (09-10) and DU (09-17) are three runs of this project's own
+`daily-audit` task that had already found the trade-guard escapes and the
+missing stale-bar guard on the monthly path.** Nothing acted on them, because
+that task's spec says `READ-ONLY: no code edits, no fixes applied, no commits,
+no HANDOFF edits` — so its findings sat uncommitted and `HANDOFF.md` never
+mentioned them. This audit spent ~2.0M tokens rediscovering them.
+
+Load-bearing negatives, each re-derived by the reporting model rather than
+relayed: cash reconciles across all **76** sleeves to **1e-10**; `paper_nav`
+internally consistent across 6,792 rows (0 total_nav mismatches, 0 duplicate
+keys); secrets never committed, confirmed three independent ways; 0 non-ASCII
+bytes in all 10 `.bat` files; 0 import cycles.
+
+## DV.2 — What shipped (5 commits)
+
+| Commit | Stage | Closes | Gate |
+|---|---|---|---|
+| `5b44107` | 0 | the 2026-08-26 fill-path guard, uncommitted 25 days; record DM–DU into HEAD | strict-fill 4/4, frozen 4/4 |
+| `94c1215` | 2 | 9, 11, 15–20, 33, 34, 39 + a CLAUDE.md correction | no Python touched |
+| `62c4680` | 3 | 7, 12, E2 | 0 non-ASCII, two implementations; every goto has a label |
+| `0f01fa8` | 4 | 21, 23, 24, 25, 26 | frozen 4/4 d=±0.0000pp, 3 canaries |
+| `cc93239` | 7 (partial) | A1 | frozen 4/4 d=±0.0000pp |
+
+Substantive ones:
+
+- **25 — the monthly path never got the stale-bar guard.** The guard shipped
+  2026-08-26 opted in exactly ONE of two live callers. The monthly dispatcher
+  was missed, so the 2026-08-24 incident's exposure stayed live there for 25
+  days. `test_strict_fill_date` now asserts EVERY live scheduled caller opts
+  in. Negative control: HEAD's copy had 0 occurrences, so the new assertion
+  would have failed before the fix.
+- **26 — the paper/live boundary was one environment variable.** `is_live` was
+  read by no code path at all. `AlpacaClient.__init__` now raises unless a
+  caller passes `allow_live=True` in code. New canary `test_alpaca_live_guard`
+  (4 cases). Nothing in the repo sets `APCA_API_BASE_URL`, so no caller broke.
+- **21 — the staleness date was discarded at 14 call sites.** Fixed at the
+  chokepoint: `market_data.last_close_checked()` plus one canonical
+  `MAX_CARRY_FORWARD_DAYS` that `paper_mtm` re-exports instead of restating.
+  Report-only. 0 date-discarding sites remain.
+- **A1 — one definition per threshold.** The 1000-close literal was independent
+  in five files, the 5000 floor in three. All now import from `check_coverage`.
+
+## DV.3 — THE FINDING THAT MATTERS MOST: `remark_nav_day` backdates today's cash
+
+**Symptom.** On 2026-09-22 the 14:22 `verify_run` returned **FAIL 59/76**, while
+the 07:47 scheduled run that same morning returned **PASS 76/76** — identical
+`settled<=2026-09-18` window, identical code.
+
+**Attribution, done before the claim.** Three tests ruled out this session's
+edits: reverting only `verify_run.py` → still FAIL 59/76; stashing ALL
+uncommitted work to clean HEAD → still FAIL 59/76; and the "checker window
+moved" hypothesis was falsified by the identical `settled<=` in both headers.
+The data changed, not the code.
+
+**Root cause.** `scripts/momentum/paper_mtm.py:119` sets `"cash": pf.cash` —
+the LIVE portfolio cash — and pairs it with positions priced as-of the target
+date. For a same-day mark that is correct. For a HISTORICAL re-mark it writes
+today's cash onto a past date. `scripts/data_audit/remark_nav_day.py` is the
+sanctioned tool for repairing historical NAV and is built on `compute_nav`, so
+it inherits this.
+
+**What happened.** 2026-09-17 was re-marked by hand on 2026-09-22 between 07:47
+and 14:20, to close the gap this audit found. The weekly ladder had rebalanced
+on 2026-09-21, changing cash on 19 `*_wk_paper` sleeves. The re-mark therefore
+stamped 09-17 with post-09-21 cash:
+
+```
+2026-09-16: cash = 2.087272   <- normal MTM path
+2026-09-17: cash = 0.002087   <- the hand re-mark, today's cash
+2026-09-18: cash = 2.087272   <- normal MTM path
+```
+
+**Blast radius, measured read-only:** **17 of 76** sleeves have a 09-17 cash
+figure that disagrees with their 09-18 figure by more than a cent. Max cash
+delta **$25.90**. Summed absolute NAV delta across the 17: **$6,135.89**. The
+other 59 are accidentally correct — their cash had not moved since 09-17.
+
+**Honest note on how this arose.** The re-mark was recommended in this audit's
+Stage 1 on the strength of a dry run reading `0 changed, 76 new row(s)`. That
+was checked for whether rows would be OVERWRITTEN and never for whether the
+VALUES being written were right for that date. `--force` gates on coverage, not
+on cash provenance. The finding-1 diagnosis (a real missing day, a real
+two-threshold straddle) still stands; the repair mechanism is what is defective.
+
+**Not fixed.** `compute_nav` has no as-of cash parameter. Records CK/CL/CM used
+`remark_nav_day` and are worth re-checking against this.
+
+## DV.4 — State snapshot (2026-09-22 ~14:28 CDT)
+
+| Item | Value |
+|---|---|
+| Sleeves | 76 |
+| `verify_run` | **FAIL 59/76** — 17 sleeves, ledger cash on 2026-09-17 |
+| Latest `paper_nav` | 2026-09-21 (19 sleeves only — ladder force-mark; 09-21 is sub-floor at 4,190 closes) |
+| `last_settled` | 2026-09-18 |
+| Coverage | 09-17 = 4,662 · 09-21 = 4,190 · floor 5,000 |
+| Frozen tests | 4/4 at d=±0.0000pp |
+| Commits ahead of origin | 51, nothing pushed |
+| Tree | clean |
+
+## DV.5 — Open, in priority order
+
+1. **BLOCKED-ON-EVAN — the 17 falsified 2026-09-17 rows.** Options put to him:
+   restore cash from the ledger replay (recommended), delete the 17 rows, or
+   leave and document. CLAUDE.md reserves this call for him.
+2. **Fix `compute_nav` to take as-of cash** rather than `pf.cash`. Code-only.
+3. **BLOCKED-ON-EVAN — 2026-09-21 will need the same repair** once it settles,
+   and must NOT be re-marked until (2) lands or it repeats this.
+4. **Stage 5** — `paper_nav` narrow append-only trigger (needs a live-DB write,
+   classifier-refused to Claude), `stamp_rebalance_log` atomicity, error-path
+   isolation, the two cache-poisoning bugs.
+5. **Stage 6** — `TOL_PCT` 0.05 → 0.001, wire the nine orphaned regression
+   tests, `auto_adjust=False` in 5 research benchmarks, 16 files carrying stale
+   baselines, `requirements.lock.txt` scope creep.
+6. **Stage 8 — the trading guard. Needs Evan's diff approval before any code**
+   (his rule, 2026-09-06). Six proven bypass classes.
+7. **A3** — a staleness detector counting record appendices newer than
+   HANDOFF's stamp. Designed, not built.
+8. **BLOCKED-ON-EVAN, small:** finding 35 (`alpaca_keys.env` into the `Read`
+   deny list — `.claude/settings.json` is classifier-blocked to Claude), and the
+   LIVE copy of the `monthy-llm-rebalance` task spec still reads "5:30pm" while
+   the repo snapshot is corrected, so the two now differ by that line.
+
+## DV.6 — Process notes
+
+- Claude's live-DB writes were classifier-refused again (`Modify Shared
+  Resources`), same as the M6 `slippage_log` write. Reported, not worked around.
+- One auditor breached the 17:00–18:30 window with a heavy aggregate and
+  self-reported it. Read-only; no corruption risk.
+- Four line-number citations in session reporting were wrong or wrongly
+  attributed, each caught by the claim-check hook. All four came from reading a
+  number off derived or nested output rather than a direct `grep -n`. Noted so
+  the pattern is on record, not just the individual slips.

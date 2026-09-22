@@ -220,7 +220,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-dr---committed-the-september-account--10-doc-files-to-head-3-code-files-held-back-2026-09-06-1340-cdt">DR — Committed the September account — 10 doc files to HEAD, 3 code files held back</a> (09-06)<br />
 - <a href="#appendix-ds---scheduled-daily-audit-the-trade-guard-is-inverted--it-denies-the-read-only-step-the-monthly-automation-needs-and-permits-five-wrappers-that-trade-live-and-its-own-self-check-is-green-2026-09-08-0740-cdt">DS — Scheduled daily-audit: the trade guard is INVERTED — it denies the read-only step the monthly automation needs and permits five wrappers that trade live, and its own self-check is green</a> (09-08)<br />
 - <a href="#appendix-dt---scheduled-daily-audit-dss-inverted-trade-guard-is-still-live-two-days-on-two-new-escapes---exec-abbreviation-and-git--c-push-and-the-self-check-is-still-green-2026-09-10-0712-cdt">DT — Scheduled daily-audit: DS's inverted trade guard is still live two days on, two new escapes (--exec abbreviation and git -C push), and the self-check is still green</a> (09-10)<br />
-- <a href="#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt">DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard</a> (09-17)</p>
+- <a href="#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt">DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard</a> (09-17)<br />
+- <a href="#appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt">DV — Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row</a> (09-22)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -13040,6 +13041,201 @@ is the decision DS put to Evan and it is still open; nothing here was patched.</
 <p>Frozen tests 4/4 at d=±0.0000pp. <code>test_strict_fill_date</code> ALL PASS. Guard self-check 20/0. Both guard layers present. <code>verify_run</code> 76/76 PASS on 2026-09-16 20:30. Record structure: 124 appendices, TOC balanced, 0 CRLF (worker-reported). py_compile 101/101 on shard B. All 7 shard-B yfinance writers set <code>auto_adjust=False</code>. The lock file matches the venv (only pip differs).</p>
 <h2 id="coverage-and-cost">Coverage and cost</h2>
 <p>The trade-path shard got 22 files deep-read, 94 grep-only, and 4 unswept (<code>scripts/*.bat</code> dashboard wrappers). Shard B: 101/101 compiled, about 20 read in full. Docs: 11 swept, 5 sampled, 28 not swept (old audit/research docs, 9 bins). Not swept: M5 churn, M10 mutation, M11 fuzzing, M14 dependency graph, X4. The wave-1 targeting worker was skipped. M6 is partial: frozen tests, strict-fill test and guard probes only. Cost: 4 Sonnet agents, 233 tool calls, ~719K subagent tokens, ~15 min wall clock.</p>
+<h1 id="appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt">Appendix DV - Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row (2026-09-22, ~14:30 CDT)</h1>
+<p><strong>Sessions: 2026-09-20 17:36–23:44 CDT and 2026-09-22 14:20–14:30 CDT.</strong> Clock<br />
+read with <code>date</code> at each stamp (UTC-5 → CDT). A full cold <code>/audit</code> of both<br />
+domains, then execution of the approved fix list in ease-of-execution order.<br />
+<strong>Five commits. The audit's own headline turned out to be that the project had<br />
+already found several of these and nothing acted.</strong></p>
+<h2 id="dv1--the-audit-and-what-it-actually-found">DV.1 — The audit, and what it actually found</h2>
+<p>Eight cold auditors under a 274-file manifest (0 unassigned). <strong>39 findings, 2<br />
+edge cases, 3 architecture decisions.</strong> Cost ~2.0M subagent tokens, ~70 min.</p>
+<p>The reframe that outranked every individual bug: <strong>record appendices DS<br />
+(2026-09-08), DT (09-10) and DU (09-17) are three runs of this project's own<br />
+<code>daily-audit</code> task that had already found the trade-guard escapes and the<br />
+missing stale-bar guard on the monthly path.</strong> Nothing acted on them, because<br />
+that task's spec says <code>READ-ONLY: no code edits, no fixes applied, no commits,
+no HANDOFF edits</code> — so its findings sat uncommitted and <code>HANDOFF.md</code> never<br />
+mentioned them. This audit spent ~2.0M tokens rediscovering them.</p>
+<p>Load-bearing negatives, each re-derived by the reporting model rather than<br />
+relayed: cash reconciles across all <strong>76</strong> sleeves to <strong>1e-10</strong>; <code>paper_nav</code><br />
+internally consistent across 6,792 rows (0 total_nav mismatches, 0 duplicate<br />
+keys); secrets never committed, confirmed three independent ways; 0 non-ASCII<br />
+bytes in all 10 <code>.bat</code> files; 0 import cycles.</p>
+<h2 id="dv2--what-shipped-5-commits">DV.2 — What shipped (5 commits)</h2>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>Stage</th>
+<th>Closes</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>5b44107</code></td>
+<td>0</td>
+<td>the 2026-08-26 fill-path guard, uncommitted 25 days; record DM–DU into HEAD</td>
+<td>strict-fill 4/4, frozen 4/4</td>
+</tr>
+<tr>
+<td><code>94c1215</code></td>
+<td>2</td>
+<td>9, 11, 15–20, 33, 34, 39 + a CLAUDE.md correction</td>
+<td>no Python touched</td>
+</tr>
+<tr>
+<td><code>62c4680</code></td>
+<td>3</td>
+<td>7, 12, E2</td>
+<td>0 non-ASCII, two implementations; every goto has a label</td>
+</tr>
+<tr>
+<td><code>0f01fa8</code></td>
+<td>4</td>
+<td>21, 23, 24, 25, 26</td>
+<td>frozen 4/4 d=±0.0000pp, 3 canaries</td>
+</tr>
+<tr>
+<td><code>cc93239</code></td>
+<td>7 (partial)</td>
+<td>A1</td>
+<td>frozen 4/4 d=±0.0000pp</td>
+</tr>
+</tbody>
+</table>
+<p>Substantive ones:</p>
+<ul>
+<li><strong>25 — the monthly path never got the stale-bar guard.</strong> The guard shipped<br />
+  2026-08-26 opted in exactly ONE of two live callers. The monthly dispatcher<br />
+  was missed, so the 2026-08-24 incident's exposure stayed live there for 25<br />
+  days. <code>test_strict_fill_date</code> now asserts EVERY live scheduled caller opts<br />
+  in. Negative control: HEAD's copy had 0 occurrences, so the new assertion<br />
+  would have failed before the fix.</li>
+<li><strong>26 — the paper/live boundary was one environment variable.</strong> <code>is_live</code> was<br />
+  read by no code path at all. <code>AlpacaClient.__init__</code> now raises unless a<br />
+  caller passes <code>allow_live=True</code> in code. New canary <code>test_alpaca_live_guard</code><br />
+  (4 cases). Nothing in the repo sets <code>APCA_API_BASE_URL</code>, so no caller broke.</li>
+<li><strong>21 — the staleness date was discarded at 14 call sites.</strong> Fixed at the<br />
+  chokepoint: <code>market_data.last_close_checked()</code> plus one canonical<br />
+<code>MAX_CARRY_FORWARD_DAYS</code> that <code>paper_mtm</code> re-exports instead of restating.<br />
+  Report-only. 0 date-discarding sites remain.</li>
+<li><strong>A1 — one definition per threshold.</strong> The 1000-close literal was independent<br />
+  in five files, the 5000 floor in three. All now import from <code>check_coverage</code>.</li>
+</ul>
+<h2 id="dv3--the-finding-that-matters-most-remark_nav_day-backdates-todays-cash">DV.3 — THE FINDING THAT MATTERS MOST: <code>remark_nav_day</code> backdates today's cash</h2>
+<p><strong>Symptom.</strong> On 2026-09-22 the 14:22 <code>verify_run</code> returned <strong>FAIL 59/76</strong>, while<br />
+the 07:47 scheduled run that same morning returned <strong>PASS 76/76</strong> — identical<br />
+<code>settled&lt;=2026-09-18</code> window, identical code.</p>
+<p><strong>Attribution, done before the claim.</strong> Three tests ruled out this session's<br />
+edits: reverting only <code>verify_run.py</code> → still FAIL 59/76; stashing ALL<br />
+uncommitted work to clean HEAD → still FAIL 59/76; and the "checker window<br />
+moved" hypothesis was falsified by the identical <code>settled&lt;=</code> in both headers.<br />
+The data changed, not the code.</p>
+<p><strong>Root cause.</strong> <code>scripts/momentum/paper_mtm.py:119</code> sets <code>"cash": pf.cash</code> —<br />
+the LIVE portfolio cash — and pairs it with positions priced as-of the target<br />
+date. For a same-day mark that is correct. For a HISTORICAL re-mark it writes<br />
+today's cash onto a past date. <code>scripts/data_audit/remark_nav_day.py</code> is the<br />
+sanctioned tool for repairing historical NAV and is built on <code>compute_nav</code>, so<br />
+it inherits this.</p>
+<p><strong>What happened.</strong> 2026-09-17 was re-marked by hand on 2026-09-22 between 07:47<br />
+and 14:20, to close the gap this audit found. The weekly ladder had rebalanced<br />
+on 2026-09-21, changing cash on 19 <code>*_wk_paper</code> sleeves. The re-mark therefore<br />
+stamped 09-17 with post-09-21 cash:</p>
+<pre><code>2026-09-16: cash = 2.087272   &lt;- normal MTM path
+2026-09-17: cash = 0.002087   &lt;- the hand re-mark, today's cash
+2026-09-18: cash = 2.087272   &lt;- normal MTM path
+</code></pre>
+<p><strong>Blast radius, measured read-only:</strong> <strong>17 of 76</strong> sleeves have a 09-17 cash<br />
+figure that disagrees with their 09-18 figure by more than a cent. Max cash<br />
+delta <strong>$25.90</strong>. Summed absolute NAV delta across the 17: <strong>$6,135.89</strong>. The<br />
+other 59 are accidentally correct — their cash had not moved since 09-17.</p>
+<p><strong>Honest note on how this arose.</strong> The re-mark was recommended in this audit's<br />
+Stage 1 on the strength of a dry run reading <code>0 changed, 76 new row(s)</code>. That<br />
+was checked for whether rows would be OVERWRITTEN and never for whether the<br />
+VALUES being written were right for that date. <code>--force</code> gates on coverage, not<br />
+on cash provenance. The finding-1 diagnosis (a real missing day, a real<br />
+two-threshold straddle) still stands; the repair mechanism is what is defective.</p>
+<p><strong>Not fixed.</strong> <code>compute_nav</code> has no as-of cash parameter. Records CK/CL/CM used<br />
+<code>remark_nav_day</code> and are worth re-checking against this.</p>
+<h2 id="dv4--state-snapshot-2026-09-22-1428-cdt">DV.4 — State snapshot (2026-09-22 ~14:28 CDT)</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sleeves</td>
+<td>76</td>
+</tr>
+<tr>
+<td><code>verify_run</code></td>
+<td><strong>FAIL 59/76</strong> — 17 sleeves, ledger cash on 2026-09-17</td>
+</tr>
+<tr>
+<td>Latest <code>paper_nav</code></td>
+<td>2026-09-21 (19 sleeves only — ladder force-mark; 09-21 is sub-floor at 4,190 closes)</td>
+</tr>
+<tr>
+<td><code>last_settled</code></td>
+<td>2026-09-18</td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td>09-17 = 4,662 · 09-21 = 4,190 · floor 5,000</td>
+</tr>
+<tr>
+<td>Frozen tests</td>
+<td>4/4 at d=±0.0000pp</td>
+</tr>
+<tr>
+<td>Commits ahead of origin</td>
+<td>51, nothing pushed</td>
+</tr>
+<tr>
+<td>Tree</td>
+<td>clean</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dv5--open-in-priority-order">DV.5 — Open, in priority order</h2>
+<ol>
+<li><strong>BLOCKED-ON-EVAN — the 17 falsified 2026-09-17 rows.</strong> Options put to him:<br />
+   restore cash from the ledger replay (recommended), delete the 17 rows, or<br />
+   leave and document. CLAUDE.md reserves this call for him.</li>
+<li><strong>Fix <code>compute_nav</code> to take as-of cash</strong> rather than <code>pf.cash</code>. Code-only.</li>
+<li><strong>BLOCKED-ON-EVAN — 2026-09-21 will need the same repair</strong> once it settles,<br />
+   and must NOT be re-marked until (2) lands or it repeats this.</li>
+<li><strong>Stage 5</strong> — <code>paper_nav</code> narrow append-only trigger (needs a live-DB write,<br />
+   classifier-refused to Claude), <code>stamp_rebalance_log</code> atomicity, error-path<br />
+   isolation, the two cache-poisoning bugs.</li>
+<li><strong>Stage 6</strong> — <code>TOL_PCT</code> 0.05 → 0.001, wire the nine orphaned regression<br />
+   tests, <code>auto_adjust=False</code> in 5 research benchmarks, 16 files carrying stale<br />
+   baselines, <code>requirements.lock.txt</code> scope creep.</li>
+<li><strong>Stage 8 — the trading guard. Needs Evan's diff approval before any code</strong><br />
+   (his rule, 2026-09-06). Six proven bypass classes.</li>
+<li><strong>A3</strong> — a staleness detector counting record appendices newer than<br />
+   HANDOFF's stamp. Designed, not built.</li>
+<li><strong>BLOCKED-ON-EVAN, small:</strong> finding 35 (<code>alpaca_keys.env</code> into the <code>Read</code><br />
+   deny list — <code>.claude/settings.json</code> is classifier-blocked to Claude), and the<br />
+   LIVE copy of the <code>monthy-llm-rebalance</code> task spec still reads "5:30pm" while<br />
+   the repo snapshot is corrected, so the two now differ by that line.</li>
+</ol>
+<h2 id="dv6--process-notes">DV.6 — Process notes</h2>
+<ul>
+<li>Claude's live-DB writes were classifier-refused again (<code>Modify Shared
+  Resources</code>), same as the M6 <code>slippage_log</code> write. Reported, not worked around.</li>
+<li>One auditor breached the 17:00–18:30 window with a heavy aggregate and<br />
+  self-reported it. Read-only; no corruption risk.</li>
+<li>Four line-number citations in session reporting were wrong or wrongly<br />
+  attributed, each caught by the claim-check hook. All four came from reading a<br />
+  number off derived or nested output rather than a direct <code>grep -n</code>. Noted so<br />
+  the pattern is on record, not just the individual slips.</li>
+</ul>
 </div>
 </body>
 </html>
