@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("check_cache_gaps")
 
-MIN_TRADING_DAY_COUNT = 1000
+from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT  # A1: one definition
 REPORT_PATH = VAR_DIR / "cache_gap_report.log"
 
 

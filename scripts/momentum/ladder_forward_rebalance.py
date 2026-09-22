@@ -54,7 +54,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("ladder_forward_rebalance")
 
-TRADING_DAY_MIN = 1000          # market-open threshold (matches check_coverage)
+from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT as TRADING_DAY_MIN  # A1
 # Biweekly anchor = the MONDAY of the 05-01 seed week (2026-04-27). Parity uses
 # ordinal weeks since this date, NOT raw ISO week numbers: ISO parity breaks in
 # a 53-week year (2026 is one) and would insert a one-time 3-week gap across

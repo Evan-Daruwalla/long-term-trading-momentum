@@ -38,7 +38,7 @@ log = logging.getLogger("check_anomalies")
 
 # A market-closed day leaves only a couple hundred stray closes; require a real
 # trading day when auto-picking the target/prior dates (matches check_coverage).
-MIN_TRADING_DAY_COUNT = 1000
+from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT  # A1: one definition
 REPORT_PATH = VAR_DIR / "anomaly_report.log"
 
 

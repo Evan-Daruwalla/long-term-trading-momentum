@@ -50,7 +50,7 @@ REBALANCE_DATES = [date(2026, 5, 1), date(2026, 6, 3), date(2026, 7, 1)]
 STARTING_CASH = 100_000.0
 TOP_N = 50
 HALF_SPREAD_BPS = 5.0
-SETTLED_FLOOR = 5000   # same hard floor as check_coverage
+from scripts.momentum.check_coverage import HARD_FLOOR as SETTLED_FLOOR  # A1
 
 
 def _name(mm: int, rr: int) -> str:

@@ -65,7 +65,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("verify_run")
 
-MIN_TRADING_DAY_COUNT = 1000
+from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT  # A1: one definition
 # (b1) ledger-replay epoch. Rows BEFORE this date legitimately disagree with the
 # entry/exit replay: M7.3 (recommended CK.5, applied live CM 2026-08-02) repaired
 # the 31 closed KLAC positions and the sleeves' CURRENT cash but deliberately left
@@ -323,13 +323,31 @@ def main() -> int:
             last_settled = d
             break
 
+    # Audit 2026-09-20, finding A1. A day sits in the calendar at >=1000 closes
+    # but can only be MARKED once coverage reaches the floor (5000). A day that
+    # lands between the two is owed a NAV row that nothing will ever write:
+    # mtm_catchup declines it ("leaving unmarked (heals later)") and never
+    # revisits, so once a later day settles past it, every sleeve fails
+    # continuity on it forever. That is not a ledger fault and it must not read
+    # as one -- 2026-09-17 (4,662 closes) produced FAIL 0/76 nightly until it
+    # was re-marked by hand, and 2026-09-21 (4,190) is the same shape four days
+    # later. Drop those days from the demanded set and NAME them, so the gap is
+    # visible without being an alarm. Bounded to days already settled past;
+    # anything newer is pending publication and handled above.
+    unsettled = [d for d in calendar
+                 if d <= last_settled and not coverage_status(conn, d)["ok"]]
+    if unsettled:
+        calendar = [d for d in calendar if d not in set(unsettled)]
+
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     cal_span = f"{calendar[0]}..{calendar[-1]}" if calendar else "none"
     pending_note = "" if (not calendar or last_settled == calendar[-1]) else \
         f"  (pending>{last_settled})"
+    unsettled_note = "" if not unsettled else \
+        f"  sub-floor-skipped({len(unsettled)}): {','.join(unsettled[-3:])}"
     header = (f"=== {stamp} | verify_run mode={args.mode}  db={db_path.name}  "
               f"sleeves={len(sleeves)}  calendar={cal_span}  settled<={last_settled}"
-              f"{pending_note} ===")
+              f"{pending_note}{unsettled_note} ===")
     out = [header]
     n_fail = 0
     for s in sleeves:
