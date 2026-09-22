@@ -146664,7 +146664,7 @@ paper_nav rows dated 2026-09-18 = 0
 <strong>Rule 0g fires: today is UNMARKED.</strong> <code>max(nav_date)</code> in <code>paper_nav</code> = <strong>2026-09-18</strong>. The 17:15 <code>TradingDailyMTM</code> run logged <strong>COVERAGE FAIL: only 3140 closes on 2026-09-21 (&lt; floor 5000)</strong> — the worst single-session price coverage of the month, against a 10-day baseline of 5,129. Every NAV below is <strong>INDICATIVE</strong>, not a marked close.<br />
 <strong>The 2026-09-17 gap HEALED.</strong> The same run backfilled 09-17 coverage 4,662 → <strong>5,041</strong> and marked all 76 sleeves as-of 09-17 at NAV <strong>$7,634,283.21</strong>. <code>verify_run</code> returned <strong>RESULT: PASS (76/76 sleeves OK)</strong>, continuity <strong>97/97</strong> — the first PASS since Friday's first-ever FAIL. The settled-history hole flagged this morning as possibly permanent closed itself in one session.<br />
 <strong>Indicative book: $7,718,946.63, +$54,095.83 / +0.7058% on the day, +1.5651% above the $7,600,000 seed</strong> — the highest above-seed reading the book has printed. MTD <strong>+0.7298%</strong>. WTD is identical to the day move (Monday). <strong>58 of 76 sleeves up.</strong><br />
-<strong>Method</strong>: <code>paper_portfolio.cash + Σ qty × close</code> over 3,357 open rows / 76 sleeves / 221 tickers. <strong>155 tickers priced from <code>price_cache</code>, 62 re-sourced from the Yahoo chart API</strong> (<code>meta.regularMarketPrice</code> stamped <code>2026-09-21 16:00 ET</code>), <strong>each of the 62 verified</strong> by its implied previous close matching our cached 09-18 close to <strong>under $0.02</strong>. Only <strong>4 tickers carried forward — APGE, CRNX, KFII, UYSC — $86,225.50 = 1.1207%</strong> of position value.<br />
+<strong>Method</strong>: <code>paper_portfolio.cash + Σ qty × close</code> over 3,357 open rows / 76 sleeves / 221 tickers. <strong>155 tickers priced from <code>price_cache</code>, 62 re-sourced from the Yahoo chart API</strong> (<code>meta.regularMarketPrice</code> stamped <code>2026-09-21 16:00 ET</code>), <strong>58 of those 62 verified</strong> by their implied previous close matching our cached 09-18 close to <strong>under $0.02</strong> (3 mismatch by design — ex-dividend, §0l; 1, XOM, has no cached 09-18 close to check against). Only <strong>4 tickers carried forward — APGE, CRNX, KFII, UYSC — $86,225.50 = 1.1207%</strong> of position value.<br />
 <strong>Market: a broad risk-on session driven by AI semis and falling oil. S&amp;P 500 +1.49% to 7,764.70; Nasdaq Composite +2.26% to 27,122.09, a record close and its best day since August 4; Dow +366.19 / +0.71% to 52,048.83; Russell 2000 +0.52% to 2,875.36</strong> (<a href="https://www.cnbc.com/2026/09/20/stock-market-today-live-updates.html">CNBC</a>, <a href="https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-21-2026">TheStreet</a>). <strong>SOXX +4.93%. Intel +12%, AMD +10% to a $1T market cap.</strong> 10Y <strong>4.963%</strong>, down ~3.5bp.<br />
 <strong>Oil broke: Brent Nov settled $100.34, −$3.53 / −3.4%; WTI Oct $95.78, −$4.52 / −4.51%</strong> — a fifth straight down day and a 12-day low, on UNGA Iran-diplomacy hopes and Hormuz flows at a six-month high (<a href="https://finance.yahoo.com/energy/articles/oil-rises-houthi-attack-saudi-221210416.html">Reuters via Yahoo</a>). <strong>The book's energy leg took the hit: XLE −2.88%, VLO −4.84%, DINO −5.70%, PBF −6.10%, MPC −5.30%, DK −4.80%, PSX −4.17%, INSW −1.84%.</strong><br />
 <strong>Key movers: MU +2.772% (+$14,536), ATEX +8.612% (+$8,670, 59 sleeves), LRCX +4.918% (+$6,060), QQQ +2.775% (+$5,739), AMAT +4.424% (+$4,439).</strong> Detractors led by <strong>VLO −$3,773, DINO −$3,442, XLE −$3,199</strong>.<br />
@@ -146900,14 +146900,24 @@ paper_nav rows dated 2026-09-18 = 0
 <td>untouched</td>
 </tr>
 <tr>
-<td>re-sourced, implied-prev matched cached 09-18 to <strong>&lt; $0.02</strong></td>
+<td>re-sourced from Yahoo <code>meta</code>, <strong>total</strong></td>
 <td style="text-align: right;"><strong>62</strong></td>
+<td>priced at <code>regularMarketPrice</code></td>
+</tr>
+<tr>
+<td> — implied-prev matched cached 09-18 to <strong>&lt; $0.02</strong></td>
+<td style="text-align: right;"><strong>58</strong></td>
 <td>e.g. MU implied 1015.8020 vs cached 1015.8000</td>
 </tr>
 <tr>
-<td>re-sourced, implied-prev <strong>did not</strong> match</td>
+<td> — implied-prev <strong>did not</strong> match</td>
 <td style="text-align: right;">3</td>
-<td>XLI, XLK, XLV — explained by today's ex-dividend, §0l</td>
+<td>XLI −0.4556, XLK −0.2212, XLV −0.6415 — today's ex-dividend, §0l</td>
+</tr>
+<tr>
+<td> — <strong>no cached 09-18 close to verify against</strong></td>
+<td style="text-align: right;">1</td>
+<td><strong>XOM</strong> — our cache ends 09-17 @ $163.27; unverified as stated</td>
 </tr>
 <tr>
 <td>carried forward</td>
@@ -148308,7 +148318,7 @@ paper_nav rows dated 2026-09-18 = 0
 <p><strong>7c. Does any sleeve show structural edge? Still no, and today does not change the answer.</strong> Four consecutive up sessions and the best above-seed reading of the month are not edge — SPY is up 1.55% today and every momentum sleeve that beat it today is still 10–12pp behind it since July. The only sleeves outperforming both benchmarks are the three single-name LLM arms, whose entire lead traces to one VETO, and the sector rotation, which is not a factor portfolio. <strong>The measured position after 54 trading days of the clean cohort remains: the momentum and residual families have negative alpha, and the LLM experiment has a sample size of 14.</strong></p>
 <p><strong>7d. One new sleeve concept is <em>suggested</em> by today's data, and it should be recorded as suggested, not pursued.</strong> The cross-sectional gradient in §6 is a clean, near-monotone, single-day measurement of oil beta across a parameter the platform already varies. If that gradient is stable — if the residual-weight axis reliably proxies energy exposure — then it is a <em>measurement instrument</em>, not a strategy: a way to read the book's factor tilt daily without a separate risk model. <strong>That is worth testing over 60+ sessions before it is worth anything at all, and a one-day observation is precisely the kind of evidence this project has been burned by before</strong> (record: the 2026-05-28 data audit, the 2026-06-13 history-gap re-inception). No prereg, no backtest, no recommendation. Logged.</p>
 <p><strong>7e. The operational finding worth acting on is the price-refresh reliability, not any strategy idea.</strong> Three of the last four sessions required a heal: 09-17 pended three days before clearing today, 09-18 needed a Saturday run, and 09-21 is pending now at the month's worst coverage. The coverage floor is doing its job — <strong>no bad NAV has been written in any of these</strong> — but the report has been pushed onto indicative reconstruction on three of the last four evenings.</p>
-<p><strong>The method used in §0j is a candidate hardening and it is worth naming precisely</strong>: when <code>yfinance.download</code> returns a null daily close, the chart API's <code>meta.regularMarketPrice</code> still carries the settled figure, and <code>regularMarketPrice / (1 + regularMarketChangePercent/100)</code> gives a free per-ticker verification against the prior cached close. <strong>That check passed 62 of 66 today and correctly identified the 3 failures as ex-dividend cases rather than data faults.</strong> Applying it inside <code>daily_price_refresh</code> would be a <strong>write-path change to a module that feeds every NAV in the book</strong>, so it is BLOCKED-ON-EVAN by the project's own rule: write-path changes are tested on a copy first, and this one is not mine to make. <strong>Reported, not implemented.</strong></p>
+<p><strong>The method used in §0j is a candidate hardening and it is worth naming precisely</strong>: when <code>yfinance.download</code> returns a null daily close, the chart API's <code>meta.regularMarketPrice</code> still carries the settled figure, and <code>regularMarketPrice / (1 + regularMarketChangePercent/100)</code> gives a free per-ticker verification against the prior cached close. <strong>That check passed on 58 of the 62 re-sourced tickers today and correctly identified 3 of the 4 exceptions as ex-dividend cases rather than data faults; the fourth, XOM, simply had no cached 09-18 close to compare against.</strong> Applying it inside <code>daily_price_refresh</code> would be a <strong>write-path change to a module that feeds every NAV in the book</strong>, so it is BLOCKED-ON-EVAN by the project's own rule: write-path changes are tested on a copy first, and this one is not mine to make. <strong>Reported, not implemented.</strong></p>
 <hr />
 <p><strong>Compiled 2026-09-21 19:04–19:40 CDT by <code>daily-trade-check-2</code>. Read-only: <code>file:var/trades.db?mode=ro</code> for every query; the two external price fetches wrote only to the session scratchpad. No sleeve, NAV, position or price row was modified.</strong></p>
 </div>
