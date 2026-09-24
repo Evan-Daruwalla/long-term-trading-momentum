@@ -184,6 +184,8 @@ lives in the dated entry, not the digest.
 - [DU — Scheduled daily-audit: 22 findings - the trade guard's .bat, --exec and git -C escapes are unchanged 7 days after DT, and the monthly path never got the stale-bar guard](#appendix-du---scheduled-daily-audit-22-findings---the-trade-guards-bat---exec-and-git--c-escapes-are-unchanged-7-days-after-dt-and-the-monthly-path-never-got-the-stale-bar-guard-2026-09-17-0720-cdt) (09-17)
 - [DV — Cold audit executed: 39 findings, 5 commits - and remark_nav_day backdates today's cash onto a historical NAV row](#appendix-dv---cold-audit-executed-39-findings-5-commits---and-remark_nav_day-backdates-todays-cash-onto-a-historical-nav-row-2026-09-22-1430-cdt) (09-22)
 - [DW — compute_nav marks a past date with that date's book - and the DV fault was positions too, not just cash](#appendix-dw---compute_nav-marks-a-past-date-with-that-dates-book---and-the-dv-fault-was-positions-too-not-just-cash-2026-09-22-1558-cdt) (09-22)
+- [DX — 17 rows restored (verify 76/76), paper_nav sealed by a narrow append-only trigger; 09-21 still sub-floor](#appendix-dx---17-rows-restored-verify-7676-paper_nav-sealed-by-a-narrow-append-only-trigger-09-21-still-sub-floor-2026-09-22-1610-cdt) (09-22)
+- [DY — Book unmarked since 09-18: yfinance rate-limits the back half of the alphabet every refresh, and no guard sees it](#appendix-dy---book-unmarked-since-09-18-yfinance-rate-limits-the-back-half-of-the-alphabet-every-refresh-and-no-guard-sees-it-2026-09-23-2217-cdt) (09-23)
 
 ---
 
@@ -12136,3 +12138,180 @@ is no later activity and they stay on the unchanged path.
   orphaned tests in DV stage 6.
 - 2026-09-21 re-mark is now safe code-wise once it clears the coverage floor.
 - Nothing committed.
+
+# Appendix DX - 17 rows restored (verify 76/76), paper_nav sealed by a narrow append-only trigger; 09-21 still sub-floor (2026-09-22, ~16:10 CDT)
+## WHAT
+
+Three things this sitting, on Evan's instruction ("commit, then 1, then do b and c").
+
+1. **Committed DW** as `82644c2`.
+2. **Option 1 executed — the 17 falsified 2026-09-17 rows restored from the
+   ledger replay, live, 2026-09-22 16:02:41 CDT.** Evan chose "restore" from
+   the DV/DW options. Done with the existing write path
+   (`remark_nav_day --date 2026-09-17 --execute`), which since DW prices a past
+   date from the ledger replay. Result: 17 changed, 59 already correct, 0
+   failures, net NAV delta $+16.20. After: 0 of 76 rows differ from the replay
+   (cash, n_open and total_nav). `verify_run`: **FAIL 59/76 → PASS 76/76.**
+   Tested first on a copy made with the SQLite backup API (10 s, 5.44 GB). The
+   copy went 59/76 → 76/76 with the same 17 rows. The copy is now deleted.
+3. **(b) re-mark 2026-09-21 — NOT done, blocked on data.** Coverage is still
+   4,190 closes vs the 5,000 floor. Not forced: that would mark onto a
+   partial bar. The 19 existing 09-21 rows (the weekly ladder's force-mark at
+   20:30) now differ from the current cache by up to $117.84 (DW). Once the
+   day settles they need `remark_nav_day --date 2026-09-21 --execute
+   --reason ...`. The 57 missing rows are filled by `mtm_catchup`.
+4. **(c) Stage 5 — narrow append-only trigger on `paper_nav`: built and tested,
+   NOT yet on the live DB.**
+
+## A fix inside the restore: remark_nav_day's change test was blind to this fault
+
+`remark_nav_day` skipped any row whose `total_nav` was within $0.005 of the
+recomputed value. It treated that row as correct. For this fault that is false.
+A row with the wrong date's cash AND positions can land within a cent of the
+right NAV: 4 of the 17 differed by only $0.01-$0.03. The skip test now also
+compares `cash` and `n_open_positions`. This entry does not say whether the old
+test would have skipped any of the 17: the dry run printed rounded deltas, and
+no unrounded figures were taken.
+
+`remark_nav_day` also gained `--db` (test-only, the same override as
+`mtm_catchup`).
+
+## Stage 5 design (trading_bot/db.py SCHEMA)
+
+**A row is SEALED once its sleeve has a newer row.** The latest row stays
+writable. Every path the daily pipeline uses therefore still works, unchanged:
+
+- gap-fill: inserting a missing older day. No existing row, so no restatement.
+- same-day re-mark: the 17:15 mark, then the 18:03 monthly or 20:30 ladder
+  force-mark of the same date. That rewrites the latest row.
+- `mtm_catchup` only writes missing rows.
+
+Restating a sealed row is refused on every path:
+- `INSERT OR REPLACE`: caught by a BEFORE INSERT trigger. REPLACE does not fire
+  delete triggers, which is the same reason the DG decision-log triggers work
+  this way.
+- `UPDATE`.
+- `DELETE`.
+
+**The escape hatch is also the audit trail.** New table `paper_nav_restatement`
+(sleeve, date, old/new total_nav, reason, created_at UTC). A row there unseals
+its (sleeve, date) for 10 minutes. The table itself is append-only: UPDATE and
+DELETE are refused. `remark_nav_day --execute` now REQUIRES `--reason`. It logs
+one row per existing row it rewrites, just before writing it, and calls
+`init_db()` first so the table exists.
+
+Why not a copy of the decision-log triggers (refuse any re-insert of an existing
+key): that would break the same-day re-mark and kill `remark_nav_day`. The 09-22
+handoff warned about exactly this.
+
+Known consequences:
+- The one-off `scripts/data_audit` reset scripts (`reinception_wipe`,
+  `reset_0701_to_0706`, `align_llm_07_01`, `backdate_sleeves`) DELETE a
+  sleeve's whole history. They would now be refused for every row except the
+  latest unless a restatement row is logged first. That is intended: a
+  re-inception is a history rewrite and should leave a record.
+- The 16:02 restore of the 17 rows ran BEFORE this table existed. It has no
+  `paper_nav_restatement` rows. This entry and DW are its record.
+
+## HOW verified
+
+- NEW `scripts/momentum/test_paper_nav_seal.py`, a fixture DB, writing through
+  `paper_mtm.write_nav`: **12/12**. With `db.py` stashed (no triggers) it
+  fails: the sealed REPLACE, UPDATE and DELETE checks all FAIL.
+- On the DB copy, end to end:
+  - Damaged one 09-17 row (+$7 cash and NAV) before the triggers existed.
+  - `--execute` without `--reason` → exit 1.
+  - With `--reason` → `init_db` installed 5 triggers, 1 row changed, 1
+    restatement row logged (old $101,618.44 → new $101,611.44), verify 76/76.
+  - `mtm_catchup --db copy` → exit 2, normal pending (09-21 below the floor).
+  - Latest-row re-mark of all 76 sleeves → 76/76 written.
+  - Unlogged 09-16 restatement → 5/5 refused with "paper_nav row is sealed".
+  - Verify still 76/76.
+- All 14 repo test modules rc=0 (`scripts/momentum/test_*.py`,
+  `scripts/test_backup_validation.py`, the new one).
+- Frozen tests 4/4, d=±0.0000pp (v1 +14.5547%/70, +1.8792%/156; v2
+  +14.4062%/38, +10.2194%/87).
+- Live DB, read-only, 16:09 CDT: no `paper_nav` triggers yet.
+
+## DEPLOYMENT — read this
+
+The triggers reach the live DB the first time anything calls `init_db()`.
+`paper_mtm.write_nav` does that on every write. So **tonight's 17:15
+`TradingDailyMTM` installs them from the working tree whether or not the change
+is committed.** That was left in place deliberately, because Evan asked for
+stage 5. To hold it back, revert `trading_bot/db.py` before 17:15.
+
+## Still open
+
+- 2026-09-21: re-mark the 19 stale rows once coverage ≥ 5,000 (now possible
+  code-wise; needs `--reason`).
+- `test_paper_nav_seal.py` and `test_compute_nav_asof.py` are not wired into
+  `daily.bat` (stage 6 item).
+- The rest of stage 5 is untouched: `stamp_rebalance_log` atomicity,
+  `alpaca_sync` per-account isolation, the 2 cache-poisoning bugs.
+- Uncommitted: `db.py`, `remark_nav_day.py`, `test_paper_nav_seal.py`.
+
+# Appendix DY - Book unmarked since 09-18: yfinance rate-limits the back half of the alphabet every refresh, and no guard sees it (2026-09-23, ~22:17 CDT)
+## WHAT (finding only; nothing was changed)
+
+The book has gone unmarked since 2026-09-18: `max(nav_date)` = 2026-09-21 with
+19 of 76 rows. The daily report called this "third straight unmarked session".
+**The cause is a yfinance rate limit that cuts in halfway through every price
+refresh.** No guard reports it.
+
+Coverage (closes per day, live DB read-only, 2026-09-23 ~22:15 CDT):
+
+| day | closes | floor 5,000 |
+|---|---:|---|
+| 09-15 / 09-16 / 09-17 / 09-18 | 5,127 / 5,127 / 5,114 / 5,113 | OK |
+| 09-21 | 4,919 | below (was 4,190 on 09-22, 4,533 in the 09-23 pre-market report) |
+| 09-22 | 3,546 | below |
+| 09-23 | 3,270 | below |
+
+## WHY — the evidence
+
+`var/last_daily_run.log` (09-23 17:15 run): 5,875 tickers in 30 batches of 200,
+1.0 s apart. Each of batches 1-14 lost 13-36 names, which is the normal
+delisted noise. From batch 15 the losses jump: 67, 58, 114, 167, ... up to 153.
+Rows per batch fall from ~6,300-7,500 to 1,317-5,001. The log carries **16
+`YFRateLimitError('Too Many Requests...')` lines**, the first at batch 15
+(17:16:32). `var/last_morning_run.log` also has 16. Names lost include NVDA,
+NEM, MTD and LRCX.
+
+Closes by ticker first letter, 09-18 vs 09-22:
+
+- **A-J: 2,499 → 2,356 (94%)**
+- **K-Z: 2,614 → 1,190 (46%)**
+
+The refresh walks the list alphabetically, so the limit consistently cuts the
+back half of the alphabet.
+
+**Why nothing flagged it.** `daily_price_refresh` has two guards:
+- REFRESH INCOMPLETE fires only on a batch that raised on all 3 attempts.
+- The rate-limit guard fires only on WHOLLY-EMPTY batches.
+
+Here yfinance swallows the rate limit PER TICKER and returns a partial frame.
+Every batch returns some rows, so both guards pass and the refresh exits
+normally. The coverage gate then correctly refuses to mark, and the day sits
+PENDING indefinitely.
+
+The module docstring still says "~4,200-ticker universe". The run refreshed
+5,875. This entry does not establish when the list grew or whether that is what
+crosses the limit.
+
+## Consequences with dates
+
+- Weekly ladder, next rebalance **Mon 2026-09-28**. On a sub-floor day it skips
+  sells while filling buys. That happened on 09-21: 300 skipped sells, rungs at
+  60-68 positions vs a target of 50. Those figures come from the
+  coverage-fail memory note and were NOT re-derived in this entry.
+- Monthly rebalance **Thu 2026-10-01**.
+- Stage 5 triggers (DX) are still NOT on the live DB. Nothing has called
+  `write_nav` since the change, because every day is pending.
+
+## Not done / open
+
+- No refresh was re-run and no code was changed; that is Evan's call.
+- Candidate fix: after the main pass, retry the tickers missing the latest bar
+  after a cooldown, and make the rate-limit guard count missing tickers, not
+  empty batches. Test on a DB copy.

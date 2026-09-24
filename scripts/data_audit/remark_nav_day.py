@@ -26,7 +26,7 @@ unless --force, so this can never re-mark onto a partial bar).
 
 Usage:
   python -m scripts.data_audit.remark_nav_day --date 2026-07-31
-  python -m scripts.data_audit.remark_nav_day --date 2026-07-31 --execute
+  python -m scripts.data_audit.remark_nav_day --date 2026-07-31 --execute --reason "..."
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ import logging
 import sys
 from datetime import date
 
-from trading_bot.db import connect
+from trading_bot.db import connect, init_db
 from scripts.momentum import paper_mtm
 from scripts.momentum.check_coverage import coverage_status
 
@@ -54,7 +54,21 @@ def main() -> int:
     ap.add_argument("--execute", action="store_true", help="Apply (default: dry run).")
     ap.add_argument("--force", action="store_true",
                     help="Re-mark even if that day's coverage is below the floor.")
+    ap.add_argument("--db", default=None, help="DB path (default live). Test-only.")
+    ap.add_argument("--reason", default=None,
+                    help="Why history is being restated. Required with --execute; "
+                         "logged to paper_nav_restatement (record DX).")
     args = ap.parse_args()
+    if args.execute and not (args.reason or "").strip():
+        log.error("--execute requires --reason: every restated row is logged.")
+        return 1
+    if args.db:
+        # Same override as mtm_catchup: point connect() (and so paper_mtm) at the copy.
+        import trading_bot.db as _db
+        _db.close_thread_connection()
+        _db.DB_PATH = args.db
+    if args.execute:
+        init_db()   # creates paper_nav_restatement + the seal triggers if absent
 
     as_of = date.fromisoformat(args.date)
     if as_of.weekday() >= 5:
@@ -65,9 +79,9 @@ def main() -> int:
         cov = coverage_status(conn, as_of.isoformat())
         sleeves = [r["strategy_name"] for r in conn.execute(
             "SELECT strategy_name FROM paper_portfolio ORDER BY strategy_name")]
-        stored = {r["strategy_name"]: r["total_nav"] for r in conn.execute(
-            "SELECT strategy_name, total_nav FROM paper_nav WHERE nav_date=?",
-            (as_of.isoformat(),))}
+        stored = {r["strategy_name"]: r for r in conn.execute(
+            "SELECT strategy_name, total_nav, cash, n_open_positions FROM paper_nav "
+            "WHERE nav_date=?", (as_of.isoformat(),))}
 
     log.info("coverage %s: %d closes vs floor %d -> %s",
              as_of, cov["count"], cov["floor"], "OK" if cov["ok"] else "BELOW FLOOR")
@@ -85,15 +99,30 @@ def main() -> int:
                 skipped += 1
                 continue
             nav = paper_mtm.compute_nav(name, as_of)
-            old = stored.get(name)
-            if old is None:
+            row = stored.get(name)
+            old = row["total_nav"] if row else None
+            if row is None:
                 missing.append((name, nav))
-            elif abs(nav["total_nav"] - old) > CHANGE_TOL:
+            # Record DW: total_nav alone is not enough -- a row carrying the wrong
+            # date's cash AND positions can land within a cent of the right NAV.
+            elif (abs(nav["total_nav"] - old) > CHANGE_TOL
+                  or abs(nav["cash"] - row["cash"]) > CHANGE_TOL
+                  or nav["n_open"] != row["n_open_positions"]):
                 changed.append((name, old, nav))
             else:
                 unchanged += 1
                 continue
             if args.execute:
+                if row is not None:
+                    # Unseals this (sleeve, date) for the paper_nav trigger and
+                    # is the permanent record that the row was restated.
+                    with connect() as conn:
+                        conn.execute(
+                            "INSERT INTO paper_nav_restatement (strategy_name, "
+                            "nav_date, old_total_nav, new_total_nav, reason) "
+                            "VALUES (?, ?, ?, ?, ?)",
+                            (name, as_of.isoformat(), old, nav["total_nav"],
+                             args.reason.strip()))
                 paper_mtm.write_nav(name, as_of, nav)
         except Exception:
             log.exception("FAILED: %s - continuing", name)

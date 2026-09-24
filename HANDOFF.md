@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-22 ~15:58 CDT (record DW)** — this file is the only live snapshot
+**Last updated: 2026-09-23 ~22:17 CDT (record DY)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -26,22 +26,29 @@ Appendix AZ).
 > (`5b44107` `94c1215` `62c4680` `0f01fa8` `cc93239`). Frozen tests 4/4 at
 > d=±0.0000pp. Details in record **DV**; do not re-summarize them here.
 >
-> **⚠️ `verify_run` is FAILING 59/76 right now, and it is a real data fault.**
-> `paper_mtm.compute_nav` takes cash from the LIVE portfolio row, so re-marking
-> a HISTORICAL date backdates today's cash onto it. 2026-09-17 was re-marked by
-> hand on 09-22 after the weekly ladder had rebalanced on 09-21, so **17 of 76
-> sleeves carry a falsified 2026-09-17 cash figure** — max cash delta $25.90,
-> summed absolute NAV delta $6,135.89. **BLOCKED-ON-EVAN:** restore from the
-> ledger replay / delete the 17 rows / leave and document.
+> **RESOLVED 2026-09-22 (records DW, DX) — the DV cash-backdating fault.**
+> `compute_nav` now replays the ledger for a past date the sleeve traded after
+> (`82644c2`). The 17 falsified 2026-09-17 rows (wrong cash AND wrong position
+> set; $289.20 summed |NAV| vs replay; DV's $6,135.89 unreconciled) were
+> **restored live 16:02 CDT** on Evan's call. `verify_run` **PASS 76/76**.
 >
-> **2026-09-22 ~15:58 CDT (record DW) — code fixed, rows NOT.** `compute_nav`
-> now replays the ledger when the sleeve traded after `as_of` (test
-> `test_compute_nav_asof.py` 5/5 fixed, 2/5 on old code; frozen 4/4 ±0.0000pp;
-> uncommitted). **Correction to the above:** the 17 rows also carry today's
-> POSITION SET (n_open 53→61 etc., 197 summed) — a restore must rewrite cash,
-> positions_value, total_nav and n_open, not cash alone. Versus the ledger
-> replay the summed |NAV| delta is **$289.20** (max $78.68); DV's $6,135.89 is
-> unreconciled. Re-marking 2026-09-21 is now code-safe once it clears the floor.
+> **⚠️ `paper_nav` is now SEALED (record DX, uncommitted as of 16:10).** A row
+> with a newer row for the same sleeve refuses REPLACE/UPDATE/DELETE unless
+> `paper_nav_restatement` logged that (sleeve, date) in the last 10 min.
+> `remark_nav_day --execute` now REQUIRES `--reason` and logs it. Gap-fill and
+> same-day re-mark are unaffected. The triggers install on the live DB at the
+> first `init_db()` — i.e. tonight's 17:15 run — committed or not.
+>
+> **OPEN:** 2026-09-21 is still sub-floor (4,190 vs 5,000). Once it settles,
+> run `remark_nav_day --date 2026-09-21 --execute --reason "..."` for the 19
+> stale ladder rows. `mtm_catchup` fills the other 57.
+>
+> **⚠️ 2026-09-23 (record DY) — book unmarked since 09-18, and it will NOT
+> self-heal.** yfinance rate-limits every refresh from ~batch 15 of 30. 09-22
+> closes: A-J 94%, K-Z 46%. It drops tickers one at a time, so neither
+> refresh guard fires. Coverage 09-21/22/23 = 4,919 / 3,546 / 3,270 vs the
+> 5,000 floor. Deadlines: weekly ladder Mon 09-28 (skips sells on a sub-floor
+> day), monthly Thu 10-01.
 >
 > **The audit's own headline:** record appendices DS/DT/DU are three runs of
 > this project's `daily-audit` that had already found several of these, and

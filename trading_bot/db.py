@@ -268,6 +268,55 @@ CREATE TRIGGER IF NOT EXISTS sector_overlay_log_no_update BEFORE UPDATE ON secto
 BEGIN SELECT RAISE(ABORT, 'sector_overlay_log is append-only (record DG)'); END;
 CREATE TRIGGER IF NOT EXISTS sector_overlay_log_no_delete BEFORE DELETE ON sector_overlay_log
 BEGIN SELECT RAISE(ABORT, 'sector_overlay_log is append-only (record DG)'); END;
+
+-- paper_nav is NARROWLY append-only (audit stage 5, record DX). A row is SEALED
+-- once the sleeve has a NEWER row; the latest row stays writable. That keeps the
+-- daily pipeline working unchanged -- gap-fill inserts a row that does not
+-- exist, and a same-day re-mark (17:15 mark, then the 18:03/20:30 rebalance
+-- force-mark) rewrites the latest row -- while restating history is refused.
+-- A deliberate repair (remark_nav_day --execute --reason) first logs one
+-- paper_nav_restatement row per sealed row it rewrites; that row unseals its
+-- (sleeve, date) for 10 minutes and stays forever as the audit trail.
+-- The copy of the decision-log triggers the audit warned about (refuse any
+-- re-insert) would have broken both the same-day re-mark and remark_nav_day.
+CREATE TABLE IF NOT EXISTS paper_nav_restatement (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  strategy_name TEXT NOT NULL,
+  nav_date TEXT NOT NULL,
+  old_total_nav REAL,
+  new_total_nav REAL,
+  reason TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TRIGGER IF NOT EXISTS paper_nav_restatement_no_update BEFORE UPDATE ON paper_nav_restatement
+BEGIN SELECT RAISE(ABORT, 'paper_nav_restatement is append-only (record DX)'); END;
+CREATE TRIGGER IF NOT EXISTS paper_nav_restatement_no_delete BEFORE DELETE ON paper_nav_restatement
+BEGIN SELECT RAISE(ABORT, 'paper_nav_restatement is append-only (record DX)'); END;
+-- BEFORE INSERT for the same reason as the decision logs: INSERT OR REPLACE does
+-- not fire delete triggers, so the replace path must be caught at the insert.
+CREATE TRIGGER IF NOT EXISTS paper_nav_sealed_no_replace BEFORE INSERT ON paper_nav
+WHEN EXISTS (SELECT 1 FROM paper_nav
+             WHERE strategy_name = NEW.strategy_name AND nav_date = NEW.nav_date)
+ AND EXISTS (SELECT 1 FROM paper_nav
+             WHERE strategy_name = NEW.strategy_name AND nav_date > NEW.nav_date)
+ AND NOT EXISTS (SELECT 1 FROM paper_nav_restatement
+                 WHERE strategy_name = NEW.strategy_name AND nav_date = NEW.nav_date
+                   AND created_at >= datetime('now', '-10 minutes'))
+BEGIN SELECT RAISE(ABORT, 'paper_nav row is sealed (a newer row exists; record DX): restate via remark_nav_day --execute --reason'); END;
+CREATE TRIGGER IF NOT EXISTS paper_nav_sealed_no_update BEFORE UPDATE ON paper_nav
+WHEN EXISTS (SELECT 1 FROM paper_nav
+             WHERE strategy_name = OLD.strategy_name AND nav_date > OLD.nav_date)
+ AND NOT EXISTS (SELECT 1 FROM paper_nav_restatement
+                 WHERE strategy_name = OLD.strategy_name AND nav_date = OLD.nav_date
+                   AND created_at >= datetime('now', '-10 minutes'))
+BEGIN SELECT RAISE(ABORT, 'paper_nav row is sealed (a newer row exists; record DX)'); END;
+CREATE TRIGGER IF NOT EXISTS paper_nav_sealed_no_delete BEFORE DELETE ON paper_nav
+WHEN EXISTS (SELECT 1 FROM paper_nav
+             WHERE strategy_name = OLD.strategy_name AND nav_date > OLD.nav_date)
+ AND NOT EXISTS (SELECT 1 FROM paper_nav_restatement
+                 WHERE strategy_name = OLD.strategy_name AND nav_date = OLD.nav_date
+                   AND created_at >= datetime('now', '-10 minutes'))
+BEGIN SELECT RAISE(ABORT, 'paper_nav row is sealed (a newer row exists; record DX)'); END;
 """
 
 
