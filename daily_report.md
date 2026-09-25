@@ -54286,3 +54286,474 @@ Yesterday's entry concluded from the 09-23 session alone that "the day was one f
 **It should not be built.** Three reasons, in order of force: (i) the short leg is unavailable — Evan is 17 and every sleeve is long-only until 18, so the pair collapses to a long bet on one narrative; (ii) the thesis is **two sessions and one desk note old**, with no held-out window and no way to construct one, which is precisely the setup that the 2026-05-28 data audit and the 2026-07-14 risk-overlay closure both punished; (iii) the same factor screens that created the exposure will keep recreating it, so a separate sleeve treats the symptom and not the cause. **The supported action is measurement, not deployment:** a standing basket-weight report over a named thesis list, so that concentration arriving through the back door is visible before it reaches 3.6095%. That is a reporting change, it costs no capital to be wrong about, and it would have flagged the semicap cluster months earlier.
 
 **6e. The strongest finding today is not a strategy finding.** §0h establishes that `price_cache` is, for 2026-09-22, **strictly more complete than the vendor it was built from** — 32 of a 40-name sample hold cache values the source will no longer serve. Every prior data incident on this platform ran the other way: the 2026-05-28 spike corruption, the 2026-06-13 history gap and the 2026-09-23 rate limiting all had the cache as the damaged copy and the vendor as truth. This one inverts that. The practical consequence is concrete and easy to get wrong: **any "rebuild the cache from source" operation would now destroy real data.** That belongs in the record before the next cleanup, independent of whatever is decided about the coverage floor.
+
+---
+
+## Report: 2026-09-25 (Friday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY** - Compiled 07:02-08:35 CDT. Market not yet open at compile time; all prices below are 09-24 closes or dated 09-25 pre-market prints.
+> **HEADER FORMAT NOTE:** this header uses an ASCII hyphen, not the em dash every prior header uses. The 2026-09-23 ASCII-only-markdown rule is enforced by a PreToolUse guard (`pretooluse-ascii-md.js`) that denies any Write or Edit adding a non-ASCII character to a .md file, and the task spec's literal header string contains an em dash. The two cannot both be satisfied; the guard won. Whether to convert the file or exempt the header is Evan's call.
+> **THE BIG ONE - rule 0g fully clears for the first time since 2026-09-18, and yesterday's headline conclusion is FALSIFIED.** The `TradingMorningMTM` heal fired at 07:45 while this report was being compiled and logged `catch-up done: marked=152 skipped_pre_rebalance=0 latest=2026-09-24 coverage_ok=True pending=none` at **07:55:07 CDT**. 152 = 76 sleeves x 2 dates. **2026-09-22 is now MARKED 76/76 at $7,742,284.34** and **2026-09-24 is MARKED 76/76 at $7,631,904.43**. There is **no unmarked trading day left in the book.** Nothing in this entry is indicative.
+> **Yesterday's entry concluded that "the vendor has RETRACTED 2026-09-22" and that the date was "structurally unmarkable... not a healing-in-progress day."** That is now wrong, and it is wrong in an instructive way. 09-22's close count went **3,546 -> 3,690 -> 5,111**, clearing the 5,000 floor on the retry ladder alone (`Retry 1 recovered 1084`, `Retry 2 recovered 18`, `Retry 3 recovered 156`, 13 left). The 40-name sample that "proved" retraction was drawn **without** the 60/120/240s cooldown discipline, so an empty rate-limited response was read as a missing bar. **Standing lesson: a `None` from this vendor is not evidence of non-publication unless it survives the full cooldown ladder.** Recorded as a correction, not quietly dropped.
+> **Marked book at the 09-24 close: $7,631,904.43** - **-$3,757.94 / -0.0492%** against the 09-23 mark, **-1.4257%** against the newly marked 09-22, **MTD -0.4061%** vs the 08-31 marked $7,663,021.17, **+0.4198%** above the $7,600,000 seed, **-1.5466%** below the September marked high of $7,751,793.02 (09-08). **19 of 76 sleeves** closed above their own 09-23 mark.
+> **NEW AND THE SUBSTANTIVE FINDING - two held tickers are COMPLETED CASH MERGERS that the book still carries as open equity.** APGE: AbbVie paid **$135.11 per share in cash**, the deal **closed 2026-09-03**, and *"Apogee's common stock ceased trading on the NASDAQ stock exchange prior to market open on Sept. 3, 2026"* ([AbbVie, 2026-09-03](https://news.abbvie.com/2026-09-03-AbbVie-Completes-Acquisition-of-Apogee-Therapeutics)). CRNX: Vertex paid **$85.00 per share in cash**, completed **2026-09-01** ([Vertex newsroom](https://news.vrtx.com/news-releases/news-release-details/vertex-completes-acquisition-crinetics-pharmaceuticals-and)). Both sit in `paper_positions` with `status='open'` - **APGE $8,112.43 across 6 sleeves, CRNX $1,801.45 across 2, $9,913.88 = 0.1303% of position value** - and `delistings` holds **3 rows total, none of them these**. The carried prices are economically almost exact (APGE understated by **$2.40** in total), so **this is a bookkeeping and screen-hygiene defect, not a NAV error.**
+> **Worse than the bookkeeping: the screens BOUGHT these names after the deals were already pinned.** `mom_roa_6535_paper` and `mom_roa_6535_0701_paper` entered APGE at **$135.15 on 2026-09-01, two days before it stopped trading**; `mom_v1_paper` and `mom_v1_0701_paper` entered CRNX at **$84.99 on 2026-09-01, the day the Vertex deal completed**. A stock pinned to a cash deal price has a near-zero-volatility, monotone price path - **exactly the shape a 12-1 momentum screen scores highly.** Third instance, same class: **UYSC is UY Scuti Acquisition Corp, a blank-check SPAC** merging into Isdera Inc ([SEC 8-K](https://www.sec.gov/Archives/edgar/data/0002036973/000118518526002810/uysc8k425070626.htm)), bought by 20 ladder rungs on 08-17 and 08-31 and held at **$41,250.00 = 0.5423%**. UYSC now has a 09-24 cache row at $11.00, but the vendor's last trade stamp is **2026-09-14**, so that row cannot come from a 09-24 trade. Non-trading exposure in total: **$51,163.88 = 0.6726%.**
+> **Pre-market reverses yesterday's rates-driven semis selloff, and the book is positioned for it.** Futures at 12:09Z / 07:09 CDT: **ES=F 7,794.00 (+0.3476%), NQ=F 30,963.50 (+0.6395%), YM=F 51,871.00 (+0.2978%), RTY=F 2,866.00 (+0.3220%)**; **^VIX 15.05 (-3.9566%)**. Memory and semicap is the whole move: at 08:20-08:21 ET **MU +1.1659%, AMAT +1.9715%, WDC +1.8632%, KLAC +1.8278%, LRCX +1.7366%, STX +1.5984%** against **XLE -0.8093%** as **WTI CL=F falls to 92.59 (-2.1351%)** on reports of a phased US-Iran deal to reopen the Strait of Hormuz ([CNBC, 2026-09-24](https://www.cnbc.com/2026/09/24/oil-iran-crude-kepler-trump-us-un-.html)). Across the **29 held names** with a usable 09-25 pre-market print - **$3,092,172.87, or 40.6502% of position value** - mark-to-pre-market is **+$22,792.02 (+0.7371% of the sampled value)**, of which **MU alone is +$6,503**.
+> **Macro event today: University of Michigan FINAL September at 10:00 ET.** The preliminary print was **sentiment 47.8, -7.5% m/m and the second-lowest on record**, with **1-year inflation expectations 4.6% (from 4.0%) and the 5-year at 3.4%** ([Trading Economics](https://tradingeconomics.com/united-states/michigan-inflation-expectations)). That lands into **a 10-year at 5.162% and a 30-year at 5.461%** as of the 09-24 cash close - the 10-year at its highest since 2007 and the 30-year highest since 2004 ([TheStreet, 2026-09-24](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-24-2026)).
+> **LLM overlay**: stock arm treatment **+15.6843%** vs control **+7.6370%** (**+8.0473pp**), cascade **+13.3737%** (+5.7367pp); sector arm treatment **+2.2434%** vs control **+5.2690%** (**-3.0256pp**), cascade **+0.1631%** (-5.1059pp). **14 stock decisions and 27 sector decisions** by `count(*)` against the 30-pick kill switch. First decision-level scorecard in section 4: **sector VETOs are 3 for 3 correct, sector HOLDs are 2 for 7; stock VETOs are 2 for 5, with the 2026-08-03 MU VETO now wrong by +30.26%** - and the treatment arm's own +15.68% exists only because the 09-01 re-entry overrode that veto.
+> **Critical outstanding**: (1) **APGE and CRNX are settled mergers held as open equity, and the momentum screens will keep buying deal stubs until something filters them** - Evan's call, no write made; (2) **MU is 7.3326% of position value across 62 of 76 sleeves and reports fiscal Q4 on Wednesday 2026-09-30 after the close** on guidance of $49-51B revenue and $30-32 non-GAAP EPS; (3) **the 09-22 "retraction" finding in yesterday's entry needs a correction in the record**, because a rebuild-from-vendor warning was issued on evidence that has not held; (4) **all 19 weekly ladder rungs hold 60-68 positions against a 50-name target** and the next weekly period opens Monday 2026-09-28; (5) **XLB closed $49.68, below its logged $51.00 invalidation on all 11 sessions since 2026-09-10**, and the cascade arm still has no stop-enforcement command; (6) **the frozen regression suite was deliberately NOT run** - see section 0k.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` -> `Fri Sep 25 07:02:26 CDT 2026` at task fire; `Fri Sep 25 08:17:50 CDT 2026` mid-compile. Reported offset **-05:00 -> CDT**. Filed under the **local** date, Friday.
+
+**0b. Market status.** US equity markets are **OPEN** today, Friday 2026-09-25 - not an NYSE or Nasdaq holiday. Confirmed live rather than by calendar: 1-minute pre-post bars for held names carry 2026-09-25 ET stamps through **08:21 ET**, and all four equity index futures plus `^VIX` print 2026-09-25 12:04-12:09Z.
+
+**0c. Duplicate check.** `grep -n "## Report: 2026-09-25" daily_report.md` returned **no match** (exit 1) before this append; the last header in the file was `53897:## Report: 2026-09-24 (Thursday) - Pre-Market Overnight Research`. **Not a re-fire.**
+
+**0d. Cron echo** (read live from the scheduled-tasks list, not from any doc):
+
+| field | value |
+|---|---|
+| taskId | `daily-trade-check` |
+| cronExpression | `0 7 * * 1-5` |
+| human schedule | At 07:01 AM, Monday through Friday |
+| jitterSeconds | 83 |
+| lastRunAt | 2026-09-25T12:02:14.743Z (= **07:02:14 CDT today**) |
+| nextRunAt | 2026-09-28T12:01:23.000Z (= 07:01:23 CDT Monday) |
+
+**The doc-vs-machine drift flagged on 09-23 and 09-24 is still open, and this is the third consecutive entry to record it.** This task's own `SKILL.md` says *"This task fires at 07:07"* in pre-flight rule 0f; the live base cron is **`0 7`** and today's jittered fire landed at **07:02:14 CDT**. The doc is stale by roughly five minutes. Rule 0f's substance is unaffected - **07:02 is still before the 07:45 heal**, and today the compile window happened to straddle it, which is why section 0f below reports an outcome instead of a schedule.
+
+Companion tasks, verbatim from the same listing: `daily-trade-check-2` = `0 19 * * 1-5`, lastRunAt **2026-09-25T00:04:31.044Z** (= 19:04 CDT on 09-24), next 2026-09-26T00:04:22.000Z. **That run produced no entry.** The last post-market header in this file is `## Report: 2026-09-23 (Wednesday) - Post-Market Close Analysis` at line 53370, so the 09-24 evening task fired and appended nothing - a silent no-op that its own contract is supposed to catch. `var/ops_status.log` carries no `NO-OP` line for it either. Reported, not fixed; that task's failure mode is outside this task's write permissions. `daily-audit` = `0 7 * * *`, next 2026-09-26T12:09:01.000Z, lastRunAt **2026-09-24T12:09:05.665Z** at the time of the pre-flight read (07:09 today, seven minutes after this task). `monthy-llm-rebalance` remains **`0 18 1-5 * *`** with `nextRunAt` **2026-10-01T23:01:03.000Z** - still the day-1-through-5 window found on 2026-09-02, still not restored to `0 18 * * *`. Evan's standing call.
+
+**0e. DB access.** Every query in this report ran against **`file:var/trades.db?mode=ro`** (URI read-only). No read-write handle was opened at any point. External quote fetches wrote only to the session scratchpad.
+
+**0f. The morning heal ran DURING compilation, and it cleared everything.** Pre-flight at 07:02 found `var/last_morning_run.log` stamped **Sep 24 07:54** and section 0f was written to report the schedule rather than predict an outcome. By 08:17 the log was stamped **Sep 25 07:55** and the outcome is observable, so it is reported as fact:
+
+```
+2026-09-25 07:47:39 WARNING daily_refresh: Retry 1: 1271 recently-traded ticker(s) returned no rows (rate-limit shape) - waiting 60s, then re-downloading.
+2026-09-25 07:48:59 INFO    daily_refresh: Retry 1 recovered 1084 ticker(s); 187 still missing.
+2026-09-25 07:51:02 INFO    daily_refresh: Retry 2 recovered 18 ticker(s); 169 still missing.
+2026-09-25 07:55:05 INFO    daily_refresh: Retry 3 recovered 156 ticker(s); 13 still missing.
+2026-09-25 07:55:07 INFO    mtm_catchup: catch-up done: marked=152 skipped_pre_rebalance=0 latest=2026-09-24 coverage_ok=True pending=none
+```
+
+**`marked=152` is 76 sleeves times two dates** - 09-22 and 09-24, both marked in one pass at 07:55:07. `pending=none`. `var/ops_status.log` now ends `[OPS 2026-09-25] coverage=n/a verify=PASS`.
+
+This is the second consecutive morning the 07:45 heal has recovered a day the 17:15 run refused, and the first time it recovered two. **The retry ladder added on 2026-09-23 (record DZ) is now the single most load-bearing fix on the platform**: without it, three of the last four sessions would be unmarked.
+
+**Caveat on that citation, for the audit trail: the fix and the record entry it names are both UNCOMMITTED at the time of writing.** `git status` shows `scripts/momentum/daily_price_refresh.py` modified in the working tree with `scripts/momentum/test_refresh_rate_limit.py` untracked, and `git show HEAD:docs/...` has no Appendix DZ. The code is unquestionably *running* - this morning's log is the proof - but this entry's commit touches only the two report paths, so until the owning session commits, "record DZ" is a forward reference to history that does not exist yet.
+
+**0g. Marking state - COMPLETE. No unmarked trading day remains.**
+
+| nav_date | sleeve rows | book total | closes | note |
+|---|---|---|---|---|
+| **2026-09-24** | **76** | **$7,631,904.43** | **5,113** | **marked 2026-09-25 07:55:07 CDT** |
+| **2026-09-22** | **76** | **$7,742,284.34** | **5,111** | **marked 2026-09-25 07:55:07 CDT, after 3 days pending** |
+| 2026-09-23 | 76 | $7,635,662.37 | 5,113 | marked 2026-09-24 07:54:38 CDT |
+| 2026-09-21 | 76 | $7,718,922.42 | 5,114 | re-marked 2026-09-23 22:48:30 CDT |
+| 2026-09-18 | 76 | $7,664,850.80 | 5,115 | |
+| 2026-09-17 | 76 | $7,634,283.21 | 5,125 | |
+
+**`paper_nav_restatement` still holds exactly 19 rows, all from the 09-21 re-mark.** Both of today's dates were **inserted**, not restated, so the stage-5 append-only seal (`paper_nav_sealed_no_replace` / `_no_update` / `_no_delete`) was never tested and never bypassed. The seal is doing what it should: new dates go in, old rows stay put.
+
+What the 17:15 gate had said the evening before, for contrast:
+
+```
+INFO check_coverage: Coverage check: date=2026-09-24  closes=4296  baseline(median of 10)=5126  floor=5000 [max(5000, 90%*5126=4613)]
+ERROR check_coverage: COVERAGE FAIL: only 4296 closes on 2026-09-24 (< floor 5000).
+INFO mtm_catchup: PENDING 2026-09-22: coverage 3690 < floor 5000 - leaving unmarked (heals later).
+INFO mtm_catchup: PENDING 2026-09-24: coverage 4296 < floor 5000 - leaving unmarked (heals later).
+```
+
+**The `(heals later)` text was right about both dates.** It was doubted here yesterday for 09-22 and it should not have been.
+
+**0h. CORRECTION to the 2026-09-24 entry: 09-22 was not retracted by the vendor. It was rate-limited.**
+
+Yesterday's section 0h asserted, in bold, that *"the vendor has RETRACTED 2026-09-22 from its daily series"*, that *"09-22 can never reach the 5,000 floor by refresh"*, that it is *"not a healing-in-progress day; it is a permanently sub-floor day"*, and that *"`price_cache` is, for this one date, strictly more complete than its upstream."* It drew a concrete operational warning from that: **any rebuild-from-vendor would destroy data.**
+
+The evidence was a 40-name sample of the 171 held tickers that then held a 09-22 close, re-queried at `range=10d&interval=1d`, in which **8** returned a 09-22 bar and **32** returned `None`.
+
+**What actually happened:** 09-22's close count went **3,546 (09-23 evening) -> 3,690 (09-24 evening) -> 5,111 (09-25 07:55)**, and held-ticker coverage for 09-22 went **171/235 -> 233/235**. The bars were always published. The 32 `None`s were the **rate-limit shape** the refresh's own retry logic is written to detect - `1271 recently-traded ticker(s) returned no rows (rate-limit shape)` is the exact wording in this morning's log - and the sample was taken without the cooldown ladder that converts that shape back into data.
+
+Three corrections follow, in order of consequence:
+
+1. **The rebuild-from-vendor warning was issued on evidence that has not held.** The vendor serves 09-22. That warning should be withdrawn in the record before anyone plans a cleanup around it.
+2. **`price_cache` was not more complete than its upstream.** It was less complete, in the ordinary direction, and the refresh has since closed the gap.
+3. **The general lesson is the durable part: a `None` from this vendor is not evidence of non-publication unless it survives the 60/120/240s cooldown ladder.** Every ad-hoc sample taken for a report is subject to this, including the ones in this entry - which is why section 2c deliberately samples 29 names rather than 235.
+
+Stated plainly because the record is the deliverable: yesterday's entry reached a strong, quotable structural conclusion from one unreplicated sample taken with a method it had itself documented as unreliable. The number that would have caught it was available - 09-22 had risen 3,546 to 3,690 overnight, which a retracted date cannot do.
+
+**0i. The phantom holdings are corporate actions, not data gaps. This is the report's main finding.**
+
+Two held tickers still have no 2026-09-24 close after the heal, and a third has a close the vendor cannot have produced from a trade. Re-sourced today, all three turn out to be corporate-action artifacts rather than data problems.
+
+| ticker | cache last close | vendor `regularMarketTime` | what it actually is |
+|---|---|---|---|
+| **APGE** | $135.07 on **2026-09-03** | **2026-09-02** 20:00:01Z, `previousClose` **0.0** | AbbVie acquisition **completed 2026-09-03**, $135.11/sh cash, ~$10.9B |
+| **CRNX** | $84.95 on **2026-09-02** | **2026-08-31** 20:00:00Z | Vertex acquisition **completed 2026-09-01**, $85.00/sh cash, ~$10.0B |
+| **UYSC** | $11.00 on **2026-09-24** | **2026-09-14** 20:00:00Z | UY Scuti Acquisition Corp, blank-check SPAC merging into Isdera Inc |
+
+Sourcing. AbbVie's own release states the consideration and the trading stop in one sentence: *"Under the terms of the agreement, Apogee shareholders received $135.11 per share in cash, for a total equity value of approximately $10.9 billion"*, and *"Apogee's common stock ceased trading on the NASDAQ stock exchange prior to market open on Sept. 3, 2026"* ([AbbVie, 2026-09-03](https://news.abbvie.com/2026-09-03-AbbVie-Completes-Acquisition-of-Apogee-Therapeutics)); the corporate-action mechanics are in [Nasdaq ECA 2026-607](https://www.nasdaqtrader.com/TraderNews.aspx?id=ECA2026-607). Vertex's completion release gives $85.00 per share in cash and a 2026-09-01 completion ([Vertex newsroom](https://news.vrtx.com/news-releases/news-release-details/vertex-completes-acquisition-crinetics-pharmaceuticals-and)) - a direct re-fetch of that page timed out twice at 60s, so those two figures come from the release as indexed rather than from a page rendered here, flagged rather than presented as a first-hand read. UYSC's structure and the Isdera merger agreement are in its [SEC Form 8-K](https://www.sec.gov/Archives/edgar/data/0002036973/000118518526002810/uysc8k425070626.htm).
+
+Internal corroboration, which is the part that makes this more than a web claim: **CRNX's last cached close is $84.95 and the sleeves' entry price is $84.99 - both within 6 cents of the $85.00 cash consideration.** APGE's last cached close is $135.07 against $135.11. A deal-pinned stub is exactly what those numbers look like. **UYSC is the subtler case:** the 09-25 refresh wrote a 09-24 close of $11.00 for it, and its cached closes have been **exactly $11.00 on every session since 2026-09-14** ($10.93 for the four before that), while the vendor's own last trade stamp is 2026-09-14. A row exists; a trade behind it does not.
+
+Book impact, priced at the marked values:
+
+| ticker | sleeves | total qty | value | % of 09-24 position value |
+|---|---:|---:|---:|---:|
+| UYSC | 20 | 3,750 | **$41,250.00** | 0.5423% |
+| APGE | 6 | 60.0609 | **$8,112.43** | 0.1066% |
+| CRNX | 2 | 21.2060 | **$1,801.45** | 0.0237% |
+| **total** | | | **$51,163.88** | **0.6726%** |
+
+Of that, **$9,913.88 (0.1303%) is priced from a close more than three weeks stale** (APGE 09-03, CRNX 09-02) and **$41,250.00 (0.5423%) is priced from a row with no trade behind it.**
+
+**The NAV error is negligible and the process error is not.** Repricing APGE from the carried $135.07 to the actual $135.11 consideration moves the whole book by **$2.40**. What is wrong is the *state*: `paper_positions.status` is `'open'` for a security that no longer exists, `delistings` holds **3 rows and none of them is APGE, CRNX or UYSC**, and no sell or cash conversion was ever recorded. Every downstream consumer - position counts in `verify_run`, sector weights, the 50-name ladder target - counts a merger stub as a live holding.
+
+**And the screens bought them after the deals were pinned.** Entry records, verbatim from `paper_positions`:
+
+| sleeve | ticker | qty | entry price | entry date | what was already true |
+|---|---|---:|---:|---|---|
+| `mom_roa_6535_0701_paper` | APGE | 12.5055 | $135.15 | **2026-09-01** | deal closed 2 days later |
+| `mom_roa_6535_paper` | APGE | 11.2244 | $135.15 | **2026-09-01** | deal closed 2 days later |
+| `mom_v1_0701_paper` | CRNX | 11.5496 | $84.99 | **2026-09-01** | **the completion date itself** |
+| `mom_v1_paper` | CRNX | 9.6564 | $84.99 | **2026-09-01** | **the completion date itself** |
+| 10 x `*_2wk_paper` rungs | UYSC | 194-260 | $10.85 | 2026-08-17 | blank-check shell |
+| 10 x `*_wk_paper` rungs | UYSC | 155-165 | $11.00 | 2026-08-31 | blank-check shell |
+
+The earlier APGE entries (`mom_v1` and `mom_v2`, $134.18, 2026-08-03) predate the deal announcement and are ordinary. The **2026-09-01** ones are not. Section 6a takes up why a momentum screen is structurally attracted to this.
+
+**0j. Pricing method, and the one number that is not a mark.**
+
+Every NAV and weight in sections 1, 4 and 5 is the **marked** 09-24 book from `paper_nav`, written by `mtm_catchup` at 07:55:07 CDT off 233 of 235 held tickers priced at `key_date='2026-09-24'`, with **APGE and CRNX carried forward** (09-03 and 09-02). **The denominator for every weight is position value $7,606,787.59**; total NAV is $7,631,904.43 including $25,116.84 cash.
+
+The only non-marked figures are the 09-25 pre-market prints in section 2c, each stamped individually.
+
+**0k. The frozen regression suite was deliberately NOT run, and that is a departure worth stating.**
+
+`CLAUDE.md`'s definition of done requires `trading_bot.strategies.test_strategies` at d=+/-0.0000pp. This task made **no Python change** - its only writes are this entry, the HTML twin and a two-path commit - so the gate has nothing to regress against. More importantly, the suite runs `factor_backtest`, which reads `price_cache`, and this report's compile window straddles the **07:45-07:55** window in which `daily_price_refresh` was actively writing `price_cache` (this morning it wrote through 07:55:05). The standing rule against concurrent `factor_backtest` now protects exactly that contention, with `busy_timeout=30000` in `db.py` as the only mitigation and schedule separation as the only enforcement. **Running the suite here would have created the collision the rule exists to prevent** - and unlike yesterday, that is not hypothetical: the writer was running. Skipped on purpose, reported rather than silently omitted.
+
+**0l. A small schema-hygiene finding, surfaced while computing sector weights.** `paper_positions.sector` carries **two spellings of two sectors**: `Healthcare` ($1,578,696) alongside `Health Care` ($103,584), and `Basic Materials` ($204,968) alongside `Materials` ($21,206). Any consumer that groups by the raw string under-reports health care by **1.36pp** and materials by **0.28pp**. True weights are **health care 22.11%** and **materials 2.97%**. Reported; no write made.
+
+---
+
+### 1. Portfolio standings from the last marked close
+
+**Marked book, 2026-09-24: $7,631,904.43** across 76 sleeves - cash $25,116.84, positions $7,606,787.59.
+
+| reference | level | 09-24 mark vs it |
+|---|---:|---:|
+| 09-23 mark | $7,635,662.37 | **-$3,757.94 / -0.0492%** |
+| **09-22 mark** (new) | **$7,742,284.34** | **-$110,379.91 / -1.4257%** |
+| 09-21 mark | $7,718,922.42 | -$87,017.99 / -1.1273% |
+| 08-31 mark (MTD) | $7,663,021.17 | -$31,116.74 / -0.4061% |
+| 09-08 September marked high | $7,751,793.02 | -$119,888.59 / -1.5466% |
+| $7,600,000 seed | $7,600,000.00 | **+$31,904.43 / +0.4198%** |
+
+**The newly marked 09-22 reshapes the week's shape rather than its level.** At $7,742,284.34 it is the second-highest marked day of September, behind only 09-08's $7,751,793.02, and it sits **$106,621.97 above the 09-23 mark that follows it.** The book therefore fell **1.3771% in a single session on 09-23** - the largest one-day marked decline of the month - which was invisible while 09-22 was pending and which no prior entry could report. **19 of 76 sleeves** closed above their own 09-23 mark on 09-24.
+
+Top and bottom of the marked table (NAV, return vs seed, move vs own 09-23 mark):
+
+| sleeve | 09-24 marked NAV | vs seed | vs 09-23 mark |
+|---|---:|---:|---:|
+| `llm_overlay_mom_roa_top1_paper` | $115,684.29 | **+15.68%** | +0.806% |
+| `llm_cascade_top1_paper` | $113,373.70 | +13.37% | +0.806% |
+| `qqq_benchmark_paper` | $109,931.02 | +9.93% | -0.015% |
+| `mom_roa_top1_paper` | $107,637.01 | +7.64% | +0.806% |
+| `sector_top4_full_paper` | $106,987.47 | +6.99% | -0.018% |
+| `spy_benchmark_paper` | $106,456.67 | +6.46% | -0.082% |
+| `residual_w5545_paper` | $106,173.78 | +6.17% | +0.041% |
+| `residual_w6040_paper` | $105,814.64 | +5.81% | -0.118% |
+| ... | | | |
+| `residual_w8020_2wk_paper` | $93,539.14 | -6.46% | -0.152% |
+| `residual_w8515_2wk_paper` | $93,364.33 | -6.64% | -0.212% |
+| `mom_v1_0701_paper` | $91,833.46 | -8.17% | +0.052% |
+| `mom_roa_6535_0701_paper` | $91,820.10 | -8.18% | +0.299% |
+| `mom_v2_0701_paper` | $91,153.70 | -8.85% | +0.347% |
+| `mom_roa_6535_paper` | $88,468.17 | -11.53% | +0.258% |
+| `mom_v2_paper` | $85,916.99 | -14.08% | +0.348% |
+| `mom_v1_paper` | $85,143.02 | -14.86% | +0.083% |
+
+**The structural picture is unchanged, and worth restating because it is the platform's central result so far.** The six plain-momentum sleeves occupy the bottom six places, between **-8.17% and -14.86%**. `spy_benchmark_paper` is **+6.4567%** and `qqq_benchmark_paper` **+9.9310%** over a comparable window. Every residual-momentum weight rung from w0595 to w9505 sits between **+6.17% and -6.64%**, i.e. the entire 19-rung sweep brackets zero while plain momentum is uniformly negative. Residual momentum is not obviously *good*; it is reliably **less bad than the thing it replaced**, and that is the honest statement of the evidence.
+
+**Single-session dispersion, 09-23 to 09-24.** The best three are the three MU single-name sleeves at **+0.806%** each, then `mom_v2_paper` at +0.348%. The worst are the low-residual-weight rungs: `residual_w0595_2wk_paper` **-0.394%**, `residual_w2080_paper` **-0.358%**, `residual_w2575_paper` **-0.349%**, `residual_w0595_wk_paper` **-0.337%**. The pattern is legible - rungs weighted toward the **ROA** side of the residual/ROA blend (w0595 = 5% residual, 95% ROA) were hit hardest on a day when semis fell and quality names lagged, while the concentrated MU sleeves carried.
+
+**Concentration at the 09-24 mark:**
+
+| ticker | aggregate value | % of position value | sleeves holding |
+|---|---:|---:|---:|
+| **MU** | $557,773 | **7.3326%** | **62 of 76** |
+| QQQ | $212,460 | 2.7930% | 2 |
+| SPY | $208,573 | 2.7419% | 2 |
+| STX | $165,026 | 2.1695% | 65 |
+| WDC | $134,720 | 1.7710% | 65 |
+| LRCX | $131,643 | 1.7306% | 55 |
+| INSW | $123,444 | 1.6228% | 45 |
+| JNJ | $114,497 | 1.5052% | 49 |
+| XLK | $110,851 | 1.4573% | 4 |
+| AAPL | $109,284 | 1.4367% | 44 |
+| TGTX | $108,465 | 1.4259% | 45 |
+| XLE | $108,245 | 1.4230% | 4 |
+| AMAT | $108,003 | 1.4198% | 52 |
+| ATEX | $106,361 | 1.3982% | 60 |
+
+**MU plus STX plus WDC plus LRCX plus AMAT plus KLAC = $1,176,372 = 15.4648% of position value** in memory and semicap, held across 36-65 sleeves each. Section 5b treats that as the single largest risk in the book.
+
+**Sector weights** at the 09-24 mark, after merging the duplicate labels flagged in section 0l:
+
+| sector | value | weight |
+|---|---:|---:|
+| Technology | $1,969,471 | **25.89%** |
+| Health care (`Healthcare` + `Health Care`) | $1,682,280 | **22.11%** |
+| Energy | $1,016,972 | **13.37%** |
+| Financial Services | $785,413 | 10.33% |
+| Industrials | $471,808 | 6.20% |
+| Communication Services | $449,098 | 5.90% |
+| Index (ETF sleeves) | $421,033 | 5.53% |
+| Consumer Cyclical | $270,917 | 3.56% |
+| Consumer Defensive | $236,812 | 3.11% |
+| Materials (`Basic Materials` + `Materials`) | $226,174 | 2.97% |
+| Real Estate | $72,364 | 0.95% |
+| UNKNOWN | $4,445 | 0.06% |
+
+Two sectors clear the 20%-weight threshold the research protocol flags for sector-level review: **Technology 25.89%** and **health care 22.11%**. **Energy 13.37%** does not, but is treated in section 3b because it is the sector today's oil move acts on directly.
+
+**No trades since 2026-09-21.** `max(entry_date)` and `max(exit_date)` in `paper_positions` are both **2026-09-21** (228 entries, 13 exits that day; 318 entries and 287 exits on 09-15). The 09-24 20:30 `TradingLadderRebalance` ran and correctly did nothing - the next weekly period boundary is **Monday 2026-09-28** - and it wrote no NAV row, which is why every date in the table above is a real mark rather than a ladder artifact.
+
+---
+
+### 2. Overnight and pre-market moves
+
+**Market has not opened. Everything in this section is either a 09-24 close or a dated pre-market print; no intraday 09-25 performance exists.**
+
+**2a. The 09-24 close, for the record.** S&P 500 **7,704.13**, -1.90 points / less than -0.1%; Nasdaq Composite **26,939.37**, +3.34 points; Dow **51,349.98**, -161.61 / -0.3% ([WTOP, 2026-09-24](https://wtop.com/national/2026/09/how-major-us-stock-indexes-fared-thursday-9-24-2026)). The index level hid the move: **the bond market was the day's story**, with the 10-year reaching its highest since 2007 and the 30-year its highest since 2004 ([TheStreet, 2026-09-24](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-sept-24-2026)).
+
+Our own cash-market reads at the 09-24 close, from `^TNX` and `^TYX` (stamp 2026-09-24T18:59:54Z): **10-year 5.162% (+4.8bp), 30-year 5.461% (+6.0bp)**.
+
+**2b. Futures, ^VIX and commodities, stamped 12:04-12:09Z = 07:04-07:09 CDT.**
+
+| instrument | level | prev close | change |
+|---|---:|---:|---:|
+| ES=F | 7,794.00 | 7,767.00 | **+0.3476%** |
+| NQ=F | 30,963.50 | 30,766.75 | **+0.6395%** |
+| YM=F | 51,871.00 | 51,717.00 | +0.2978% |
+| RTY=F | 2,866.00 | 2,856.80 | +0.3220% |
+| ^VIX | 15.05 | 15.67 | **-3.9566%** |
+| CL=F (WTI) | 92.59 | 94.61 | **-2.1351%** |
+| BZ=F (Brent) | 98.49 | 100.22 | -1.7262% |
+| GC=F (gold) | 4,339.10 | 4,298.00 | +0.9563% |
+
+Bloomberg's morning framing matches the direction and names the mechanism: *"Equity futures climbed in New York as oil and Treasury yields pulled back from recent surges ahead of key data on inflation expectations"*, with S&P futures +0.4% and Nasdaq-100 futures +0.7% and the 10-year off three basis points to 5.17% ([Bloomberg, 2026-09-25](https://www.bloomberg.com/news/articles/2026-09-25/us-stock-futures-rise-as-investors-see-relief-in-yields-oil)).
+
+**Two figure conflicts, published reconciled rather than averaged.** (i) Bloomberg has the 10-year at **5.17%** off three basis points this morning; our `^TNX` 09-24 cash close is **5.162%**. Those are consistent only if the yield rose overnight before slipping - the Bloomberg number is an intraday 09-25 read and the 5.162% is a 09-24 settle, so both can be right and neither corrects the other. (ii) Trading Economics reports Brent *"gained 3.4% to close at $106.60 a barrel"* on 09-24 while WTI *"climbed 2.7% to settle $94.61"* ([Trading Economics](https://tradingeconomics.com/commodity/crude-oil)). **The WTI figure reconciles to the cent** with our `CL=F` previous close of 94.61. **The Brent figure does not** - `BZ=F` shows a 09-24 close of 100.22, a $6.38 gap. The likely cause is a different Brent series (dated Brent or a further-out contract) rather than an error in either source, but it is unresolved, so **the $106.60 is flagged as the outlier and the front-month 100.22 -> 98.49 is what this report uses.**
+
+**2c. Held names with a 2026-09-25 pre-market print.** 29 of 235 held tickers, deliberately a small sample: a wider sweep at 07:2x CDT would have contended with the 07:45 `daily_price_refresh` for the same rate-limited vendor - and this morning that refresh needed all three cooldown retries and ran until 07:55:05 to clear two dates, so the contention was real, not theoretical. Sorted by dollar impact.
+
+| ticker | sleeves | 09-24 close | 09-25 pre | % | value @09-24 | impact |
+|---|---:|---:|---:|---:|---:|---:|
+| MU | 62 | 1,080.53 | 1,093.1280 (08:21 ET) | **+1.1659%** | $557,773 | **+$6,503** |
+| STX | 65 | 905.92 | 920.4000 (08:20 ET) | +1.5984% | $165,026 | +$2,638 |
+| WDC | 65 | 450.31 | 458.7000 (08:20 ET) | +1.8632% | $134,720 | +$2,510 |
+| LRCX | 55 | 307.16 | 312.4941 (08:20 ET) | +1.7366% | $131,643 | +$2,286 |
+| AMAT | 52 | 474.25 | 483.6000 (08:21 ET) | **+1.9715%** | $108,003 | +$2,129 |
+| SEZL | 33 | 109.78 | 112.0000 (08:20 ET) | +2.0222% | $89,376 | +$1,807 |
+| KLAC | 36 | 187.11 | 190.5300 (08:20 ET) | +1.8278% | $79,207 | +$1,448 |
+| QQQ | 2 | 741.10 | 745.4600 (08:21 ET) | +0.5883% | $212,460 | +$1,250 |
+| XLK | 4 | 194.71 | 196.5400 (08:01 ET) | +0.9399% | $110,851 | +$1,042 |
+| SPY | 2 | 767.18 | 769.9200 (08:20 ET) | +0.3572% | $208,573 | +$745 |
+| DAVE | 44 | 331.45 | 334.0000 (07:55 ET) | +0.7678% | $84,847 | +$651 |
+| TGTX | 45 | 57.52 | 57.8100 (07:50 ET) | +0.5042% | $108,465 | +$547 |
+| XLI | 2 | 168.83 | 170.1200 (07:38 ET) | +0.7641% | $47,617 | +$364 |
+| JNJ | 49 | 270.68 | 271.2751 (07:04 ET) | +0.2199% | $114,497 | +$252 |
+| BLBD | 11 | 55.58 | 56.3500 (07:46 ET) | +1.3854% | $14,869 | +$206 |
+| FSLY | 4 | 26.68 | 27.4900 (08:21 ET) | **+3.0360%** | $6,440 | +$196 |
+| AAPL | 44 | 335.92 | 336.4000 (08:21 ET) | +0.1429% | $109,284 | +$156 |
+| TXG | 6 | 84.11 | 85.0000 (08:19 ET) | +1.0581% | $11,986 | +$127 |
+| TWST | 8 | 184.03 | 185.0000 (08:17 ET) | +0.5271% | $12,321 | +$65 |
+| CDNA | 10 | 61.37 | 61.6761 (08:19 ET) | +0.4988% | $11,446 | +$57 |
+| CALM | 20 | 68.48 | 68.5000 (07:37 ET) | +0.0292% | $35,828 | +$10 |
+| DK | 19 | 66.91 | 66.9100 (08:06 ET) | 0.0000% | $30,282 | -$0 |
+| EDRY | 39 | 50.90 | 50.8900 (06:58 ET) | -0.0196% | $80,269 | -$16 |
+| EXEL | 41 | 57.95 | 57.9200 (08:04 ET) | -0.0518% | $101,267 | -$52 |
+| XLV | 4 | 169.87 | 169.7645 (07:46 ET) | -0.0621% | $103,584 | -$64 |
+| SCCO | 38 | 201.58 | 201.0000 (07:58 ET) | -0.2877% | $83,488 | -$240 |
+| ATEX | 60 | 81.33 | 81.0100 (08:08 ET) | -0.3935% | $106,361 | -$418 |
+| INSW | 45 | 104.85 | 104.4000 (07:38 ET) | -0.4292% | $123,444 | -$530 |
+| XLE | 4 | 62.60 | 62.0934 (08:20 ET) | **-0.8093%** | $108,245 | **-$876** |
+
+**Sampled value $3,092,172.87 = 40.6502% of position value. Mark-to-pre-market on the sample: +$22,792.02, +0.7371% of sampled value.** A partial sample, not a book estimate - but a 40.65% sample skewed toward the largest positions, so the sign is informative even if the magnitude is not extrapolable.
+
+**XLB has no 09-25 pre-market print** and neither does **NRC**; both are excluded above rather than carried at zero change.
+
+**The shape of the sample is one trade, twice.** Every memory and semicap name is up 1.17-1.97%, and the only two meaningful negatives are **XLE -0.81% and INSW -0.43%**, both energy. Yesterday's session was the mirror image: WDC -4.94%, STX -1.94% and ATEX -3.16% against XLE +0.37% and INSW +2.83%. **The book's two largest active concentrations are on opposite sides of the same rates-and-oil trade**, which is why the blended session move was -0.0498% on a day with 4-5% single-name dispersion.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. Today's scheduled event: University of Michigan FINAL September sentiment, 10:00 ET.** The preliminary print was severe - **Consumer Sentiment 47.8, down 7.5% from August and the second-lowest reading on record**; **year-ahead inflation expectations 4.6%, up from 4.0% and the highest since June**; **5-year expectations 3.4%, up from 3.3% and the highest since May** ([Trading Economics, Michigan inflation expectations](https://tradingeconomics.com/united-states/michigan-inflation-expectations); [Surveys of Consumers](https://www.sca.isr.umich.edu/)). This is the "key data on inflation expectations" Bloomberg named as the morning's focus.
+
+**Why it matters more than usual today:** the long end is at multi-decade highs specifically on inflation and growth surprises - the 30-year's move followed a flash PMI at manufacturing 57.0 against 53.6 expected and services 58.7 against 55.8 - and a **final** revision that confirms 4.6% one-year expectations gives the long end another reason to hold those levels. The book's largest sector is Technology at 25.89%, which is the sector that fell yesterday on the yield move. **A hot final print is a direct headwind to 25.89% of the book; a soft revision is the relief the pre-market is already pricing.**
+
+Whether August PCE is released today could not be verified. The Kiplinger weekly calendar page returned truncated content on fetch, and no source reached states a 09-25 PCE release. **Reported as unverified rather than assumed either way.**
+
+**3b. Energy, and the trade that is moving 13.37% of the book.** WTI **fell to $92.59 (-2.1351%)** overnight, *"snapping a two-day rally amid reports that the US and Iran were considering a phased deal that could reopen the Strait of Hormuz and lift a US blockade on Iranian ports"*, with Qatari officials mediating on the sidelines of the UN General Assembly; a senior Iranian official told Reuters the realistic path is Tehran allowing navigation through Hormuz in exchange for the US ending its naval blockade ([Trading Economics](https://tradingeconomics.com/commodity/crude-oil); [CNBC, 2026-09-24](https://www.cnbc.com/2026/09/24/oil-iran-crude-kepler-trump-us-un-.html); [The National, 2026-09-25](https://www.thenationalnews.com/business/energy/2026/09/25/oil-prices-waver-in-face-of-iran-war-truce-and-houthi-attacks/)).
+
+This is the **exact reversal of the catalyst that made XLE the sector arm's best HOLD.** The 2026-09-01 `sector_overlay_log` rationale for XLE reads *"The Hormuz energy..."* and scored it 7. XLE is **+6.48% since the 2026-08-03 HOLD** but **-3.35% since the 2026-09-01 HOLD**, and it is down another 0.81% pre-market. Energy is 13.37% of the book across four ETF sleeves plus tanker and refiner single names (INSW 1.62%, DK 0.40%, plus PBF, APA and VLO). **A Hormuz reopening is the single identifiable event that would hurt the most book weight at once**, and the overlay's own logged thesis is on the wrong side of it.
+
+**3c. Semiconductors, and the event that dominates next week.** **Micron reports fiscal Q4 on Wednesday 2026-09-30 after the close**, with the call at 2:30 p.m. Mountain ([GlobeNewswire, 2026-08-26](https://www.globenewswire.com/news-release/2026/08/26/3351673/14450/en/micron-technology-to-report-fiscal-fourth-quarter-results-on-september-30-2026.html)). Company guidance into the print: **revenue $49-51B, non-GAAP EPS $30-32, gross margin 86%.** What the sell side says it is watching: fiscal Q1 2027 guidance, the durability of tight DRAM supply, HBM4 customer validation and order conversion, enterprise SSD expansion in data centers, and 2027 capex ([Investing.com](https://www.investing.com/news/stock-market-news/micron-earnings-outlook-what-to-watch-ahead-of-the-september-30-report-93CH-4911385)).
+
+**MU is 7.3326% of position value in 62 of 76 sleeves and is the single holding of all three concentrated single-name sleeves.** The three MU sleeves are the first, second and fourth best performers in the book. This is the most consequential dated event on the calendar for this portfolio, and it falls **four sessions from now**.
+
+**WDC's -4.94% on 09-24 has no company-specific cause.** Sources converge on the macro read: *"Higher Treasury yields pressured technology shares"*, and the decline *"appeared tied to the broader market pullback rather than a company-specific development"* ([Benzinga, 2026-09-24](https://www.benzinga.com/trading-ideas/movers/26/09/61969369/whats-going-on-with-western-digital-stock-thursday-6); [GuruFocus](https://www.gurufocus.com/news/9096222/western-digital-corp-wdc-stock-down-49-but-still-overvalued-gf-score-68100)). Note a figure conflict: one aggregator reports WDC *"moved down by 3.26%"* on 09-24 ([TradingKey](https://www.tradingkey.com/news/market-movers/262185191-market-movers-wdc-20260924)) while the vendor closes give **473.69 -> 450.31 = -4.9357%**, which the GuruFocus and MarketBeat pieces both match at -4.9%. **The -3.26% is the outlier; the -4.94% is what this report uses.** WDC is +1.86% pre-market.
+
+**3d. A genuine cross-holding theme: AI-partnership repricing in life-science tools.** Three held names moved hard on 09-24 for the same structural reason - a tools company selling data or platform access into a large-cap AI drug-discovery effort.
+
+- **TWST +16.11%** (158.50 -> 184.03). Twist signed on to supply antibody characterization data and services into **Eli Lilly's TuneLab AI/ML platform**; **Leerink raised its target from $120 to $160**, Outperform. Management also said pilot work with Anthropic on AI-designed mini-binder proteins is *"probably sort of"* already in fiscal 2027 orders, capping the surprise ([StocksToTrade, 2026-09-24](https://stockstotrade.com/news/twist-bioscience-corporation-twst-news-2026_09_24/); [Trefis, 2026-09-18](https://www.trefis.com/stock/twst/articles/615808/twist-bioscience-stock-6-straight-green-days-up-24/2026-09-18)). **Sources disagree on the size of the move** - 13.92%, 11.04% and 9.9% appear across three aggregators - while the vendor's own consecutive closes give +16.11%. Published as +16.11% from the closes, with the disagreement flagged.
+- **TXG +11.23%** (75.62 -> 84.11), on two catalysts: a **Delaware jury found three 10x and Scale Biosciences patents infringed by Qiagen's Parse Biosciences unit**, awarding over $4.8M and opening enhanced damages and a possible US injunction; and a **partnership with Lunit** bringing AI pathology into the Xenium and Atera spatial platforms ([StocksToTrade, 2026-09-24](https://stockstotrade.com/news/10x-genomics-inc-txg-news-2026_09_24/)).
+- **CDNA +13.00%** (54.31 -> 61.37), on **BTIG maintaining Buy and raising its target from $60 to $74** ([GuruFocus](https://www.gurufocus.com/news/9095103/cdna-maintained-by-btig-price-target-raised-to-7400)).
+
+Combined weight is small - TWST 0.1620%, TXG 0.1576%, CDNA 0.1505%, **0.4701% of position value across 6-10 sleeves each** - but all three are *held*, all three moved 11-16% in one session on the same mechanism, and **no sleeve models that mechanism.** This is the second consecutive day on which a coherent multi-name theme showed up in the book through the back door; yesterday it was Meta-Muse marketplace disintermediation at 3.6095%.
+
+**3e. Other single-name catalysts, resolved.**
+
+- **DK -7.40%** (72.26 -> 66.91, low $66.82): Delek announced a **$400 million private offering of convertible senior notes due 2031**, with a $60M option available to initial purchasers within 13 days of closing ([MarketScreener](https://www.marketscreener.com/news/delek-us-shares-drop-after-proposed-400-million-offering-of-notes-ce785adede88f123); [MarketBeat, 2026-09-24](https://www.marketbeat.com/instant-alerts/price-delek-us-nyse-dk-trading-down-7-whats-next-2026-09-24/)). Convertible issuance from a refiner into a falling-crude tape; DK is flat pre-market. 0.3981% of position value across 19 sleeves.
+- **FSLY -10.02%** (29.65 -> 26.68): post-Investor-Day profit-taking that *"gave back almost all of Wednesday's 14% jump"* after **Citi questioned the durability of AI-assistant traffic monetization**, against a 164% year-to-date gain ([Investing.com](https://www.investing.com/news/stock-market-news/why-is-fastly-stock-dropping-today-93CH-4915714); [24/7 Wall St, 2026-09-24](https://247wallst.com/investing/2026/09/24/fastly-sinks-8-as-selling-after-investor-day-cuts-into-a-164-ytd-run-cloudflare-holds-flat/)). FSLY is **+3.04% pre-market**, the largest positive in the sample. 0.0847% of position value.
+- **AKAM**, not held, is the tape's headline pre-market mover at **+19% on an $11.6 billion contract with Anthropic** ([Bloomberg, 2026-09-25](https://www.bloomberg.com/news/articles/2026-09-25/us-stock-futures-rise-as-investors-see-relief-in-yields-oil)). AKAM itself **fell 6.78% on 09-24** (118.44 -> 110.41), so the pre-market move is a reversal, not a continuation. Recorded because it is the third AI-infrastructure contract repricing in two sessions and the book has no exposure to it.
+
+**3f. Negatives, cross-checked and reported as negatives.**
+
+- **NRC -5.66%** (21.57 -> 20.35), the largest weighted loser in the book at **$97,117 across 39 sleeves**: **no catalyst found.** Searches returned a different company (NMC Resource Corporation, NRC.V, a Canadian listing) and an unrelated $16.80 price snapshot that matches no recent National Research close. No filing, press release, analyst action or sector event was located. **Unexplained.** Second consecutive day with an unexplained mid-single-digit decline in a widely held small cap; EDRY's -24% two-session move remains unexplained from yesterday, and EDRY is flat overnight at 50.89.
+- **No 09-25 pre-market print exists for NRC or XLB**, so neither carries a pre-market read above.
+
+---
+
+### 4. LLM overlay status
+
+**4a. Standings.** Both columns are now marks - the 09-24 book was marked at 07:55:07 CDT this morning, mid-compile.
+
+| arm | sleeve | 09-23 mark | vs seed | 09-24 mark | vs seed |
+|---|---|---:|---:|---:|---:|
+| stock, **treatment** | `llm_overlay_mom_roa_top1_paper` | $114,759.00 | **+14.7590%** | $115,684.29 | **+15.6843%** |
+| stock, control | `mom_roa_top1_paper` | $106,776.00 | +6.7760% | $107,637.01 | +7.6370% |
+| stock, cascade | `llm_cascade_top1_paper` | $112,466.89 | +12.4669% | $113,373.70 | +13.3737% |
+| | **treatment minus control** | | **+7.9830pp** | | **+8.0473pp** |
+| sector, treatment | `llm_overlay_sector_top4_paper` | $102,071.28 | +2.0713% | $102,243.43 | +2.2434% |
+| sector, control | `sector_top4_paper` | $105,261.65 | +5.2616% | $105,268.95 | +5.2690% |
+| sector, cascade | `llm_cascade_sector4_paper` | $100,246.38 | +0.2464% | $100,163.14 | +0.1631% |
+| | **treatment minus control** | | **-3.1903pp** | | **-3.0255pp** |
+
+**The stock-arm spread widening from +7.9830pp to +8.0473pp is arithmetic, not information.** All three stock sleeves hold only MU and all three moved **+0.806%** on the session; the higher base compounds the same percentage into more percentage points. **The spread carries zero new evidence today.**
+
+**Kill-switch counters, by `count(*)` and never `max(id)`: 14 stock decisions, 27 sector decisions**, against the 12-month / 30-pick threshold.
+
+**4b. NEW - first decision-level scorecard, each logged verdict priced from its own decision-date close to the 2026-09-24 close.** This is the test the experiment was built for, and standings alone cannot answer it.
+
+| arm | date | ticker | verdict | decision close | 09-24 close | move | outcome |
+|---|---|---|---|---:|---:|---:|---|
+| sector | 2026-09-01 | XLI | **VETO** | 172.73 | 168.83 | -2.26% | **right** |
+| sector | 2026-08-03 | XLRE | **VETO** | 45.18 | 41.65 | -7.81% | **right** |
+| sector | 2026-08-03 | XLB | **VETO** | 51.01 | 49.68 | -2.61% | **right** |
+| sector | 2026-09-01 | XLK | HOLD | 183.64 | 194.71 | +6.03% | right |
+| sector | 2026-08-03 | XLE | HOLD | 58.79 | 62.60 | +6.48% | right |
+| sector | 2026-09-01 | XLE | HOLD | 64.77 | 62.60 | -3.35% | wrong |
+| sector | 2026-09-01 | XLV | HOLD | 171.67 | 169.87 | -1.05% | wrong |
+| sector | 2026-09-01 | XLB | HOLD | 52.07 | 49.68 | -4.59% | wrong |
+| sector | 2026-08-03 | XLU | HOLD | 44.36 | 39.36 | -11.27% | wrong |
+| sector | 2026-08-03 | XLI | HOLD | 183.16 | 168.83 | -7.82% | wrong |
+| stock | 2026-09-01 | MU | BUY | 933.44 | 1,080.53 | **+15.76%** | right |
+| stock | 2026-08-03 | STX | BUY | 831.06 | 905.92 | +9.01% | right |
+| stock | 2026-07-07 | WDC | BUY | 532.10 | 450.31 | -15.37% | wrong |
+| stock | 2026-08-03 | WDC | **VETO** | 527.22 | 450.31 | -14.59% | **right** |
+| stock | 2026-07-07 | BE | **VETO** | 269.57 | 266.65 | -1.08% | **right** |
+| stock | 2026-08-03 | BE | **VETO** | 218.32 | 266.65 | +22.14% | wrong |
+| stock | 2026-08-03 | VICR | **VETO** | 213.54 | 276.06 | +29.28% | wrong |
+| stock | 2026-08-03 | MU | **VETO** | 829.50 | 1,080.53 | **+30.26%** | **wrong** |
+
+**Three findings, in order of force.**
+
+(i) **The sector arm's VETOs are 3 for 3 and its HOLDs are 2 for 7.** The overlay is being asked to decide what to avoid, and on that question it has been right every time; on what to *keep*, it is worse than a coin flip. That is the opposite of the "macro is where the LLM has least edge" prior stated when the sector arm was built, and it is a more interesting result than the sleeve's standings, which are negative.
+
+(ii) **The sector arm's -3.03pp deficit is entirely inherited.** The only live difference between treatment and control today is one slot: control holds XLI, treatment holds cash. **XLI is -2.26% since the 09-01 veto**, so that slot is currently *adding* about 0.57pp to treatment on a 25% weight, and the single-session numbers confirm it (+0.169% treatment against +0.007% control). The gap predates 2026-09-01 and cannot be attributed further from the logs available here.
+
+(iii) **The 2026-08-03 MU VETO is now wrong by +30.26%, and it is the most instructive row in the table.** The treatment arm's entire +14.76% standing rests on the **2026-09-01 re-entry at $933.44**, which overrode that veto after MU had already risen 12.5% off the veto-date low. The logged rationale for the reversal is accurate in its facts (*"1m +12.5% off the 08-03 low (829.50 -> 933.44), RSI 53 with room, back at 50DMA"*). **But the sequence is veto-then-buy-higher: the overlay declined a thesis at $829.50, watched it rise, and bought it back at $933.44 for a worse entry than doing nothing.** Control, which never left, sits at +6.78% because it entered at $829.91 on 08-03 - and the treatment's higher NAV comes from having had less capital deployed for less time at a different realized basis, not from the veto adding value. This deserves explicit attention before the 30-pick kill switch is evaluated: **the arm's headline outperformance may be an artifact of position sizing across a re-entry rather than of decision quality.** The scorecard above is the first data that separates the two, and it does not favour the overlay.
+
+**4c. Invalidation levels, checked against the 09-24 closes.**
+
+| ticker | arm | logged invalidation | 09-24 close | status |
+|---|---|---:|---:|---|
+| MU | stock treatment and cascade | $820.00 | $1,080.53 | **+31.77% clear** |
+| XLE | sector | $58.00 | $62.60 | +7.93% clear |
+| XLK | sector | $177.00 | $194.71 | +10.01% clear |
+| XLV | sector | $163.50 | $169.87 | +3.90% clear |
+| **XLB** | **cascade** | **$51.00** | **$49.68** | **BREACHED, 11th consecutive session** |
+
+**XLB has closed below its logged $51.00 invalidation on all 11 sessions since 2026-09-10** - 50.76, 50.95, 50.49, 50.73, 50.36, 50.71, 49.99, 49.71, 50.53, 50.28, 49.68. (The 09-22 close of 50.53 was filled in by this morning's heal, so the streak is now fully evidenced with no gap; yesterday's entry could only demonstrate 10 of the 11.) The 09-24 close of 49.68 is the **lowest of the streak**, and XLB fell another 1.19% on the session. `llm_cascade_sector4_paper` holds **426.8589 shares = $21,206** and is the book's worst LLM-experiment sleeve at **+0.16%**. **The stop is logged, breached, deepening and unenforceable - there is still no command that acts on a cascade-arm invalidation.** Fourth consecutive entry recording this.
+
+---
+
+### 5. Risk flags and upcoming events
+
+**5a. MU earnings, Wednesday 2026-09-30 after the close.** **7.3326% of position value, 62 of 76 sleeves, and the sole holding of the three best-performing sleeves in the book.** Guidance into the print is $49-51B revenue, $30-32 non-GAAP EPS, 86% gross margin. The stock is at $1,080.53, **+30.26% above the 08-03 veto level and +31.77% above the treatment arm's logged $820.00 invalidation**, so a 24% adverse move would be required to trigger the stop - which for a memory name on an earnings print is inside one session's plausible range only in a severe miss. **The single-name concentration and the experiment's headline result are the same position.** A bad print does not just cost 7.33% of the book; it simultaneously resolves the stock-arm overlay experiment, in a way that would be hard to attribute to decision quality in either direction.
+
+**5b. Memory and semicap at 15.4648%, $1,176,372.** MU 7.3326 + STX 2.1695 + WDC 1.7710 + LRCX 1.7306 + AMAT 1.4198 + KLAC 1.0413. Held across 36-65 sleeves each, so this is **not** a sleeve-level bet - the factor screens independently selected the same complex, which is what makes it hard to unwind by turning off one sleeve. Yesterday's rates move took the whole block down 2.0-4.9% in one session; this morning's relief has it up 1.2-2.0%. **One macro variable, 15.62% of the book, no sleeve modelling it.**
+
+**5c. Energy at 13.37% against an active de-escalation headline.** Treated in section 3b. The concrete risk is that a phased Hormuz reopening is exactly the resolution that reverses the move which put XLE at a 52-week high, and the overlay's most recent XLE HOLD is already -3.35%.
+
+**5d. The three corporate-action phantoms, $51,163.88 / 0.6726%.** Detailed in section 0i. Restated here as risk rather than data hygiene: **the ladder's 50-name target counts UYSC as a live position in 20 rungs**, and the momentum sleeves count APGE and CRNX as live in 8. Every position-count check in `verify_run` passes with these included. The NAV consequence is $2.40; the **selection** consequence is that the screens have demonstrated they will buy deal stubs and shells, which is a recurring cost, not a one-off. Note the asymmetry with section 0h: **the 09-22 scare turned out to be a data artifact that healed itself, while this one is a real state error that no refresh will ever fix**, because there is no bar to fetch for a security that has ceased to exist.
+
+**5e. All 19 weekly ladder rungs are over target, 60-68 positions against 50.** The other two cadences are inside tolerance: the 19 biweekly rungs hold 48-53 and the 19 monthly rungs 46-49, i.e. **only the weekly cadence is broken.** (Derive these with an exact suffix test, not `LIKE '%_wk_paper'` - SQL `LIKE` treats `_` as a single-character wildcard, so that pattern silently matches the `_2wk_paper` rungs too and reports 38 sleeves spanning 48-68.) The cause is on record: the 2026-09-21 sub-floor coverage day filled buys while skipping 300 sells. **The next weekly period opens Monday 2026-09-28**, which is the next opportunity for the rungs to converge - and the first test of whether the 09-23 rate-limit retry fix prevents a repeat. `verify_run` prints `pos(60/50)` through `pos(68/50)` and **still returns PASS**, so the position-count check is reporting the breach without failing on it.
+
+**5f. 09-22 is marked, and the coverage-floor question is no longer urgent.** Yesterday's entry proposed lowering the absolute floor, making it purely relative, or marking on partial coverage with a flag, on the premise that 09-22 could never clear. **It cleared, on the retry ladder, at 5,111 closes.** The floor did its job: it refused to mark a book on 3,690 prices, held the line for three days, and released the date once the data arrived. **No floor change is supported by today's evidence, and the argument for one has been withdrawn** (section 0h).
+
+What *is* worth flagging is timing risk rather than threshold risk: the platform now depends on the 07:45 heal for a majority of recent marks - **three of the last four sessions (09-21, 09-22, 09-24) were marked by a job other than the 17:15 daily MTM.** A morning that fails, or a retry ladder that runs past the 07:55 window into market hours, defers the mark another day. That dependency is new, it is undocumented in `HANDOFF.md`, and it is the thing to watch.
+
+**5g. Dated events, next two weeks.**
+
+| date | event | book exposure |
+|---|---|---|
+| **today, 2026-09-25 10:00 ET** | U. Michigan final September sentiment and inflation expectations | Technology 25.89% via the yield channel |
+| **Mon 2026-09-28** | weekly ladder period opens | 19 rungs, 60-68 toward 50 convergence test |
+| **Wed 2026-09-30 after close** | **Micron fiscal Q4** | **MU 7.3326%, 62 sleeves** |
+| **Thu 2026-10-01 ~18:01 CDT** | `monthy-llm-rebalance` first fire of the October window | all 76 sleeves; see 5h |
+
+**5h. The monthly rebalance is still expected to fail at the decision-logging step.** The PreToolUse trading guard has denied that step on every attempt since 2026-09-01 (records DN, DO, DP); September was completed by hand the same night. `nextRunAt` is **2026-10-01T23:01:03.000Z**. Nothing has changed in the guard since. **Expect the denial. Do not reach for the rebalance wrapper to get around it** - that path escapes the guard entirely and trades, proven on 09-01. **BLOCKED-ON-EVAN.**
+
+---
+
+### 6. Strategic insights
+
+**6a. The strongest finding today is a selection defect, and it has three independent instances.** The screens bought **APGE two days before it stopped trading**, **CRNX on the day its acquisition completed**, and **UYSC - a blank-check SPAC - twice, in 20 ladder rungs.** These are not three coincidences. They share a mechanism.
+
+A stock pinned to an announced cash consideration has a specific price signature: it converges to the deal price and then stops moving. Over a 12-1 momentum lookback that produces **a smooth, monotone, low-drawdown path with near-zero realized volatility** - the exact profile that scores highly on momentum and scores *even better* on any risk-adjusted or residual variant, because residual momentum divides by idiosyncratic volatility that a deal-pinned stub does not have. **The better the risk adjustment, the more attractive merger-arbitrage stubs look to the screen.** That is a structural bias, not bad luck, and it explains why the residual sleeves picked up UYSC while the plain-momentum sleeves picked up APGE and CRNX.
+
+The cost so far is small - 0.6726% of position value, $2.40 of NAV error - because the stubs are pinned rather than falling. **The cost is not the loss; it is the slot.** Each stub occupies one of 46-68 position slots that should hold a name with live momentum, and it returns 0% until someone notices. Across 20 rungs and multiple months that is a persistent, silent drag on a portfolio whose entire measured edge is in the low single digits.
+
+**The fix is a filter, and it is cheap and testable**: exclude a ticker from the ranking universe when its trailing realized volatility over the lookback collapses below a floor, or when its price sits within a small band of a constant for N consecutive sessions. Both tests are computable from `price_cache` alone with no new data source. `NON_STOCK_TICKERS` (2026-06-09) and `MAX_PRICE_USD` (2026-06-01) are the existing precedents for exactly this kind of universe hygiene, and both were added the same way - after a phantom got into a sleeve. **Recommended as the next infrastructure task, not as a strategy change.** No write made.
+
+**6b. The overlay experiment's headline number may not mean what it appears to mean.** Section 4b is the substantive result of this entry. The stock-arm treatment's **+14.76%** against control's **+6.78%** has been reported as an 8-point outperformance for weeks. The decision scorecard shows the arm's **VETOs are 2 for 5**, that the **2026-08-03 MU VETO is wrong by +30.26%**, and that the treatment's advantage traces to a **re-entry above its own veto price**. That combination is consistent with an arm that is not making better calls but happens to hold a different cost basis.
+
+This is testable and should be tested before the 30-pick kill switch is evaluated, because the kill-switch criterion as written - *"drop if scores don't predict returns OR treatment doesn't beat control"* - would currently read as PASS on the second clause while the first clause has never been measured. **The measurement that settles it is a rank correlation between logged `score` and subsequent realized return across all 14 stock decisions.** Fourteen points is too few to conclude from, which is itself the finding: **the experiment is 14 decisions into a 30-decision kill switch and its headline metric is confounded.** Honest prior, restated: it was launched expecting to fail, and nothing in today's data has yet earned a change to that prior.
+
+**6c. Is a new sleeve concept supported by today's data? No, but a screen is.** Three life-science tools names moved 11-16% in one session on the same mechanism (section 3d), and a day earlier five marketplace names moved together on a different one. Both times the book **held** the exposure without any sleeve intending it. The temptation is to build a thematic sleeve. The objections are the same as yesterday's and have not weakened: the short leg is unavailable until 18, the thesis is days old with no held-out window, and the factor screens will recreate the exposure regardless.
+
+What today adds is a second data point in favour of the *measurement* proposal rather than the sleeve: **a standing basket-weight report over named thesis lists would have surfaced both clusters before they were news.** That is a reporting change with no capital at risk, and the same infrastructure would catch the semicap block at 15.62% and the energy block at 13.37% - the two concentrations that actually drive the book's daily variance and that arrived, like the themes, through the back door.
+
+**6d. The residual sweep's verdict is firming, and it is a negative one.** All 19 weight rungs, across three cadences, span **+6.17% to -6.64%** since mid-July inceptions while SPY is +6.46% and QQQ +9.93% over comparable windows. **Not one rung of 57 beats the passive benchmark.** The plain-momentum sleeves are -8.17% to -14.86%, so the residual family's contribution is real but bounded: it removed roughly 8-14 points of underperformance and did not produce any. On today's single-session dispersion the rungs weighted toward ROA (w0595, w2080, w2575) were the worst performers and the rungs near the middle (w5545, w6040) the best - the same shape the 2026-07-14 sweep found at 65/35, so not new evidence.
+
+The uncomfortable reading, stated plainly because the record is the deliverable: **after four months and 76 sleeves, the best-performing systematic construction in the book is `qqq_benchmark_paper`, which is one line of code.** The three sleeves above it are single-name MU positions whose result is one stock's earnings cycle, not a strategy. That is worth writing down before the 09-30 print resolves it in either direction.
+
+**6e. One methodological result that is unambiguously good, now confirmed twice.** Yesterday's indicative book for 09-23, computed entirely from `price_cache` with two names carried forward, was **$7,635,662.37**. The 09-24 heal marked 09-23 at **$7,635,662.37** - identical to the cent.
+
+This morning gave the second test, under worse conditions. Before the heal ran, this report had computed an indicative 09-24 book of **$7,631,860.22** off 232 priced names with three carried forward. The heal then marked 09-24 at **$7,631,904.43**. The gap is **$44.21, or 0.00058%**.
+
+**The cause is narrowed but NOT established, and the first attempt at it was wrong.** The obvious candidate was UYSC, the one ticker that gained a 09-24 row during the heal - but its 09-23 and 09-24 closes are both exactly $11.00, so carrying it forward and pricing it give the same number and it contributes $0.00. What is observable is that the gap sits in **Energy**, whose aggregate moved from $1,016,928 in the pre-heal pass to **$1,016,972** in the marked book. Within Energy, **NRT's 8,841.7797 shares make a half-cent revision worth $44.209** - an exact arithmetic match - so a restated NRT close is the leading explanation. **It cannot be confirmed: the pre-heal `price_cache` values were overwritten by the refresh and no snapshot was taken, so the specific revised row is unrecoverable after the fact.** Reported as undetermined rather than attributed to the plausible-looking ticker. The lesson for the next unmarked morning is cheap to act on: **dump the per-ticker close vector alongside any indicative book, so a later reconciliation has something to diff against.**
+
+**So the indicative method reproduces the mark to the cent when coverage is complete, and to six-thousandths of a percent when it is not.** That justifies continuing to publish indicative figures on unmarked days rather than withholding them, and it bounds the uncertainty precisely: it lives entirely in the individually listed carried-forward names, currently 0.6726% of position value. Between this and section 0h, the honest summary of today's data work is that **the arithmetic has been reliable and the inferences about the vendor have not.**
+
+---
+
+**Compiled 2026-09-25 07:02-08:35 CDT** by `daily-trade-check` (cron `0 7 * * 1-5`, fired 07:02:14 CDT). The window straddled the 07:45 `TradingMorningMTM` heal, which marked 09-22 and 09-24 at 07:55:07 CDT and turned every indicative figure in the first draft into a mark; sections 0f through 0i and 1 were rewritten against the marked book rather than published as estimates. Read-only throughout: `file:var/trades.db?mode=ro`. Writes made: this entry, `daily_report.html`, and a commit of exactly those two paths. No sleeve, NAV, position or price row was modified by this task. Frozen regression suite deliberately not run (section 0k).
