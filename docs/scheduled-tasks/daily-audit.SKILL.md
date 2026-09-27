@@ -14,8 +14,17 @@ STEP 0 — Trading-only fixed checks. Run these before classification; they are 
 they catch silent absences that no severity-ranked sweep will surface.
 
 a. MISSING SESSION. For the previous weekday, `grep` D:\ClaudeCode\Trading\daily_report.md
-   for BOTH `## Report: <that date> (<Weekday>) — Pre-Market Overnight Research` AND
-   `... — Post-Market Close Analysis`. Report any weekday in the last 7 that is missing
+   for BOTH `grep -cE '^## Report: <that date> \(<Weekday>\) .{1,3} Pre-Market Overnight Research'`
+   AND the same with `Post-Market Close Analysis`. The separator is an em dash (U+2014)
+   before 2026-09-25 and an ASCII hyphen from then on (ASCII rule of 2026-09-23), so a
+   pattern that accepts only one of them reports every newer session as missing. Use
+   exactly this form (tested 2026-09-26 against both header styles): the parens MUST be
+   escaped under -E, and the separator is `.{1,3}` - NOT a bracket holding an em dash
+   and a hyphen. This machine's Git Bash runs in the C locale, where a bracket cannot
+   hold the 3-byte em dash and silently misses every em-dash header; `.{1,3}` matches
+   the em dash as 1 character (UTF-8) or 3 bytes (C) and the hyphen as 1, and is ASCII
+   (the ASCII-only .md hook refuses writing the em dash itself into this file).
+   Report any weekday in the last 7 that is missing
    either one. A scheduled report that never fires produces no error and no artifact —
    the absence IS the failure, and nothing else detects it. (Observed: 2026-08-17 has a
    pre-market entry and no post-market one.)
@@ -75,4 +84,39 @@ CONSTRAINTS — READ-ONLY: no code edits, no fixes applied, no commits, no HANDO
 edits. ONE exception: after each project's audit, append one dated record entry
 ("Audit run — N findings, top: <item>") so future sweeps can detect it ran.
 
-Make audit fix prompts that include the issue and fix with a high degree of precision. 1 per project that was audited
+HOW TO APPEND THAT ENTRY — NEVER BY HAND. Write the body to a scratch .md file,
+then run the script:
+
+  node ~/.claude/skills/project-memory/append-record-entry.js \
+    --record "<project>/docs/Project Record — Full Chronological History.md" \
+    --title "Scheduled daily-audit: <summary>" \
+    --body <scratch.md> \
+    --date "<from a real `date` call — never guessed>"
+
+An entry is a `# Appendix <X>` heading AND a matching front-matter TOC line, and
+the two must be written TOGETHER. You will have READ the record in STEP 1, so
+you will have seen the heading shape — do not imitate it with Edit/Write. Writing
+the heading alone breaks the TOC/heading balance and BLOCKS EVERY LATER APPEND
+by anyone until a human repairs it; picking the letter yourself races other
+sessions and duplicates it. Both happened on 2026-09-01, from this task and from
+an interactive session. The script takes a lock, derives the next free letter
+from a live scan, and writes both lines atomically. A PreToolUse guard now denies
+direct Edit/Write to a record file, so hand-splicing will fail anyway.
+
+ASCII ONLY (rule added 2026-09-23). The appender refuses a title, date or body
+containing any non-ASCII character: exit 2, a message starting "REFUSED:
+non-ASCII character U+XXXX in the <title|date|body> (line N)", and nothing
+written. The Write/Edit tools also deny adding non-ASCII to any .md file,
+including your scratch body. So write the title and body ASCII from the start:
+"-" for any dash, "->" for an arrow, straight quotes, "..." for an ellipsis,
+"x" for a times sign, and plain letters for accented ones.
+
+If the append is refused anyway, RETRY ONCE: replace every non-ASCII character
+in the scratch body and the title, confirm with
+  grep -nP '[^\x00-\x7F]' <scratch.md>
+(it must print nothing), then re-run the same command. If the retry is also
+refused, do NOT hand-write the entry. Finish the audit and make the FIRST line
+of the cross-project summary "ENTRY NOT APPENDED: <project> - <the refusal
+message>", so the miss is visible instead of silent.
+
+For each audit, make a prompt that include the issue and fix with a high degree of precision. 1 per project that was audited

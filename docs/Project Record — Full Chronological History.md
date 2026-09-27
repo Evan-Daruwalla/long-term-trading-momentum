@@ -186,6 +186,11 @@ lives in the dated entry, not the digest.
 - [DW — compute_nav marks a past date with that date's book - and the DV fault was positions too, not just cash](#appendix-dw---compute_nav-marks-a-past-date-with-that-dates-book---and-the-dv-fault-was-positions-too-not-just-cash-2026-09-22-1558-cdt) (09-22)
 - [DX — 17 rows restored (verify 76/76), paper_nav sealed by a narrow append-only trigger; 09-21 still sub-floor](#appendix-dx---17-rows-restored-verify-7676-paper_nav-sealed-by-a-narrow-append-only-trigger-09-21-still-sub-floor-2026-09-22-1610-cdt) (09-22)
 - [DY — Book unmarked since 09-18: yfinance rate-limits the back half of the alphabet every refresh, and no guard sees it](#appendix-dy---book-unmarked-since-09-18-yfinance-rate-limits-the-back-half-of-the-alphabet-every-refresh-and-no-guard-sees-it-2026-09-23-2217-cdt) (09-23)
+- [DZ - Refresh retries the per-ticker rate limit; 09-21 marked 76/76 and stage 5 live; 09-22 is a Yahoo data hole](#appendix-dz---refresh-retries-the-per-ticker-rate-limit-09-21-marked-7676-and-stage-5-live-09-22-is-a-yahoo-data-hole-2026-09-23-2250-cdt) (09-23)
+- [EA - Scheduled daily-audit: 13 findings - the trade guard's six escapes are unchanged 7 days after DU, and five LLM sleeves still fill on a stale bar](#appendix-ea---scheduled-daily-audit-13-findings---the-trade-guards-six-escapes-are-unchanged-7-days-after-du-and-five-llm-sleeves-still-fill-on-a-stale-bar-2026-09-24-0723-cdt) (09-24)
+- [EB - Scheduled daily-audit: 0 projects classified ACTIVE, and the 2026-09-24 post-market session was a 4-second run that reported success](#appendix-eb---scheduled-daily-audit-0-projects-classified-active-and-the-2026-09-24-post-market-session-was-a-4-second-run-that-reported-success-2026-09-26-0709-cdt) (09-26)
+- [EC - Five scheduled-task defects closed (record EB); the prescribed bracket pattern failed in the C locale; 09-24 post-market is a permanent hole; DZ corrected](#appendix-ec---five-scheduled-task-defects-closed-record-eb-the-prescribed-bracket-pattern-failed-in-the-c-locale-09-24-post-market-is-a-permanent-hole-dz-corrected-2026-09-26-2120-cdt) (09-26)
+- [ED - docs-sync: 37 unpublished commits carry the forbidden Co-Authored-By trailer; publishing held for Evan](#appendix-ed---docs-sync-37-unpublished-commits-carry-the-forbidden-co-authored-by-trailer-publishing-held-for-evan-2026-09-26-2205-cdt) (09-26)
 
 ---
 
@@ -12315,3 +12320,407 @@ crosses the limit.
 - Candidate fix: after the main pass, retry the tickers missing the latest bar
   after a cooldown, and make the rate-limit guard count missing tickers, not
   empty batches. Test on a DB copy.
+
+# Appendix DZ - Refresh retries the per-ticker rate limit; 09-21 marked 76/76 and stage 5 live; 09-22 is a Yahoo data hole (2026-09-23, ~22:50 CDT)
+## WHAT
+
+On Evan's instruction ("do 3, then 1"): stage 5 committed as `0b3bb67` with no
+Co-Authored-By line, per his new CLAUDE.md rule. Then the record DY fix:
+
+1. **`scripts/momentum/daily_price_refresh.py` retries the per-ticker rate
+   limit and fails loudly when it persists.**
+   - "Live" tickers are those with a cached close inside the refresh window.
+     Any live ticker that returns no rows is retried after cooldowns of 60, 120
+     and 240 s.
+   - If 5% or more of live tickers are still missing afterwards, the run logs
+     REFRESH INCOMPLETE and exits 1. Below 5% it warns and names them.
+   - Delisted names age out of the window, so they are never retried or
+     counted.
+   - The 5% threshold is a judgment call, not a measured one.
+   - `_process_batch` gained an optional `got` set. The 3-argument call in
+     `backfill_history_gaps` is unchanged.
+2. **Live refresh run** (22:38-22:47 CDT, exit 0), then **2026-09-21 re-marked
+   live** (22:48:30 CDT). This is the (b) Evan authorized in DX, now
+   unblocked.
+
+## Evidence
+
+**Fixture test** - NEW `scripts/momentum/test_refresh_rate_limit.py`. A fake
+`yf.download` has a request budget; once it is spent, it serves every other
+ticker while batches still return rows. That is the observed shape. Result:
+**7/7 on the fix, 3/7 on the old code.** On the old code the limit-that-clears
+case wrote 42 of 60 closes and exited 0, and the persistent case also exited 0.
+Two mistakes of mine in the first draft of the test, both corrected before the
+result above:
+- The fake returned wholly-empty batches. That trips the OLD guard and proves
+  nothing.
+- I asserted 43 where 25 + 17 = 42.
+
+**Real network, on a DB copy** (SQLite backup API, 12 s), 22:28-22:37:
+- 1,487 live tickers dropped in the main pass.
+- Retries recovered 1,255, then 116, then 103, leaving 13 of 5,152 (0.3%).
+- 22 `YFRateLimitError` lines.
+- Copy coverage for 09-21 went from 4,919 to 5,114.
+
+**Live**, 22:38-22:47:
+- Main pass dropped 1,995.
+- Retries recovered 1,690, then 292, then 0, leaving 13 (0.3%). Exit 0.
+  29 `YFRateLimitError` lines.
+- Runtime 9.3 min, against ~1.5 min before. The retry cost lands inside
+  `daily.bat` (17:15) and `morning_refresh.bat` (07:45).
+
+Live coverage after the run:
+
+| day | before | after |
+|---|---:|---:|
+| 2026-09-21 | 4,919 | **5,114 (OK)** |
+| 2026-09-22 | 3,546 | 3,690 (below the floor) |
+| 2026-09-23 | 3,270 | 4,626 (same-day, below the floor) |
+
+**09-22 is a Yahoo data hole, not ours.** Asked directly at ~22:40, with no rate
+limit in play, Yahoo returns NaN for UAL, TLN and ZTS on 2026-09-22. It returns
+real 09-21 and 09-23 closes for all three, and SPY has all three days. On the
+copy, ZTS has 09-21 and 09-23 but not 09-22. No retry can fill that. Whether
+Yahoo backfills it is unknown. Until then 09-22 cannot be marked, and it
+becomes a gap that gap-fill can take later.
+
+**The 13 still-missing tickers** are named in the log: CALL, CBA, CBI, CMIIU,
+CTP, CVG, ETP, FGMC, KS, LIXT and 3 more. None of the first 10 is held by any
+open position. The other 3 were not checked.
+
+## 2026-09-21 re-mark
+
+Run on the copy first: 19 changed, 57 new, verify 76/76, 0 rows differ from
+the ledger replay. Then live:
+- `remark_nav_day --date 2026-09-21 --execute --reason "..."` -> 19 changed
+  (net $+1,694.85), 57 new rows, 0 failures.
+- `verify_run` PASS 76/76. Ledger replay vs stored: 0 of 76 differ (cash,
+  n_open, NAV).
+- **2026-09-21 book: $7,718,922.42 across 76 rows**, against the 09-18 mark of
+  $7,664,850.80.
+- This was the first `paper_nav` write since DX, so it installed the **stage 5
+  triggers on the live DB (5 triggers)**. It logged **19
+  `paper_nav_restatement` rows** for the 19 rewritten rows.
+
+## HOW verified
+
+- All 15 test modules rc=0, including the new one.
+- Frozen tests 4/4, d=+/-0.0000pp (v1 +14.5547%/70, +1.8792%/156; v2
+  +14.4062%/38, +10.2194%/87), run after the refresh change.
+- The DB copy is deleted.
+
+## Consequences
+
+- **Monthly path:** `rebalance.bat` aborts on a refresh exit 1. If on
+  2026-10-01 5% or more of live tickers are still missing after retries, the
+  rebalance aborts and the month gate stays open for the next day's retry.
+  That is intended: it will not rank on half the alphabet.
+- `daily.bat` and `morning_refresh.bat` carry an exit 1 only as an ops-stamp
+  note, as before.
+
+## Open
+
+- 2026-09-22: Yahoo hole. It can only be marked if Yahoo backfills it.
+- 2026-09-23: same-day partial; expected to settle by the 07:45 run.
+- The refresh fix and the test are **uncommitted**. The 07:45 and 17:15 tasks
+  run the working tree regardless.
+- `test_refresh_rate_limit.py` is not in `daily.bat` (stage 6).
+
+# Appendix EA - Scheduled daily-audit: 13 findings - the trade guard's six escapes are unchanged 7 days after DU, and five LLM sleeves still fill on a stale bar (2026-09-24, ~07:23 CDT)
+**Scheduled `daily-audit` run, 2026-09-24 ~07:09-07:23 CDT. Read-only: nothing fixed, nothing committed.** Classified ACTIVE on churn: audit DU (2026-09-17 07:20) is inside the 7-day window, but **16 non-audit commits** landed after it. **Audit run - 13 findings, top: the trade guard's six escapes are unchanged 7 days after DU, and the five LLM-overlay/cascade sleeves still fill without a stale-bar guard.**
+
+## STEP 0 (fixed checks)
+
+- **Missing/duplicate session:** none. 2026-09-18, 09-21, 09-22, 09-23 each have exactly one Pre-Market and one Post-Market header. 2026-09-24's pre-market was not yet written at 07:23 (the `daily-trade-check` task fired 07:01:28 and was still running).
+- **Spec drift:** `daily-audit` live SKILL.md is 20 lines ahead of `docs/scheduled-tasks/daily-audit.SKILL.md` (the append-record-entry block plus a changed closing line). `monthy-llm-rebalance` live SKILL.md still says "daily at 5:30pm local" where the snapshot says "days 1-5 of each month at ~6:03pm local (cron `0 18 1-5 * *`)". `daily-trade-check` and `daily-trade-check-2` are byte-identical. No snapshot exists for `hellow` (enabled) or the 2 disabled one-shots. Unchanged since DU.
+- **Cron drift:** none. All 5 enabled crons match the HANDOFF table at lines 531-537.
+- **Guard live:** both settings files carry all 5 deny rules and register `pretooluse-trading-guard.js` on `Bash|PowerShell`. Self-check: **20 passed, 0 failed**. The self-check passing is not evidence the guard holds - see finding 1.
+
+## Findings (severity-ranked; tier in brackets)
+
+1. **CRIT [CONFIRMED]** `scripts/hooks/pretooluse-trading-guard.js:34-45` - six escapes, re-probed 2026-09-24 by feeding command strings to the guard binary only (nothing executed). DENY on all 3 controls (bare push, bare rebalancer, the Alpaca sync execute flag); **ALLOW** on: `scripts\momentum\rebalance.bat`, `scripts\momentum\monthly_auto.bat`, the same Alpaca sync call with the flag abbreviated to `--exec`, `git -C <dir> push`, `set X=push & git %X%`, and a caret-split module name. `trading_bot/execution/alpaca_sync.py:182` still constructs `argparse.ArgumentParser()` with the default `allow_abbrev=True`, and the execute flag is its only `--e*` flag, so the abbreviation submits real orders. **Fourth consecutive audit (DS, DT, DU, this one) to report this; nothing in `scripts/hooks/` has changed.** Architecture item A1 from DU is still open.
+2. **HIGH [CONFIRMED]** `scripts/momentum/llm_overlay_ops.py:73,92,129,265`, `sector_overlay_ops.py:59,77,155,172,228`, `llm_cascade_ops.py:42,103,119` - five LLM sleeves fill every buy/sell through `market_data.last_close_checked`, which logs a stale bar and fills anyway. `market_data.py:310` says so in its own docstring. `strict_fill_date=True` is passed at exactly two call sites repo-wide, `monthly_rebalance.py:149` and `ladder_forward_rebalance.py:118`. DU finding 3 closed the monthly path; this is the remaining half. `rebalance.bat:92,107,138,162,168` invokes all five live every month.
+3. **HIGH [CONFIRMED]** `alpaca_keys.env` (1,913 bytes, live Alpaca keys) is gitignored and untracked, but **no Read-deny rule covers it** in either settings file - `.claude/settings.json:32-33` denies only `Read(./.env)` and `Read(./.env.*)`, neither of which matches the filename. CLAUDE.md's "never print, log, commit, or move it" is prose with no mechanical backing. Unchanged since DU finding 8.
+4. **HIGH [CONFIRMED]** `trading_bot/execution/backtest.py:278-282` - `_wipe_state()` runs `DELETE FROM positions` / `DELETE FROM portfolio_state` with **no** `shadow_backtest_state()` call, unlike its twin at `factor_backtest.py:82`. Reachable: `main.py:191` -> `multi_backtest.py:128` -> `backtest.py:145`. `positions` holds 137 live rows today. CLAUDE.md:55-57 and HANDOFF both state the hazard "was CLOSED on 2026-08-12 (record CZ)" - true only for the `factor_backtest` copy.
+5. **MED [CONFIRMED]** Personal Windows account name `evan.EVANFREDY` is live on the **public** remote (`git ls-remote` with `GIT_TERMINAL_PROMPT=0` succeeds, so no credential is needed): 5 files at the published tip `38b411b` - `HANDOFF.md` (3x), `daily_report.md` (3x), `daily_report.html` (3x), `docs/paper_trading_ops.md` (1x), `docs/scheduled-tasks/daily-audit.SKILL.md` (2x). `trading_bot/factors/README.md` gained a 6th occurrence in local commits not yet pushed. Local is 57 commits ahead of the public tip.
+6. **MED [CONFIRMED]** `docs/scheduled-tasks/daily-audit.SKILL.md` is stale against the live spec (STEP 0). HANDOFF.md:517 claims the snapshots are current; the check that detects the drift has now reported it four runs running with no re-copy.
+7. **MED [CONFIRMED]** `HANDOFF.md:380-385` "Tables - all 18, enumerated 2026-08-05" omits `paper_nav_restatement`, which HANDOFF's own stage-5 narrative depends on. Live `sqlite_master` holds 18 user tables plus `sqlite_sequence`; HANDOFF's list of 18 includes `sqlite_sequence` and misses the restatement table, so counted HANDOFF's way the live number is 19.
+8. **MED [CONFIRMED]** `CLAUDE.md:35` "Scheduled tasks (6 total, verified 2026-07-28)" names 5 Windows tasks plus `monthy-llm-rebalance`, and omits the Windows task `\llm rebal` and the 4 other enabled Claude-agent tasks - two of which (`daily-trade-check`, `daily-trade-check-2`) commit to this repo. HANDOFF's tables are complete; CLAUDE.md's line is not. Unchanged since DU finding 11.
+9. **MED [CONFIRMED]** 5 of 7 `scripts/momentum/warm/*.py` open `sqlite3.connect(DB_PATH)` directly instead of `trading_bot.db.connect()`, so they miss `busy_timeout=30000` and get SQLite's 0 ms default: `warm_sectors.py:54`, `warm_fundamentals.py:89`, `warm_xbrl.py:221`, `warm_volumes.py:75`, and `warm_held_volumes.py` transitively. `warm_sector_etfs.py:18` and `warm_vol_letf_etfs.py:25` do it correctly. `daily_price_refresh.py:56-58`'s comment claims "Every other writer goes through it" - false for these five.
+10. **MED [CONFIRMED]** `trading_bot/strategies/llm_overlay.py:149,165,183,197,213,227` and `sector_overlay.py:138,154,167,181` - ten more raw `sqlite3.connect(DB_PATH)` sites, same missing `busy_timeout`, during the 6:03pm and 8:30pm write windows.
+11. **MED [CONFIRMED]** 27 of 41 `scripts/momentum/research/test_*.py` files contain zero assertions and no failure path - `main()` falls through to `return 0` in all 27. They are research scripts wearing a `test_` prefix and inflate the apparent test count. The 13 top-level `scripts/momentum/test_*.py` files are genuine (a `check()` accumulator pattern, verified by reading `test_trade_atomicity.py` in full).
+12. **LOW [CONFIRMED]** `.claude/codebase-memory/gotchas.md:12` says `monthly_auto.bat`/`start_all.bat` "still use the old form" of the errorlevel bug. Both now use explicit `set X_RC=%errorlevel%` with in-file comments dated "Audit 2026-09-20, finding 12". The bin is wrong.
+13. **LOW [CONFIRMED]** `scripts/start_all.bat:20-21` - `call scripts\restart_dashboard.bat` captures no exit code at all, so line 35 prints "ALL UP. Dashboard: http://localhost:8501/" whether or not the dashboard came back.
+
+Also unchanged from DU and re-confirmed: orphan task dirs `hello`, `hellllo`, `hellohello`, `hello-just-say-hi-back`, `cohort-0706-deploy` under `~/.claude/scheduled-tasks/` are absent from the live task list; only `hellohello` is undocumented in HANDOFF.
+
+## Landing-check on record DZ (2026-09-23 ~22:50)
+
+Every testable DZ claim holds on disk.
+
+| DZ claim | Verified |
+|---|---|
+| Cooldowns 60/120/240 s | `daily_price_refresh.py:49` `RETRY_COOLDOWNS_SEC = (60, 120, 240)` |
+| 5% threshold, exit 1, "REFRESH INCOMPLETE" | `:50` `MISSING_LIVE_FAIL_FRACTION = 0.05`; `:230,255,267,279`; `:288` |
+| `_process_batch` 3-arg call unchanged | `scripts/data_audit/backfill_history_gaps.py:80` |
+| `test_refresh_rate_limit.py` 7/7 | ran it: **PASS: 7/7 checks passed** |
+| Stage 5 = 5 triggers | 3 on `paper_nav` + 2 on `paper_nav_restatement` = 5 |
+| 19 restatement rows | `select count(*) from paper_nav_restatement` -> **19** |
+| 2026-09-21 book $7,718,922.42 / 76 rows | exact; 09-18 mark $7,664,850.80 exact |
+| Frozen tests 4/4 d=+/-0.0000pp | ran them: v1 +14.5547%/70, +1.8792%/156; v2 +14.4062%/38, +10.2194%/87 |
+| All 15 test modules rc=0 | ran all 14 in `scripts/momentum/` -> rc=0 each, plus the frozen suite |
+| `rebalance.bat` aborts on refresh exit 1 | `rebalance.bat:40-43` |
+| Refresh fix + test still uncommitted | `git status`: `M scripts/momentum/daily_price_refresh.py`, `?? scripts/momentum/test_refresh_rate_limit.py` |
+| `test_refresh_rate_limit` not in `daily.bat` | `daily.bat` runs no test module at all |
+
+**Still open from DZ, confirmed today:** `paper_nav` has 0 rows for 2026-09-22 and 0 for 2026-09-23; `max(nav_date)` is 2026-09-21. The book has been unmarked for two trading days. The 07:45 `morning_refresh` had not run when this audit finished (last run 2026-09-23 07:47).
+
+## Coverage
+
+4 Sonnet workers over a 270-file manifest (`git -c core.quotepath=false ls-files`): `trading_bot/` (69), `scripts/momentum/` non-test (59), everything else including the 41 `test_*.py` and `.claude/` (114), and all 45 `.md` + 2 `.html` (47). The orchestrator re-enumerated two shards independently; the `find`-vs-`git ls-files` gap (137 vs 69 in `trading_bot/`, 304 vs 47 for markdown) resolves entirely to `.venv/`, `graphify-out/`, `.claude/` and `var/`, excluded as generated or gitignored. All four CRIT/HIGH findings were re-verified by the orchestrator with its own commands before this entry was written.
+
+**Not swept:** `scripts/data_audit/*.py` (12) and `scripts/form4/*.py` (16) beyond a secret/path grep; `dashboard/web.py` (3,309 lines) sampled, not read; ~30 of the 45 `.md` files not claim-checked line by line; no CVE scan; no mutation tool.
+
+# Appendix EB - Scheduled daily-audit: 0 projects classified ACTIVE, and the 2026-09-24 post-market session was a 4-second run that reported success (2026-09-26 07:09 CDT)
+Read-only sweep, 2026-09-26 07:09 CDT. Cutoff 2026-09-19.
+
+STEP 1 classification: 8 projects in scope, ZERO classified ACTIVE, so STEP 2
+(/audit + /landing-check) ran on nothing. Six are SKIP-AUDITED because their
+last audit is 1-5 days old with fewer than 10 non-audit commits after it
+(Citoya 2, Skills 0, Swing Trading 0, Trading 2, World Models Research 5,
+World Models Research CoRL 2027 0). Two are INACTIVE (Autonomous Car Project,
+last audit 2026-09-17 and no activity since 2026-09-10; Clubs, last audit
+2026-09-14, not a repo, no entries since). Findings below are all from STEP 0,
+the Trading-only fixed checks.
+
+STEP 0a MISSING SESSION - the one that matters. daily_report.md has no
+"2026-09-24 (Thursday) ... Post-Market Close Analysis" header. Root cause
+found: the daily-trade-check-2 run at 2026-09-25T00:04:31Z (2026-09-24 19:04
+CDT) started and reached last_activity 4 SECONDS later with status
+"succeeded". Every other run in the last week ran 23-63 minutes. A 4-second
+no-op reported as success is exactly the silent absence STEP 0a exists to
+catch, and the status field actively lies about it.
+
+STEP 0a SECOND-ORDER - the detector's own pattern is now stale. The spec's
+grep looks for an em dash between the date and the session name, but the
+2026-09-25 headers use an ASCII hyphen (the ASCII-only rule, Skills records
+DM/DN, 2026-09-23). Both 09-25 sessions exist and a literal em-dash grep would
+report them missing. This sweep only saw them because it used a loose
+character class.
+
+STEP 0b DUPLICATE SESSION: none. No header appears twice.
+
+STEP 0c SPEC DRIFT: 2 of 4 snapshots differ.
+- monthy-llm-rebalance: the live SKILL.md body says it fires "daily at 5:30pm
+  local"; the snapshot says "days 1-5 of each month at ~6:03pm local (cron
+  0 18 1-5 * *)". The live cron IS 0 18 1-5 * *, so the live prompt's own prose
+  contradicts the schedule it runs on and would tell a reader the day-gate is
+  the only thing stopping a daily rebalance.
+- daily-audit: the live STEP 1 lost the "within the last 7 days" clause from
+  both SKIP-AUDITED and ACTIVE, leaving "an audit dated with fewer than 10
+  non-audit commits" and "any non-audit record entry or commit within a recent
+  audit" - neither parses. The live file also carries the append/ASCII sections
+  the snapshot lacks, so the snapshot is stale in the other direction.
+- daily-trade-check and daily-trade-check-2: identical to snapshot.
+- Five live task dirs have no snapshot at all; one of them, hellow, is ENABLED
+  and fires three times a day.
+
+STEP 0d CRON DRIFT: none. All four documented crons match HANDOFF's table
+(monthy-llm-rebalance 0 18 1-5 * *, daily-trade-check 0 7 * * 1-5,
+daily-trade-check-2 0 19 * * 1-5, daily-audit 0 7 * * *). hellow
+(0 12,17,22 * * *, enabled) matches its documented row too. The three
+documented drifts (CQ.3, DG, the monthly day-gate) are all currently clean.
+
+STEP 0e TRADE/PUSH GUARD: both layers live. All five prefix deny rules present
+in BOTH Trading/.claude/settings.json and ~/.claude/settings.json;
+pretooluse-trading-guard.js registered on matcher "Bash|PowerShell" in both;
+node scripts\hooks\test_trading_guard.js prints "20 passed, 0 failed". The hook
+also fired for real during this sweep, blocking a grep that merely contained
+the push token - the accepted false positive, working as designed.
+
+ALSO NOTED (not a STEP 0 check): records DZ and EA are on disk but
+uncommitted - git status shows HANDOFF.md, CLAUDE.md, both record files and
+daily_price_refresh.py modified, plus untracked
+scripts/momentum/test_refresh_rate_limit.py.
+
+No code, docs or config were changed by this sweep.
+
+# Appendix EC - Five scheduled-task defects closed (record EB); the prescribed bracket pattern failed in the C locale; 09-24 post-market is a permanent hole; DZ corrected (2026-09-26, ~21:20 CDT)
+## WHAT
+
+Five scheduled-task defects from the 2026-09-26 daily audit (record EB) are
+closed, on Evan's instruction. Live specs are under
+`C:\Users\evan.EVANFREDY\.claude\scheduled-tasks\`. They are in no git repo; the
+committed snapshots are under `docs/scheduled-tasks/`.
+
+1. **Done-check in both daily-report specs.** `daily-trade-check-2` checks for
+   Post-Market and `daily-trade-check` for Pre-Market.
+   - It is the LAST step of every run: after the commit or the NO-OP line, and
+     after a STOP at 0b (and 0f for the post-market task). It is skipped only
+     after a duplicate STOP at 0c.
+   - It greps `daily_report.md` for that run's own date+session header and must
+     print exactly 1.
+   - On 0 it appends `[OPS <date>] <task> MISSING-HEADER ...` to
+     `var/ops_status.log` and ends with `RESULT: FAILED - ...`. On 2 or more it
+     does the same with DUPLICATE-HEADER.
+   - The CONSTRAINTS write list, item (e), now allows that one log line.
+2. **Monthly spec drift.** The live `monthy-llm-rebalance` line 9 read "daily at
+   5:30pm local". It now carries the snapshot's text: days 1-5 at ~6:03pm local,
+   cron `0 18 1-5 * *`. The live cron read at 21:1x CDT is `0 18 1-5 * *`,
+   next run 2026-10-01T23:01:03Z.
+3. **daily-audit STEP 0a header pattern.** It now accepts both separators. See
+   the deviation below.
+4. **daily-audit STEP 1.** Both lost "within the last 7 days" clauses
+   (SKIP-AUDITED and ACTIVE) are restored from the snapshot. The STEP 1 block is
+   now identical to the snapshot's.
+5. **`hellow` snapshotted** to `docs/scheduled-tasks/hellow.SKILL.md`. It is
+   enabled on `0 12,17,22 * * *`. The content was read before copying: a
+   66-byte "Hello (just say hi back)" prompt.
+
+After the edits, every edited live file was re-copied over its snapshot.
+
+## DEVIATION from the instruction (item 3) - and why
+
+The instruction said to use the bracket pattern (an em dash and a hyphen inside
+`[...]`). **Tested here, it does not work.** Git Bash on this machine runs with
+LANG and LC_ALL unset, which is the C locale, and there a bracket expression
+cannot hold the 3-byte em dash. On the real `daily_report.md`, the bracket
+pattern with escaped parens returned:
+- 09-24 Pre-Market: 0 under the default locale and 0 under C, 1 only under
+  C.UTF-8.
+- 09-23 Post-Market: 0 under the default locale and 0 under C, 1 only under
+  C.UTF-8.
+
+So it would have flipped the bug: every em-dash session (everything before
+09-25) reported missing.
+
+A second trap: without escaping, `(Thursday)` under `grep -E` is a regex group,
+not literal parens. With it unescaped, every pattern returned 0, even for the
+hyphen headers.
+
+An alternation of the two dashes worked in all three locales, but the ASCII-only
+.md hook refused writing the em dash into the spec. **Shipped:**
+`^## Report: <date> \(<Weekday>\) .{1,3} <Session>`. `.{1,3}` matches the em
+dash as 1 character (UTF-8) or 3 bytes (C), and the hyphen as 1.
+
+Verified on the real file for every weekday 09-21..09-25, both sessions, in the
+default, C and C.UTF-8 locales: 9 of 10 found. The one miss is 2026-09-24
+Post-Market, which really is missing. The spec text explains all of this so the
+next editor does not "fix" it back.
+
+## ADDITION beyond the list (same root cause)
+
+Both report specs' 0c DUPLICATE check grepped for the em-dash header only. Since
+the ASCII headers began on 2026-09-25, a real re-fire would have passed 0c and
+double-appended. Both now use the same `.{1,3}` form. The header instruction
+each spec gives for WRITING the entry (line 32) still shows an em dash. That was
+left alone: the ASCII hook makes the agent write a hyphen anyway, and every
+check now accepts both.
+
+## LIMIT of item 1 - read before trusting it
+
+**The done-check cannot catch the failure that prompted it.** The 2026-09-24
+post-market run (fired 2026-09-25T00:04:31Z) lasted 4 s and reported
+`succeeded`. A session that short never reaches its last step. Consistent with
+that, `var/ops_status.log` has no line from `daily-trade-check-2` for that
+date: the existing NO-OP step never ran either. The done-check catches a
+DIFFERENT failure, a run that completes but whose append did not land.
+
+The detector for a run that dies at start is `daily-audit` STEP 0a, the next
+morning. That is what found this one, and item 3 is what keeps it working after
+the ASCII change. Both specs say this explicitly.
+
+## Permanent hole
+
+**2026-09-24 Post-Market Close Analysis does not exist and will not be written.**
+The session's market data cannot be re-observed after the fact; writing it now
+would be invented data. Recorded here as a permanent gap in `daily_report.md`.
+The NAV for 2026-09-24 IS marked in `paper_nav`: 76 rows, $7,631,904.43, 5,113
+closes, read-only at 21:17 CDT.
+
+## HOW verified
+
+- STEP 0c diffs, all five ENABLED tasks (from `list_scheduled_tasks`:
+  daily-trade-check, daily-trade-check-2, monthy-llm-rebalance, daily-audit,
+  hellow), live vs snapshot: identical, 5/5.
+- `node scripts\hooks\test_trading_guard.js`: 20 passed, 0 failed. Run at
+  baseline and after each of items 2, 3 and 4, and after the final copy.
+- The done-check greps, in their exact spec form: 09-25 Pre 1, 09-25 Post 1,
+  09-24 Pre 1, 09-24 Post 0.
+- No Python changed, so the frozen tests were not re-run.
+
+## Correction to record DZ (my error, unrelated to this task)
+
+DZ (2026-09-23) said 2026-09-22 was "a Yahoo data hole, not ours". **That was
+wrong.** Read-only at 21:17 CDT today, 09-22 has 5,111 closes (floor 5,000) and
+76 NAV rows summing to $7,742,284.34. It cleared on the refresh retries by
+itself, as `daily_report.md` 2026-09-25 section 0h first recorded.
+
+The "evidence" in DZ was one direct Yahoo query taken minutes after a full
+refresh against the DB copy had spent the rate-limit budget. The NaN it returned
+was a throttled response, not a missing bar. The corrected rule is in memory: a
+None from Yahoo is not proof of non-publication until it survives the
+60/120/240 s cooldown ladder.
+
+## Open
+
+- Uncommitted: the 4 snapshot files (3 modified, `hellow` new), this entry, and
+  the still-uncommitted DZ work (refresh fix + test).
+- Live specs are outside git; only the snapshots record these edits.
+
+# Appendix ED - docs-sync: 37 unpublished commits carry the forbidden Co-Authored-By trailer; publishing held for Evan (2026-09-26, ~22:05 CDT)
+## WHAT
+
+Docs-sync pass on Evan's `/docs-sync commit and push`, 2026-09-26 ~22:05 CDT.
+The commit was made. **Publishing to the remote was NOT done**, for two
+separate reasons.
+
+1. **A rule conflict (the real blocker).** 37 of the 60 commits ahead of
+   `origin/master` (counted before this commit) carry a `Co-Authored-By`
+   trailer. Evan's CLAUDE.md (project and global) now says never to include it
+   "in any commits or pushes", and the remote is public
+   (github.com/Evan-Daruwalla/long-term-trading-momentum).
+   - Most are scheduled daily-report commits. The scheduled tasks are STILL
+     adding the trailer after the rule appeared: `698be9a`, the 2026-09-24
+     pre-market entry.
+   - Removing it means rewriting the messages of the whole unpublished range.
+     That changes every hash the record cites for these commits (e.g.
+     `82644c2`, `0b3bb67`, the stage 0-4 commits). History rewriting is also
+     deny-listed for Claude.
+   - This is Evan's decision: publish as-is, rewrite then publish, or keep it
+     local.
+2. **The mechanical block.** Publishing is deny-listed in both settings files
+   and blocked by the trading guard. The guard fired during this pass on a
+   heredoc that merely DESCRIBED publishing, which is its documented false
+   positive. It was not routed around: "git -C" is one of the six known guard
+   bypasses. Evan publishes by hand.
+
+## Docs updated this pass
+
+- HANDOFF.md: two stale "uncommitted" claims corrected (stage 5, refresh fix).
+  The 2026-09-22 next-session prompt, most of whose items are done, is
+  replaced with a current one that leads with the publishing decision.
+- `.claude/codebase-memory/gotchas.md`: two bullets, the per-ticker yfinance
+  rate limit and the `paper_nav` seal. The bin had not been touched since
+  2026-09-06.
+- Memory `remark-nav-day-backdates-cash.md`: its last bullet still called
+  09-22 "a Yahoo hole". It now says the day settled after the DZ fix.
+- Record HTML twin re-rendered: broken 0.
+
+## Skipped, with reason
+
+- Record index: none in this project (no `scripts/record-index.js`).
+- PRD status: no PRD milestone's done-check was run this session.
+- Frozen tests: no Python changed since EC.
+- Other bins: architecture.md does not list `paper_nav_restatement`. This was
+  noted, not edited; one table name did not justify a rewrite.
+
+## Commit scope
+
+Explicit paths only, no trailer:
+- `CLAUDE.md` (Evan's own uncommitted edit, the no-trailer rule)
+- HANDOFF.md, the record and its HTML twin
+- 4 scheduled-task snapshots (hellow new)
+- `scripts/momentum/daily_price_refresh.py` and
+  `scripts/momentum/test_refresh_rate_limit.py` (DZ)
+- `.claude/codebase-memory/gotchas.md`

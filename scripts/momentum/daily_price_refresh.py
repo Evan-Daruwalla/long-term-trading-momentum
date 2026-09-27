@@ -14,8 +14,8 @@ Usage:
   python -m scripts.momentum.daily_price_refresh           # last 30 days
   python -m scripts.momentum.daily_price_refresh --days 7  # tight refresh
 
-Cost: ~5-8 min for the full ~4,200-ticker universe at 200/batch with 1s
-between batches (yfinance rate-limit friendly).
+Cost: ~2 min for ~5,900 tickers at 200/batch with 1s between batches, plus up
+to ~7 min of retry cooldowns when yfinance rate-limits the run (record DZ).
 """
 from __future__ import annotations
 
@@ -41,6 +41,13 @@ INTER_BATCH_SLEEP_SEC = 1.0
 # run into a nonzero exit. 0.10 catches a real rate-limit (2026-08-02: 6/30 = 20%)
 # without letting normal partial publication abort the monthly rebalance.
 EMPTY_BATCH_FAIL_FRACTION = 0.10
+# Record DY/DZ (2026-09-23): the rate limit also comes PER TICKER inside a batch
+# that still returns rows - from ~batch 15 of 30 every run, so 09-22 had 94% of
+# A-J closes but 46% of K-Z and neither guard above fired. Recently-traded names
+# that come back with NO rows are retried after these cooldowns, and the run
+# fails if this fraction of them is still missing at the end.
+RETRY_COOLDOWNS_SEC = (60, 120, 240)
+MISSING_LIVE_FAIL_FRACTION = 0.05
 
 
 def _load_known_tickers() -> list[str]:
@@ -57,6 +64,17 @@ def _load_known_tickers() -> list[str]:
     return [r[0] for r in rows]
 
 
+def _load_live_tickers(start: date) -> set[str]:
+    """Tickers with a cached close inside the refresh window - names that traded
+    recently and so SHOULD return rows. A delisted name ages out of the window,
+    so it is neither retried nor counted as missing."""
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT ticker FROM price_cache WHERE kind='close' "
+            "AND key_date >= ?", (start.isoformat(),)).fetchall()
+    return {r[0] for r in rows}
+
+
 def _bulk_upsert(rows: list[tuple]) -> int:
     if not rows:
         return 0
@@ -71,7 +89,8 @@ def _bulk_upsert(rows: list[tuple]) -> int:
 
 def _process_batch(tickers: list[str], start: date, end: date,
                    failed_sizes: list[int] | None = None,
-                   empty_sizes: list[int] | None = None) -> int:
+                   empty_sizes: list[int] | None = None,
+                   got: set[str] | None = None) -> int:
     """Download closes for `tickers` between [start, end], upsert. Returns rowcount.
 
     A batch that loses ALL 3 attempts drops ~200 tickers silently; when
@@ -80,6 +99,7 @@ def _process_batch(tickers: list[str], start: date, end: date,
     that come back EMPTY rather than raising - the shape a yfinance rate-limit
     takes. Both are optional (not required args) so
     scripts/data_audit/backfill_history_gaps.py's 3-arg call still works.
+    `got`, when passed, collects every ticker that returned at least one close.
     """
     raw = None
     for attempt in range(3):
@@ -129,6 +149,8 @@ def _process_batch(tickers: list[str], start: date, end: date,
             continue
         if df.empty:
             continue
+        if got is not None:
+            got.add(ticker)
         for ts, close in df["Close"].items():
             d = ts.date() if hasattr(ts, "date") else ts
             out.append((ticker, "close", d.isoformat(), float(close)))
@@ -154,6 +176,7 @@ def main() -> int:
     end = today + timedelta(days=1)    # yfinance end is exclusive
 
     tickers = _load_known_tickers()
+    live = _load_live_tickers(start)
     log.info("Refreshing %d tickers, range %s to %s",
              len(tickers), start, today)
 
@@ -164,15 +187,32 @@ def main() -> int:
     total = 0
     failed_sizes: list[int] = []
     empty_sizes: list[int] = []
+    got: set[str] = set()
     started = time.time()
     for i, batch in enumerate(batches, 1):
         t0 = time.time()
-        n = _process_batch(batch, start, end, failed_sizes, empty_sizes)
+        n = _process_batch(batch, start, end, failed_sizes, empty_sizes, got)
         total += n
         log.info("  [%3d/%3d] +%6d rows  %5.1fs  (total %d)",
                  i, len(batches), n, time.time() - t0, total)
         if i < len(batches):
             time.sleep(INTER_BATCH_SLEEP_SEC)
+
+    missing = sorted(live - got)
+    for rnd, cooldown in enumerate(RETRY_COOLDOWNS_SEC, 1):
+        if not missing:
+            break
+        log.warning("Retry %d: %d recently-traded ticker(s) returned no rows "
+                    "(rate-limit shape) - waiting %ds, then re-downloading.",
+                    rnd, len(missing), cooldown)
+        time.sleep(cooldown)
+        for i in range(0, len(missing), BATCH_SIZE):
+            total += _process_batch(missing[i:i + BATCH_SIZE], start, end, got=got)
+            time.sleep(INTER_BATCH_SLEEP_SEC)
+        still = sorted(live - got)
+        log.info("Retry %d recovered %d ticker(s); %d still missing.",
+                 rnd, len(missing) - len(still), len(still))
+        missing = still
 
     elapsed = time.time() - started
     log.info("Done. %d close+volume rows upserted in %.1f min", total, elapsed / 60)
@@ -229,6 +269,18 @@ def main() -> int:
             return 1
         log.warning(msg + " Below the %.0f%% failure threshold, so exit stays 0.",
                     *args, EMPTY_BATCH_FAIL_FRACTION * 100)
+    if missing:
+        frac = len(missing) / len(live)
+        msg = ("%d of %d recently-traded ticker(s) (%.1f%%) returned no rows even "
+               "after %d retry round(s), first few: %s.")
+        args = (len(missing), len(live), frac * 100, len(RETRY_COOLDOWNS_SEC),
+                ", ".join(missing[:10]))
+        if frac >= MISSING_LIVE_FAIL_FRACTION:
+            log.error("REFRESH INCOMPLETE: " + msg + " Prices for those names are "
+                      "STALE; re-run once the limit clears.", *args)
+            return 1
+        log.warning(msg + " Below the %.0f%% failure threshold, so exit stays 0.",
+                    *args, MISSING_LIVE_FAIL_FRACTION * 100)
     return 0
 
 

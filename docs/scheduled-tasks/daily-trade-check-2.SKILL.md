@@ -11,7 +11,7 @@ PRE-FLIGHT — do all of these BEFORE any research. Each one can abort the run.
 
 0b. If the US equity market was CLOSED today (holiday, or a halt with no settle), append a two-line entry under the normal header saying so and STOP — skip sections 1-7. The cron is Mon-Fri with no holiday calendar, so this check is the only thing between a market holiday and a report that republishes yesterday's numbers under today's date.
 
-0c. Grep `daily_report.md` for `## Report: <today> (<Weekday>) — Post-Market Close Analysis`. If it is already present, STOP and report that this run is a duplicate re-fire. Never append a second entry for the same date — the week/period summaries double-count it.
+0c. Run `grep -cE '^## Report: <today> \(<Weekday>\) .{1,3} Post-Market Close Analysis' daily_report.md`. The separator is an em dash in entries before 2026-09-25 and an ASCII hyphen after (ASCII rule of 2026-09-23); `.{1,3}` matches either in any locale, and the escaped parens are required under -E. If it prints 1 or more (already present), STOP and report that this run is a duplicate re-fire. Never append a second entry for the same date — the week/period summaries double-count it.
 
 0d. Read this task's live cron and `nextRunAt` from the scheduled-tasks list and echo them, plus the `date` output, into section 0 of the report. This task's cron has drifted three times on this machine (records CQ.3, DG); printing it into the artifact is what turns a silent drift into a visible one. At `0 17` it would read `paper_nav` 15 minutes BEFORE the 5:15pm MTM writes it, and every NAV in the report would be the prior session's with no symptom.
 
@@ -45,4 +45,13 @@ If something is found only after a commit has already landed, fix it and make a 
 
 If git reports nothing to commit, that means the report was never appended: a total failure wearing the happy path's clothes. Append one line to `var/ops_status.log` — `[OPS <YYYY-MM-DD>] daily-trade-check-2 NO-OP: nothing to commit` — so the next run and the daily audit can see it, then report it and finish.
 
-CONSTRAINTS — READ/RESEARCH ONLY. Never rebalance, MTM, or modify any sleeve, NAV, or price row. Never run `paper_rebalance`, `*_ops rebalance`/`decide`, or `alpaca_sync --execute`. The ONLY writes permitted are: (a) appending this report to `daily_report.md`, (b) rendering `daily_report.html`, (c) committing exactly those two paths, (d) a corrections commit of the same two paths, (e) one line appended to `var/ops_status.log` on a no-op.
+CONSTRAINTS — READ/RESEARCH ONLY. Never rebalance, MTM, or modify any sleeve, NAV, or price row. Never run `paper_rebalance`, `*_ops rebalance`/`decide`, or `alpaca_sync --execute`. The ONLY writes permitted are: (a) appending this report to `daily_report.md`, (b) rendering `daily_report.html`, (c) committing exactly those two paths, (d) a corrections commit of the same two paths, (e) one line appended to `var/ops_status.log` on a no-op or a failed DONE-CHECK.
+
+DONE-CHECK - the LAST step of every run, after the commit (or the NO-OP line), and also after a STOP at 0b or 0f. Skip it only after a duplicate STOP at 0c. Using the LOCAL date and weekday from 0a, run:
+
+  grep -cE '^## Report: <YYYY-MM-DD> \(<Weekday>\) .{1,3} Post-Market Close Analysis' daily_report.md
+
+It must print exactly 1, and you must paste that output into your final message. A success summary without it is not a success.
+- 0: this session's entry never landed, whatever an earlier step said. Append `[OPS <YYYY-MM-DD>] daily-trade-check-2 MISSING-HEADER: no post-market entry after run` to `var/ops_status.log` and end your final message with `RESULT: FAILED - no post-market entry for <YYYY-MM-DD>`.
+- 2 or more: append `[OPS <YYYY-MM-DD>] daily-trade-check-2 DUPLICATE-HEADER: <n> post-market entries` to `var/ops_status.log` and end with `RESULT: FAILED - duplicate post-market entry for <YYYY-MM-DD>`.
+Added 2026-09-26 (record EB finding: the 2026-09-24 post-market run fired at 2026-09-25T00:04:31Z, lasted 4 s, reported `succeeded`, and wrote nothing). Limit, stated so no one over-trusts it: this check only runs if the session reaches the end. A run that dies in its first seconds, like that one, never gets here - daily-audit STEP 0a (missing session) is the detector for that case. A session that is never written is a permanent hole: never backfill it after the fact, because the day's market data cannot be re-observed.

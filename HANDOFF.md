@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-23 ~22:17 CDT (record DY)** — this file is the only live snapshot
+**Last updated: 2026-09-26 ~22:05 CDT (record ED)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -32,7 +32,7 @@ Appendix AZ).
 > set; $289.20 summed |NAV| vs replay; DV's $6,135.89 unreconciled) were
 > **restored live 16:02 CDT** on Evan's call. `verify_run` **PASS 76/76**.
 >
-> **⚠️ `paper_nav` is now SEALED (record DX, uncommitted as of 16:10).** A row
+> **⚠️ `paper_nav` is now SEALED (record DX, committed `0b3bb67`; triggers live since 2026-09-23).** A row
 > with a newer row for the same sleeve refuses REPLACE/UPDATE/DELETE unless
 > `paper_nav_restatement` logged that (sleeve, date) in the last 10 min.
 > `remark_nav_day --execute` now REQUIRES `--reason` and logs it. Gap-fill and
@@ -43,12 +43,27 @@ Appendix AZ).
 > run `remark_nav_day --date 2026-09-21 --execute --reason "..."` for the 19
 > stale ladder rows. `mtm_catchup` fills the other 57.
 >
-> **⚠️ 2026-09-23 (record DY) — book unmarked since 09-18, and it will NOT
-> self-heal.** yfinance rate-limits every refresh from ~batch 15 of 30. 09-22
-> closes: A-J 94%, K-Z 46%. It drops tickers one at a time, so neither
-> refresh guard fires. Coverage 09-21/22/23 = 4,919 / 3,546 / 3,270 vs the
-> 5,000 floor. Deadlines: weekly ladder Mon 09-28 (skips sells on a sub-floor
-> day), monthly Thu 10-01.
+> **2026-09-23 ~22:50 CDT (records DY, DZ) - rate limit fixed, 09-21 marked.**
+> yfinance rate-limits every refresh from ~batch 15 of 30, one ticker at a
+> time, so no guard fired (09-22: A-J 94%, K-Z 46%). `daily_price_refresh` now
+> retries the dropped tickers after 60/120/240 s cooldowns, and exits 1 if 5%
+> or more are still missing (the monthly rebalance aborts on that). Live run:
+> 1,995 dropped, 13 left (0.3%), runtime 9.3 min. **2026-09-21 marked 76/76,
+> $7,718,922.42; verify PASS 76/76.** The stage 5 triggers are LIVE (5
+> triggers, 19 restatement rows). The fix was committed 2026-09-26
+> (docs-sync).
+>
+> **CORRECTED 2026-09-26 (record EC):** DZ's "09-22 is a Yahoo data hole" was
+> WRONG - a throttled NaN misread as a missing bar. 09-22..09-25 are all marked
+> 76/76 (09-22: 5,111 closes, $7,742,284.34). Weekly ladder Mon 09-28, monthly
+> Thu 10-01.
+>
+> **2026-09-26 (record EC) - scheduled-task specs.** Five EB defects closed.
+> Both report specs now end with a DONE-CHECK (grep own header, must be 1). It
+> can NOT catch a run that dies at start; daily-audit STEP 0a does. Every header
+> grep now uses `\(<Weekday>\) .{1,3} <Session>`, because the bracket form fails
+> in this machine's C locale. **2026-09-24 Post-Market is a permanent hole** -
+> never backfill it. 5 snapshots now, `hellow` included; all 5 match live.
 >
 > **The audit's own headline:** record appendices DS/DT/DU are three runs of
 > this project's `daily-audit` that had already found several of these, and
@@ -506,7 +521,7 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
 
 > **2026-08-20 (audit of `daily-trade-check-2`) — the scheduled tasks now have MECHANICAL enforcement and a drift detector.** The audit's crit finding was that every prohibition in the daily-report specs ("READ/RESEARCH ONLY", "NEVER `git add -A`", "never push", "never rebalance") was prose with **zero enforcement** — the deny list held two `Read(./.env*)` rules and nothing else, against a **public** remote, and it had already failed once for real (record DI.3). Three things changed:
 > 1. **CORRECTED 2026-08-20 by record DK - read this, not the original line.** Deny rules were added to BOTH `.claude/settings.json` and `~/.claude/settings.json` (the scheduled agent's cwd is not guaranteed), but **four of the nine were dead syntax**: a LEADING `:*` is literal, Claude Code `Bash(...)` rules are PREFIX matchers, and the dangerous token sits mid-command (`...python.exe -m scripts.momentum.<rebalancer>`), so a glob could never have worked. Those four were **removed, not repaired**. What is live now: **(a)** five working prefix rules in both files - `Bash(git push:*)`, `Bash(git add -A:*)`, `Bash(git add .:*)`, `Bash(git reset --hard:*)`, `Bash(git rebase:*)`; **(b)** a PreToolUse hook, `scripts/hooks/pretooluse-trading-guard.js`, registered on `Bash|PowerShell` in both files, which is what actually blocks the rebalancer, the decide path, Alpaca order-submit and `git push`. Self-check: `node scripts\hooks\test_trading_guard.js` -> 20/20. **It has one accepted false positive: it also blocks merely MENTIONING those tokens in a shell command (e.g. a `grep` for one), which is deliberate - a false positive costs a rephrase, a false negative costs a real trade.**
-> 2. **The live task specs are now snapshotted into the repo** at `docs/scheduled-tasks/<taskId>.SKILL.md` (4 of them). The live files under `~/.claude/scheduled-tasks/` are in NO git repo, so an edit to a spec that authorizes repo writes or trades was previously undetectable. `daily-audit` STEP 0c now diffs live-vs-snapshot every morning — **when you edit a task spec, re-copy it or the audit will report drift.**
+> 2. **The live task specs are now snapshotted into the repo** at `docs/scheduled-tasks/<taskId>.SKILL.md` (4 of them; 5 since 2026-09-26, record EC, `hellow` added). The live files under `~/.claude/scheduled-tasks/` are in NO git repo, so an edit to a spec that authorizes repo writes or trades was previously undetectable. `daily-audit` STEP 0c now diffs live-vs-snapshot every morning — **when you edit a task spec, re-copy it or the audit will report drift.**
 > 3. **`daily-audit` gained a STEP 0** (missing session / duplicate session / spec drift / cron drift / trade-guard live - STEP 0e RUNS the hook's self-check rather than asserting rule strings, because asserting a string that cannot fire is a green light on a dead gate). The missing-session check exists because **2026-08-17 has a pre-market entry and no post-market one** and nothing detected it — a scheduled report that never fires produces no error and no artifact.
 >
 > Both daily-report specs were also rewritten with a PRE-FLIGHT block: local-`date` header (the 19:00 task fires 22s past the UTC date line under CDT), holiday abort, duplicate-header abort, `mode=ro` DB open, month-boundary lock check, and an unmarked-NAV rule (**never present a carried-forward NAV as a marked close**). `/landing-check` now runs **BEFORE** the commit, not after — it had been gating nothing, and fabricated detail reached three of five consecutive entries.
@@ -748,64 +763,61 @@ Manual fallback (same steps) if you ever need to run it by hand:
 
 ```
 Trading project (D:\ClaudeCode\Trading). Read in this order: HANDOFF.md (top
-block is 2026-09-22, record DV) -> the record's front-matter TOC -> PRD_ROADMAP.md.
-The append-only record is ground truth; HANDOFF is the only live snapshot.
+blocks are 2026-09-22..09-26, records DV-ED) -> the record's front-matter TOC ->
+PRD_ROADMAP.md. The append-only record is ground truth; HANDOFF is the only live
+snapshot.
 
-STATE (verified 2026-09-22 ~14:32 CDT):
-- 76 sleeves. Frozen tests 4/4 d=+/-0.0000pp. Tree clean, 52 commits ahead of
-  origin, NOTHING pushed.
-- verify_run is FAILING 59/76 and it is a REAL DATA FAULT, not a false alarm.
+STATE (verified 2026-09-26 ~22:05 CDT):
+- 76 sleeves; 2026-09-22..09-25 all marked 76/76; verify_run PASS. Frozen
+  tests 4/4 d=+/-0.0000pp. paper_nav is SEALED (stage 5 triggers live since
+  2026-09-23): restate history only via remark_nav_day --execute --reason.
+- daily_price_refresh retries the per-ticker yfinance rate limit (60/120/240 s)
+  and exits 1 when >=5% of live tickers are still missing -- that aborts the
+  monthly rebalance by design. Refresh runtime is now ~9 min.
+- 61 commits ahead of origin, NOTHING published to the remote.
 
-DO THIS FIRST -- one decision, then one small fix.
-paper_mtm.py:119 sets "cash": pf.cash (the LIVE portfolio cash) and pairs it
-with positions priced as-of the target date. So re-marking a HISTORICAL date
-backdates today's cash onto it. 2026-09-17 was re-marked by hand on 09-22,
-after the weekly ladder rebalanced 09-21 -> 17 of 76 sleeves now carry a
-falsified 2026-09-17 cash figure. Max cash delta $25.90; summed absolute NAV
-delta $6,135.89. Evidence: 09-16 cash 2.087272, 09-17 0.002087, 09-18 2.087272.
+DO FIRST -- BLOCKED-ON-EVAN, publishing the branch:
+  37 of the unpublished commits carry a Co-Authored-By trailer, which Evan's
+  CLAUDE.md now forbids "in any commits or pushes"; the remote is PUBLIC.
+  Options: (a) publish as-is (breaks the rule); (b) rewrite the messages of
+  the whole unpublished range (every commit hash the record cites since ~DK
+  changes; history rewriting is deny-listed, so Evan runs it); (c) keep it
+  local. The scheduled daily-report tasks STILL add the trailer (698be9a,
+  2026-09-24) -- their specs need a "no Co-Authored-By" line once Evan decides.
+  Publishing is deny-listed and guard-blocked for Claude. Do NOT use any of the
+  six known guard bypasses. Evan publishes, by hand.
 
-  1. BLOCKED-ON-EVAN: restore the 17 rows' cash from historical_state.state_at()
-     (recommended) / delete the 17 rows / leave and document. CLAUDE.md reserves
-     this call for him. Claude's live-DB writes are classifier-refused anyway.
-  2. Then fix compute_nav to take an as-of cash instead of the live portfolio
-     cash. Code-only.
-  3. Do NOT re-mark 2026-09-21 until (2) lands -- it is sub-floor (4,190 closes)
-     and will need the same repair, and re-marking now repeats the fault.
+THEN:
+- Monthly rebalance Thu 2026-10-01 ~18:03: the trading guard still denies its
+  decision-logging step (memory: trading-guard-blocks-monthly-rebalance).
+  Expect it; do not route around it.
+- Stage 5 leftovers: stamp_rebalance_log atomicity (os.replace), alpaca_sync
+  per-account isolation, 2 cache-poisoning bugs (warm_fundamentals,
+  fetch_earnings_dates).
+- Stage 6: TOL_PCT 0.05 -> 0.001; wire the orphaned scripts/momentum/test_*.py
+  (now incl. test_compute_nav_asof, test_paper_nav_seal,
+  test_refresh_rate_limit) into daily.bat; auto_adjust=False in 5 research
+  benchmarks; 16 files with stale mom_v2 baselines (truth: in-sample 3.5407,
+  holdout 26.465).
+- Stage 8: the trading guard, six bypasses. EVAN APPROVES THE DIFF BEFORE ANY
+  CODE (his rule, 2026-09-06).
+- A3: staleness detector (record appendices newer than HANDOFF's stamp).
+- BLOCKED-ON-EVAN, small: audit finding 35 (Alpaca keys file into the Read deny
+  list in .claude/settings.json).
 
-THEN, the remaining audit stages (record DV.5 has the full list):
-- Stage 5: paper_nav NARROW append-only trigger -- must allow gap-fill and
-  same-day re-mark, block only restatement of a sealed older row; a verbatim
-  copy of the decision-log trigger breaks the daily pipeline AND kills
-  remark_nav_day. Test on a DB copy first. Plus stamp_rebalance_log atomicity
-  (os.replace), alpaca_sync per-account isolation, the 2 cache-poisoning bugs
-  (warm_fundamentals, fetch_earnings_dates).
-- Stage 6: TOL_PCT 0.05 -> 0.001 (NOT 0 -- EXPECTED is stored round(x,4), so
-  the floor is 5e-5), wire the 9 orphaned scripts/momentum/test_*.py into
-  daily.bat, auto_adjust=False in 5 research benchmarks, 16 files carrying
-  stale mom_v2 baselines (truth: in-sample 3.5407, holdout 26.465).
-- Stage 8: the trading guard. SIX proven bypasses (.bat wrapper, string concat,
-  -EncodedCommand, non-Bash tool names, --exec abbreviation, git -C push).
-  EVAN MUST APPROVE THE DIFF BEFORE ANY CODE IS WRITTEN -- his rule, 2026-09-06.
-- A3: staleness detector counting record appendices newer than HANDOFF's stamp
-  (currently the mechanism that let DS/DT/DU go unactioned for 9 days).
-
-BLOCKED-ON-EVAN, small: audit finding 35 (add the Alpaca keys file to the Read
-deny list in .claude/settings.json -- classifier-blocked to Claude); and the
-LIVE copy of the monthy-llm-rebalance task spec still reads "5:30pm" while the
-repo snapshot is corrected, so the two differ by that line.
-
-HARD RULES: never run anything that trades -- no rebalance entry points, no
-*_ops rebalance/decide, no alpaca_sync --execute, no .bat execution. DB
-read-only (file:...?mode=ro). Frozen tests after ANY Python change, real output
-pasted. Stay out of 17:00-18:30 and 19:45-21:00 local for DB-heavy work. Append
-record entries ONLY with
-`node ~/.claude/skills/project-memory/append-record-entry.js`.
-Commit only when asked; never push.
+HARD RULES: never run anything that trades; no .bat execution. DB read-only
+(file:...?mode=ro) unless the task writes; write paths are tested on a DB copy
+first (SQLite backup API, ~12 s). Frozen tests after ANY Python change, real
+output pasted. Stay out of 17:00-18:30 and 19:45-21:00 local for DB-heavy work.
+Records: append ONLY with append-record-entry.js, ASCII only. Commit only when
+asked, with NO Co-Authored-By trailer; never publish to the remote.
 
 KNOWN FRICTION: the PreToolUse guard denies any Bash command whose STRING merely
-contains a guarded token, so even a grep or a heredoc mentioning one is blocked
-(it fired on this very handoff prompt). Author content with the Write tool and
-keep the Bash command string clean. Cite line numbers ONLY from a direct
-grep -n / sed -n -- four citations were wrong this session, every one read off
-nested or derived output.
+contains a guarded token (it fired on writing this very prompt through a
+heredoc). Author content with the Write tool and keep the Bash string clean.
+
+LESSONS 2026-09-22..09-26: a None/NaN from Yahoo is not a missing bar until it
+survives the retry cooldowns (DZ misread one; corrected in EC). Test any grep
+pattern in the C locale -- a bracket cannot hold the 3-byte em dash (EC). Cite
+line numbers only from a direct grep -n.
 ```

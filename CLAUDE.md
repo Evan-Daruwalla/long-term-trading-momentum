@@ -126,3 +126,5 @@ the cadence was missed by N prompts so future-me can audit.
 - Stray 0-byte format-spec-named files (`4`, `10.2f}`) recur in the repo root
   from an unidentified evening process (record Appendix AW) — harmless, never
   commit them, source still unfound.
+
+Never include "Co-Authored-By: Claude Opus 5.5 (or any other model) <noreply@anthropic.com>" in any commits or pushes
