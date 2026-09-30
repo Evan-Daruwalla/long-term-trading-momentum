@@ -38,5 +38,5 @@ Last updated 2026-07-15. Canonical home for run/automation + commands.
   stray builtin-shadowing root file silently corrupts the whole cmd.exe parse.
 
 ## Commit discipline
-- Commit only when a task/Evan authorizes; NEVER push without Evan. End messages
-  with the `Co-Authored-By: Claude …` trailer.
+- Commit only when a task/Evan authorizes; NEVER push without Evan.
+  NO Co-Authored-By trailer (CLAUDE.md, 2026-09-26).

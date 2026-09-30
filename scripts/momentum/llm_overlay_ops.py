@@ -21,6 +21,11 @@ Daily (folded into daily.bat)
 -----------------------------
   python -m scripts.momentum.llm_overlay_ops check-invalidation
 
+Exit codes: `rebalance` returns 4 when a strict fill meets a bar that is not
+as_of's own (record EE item 6): nothing traded, sleeve not stamped, the retry
+command is printed and an [OPS] line goes to var/ops_status.log. A stale bar in
+`check-invalidation` skips that stop and stays rc 0.
+
 See trading_bot/strategies/llm_overlay.py for the full experiment design and
 the pre-committed kill switch.
 """
@@ -33,12 +38,46 @@ import sys
 from datetime import date
 
 from scripts.momentum import check_coverage
+from trading_bot.config import VAR_DIR
 from trading_bot.execution import market_data, paper_trader
 from trading_bot.strategies import llm_overlay
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("llm_overlay_ops")
+
+# Exit code of a rebalance command that met a stale bar BEFORE any trade
+# (record EE item 6). Not a failure: the sleeve kept its holding and was not
+# stamped; rebalance.bat notes it without setting RC_FAIL. The stop-check
+# commands never return it (a skipped stop stays rc 0).
+STALE_SKIP_RC = 4
+
+
+def _ops_status(msg: str) -> None:
+    """Append one `[OPS <date>] <msg>` line to var/ops_status.log (ops_stamp's
+    file and format). The only file the strict-fill skip path writes. Shared by
+    sector_overlay_ops and llm_cascade_ops."""
+    VAR_DIR.mkdir(parents=True, exist_ok=True)
+    with open(VAR_DIR / "ops_status.log", "a", encoding="utf-8") as f:
+        f.write(f"[OPS {date.today().isoformat()}] {msg}\n")
+
+
+def _retry_cmd(module: str, sub: str, as_of: date) -> str:
+    return (f".venv\\Scripts\\python.exe -m scripts.momentum.{module} {sub} "
+            f"--as-of {as_of.isoformat()}")
+
+
+def _stale_skip(sleeve: str, exc: market_data.StaleBarSkip, retry: str, *,
+                dry_run: bool) -> int:
+    """A strict fill met a stale bar before the first trade: nothing was traded
+    or stamped. Log it, print the exact retry command, leave an [OPS] line
+    (real runs only), and return STALE_SKIP_RC."""
+    log.error("[%s] STALE-SKIP %s: %s. No trade, not stamped.",
+              sleeve, exc.ticker, exc)
+    print(f"RETRY after the day settles: {retry}")
+    if not dry_run:
+        _ops_status(f"{sleeve} STALE-SKIP {exc.ticker} ref {exc.ref_dt}")
+    return STALE_SKIP_RC
 
 
 def _init_both() -> None:
@@ -50,9 +89,13 @@ def _init_both() -> None:
 
 def _set_single_position(*, strategy_name: str, target: str | None,
                          entry_score: float | None, as_of: date,
-                         dry_run: bool, reason_open: str = "rebalance") -> int:
+                         dry_run: bool, reason_open: str = "rebalance",
+                         strict_fill_date: bool = False) -> int:
     """Move a single-name sleeve to hold exactly `target` (or cash if None).
-    Returns number of trades executed. Reuses paper_trader for all bookkeeping."""
+    Returns number of trades executed. Reuses paper_trader for all bookkeeping.
+
+    strict_fill_date=True raises market_data.StaleBarSkip -- before any trade --
+    if the held name or the target has no close on exactly `as_of`."""
     market_data.preload_caches()
     open_positions = paper_trader.list_open(strategy_name)
     cur = open_positions[0] if open_positions else None
@@ -64,6 +107,14 @@ def _set_single_position(*, strategy_name: str, target: str | None,
         if not dry_run:
             paper_trader.mark_rebalanced(strategy_name)
         return 0
+
+    if strict_fill_date:
+        # Price BOTH legs before the first trade (record EE item 6). Pricing the
+        # target after the sell would strand the sleeve in cash on a stale bar.
+        for t in (cur_ticker, target):
+            if t is not None:
+                market_data.fill_close(t, as_of, strict_fill_date=True,
+                                       context=strategy_name)
 
     spread = llm_overlay.HALF_SPREAD_BPS / 10_000.0
     trades = 0
@@ -197,9 +248,16 @@ def cmd_rebalance(args) -> int:
             log.warning("Run: candidate -> 3 prompts -> decide --ticker %s "
                         "before `rebalance --mode overlay`.", ticker)
             log.warning("=" * 60)
-        _set_single_position(
-            strategy_name=llm_overlay.CONTROL_STRATEGY, target=ticker,
-            entry_score=z, as_of=as_of, dry_run=args.dry_run)
+        try:
+            _set_single_position(
+                strategy_name=llm_overlay.CONTROL_STRATEGY, target=ticker,
+                entry_score=z, as_of=as_of, dry_run=args.dry_run,
+                strict_fill_date=True)
+        except market_data.StaleBarSkip as exc:
+            return _stale_skip(
+                llm_overlay.CONTROL_STRATEGY, exc,
+                _retry_cmd("llm_overlay_ops", "rebalance --mode control", as_of),
+                dry_run=args.dry_run)
         return 0
 
     # overlay mode: act on the LLM decision for THIS rebalance's #1 candidate.
@@ -226,9 +284,16 @@ def cmd_rebalance(args) -> int:
         target = None
         log.info("[overlay] decision=VETO %s — moving to cash.",
                  decision["ticker"])
-    _set_single_position(
-        strategy_name=llm_overlay.OVERLAY_STRATEGY, target=target,
-        entry_score=decision["score"], as_of=as_of, dry_run=args.dry_run)
+    try:
+        _set_single_position(
+            strategy_name=llm_overlay.OVERLAY_STRATEGY, target=target,
+            entry_score=decision["score"], as_of=as_of, dry_run=args.dry_run,
+            strict_fill_date=True)
+    except market_data.StaleBarSkip as exc:
+        return _stale_skip(
+            llm_overlay.OVERLAY_STRATEGY, exc,
+            _retry_cmd("llm_overlay_ops", "rebalance --mode overlay", as_of),
+            dry_run=args.dry_run)
     return 0
 
 
@@ -262,7 +327,19 @@ def cmd_check_invalidation(args) -> int:
                  "check.", pos["ticker"])
         return 0
     inval = decision["invalidation_level"]
-    px = market_data.last_close_checked(pos["ticker"], as_of)
+    try:
+        # A stop is a fill: never price it off a carried-forward bar.
+        px = market_data.fill_close(pos["ticker"], as_of, strict_fill_date=True,
+                                    context=llm_overlay.OVERLAY_STRATEGY)
+    except market_data.StaleBarSkip as exc:
+        # Skip this check, leave a trail, stay rc 0: a stale bar must not fail
+        # the daily run (record EE item 6).
+        log.warning("[overlay] STALE-SKIP stop check for %s: %s",
+                    pos["ticker"], exc)
+        if not args.dry_run:
+            _ops_status(f"{llm_overlay.OVERLAY_STRATEGY} STALE-SKIP "
+                        f"{pos['ticker']} ref {exc.ref_dt} (stop check)")
+        return 0
     if px is None:
         log.warning("[overlay] no price for %s at %s — cannot check stop.",
                     pos["ticker"], as_of)

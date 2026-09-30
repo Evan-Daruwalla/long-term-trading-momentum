@@ -239,7 +239,11 @@ def main() -> int:
         conn.close()
         return 1
     cliff = last_pre["price"] / cutoff["price"]
-    adjust_cache = (n / 2.0 <= cliff <= n * 2.0)
+    # +/-25% around N. The old band [N/2, 2N] let an already-adjusted series through
+    # for small N: at N=2 it was [1.0, 4.0], so a flat 1.0x cliff (the series after ONE
+    # correct halving) passed and a second run would have halved history again
+    # (record EE, 2026-09-29). KLAC's real 9.79x for N=10 is well inside the new band.
+    adjust_cache = abs(cliff / n - 1.0) <= 0.25
     if not adjust_cache:
         # The guard exists to stop a SECOND --execute from dividing history by N again.
         # It protects the cache UPDATE only -- the position repairs are independently

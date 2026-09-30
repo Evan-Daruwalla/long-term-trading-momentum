@@ -65,6 +65,7 @@ import sys
 import time
 from datetime import date
 
+from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT, _ro_connect, coverage_status
 from scripts.momentum.seed_residual_cadence_ladder import WEIGHTS, CADENCES
 
 logging.basicConfig(level=logging.INFO,
@@ -191,6 +192,19 @@ def _mtm_phase(as_of, dry_run, paper_mtm, existing) -> list[str]:
     return failures
 
 
+def trading_day_ok(as_of: date) -> tuple[bool, int]:
+    """(is_trading_day, close_count) for as_of. A market-closed day leaves only a
+    couple hundred stray closes; the same MIN_TRADING_DAY_COUNT test the daily gate
+    uses. NOT a coverage-floor check: the monthly run goes ahead on a partial-but-
+    real day by design (rebalance.bat: no coverage gate)."""
+    conn = _ro_connect()
+    try:
+        n = coverage_status(conn, as_of.isoformat())["count"]
+    finally:
+        conn.close()
+    return n >= MIN_TRADING_DAY_COUNT, n
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dry-run", action="store_true",
@@ -200,6 +214,17 @@ def main() -> int:
     args = ap.parse_args()
 
     as_of = date.fromisoformat(args.as_of) if args.as_of else date.today()
+
+    # Record EE item 5: on a market holiday the legs would still run (the LLM ops
+    # + alpaca_sync in rebalance.bat, and the MTM phase would write a holiday NAV
+    # row for every sleeve). Exit 3 BEFORE the imports/preload; rebalance.bat
+    # stops on it and stamps nothing, so the month gate stays open.
+    is_day, n_closes = trading_day_ok(as_of)
+    if not is_day:
+        log.error("%s is not a trading day (%d closes < %d): nothing traded, nothing "
+                  "marked. Re-run on the first real trading day.",
+                  as_of, n_closes, MIN_TRADING_DAY_COUNT)
+        return 3
 
     # Deferred heavy imports (mirror ladder_forward_rebalance / seed_* pattern).
     from scripts.momentum import paper_rebalance, paper_mtm

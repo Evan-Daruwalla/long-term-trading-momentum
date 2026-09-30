@@ -26,6 +26,11 @@ Daily (fold into daily.bat)
 ---------------------------
   python -m scripts.momentum.sector_overlay_ops check-invalidation
 
+Exit codes: `rebalance` returns 4 when a strict fill meets a bar that is not
+as_of's own (record EE item 6): nothing traded, sleeve not stamped, retry
+command printed, [OPS] line appended. A stale bar in `check-invalidation` skips
+that position's stop and stays rc 0.
+
 See trading_bot/strategies/sector_overlay.py for the design + kill switch.
 """
 from __future__ import annotations
@@ -37,6 +42,7 @@ import sys
 from datetime import date
 
 from scripts.momentum import check_coverage
+from scripts.momentum.llm_overlay_ops import _ops_status, _retry_cmd, _stale_skip
 from trading_bot.execution import market_data, paper_trader
 from trading_bot.factors import sector_momentum
 from trading_bot.strategies import sector_overlay
@@ -149,6 +155,16 @@ def cmd_rebalance(args) -> int:
     sells = [p for t, p in current.items() if t not in target]   # rotated-out OR vetoed
     buys = [t for t in holds if t not in current]                # keeps are left untouched
 
+    # Price EVERY sell and buy leg before the first trade (record EE item 6): a
+    # stale bar on any of them leaves the whole sleeve untouched and unstamped.
+    try:
+        for t in [p["ticker"] for p in sells] + buys:
+            market_data.fill_close(t, as_of, strict_fill_date=True, context=strat)
+    except market_data.StaleBarSkip as exc:
+        return _stale_skip(strat, exc,
+                           _retry_cmd("sector_overlay_ops", "rebalance", as_of),
+                           dry_run=args.dry_run)
+
     trades = 0
     # 1. Sells (rotated-out or newly-vetoed) -> cash
     for p in sells:
@@ -225,7 +241,19 @@ def cmd_check_invalidation(args) -> int:
         if dec is None or dec["invalidation_level"] is None:
             continue
         inval = dec["invalidation_level"]
-        px = market_data.last_close_checked(pos["ticker"], as_of)
+        try:
+            # A stop is a fill: never price it off a carried-forward bar.
+            px = market_data.fill_close(pos["ticker"], as_of,
+                                        strict_fill_date=True, context=strat)
+        except market_data.StaleBarSkip as exc:
+            # Skip this position's stop, leave a trail, stay rc 0 (record EE
+            # item 6); the loop moves on to the next position.
+            log.warning("[sector-overlay] STALE-SKIP stop check for %s: %s",
+                        pos["ticker"], exc)
+            if not args.dry_run:
+                _ops_status(f"{strat} STALE-SKIP {pos['ticker']} "
+                            f"ref {exc.ref_dt} (stop check)")
+            continue
         if px is None:
             log.warning("[sector-overlay] no price for %s at %s — skip stop.",
                         pos["ticker"], as_of)

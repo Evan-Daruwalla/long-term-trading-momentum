@@ -180,7 +180,10 @@ def sync_account(account: Account, *, execute: bool) -> int:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
+    # allow_abbrev=False: argparse otherwise accepts --e/--ex/--exec as the
+    # trade-submitting flag (record EE, 2026-09-29), which no text guard can
+    # enumerate reliably. Only the full --execute may submit orders.
+    ap = argparse.ArgumentParser(allow_abbrev=False)
     ap.add_argument("--all", action="store_true", help="sync every mapped account")
     ap.add_argument("--sleeve", help="sync only the account mapped to this sleeve")
     ap.add_argument("--execute", action="store_true",

@@ -55,6 +55,7 @@ logging.basicConfig(level=logging.INFO,
 log = logging.getLogger("ladder_forward_rebalance")
 
 from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT as TRADING_DAY_MIN  # A1
+from scripts.momentum.check_coverage import _ro_connect, coverage_status
 # Biweekly anchor = the MONDAY of the 05-01 seed week (2026-04-27). Parity uses
 # ordinal weeks since this date, NOT raw ISO week numbers: ISO parity breaks in
 # a 53-week year (2026 is one) and would insert a one-time 3-week gap across
@@ -97,9 +98,23 @@ def _last_activity_date(db_path, names) -> date | None:
     return date.fromisoformat(row[0]) if row and row[0] else None
 
 
-def _rebalance_sleeves(names, as_of, paper_rebalance, paper_mtm):
+def _coverage_gate(as_of: date) -> tuple[bool, int, int]:
+    """(ok, count, floor): the SAME coverage_status the daily gate and mtm_catchup
+    use. Below the floor the ladder still rebalances but must not write NAV -- the
+    2026-09-28 run wrote 38 rows on partial data that nobody re-marked (record EE)."""
+    conn = _ro_connect()
+    try:
+        st = coverage_status(conn, as_of.isoformat())
+    finally:
+        conn.close()
+    return bool(st["ok"]), st["count"], st["floor"]
+
+
+def _rebalance_sleeves(names, as_of, paper_rebalance, paper_mtm, cov_ok):
     """Rebalance each sleeve, isolating failures so one bad sleeve cannot abort
-    the rest of the ladder. Returns (done, failed) — mirrors monthly_rebalance."""
+    the rest of the ladder. Returns (done, failed) — mirrors monthly_rebalance.
+    NAV is written only when cov_ok; otherwise mtm_catchup marks the day once it
+    settles (its last-rebalance guard reads the local date of the stamp)."""
     from trading_bot.db import connect
     done, failed = [], []
     for name in names:
@@ -117,9 +132,13 @@ def _rebalance_sleeves(names, as_of, paper_rebalance, paper_mtm):
                 dry_run=False, broker_realistic=True,
                 strict_fill_date=True,
             )
-            nav = paper_mtm.compute_nav(name, as_of)
-            paper_mtm.write_nav(name, as_of, nav)
-            log.info("%s: %d changes; NAV@%s $%.2f", name, n, as_of, nav["total_nav"])
+            if cov_ok:
+                nav = paper_mtm.compute_nav(name, as_of)
+                paper_mtm.write_nav(name, as_of, nav)
+                log.info("%s: %d changes; NAV@%s $%.2f", name, n, as_of, nav["total_nav"])
+            else:
+                log.warning("%s: %d changes; NAV@%s NOT written (coverage below floor) "
+                            "-- left to mtm_catchup", name, n, as_of)
             done.append(name)
         except Exception:
             log.exception("%s: rebalance FAILED; continuing with remaining sleeves", name)
@@ -181,10 +200,14 @@ def main() -> int:
         return 0
 
     from scripts.momentum import paper_rebalance, paper_mtm
+    cov_ok, cov_n, cov_floor = _coverage_gate(today)
+    if not cov_ok:
+        log.warning("coverage %d < floor %d on %s: rebalancing, but NAV is left to "
+                    "mtm_catchup", cov_n, cov_floor, today)
     all_failed = []
     for cad, names in plan:
         log.info("=== %s ladder: rebalancing %d sleeves as-of %s ===", cad, len(names), today)
-        done, failed = _rebalance_sleeves(names, today, paper_rebalance, paper_mtm)
+        done, failed = _rebalance_sleeves(names, today, paper_rebalance, paper_mtm, cov_ok)
         log.info("=== %s: rebalanced %d/%d sleeves (%d failed) ===",
                  cad, len(done), len(names), len(failed))
         all_failed.extend(failed)

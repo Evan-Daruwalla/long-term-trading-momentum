@@ -33,7 +33,7 @@ import argparse
 import logging
 import sqlite3
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from trading_bot.config import DB_PATH
@@ -67,7 +67,10 @@ def _last_rebalance(conn: sqlite3.Connection, strategy: str, inception: date) ->
                        (strategy,)).fetchone()
     if row and row["last_rebalanced_at"]:
         try:
-            return date.fromisoformat(str(row["last_rebalanced_at"])[:10])
+            # mark_rebalanced stamps UTC, so a 20:31 CDT run carries the NEXT UTC
+            # day; [:10] read 09-29 for a 09-28 rebalance and the day could never
+            # be marked (record EE). Compare as a LOCAL date, like the as-of dates.
+            return datetime.fromisoformat(str(row["last_rebalanced_at"])).astimezone().date()
         except ValueError:
             pass
     return inception

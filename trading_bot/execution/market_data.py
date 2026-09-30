@@ -319,6 +319,36 @@ def last_close_checked(ticker: str, as_of: date, *,
     return px
 
 
+class StaleBarSkip(Exception):
+    """A strict fill was asked to price off a bar that is not `as_of`'s own.
+
+    Raised by `fill_close` BEFORE any trade. Carries the ticker, the requested
+    date and the bar date it would have used (None = no bar at or before as_of),
+    so the caller can log it and print the retry command."""
+
+    def __init__(self, ticker: str, as_of: date, ref_dt: date | None) -> None:
+        self.ticker, self.as_of, self.ref_dt = ticker, as_of, ref_dt
+        super().__init__(f"{ticker}: latest close at or before {as_of} is "
+                         f"{ref_dt if ref_dt is not None else 'missing'}, "
+                         f"not {as_of}")
+
+
+def fill_close(ticker: str, as_of: date, *, strict_fill_date: bool,
+               context: str = "") -> float | None:
+    """The close a fill or stop-check should price off.
+
+    strict_fill_date=False is `last_close_checked` (carry-forward, warns when
+    stale). strict_fill_date=True raises StaleBarSkip unless the bar is exactly
+    `as_of`'s own -- the per-ticker twin of paper_rebalance._stale_fill, for
+    callers that price their own fills (the LLM-experiment ops modules; record
+    EE item 6). A missing bar is not as_of's bar either.
+    """
+    _, ref_dt = last_close_on_or_before(ticker, as_of)
+    if strict_fill_date and ref_dt != as_of:
+        raise StaleBarSkip(ticker, as_of, ref_dt)
+    return last_close_checked(ticker, as_of, context=context)
+
+
 def last_close_on_or_before(ticker: str, as_of: date
                             ) -> tuple[float | None, date | None]:
     """Most-recent cached close on `as_of` or the nearest prior trading day.

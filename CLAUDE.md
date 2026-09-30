@@ -52,11 +52,15 @@ old versions of this file — a stale roster here caused confusion before).
   (yfinance `auto_adjust=False`). Every writer honors it; never add one that
   doesn't. (daily_price_refresh violated it until the 2026-06-09 audit.)
 - **Never run concurrent `factor_backtest` against the same DB.** Always
-  sequential. **Updated 2026-09-20 (audit):** the original hazard — `_wipe_state()`
-  running destructive `DELETE`s against live `positions`/`portfolio_state` — was
-  CLOSED on 2026-08-12 (record CZ) by shadowing both tables into per-connection
-  TEMP tables. Proven by running `scripts/momentum/test_backtest_state_isolation.py`
-  (7/7). What remains, and what this rule now protects, is **`price_cache` write
+  sequential. **Updated 2026-09-29 (record EE item 8):** the original hazard -
+  `_wipe_state()` running destructive `DELETE`s against live
+  `positions`/`portfolio_state` - is closed by shadowing both tables into
+  per-connection TEMP tables, in TWO copies closed on different dates:
+  `factor_backtest._wipe_state` on 2026-08-12 (record CZ), and
+  `backtest._wipe_state` (the legacy `main.py` / `multi_backtest` path) only on
+  2026-09-29 - the 2026-09-20 text here claimed it closed while that copy still
+  wiped the live table. Proven by `scripts/momentum/test_backtest_state_isolation.py`
+  (8/8, covers both). What remains, and what this rule now protects, is **`price_cache` write
   contention**: `price_cache` is deliberately NOT shadowed, so a backtest reading
   it while `daily_price_refresh` writes it is a real collision, mitigated only by
   `busy_timeout=30000` in `db.py`. Nothing enforces the separation in code — it is

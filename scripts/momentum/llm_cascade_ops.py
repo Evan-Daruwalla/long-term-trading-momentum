@@ -16,6 +16,10 @@ Monthly flow (after logging decisions via the existing overlay `decide` CLIs):
   python -m scripts.momentum.llm_cascade_ops rebalance-stock
   python -m scripts.momentum.llm_cascade_ops rebalance-sector
 
+Exit codes: both rebalance commands return 4 when a strict fill meets a bar that
+is not as_of's own (record EE item 6): nothing traded, sleeve not stamped, retry
+command printed, [OPS] line appended.
+
 See trading_bot/strategies/llm_cascade.py for the design + fallbacks.
 """
 from __future__ import annotations
@@ -28,7 +32,8 @@ from datetime import date
 from trading_bot.execution import market_data, paper_trader
 from trading_bot.factors import sector_momentum
 from trading_bot.strategies import llm_cascade
-from scripts.momentum.llm_overlay_ops import _set_single_position
+from scripts.momentum.llm_overlay_ops import (
+    _retry_cmd, _set_single_position, _stale_skip)
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -67,9 +72,16 @@ def cmd_rebalance_stock(args) -> int:
     log.info("[stock-cascade] pick=%s z=%+.3f %s", ticker, z,
              "(FALLBACK to #1 — no BUY in top-%d)" % llm_cascade.CASCADE_DEPTH
              if fallback else "(LLM-approved BUY)")
-    _set_single_position(
-        strategy_name=llm_cascade.STOCK_CASCADE_STRATEGY, target=ticker,
-        entry_score=z, as_of=as_of, dry_run=args.dry_run)
+    try:
+        _set_single_position(
+            strategy_name=llm_cascade.STOCK_CASCADE_STRATEGY, target=ticker,
+            entry_score=z, as_of=as_of, dry_run=args.dry_run,
+            strict_fill_date=True)
+    except market_data.StaleBarSkip as exc:
+        return _stale_skip(
+            llm_cascade.STOCK_CASCADE_STRATEGY, exc,
+            _retry_cmd("llm_cascade_ops", "rebalance-stock", as_of),
+            dry_run=args.dry_run)
     return 0
 
 
@@ -97,6 +109,16 @@ def cmd_rebalance_sector(args) -> int:
     target = set(picks)
     sells = [p for t, p in current.items() if t not in target]
     buys = [t for t in picks if t not in current]
+
+    # Price EVERY sell and buy leg before the first trade (record EE item 6): a
+    # stale bar on any of them leaves the whole sleeve untouched and unstamped.
+    try:
+        for t in [p["ticker"] for p in sells] + buys:
+            market_data.fill_close(t, as_of, strict_fill_date=True, context=strat)
+    except market_data.StaleBarSkip as exc:
+        return _stale_skip(strat, exc,
+                           _retry_cmd("llm_cascade_ops", "rebalance-sector", as_of),
+                           dry_run=args.dry_run)
 
     trades = 0
     for p in sells:

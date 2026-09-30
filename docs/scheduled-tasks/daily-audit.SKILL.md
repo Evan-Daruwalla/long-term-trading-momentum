@@ -70,7 +70,7 @@ bodies), docs/audit_*.md filenames, and `git log --oneline --since=<cutoff>` if 
 - INACTIVE: neither. Skip.
 
 STEP 2 — Per ACTIVE project, in sequence:
-a. Read that project's CLAUDE.md first (Trading/ServeLocal rules live there).
+a. Read that project's CLAUDE.md first (Trading/Citoya rules live there).
 b. /audit — full cold audit.
 c. /landing-check — scoped to the most recent record entry's claims vs disk
    (the audit changed nothing, so there is no new diff to sweep).

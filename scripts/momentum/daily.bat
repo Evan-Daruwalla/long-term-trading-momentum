@@ -77,6 +77,13 @@ echo === Anomaly scan: KLAC-class single-day moves + missing held marks (non-blo
 .venv\Scripts\python.exe -m scripts.momentum.check_anomalies
 REM Report-only by design: a giant move can be legitimate news, so never halt.
 
+echo.
+echo === Held split-seam scan - non-blocking, corporate-action cliffs inside held names ===
+.venv\Scripts\python.exe -m scripts.data_audit.check_held_split_seams
+REM Report-only, same contract as the anomaly scan: rc 1 means a held name has a
+REM split-like seam, record EE MLI 2:1 three times -- a finding for Evan, never a halt.
+REM Output also lands in var\anomaly_report.log, prefixed [split-seams].
+
 REM Audit 2026-08-16, finding T-4: check_cache_gaps was documented "re-run
 REM monthly (M2.4)" but nothing scheduled it -- var/cache_gap_report.log sat at
 REM its 2026-07-09 one-off run for 38 days, an UNENFORCEABLE contract. Gated on

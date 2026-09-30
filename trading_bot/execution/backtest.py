@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from trading_bot import config
+from trading_bot import db as db_mod
 from trading_bot.db import connect
 from trading_bot.execution import market_data
 from trading_bot.execution import monitor as monitor_mod
@@ -276,6 +277,10 @@ def _data_coverage(since: date, until: date) -> tuple[int, int]:
 
 
 def _wipe_state() -> None:
+    # Shadow first, exactly as factor_backtest._wipe_state does since 2026-08-12
+    # (record CZ): the DELETEs below must land in the per-connection TEMP tables,
+    # never in the live positions/portfolio_state (record EE item 8, 2026-09-29).
+    db_mod.shadow_backtest_state()
     log.info("Backtest reset: clearing positions + portfolio_state")
     with connect() as conn:
         conn.execute("DELETE FROM positions")

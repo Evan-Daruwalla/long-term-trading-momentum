@@ -191,6 +191,8 @@ lives in the dated entry, not the digest.
 - [EB - Scheduled daily-audit: 0 projects classified ACTIVE, and the 2026-09-24 post-market session was a 4-second run that reported success](#appendix-eb---scheduled-daily-audit-0-projects-classified-active-and-the-2026-09-24-post-market-session-was-a-4-second-run-that-reported-success-2026-09-26-0709-cdt) (09-26)
 - [EC - Five scheduled-task defects closed (record EB); the prescribed bracket pattern failed in the C locale; 09-24 post-market is a permanent hole; DZ corrected](#appendix-ec---five-scheduled-task-defects-closed-record-eb-the-prescribed-bracket-pattern-failed-in-the-c-locale-09-24-post-market-is-a-permanent-hole-dz-corrected-2026-09-26-2120-cdt) (09-26)
 - [ED - docs-sync: 37 unpublished commits carry the forbidden Co-Authored-By trailer; publishing held for Evan](#appendix-ed---docs-sync-37-unpublished-commits-carry-the-forbidden-co-authored-by-trailer-publishing-held-for-evan-2026-09-26-2205-cdt) (09-26)
+- [EE - Scheduled daily-audit: 67 findings - the trade guard has 8 escapes including both live rebalance dispatchers, and the branch was published 7 minutes after record ED said it was not](#appendix-ee---scheduled-daily-audit-67-findings---the-trade-guard-has-8-escapes-including-both-live-rebalance-dispatchers-and-the-branch-was-published-7-minutes-after-record-ed-said-it-was-not-2026-09-29-0738-cdt) (09-29)
+- [EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN](#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt) (09-29)
 
 ---
 
@@ -12724,3 +12726,235 @@ Explicit paths only, no trailer:
 - `scripts/momentum/daily_price_refresh.py` and
   `scripts/momentum/test_refresh_rate_limit.py` (DZ)
 - `.claude/codebase-memory/gotchas.md`
+
+# Appendix EE - Scheduled daily-audit: 67 findings - the trade guard has 8 escapes including both live rebalance dispatchers, and the branch was published 7 minutes after record ED said it was not (2026-09-29, ~07:38 CDT)
+Scheduled `daily-audit` sweep. READ-ONLY: nothing was edited, fixed, or
+committed. 67 findings - 1 crit, 10 high, 38 med, 18 low. Four were
+re-verified by the orchestrator with its own commands, not relayed on a
+worker's word.
+
+**CRIT - the trade guard has EIGHT escapes, not six.** A probe that feeds
+strings to `scripts/hooks/pretooluse-trading-guard.js` (nothing executed)
+returned DENY on 3 of 3 controls and ALLOW on 7 of 7 escapes. Two are new
+and are the ones that matter: the guard has NO rule matching
+`monthly_rebalance` (29 sleeves) or `ladder_forward_rebalance` (57
+sleeves), so invoking either dispatcher directly is permitted. Root cause
+is written directly above the rules at :32-33 - "Keep these anchored to the
+operation, not to a filename" - while rule 1 at :35 is a filename anchor.
+File unchanged since `6dcf543`, 2026-08-20. Fifth consecutive audit to
+report this (DS, DT, DU, EA).
+
+**HIGH - the branch WAS published, 7 minutes after record ED said it was
+not.** `git reflog show origin/master` reads `65620db ... @{2026-09-26
+22:12:07 -0500}: update by push`; ED is stamped ~22:05 and states
+publishing was held for Evan. The remote
+`Evan-Daruwalla/long-term-trading-momentum` is PUBLIC and 134 of its 211
+commits carry the `Co-Authored-By` trailer that CLAUDE.md forbids. HANDOFF
+still tells the next session the decision is open. The trailer's actual
+source is NOT the task specs (they contain none) but
+`.claude/codebase-memory/conventions.md:10` and `tooling.md:40-42`, which
+still instruct models to add it - fixing those two lines is the highest-value
+single edit in the docs set.
+
+**HIGH - `paper_nav` holds a half-marked trading day.** 2026-09-28 has 38 of
+76 rows; every other date since 2026-07-06 has 76, so it is the only partial
+date in the series and `max(nav_date)` now returns a day 38 sleeves never
+marked. The ladder path MTM'd on sub-floor data because its only coverage
+test is `n_today < TRADING_DAY_MIN` (1000); the 5000 HARD_FLOOR that refused
+the 17:26 run is never consulted there. `verify_run` printed PASS 76/76
+because it treats the date as pending. Still 38 rows at 07:30 CDT; the 07:45
+heal had not run.
+
+**HIGH - an unrepaired corporate-action cliff on the headline sleeves.** MLI
+closes 132.58 on 2026-06-04 and 66.40 on 2026-06-05, ratio 0.5008, while the
+only `splits_json` row is `[["2023-10-23", 2.0]]`. Twelve sleeves hold it at
+`entry_price 133.0965 / qty 15.9699 / entry_date 2026-05-01` - exactly
+residual_w0595/w1090/w1585/w2080 across all three cadences, the low-residual
+end HANDOFF reports as LEADING. Share count never changed and basis never
+halved, which a real 2:1 split would have done. 37 closed rows carry
+realized_pnl of -$35,779.63. An orchestrator observation the workers missed:
+2026-06-01 closes at 63.15 while 06-02..06-04 sit at 130-133, so
+`price_cache` holds MIXED-BASIS rows for MLI and a naive back-adjust would
+corrupt 06-01 further. NOT RESOLVED - whether this is an unadjusted split or
+a genuine 50% drawdown needs an external corporate-action source.
+BLOCKED-ON-EVAN; do not guess, and fix `backadjust_split.py:242` first (its
+idempotency guard accepts a second halving).
+
+Other highs: neither split detector can see the above (`check_anomalies.py`
+fires only above 300 percent; `check_held_split_seams.py` misses 0.5008 by
+0.0008 and is invoked by nothing); the monthly path has no trading-day guard,
+so a market holiday inside the days-1-to-5 cron window silently loses the
+month behind a green stamp; five LLM sleeves still fill on a stale bar and
+the test built to stop it is a hardcoded two-name allowlist that prints ALL
+PASS; `alpaca_keys.env` has no Read-deny rule in either settings file;
+`backtest.py:278-282` wipes live state with no shadow call; the 2026-10-01
+monthly run will be denied at Step 3 exactly as 09-01 was.
+
+STEP 0 fixed checks: 2026-09-24 post-market remains the known permanent hole
+- its scheduler run lasted 4.4 seconds and was recorded `succeeded`, so only
+the artifact check catches it. No duplicates. Trade/push guard present in
+both settings files, hook on matcher Bash|PowerShell, self-check 20 passed 0
+failed. Cron drift: `hellow` is live at `48 11,16,21 * * *` against
+HANDOFF.md:541's `0 12,17,22 * * *`. Spec drift: HANDOFF.md:66's "all 5 match
+live" is false - the live `daily-audit` spec was edited 2026-09-26 21:41:50,
+24 minutes after the 21:17:21 snapshot.
+
+Coverage honesty: the code sweep was incomplete at first hand-back (only the
+docs shard of 48 of 272 files had returned) and completed in an addendum.
+`dashboard/web.py` (3,309 lines) was sampled, not read. Frozen regression
+tests were DELIBERATELY not run - they drive `factor_backtest` over
+`price_cache` inside the 07:45 refresh window, and running them would have
+broken the project's own concurrency invariant in order to audit it. Only
+`PRAGMA quick_check` ran on the 5.45 GB live DB, not a full integrity_check.
+
+# Appendix EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN (2026-09-29, ~21:50 CDT)
+## WHAT
+
+Record EE's items 1-10 were worked on Evan's instruction on 2026-09-29, between
+~21:35 and 21:50 CDT. The work ran under the workspace plan-split rule: Opus
+planned (a red-team pass found 16 defects in the first draft), and three Sonnet
+agents coded disjoint file sets. Each agent's output was accepted only after
+Opus re-ran its check and read the diff on disk.
+
+Evan's decisions (2026-09-29):
+- items 4-6 land now, tested on a DB copy;
+- re-mark the 2026-09-28 ladder rows;
+- fix backadjust_split's idempotency guard (no repair).
+
+Nothing was committed or published.
+
+| Item | Result |
+|---|---|
+| 1 trade guard (CRIT) | Fixed. Self-check **60 passed, 0 failed** (was 20; 23 failures on the old guard with the new cases) |
+| 2 trailer instruction | Fixed in both bins |
+| 3 publish facts | HANDOFF corrected; forward correction below |
+| 4 half-marked day | Ladder NAV gated on coverage; mtm_catchup UTC-date bug fixed; 09-28 re-marked |
+| 5 holiday guard | Dispatcher exits 3; rebalance.bat stops before any leg, no stamp |
+| 6 stale LLM fills | Strict pre-check in all three ops modules; test now discovers callers |
+| 7 keys Read-deny | **BLOCKED-ON-EVAN** (security settings; not edited) |
+| 8 backtest wipe | backtest.py shadowed; isolation test 8/8 |
+| 9 MLI cliff | Facts confirmed; backadjust guard fixed; no repair run |
+| 10 split detectors | Seam checker rewritten + wired into daily.bat; check_anomalies flags split ratios |
+
+## Forward correction to record ED (ED itself is untouched)
+
+ED (2026-09-26 ~22:05 CDT) says publishing was held for Evan. The origin reflog
+reads `65620db ... @{2026-09-26 22:12:07 -0500}: update by push`, 7 minutes
+later. A second publish, `3c5f511`, landed 2026-09-29 14:28:50. Origin now has
+**215 commits, 134 carrying the Co-Authored-By trailer** (EE's "211" predates
+today's publish).
+
+ED also blamed the scheduled-task specs for the trailer. **That was wrong**: the
+specs contain no such line. The instruction came from
+`.claude/codebase-memory/conventions.md:10` and `tooling.md:40-42`. Both now read
+"NO Co-Authored-By trailer (CLAUDE.md, 2026-09-26)".
+
+## Premise corrections to EE (found in planning; the plan followed these)
+
+1. **Item 1's suggested regexes were incomplete.**
+   - They missed `ladder_rebalance.bat`, `monthly_auto.bat`, `overlay_auto_decide`, the `*_ops.py decide` form, the `--e`/`--ex` abbreviations, publish-before-git ordering, and backslash/backtick splits.
+   - A bare-word rule would have denied daily-audit STEP 0c's spec diff and SQL `exit_reason='rebalance'` queries.
+   - The hook is registered user-wide, so it would also have hit every other project.
+   - Stripping whitespace would have defeated every `\b` rule.
+2. **Item 5's trace was different.** On a holiday the stock legs raise, so the stamp is PARTIAL, not OK. But rebalance.bat still ran the LLM ops and alpaca_sync, and the MTM phase wrote a holiday NAV row. So the stop had to come before any leg, not only in the dispatcher.
+3. **Item 6 applied literally would have parked single-name sleeves in cash.** The buy fails after the sell. And any nonzero exit stamps PARTIAL, which makes verify_run fail every night for the rest of the month with no automatic retry. So a stale bar now skips the WHOLE switch before any trade and exits 4, which is not a failure.
+4. **Item 4 needed a second fix.** `mark_rebalanced` stamps UTC, so a 20:31 CDT run carries the next UTC day. `mtm_catchup.py` read `[:10]` of that stamp and would never have marked a gated rebalance day.
+
+## Changes (code)
+
+- **`scripts/hooks/pretooluse-trading-guard.js`**
+  - Rules are split into GLOBAL (git + publish, either order) and TRADING, which apply when cwd or the command names `ClaudeCode\Trading`, or when cwd is missing (fail closed).
+  - TRADING rules are invocation-shaped:
+    - the three dispatcher modules;
+    - `rebalance.bat` and `ladder_rebalance.bat` by path, and `monthly_auto`;
+    - `_ops ... rebalance|decide` and `overlay_auto_decide`;
+    - `stamp_rebalance_log`;
+    - `schtasks /run` or `Start-ScheduledTask` of TradingLadderRebalance;
+    - `alpaca_sync` with any `--e...` abbreviation or `execute=True`.
+  - Each command is matched raw, normalized (carets and quotes stripped, whitespace collapsed), and normalized with backslashes and backticks stripped.
+  - A live probe from this session (a bare echo of a dispatcher module name) was DENIED by the real harness.
+- **`trading_bot/execution/alpaca_sync.py`:** `ArgumentParser(allow_abbrev=False)`, the root cause of the `--exec` escape. Verified by AST source assertion only; the module was never run.
+- **`scripts/momentum/ladder_forward_rebalance.py`:** NAV is written only when `coverage_status(...)["ok"]`, using the same call as mtm_catchup. The rebalance legs and exit codes are unchanged.
+- **`scripts/momentum/monthly_rebalance.py`:** `trading_day_ok()` requires >= 1000 closes (MIN_TRADING_DAY_COUNT, NOT the 5000 floor, so a partial-but-real day still trades). It runs after `--as-of` and before the imports/preload, and exits 3. Read-only live probe: 09-28 (True, 5113); Sat 09-26 (False, 0); Labor Day 09-07 (False, 230).
+- **`scripts/momentum/rebalance.bat`:**
+  - rc 3 right after the dispatcher goes to `:not_trading_day` (echo, `exit /b 3`), with `exit /b 0` added before that label.
+  - rc 4 on each of the 5 ops legs sets STALE_SKIP without RC_FAIL; a banner prints before the stamp.
+  - The file stays ASCII and CRLF (unchanged line endings).
+- **`scripts/momentum/mtm_catchup.py`:** the last-rebalance stamp is converted to a LOCAL date. All 72 stamps (agent count) shift one day earlier. No row became eligible: every date since 07-06 already has 76 rows, and a copy run back-marked 0.
+- **`trading_bot/execution/market_data.py`:** new `StaleBarSkip` and `fill_close(..., strict_fill_date)`.
+- **`llm_overlay_ops.py`, `sector_overlay_ops.py`, `llm_cascade_ops.py`:**
+  - The pre-check prices every sell and buy ticker after the no-change branch and before the first trade.
+  - On a stale bar: no trade, no `mark_rebalanced`, a printed `RETRY after the day settles: ... --as-of <D>` line, an `[OPS]` line in `var/ops_status.log` (real runs only), and exit 4.
+  - Stop checks skip a stale bar per position, write an `[OPS]` line, and keep rc 0, because daily.bat aborts on a nonzero stops rc.
+  - Display and NAV-sizing prices are unchanged (carry-forward is right for valuation).
+- **`trading_bot/execution/backtest.py`:** `shadow_backtest_state()` runs before the DELETEs. `positions` is the legacy Form-4 bot's table (137 rows per EE, not recounted); the dashboard simulation reads multi_backtest's JSON, not the table.
+- **`scripts/backadjust_split.py:242`:** `abs(cliff / n - 1.0) <= 0.25`. It previously accepted [1, 4] for n=2, so a second run halved history again.
+- **`scripts/data_audit/check_held_split_seams.py`:**
+  - read-only;
+  - scans all bars since each held ticker's first open entry;
+  - a near-split ratio (5% tolerance over 2, 3, 4, 5, 10 and reciprocals) is a FAIL;
+  - appends to `var/anomaly_report.log`.
+  - Agent deviation, accepted: a seam is "beyond the 2x band OR near a split ratio". That is the only way 0.5008 (inside the old band by 0.0008) counts.
+- **`scripts/momentum/check_anomalies.py`:** held names with a split-shaped 1-day ratio get a `SPLIT?` line.
+- **`scripts/momentum/daily.bat`:** the seam checker runs report-only after the anomaly scan (rc ignored). The file stays ASCII and LF, as at HEAD.
+
+## Tests (new or rewritten, each run FAIL-first)
+
+- `test_trading_guard.js`: 23 failures on the old guard, then 60/0.
+- `test_trading_day_guards.py` (new): 9 failed before the edits, 9/9 after.
+- `test_strict_fill_date.py`: the allowlist is now discovery over rebalance.bat, ladder_rebalance.bat and daily.bat. It found 17 modules: 5 filling (all opt in) and 12 non-filling. An unclassified module fails the test. 5 of 9 checks failed before the edits; ALL PASS after.
+- `test_backtest_state_isolation.py`: a 4th case for backtest.py failed before the edit ("legacy backtest wiped live positions: []"), then 8/8.
+- `scripts/test_backadjust_guard.py` (new): the cliff-1.0 refusal failed before the fix, then 3/3.
+
+## 2026-09-28 re-mark (item 4 data)
+
+Coverage settled at 5,113. On the DB copy first, then live at 21:43:13 CDT:
+- `remark_nav_day --date 2026-09-28 --execute --reason` changed 10 rows, left 66 correct, 0 failures, net **$+1.39**.
+- 10 `paper_nav_restatement` rows were logged (09-21: 19; 09-28: 10).
+- verify_run PASS 76/76; the ledger replay differs on 0 of 76 rows.
+
+## Item 9 (MLI) - facts, no repair
+
+- Closes: 05-29 128.60; 06-01 63.15; 06-02..06-04 130.57-132.58; 06-05 66.40 (0.5008).
+- `splits_json` `[["2023-10-23", 2.0]]`.
+- 14 open rows, 2 more than EE listed:
+  - 12 at 133.0965 x 15.9699 from 2026-05-01;
+  - `residual_w2575_paper` 08-03 @ 66.5833;
+  - `residual_w3070_paper` 09-01 @ 61.0705.
+- 37 closed rows, realized -$35,779.63.
+- Seam checker (live, read-only): exit 1, MLI the only FAIL of 223 held tickers, with 3 seams (05-29..06-01 0.4911, 06-01..06-02 2.0675, 06-04..06-05 0.5008). KOD 2.7796 on 09-28 is a WARN.
+- **Needs an external corporate-action source; BLOCKED-ON-EVAN.**
+
+## Item 7 - BLOCKED-ON-EVAN
+
+Claude is prohibited from editing security settings. The edit: add
+`"Read(./alpaca_keys.env)"` and `"Read(**/alpaca_keys.env)"` to `permissions.deny`
+in `D:\ClaudeCode\Trading\.claude\settings.json` AND
+`C:\Users\evan.EVANFREDY\.claude\settings.json`.
+
+## Docs
+
+- HANDOFF: the publish block is rewritten and the DO-FIRST publishing item removed.
+- HANDOFF: my false "all 5 match live" line (EC) is corrected. daily-audit had a ServeLocal->Citoya edit at 14:17 today; it was re-snapshotted, and all 5 task snapshots are identical again.
+- CLAUDE.md: the backtest rule now names which copy was shadowed when (factor_backtest 2026-08-12; backtest.py 2026-09-29).
+
+## HOW verified
+
+- All 17 `scripts/momentum/test_*.py` and `scripts/test_*.py` rc=0.
+- Frozen tests 4/4, d=+/-0.0000pp (v1 +14.5547%/70, +1.8792%/156; v2 +14.4062%/38, +10.2194%/87).
+- On the DB copy (SQLite backup, 14 s): `mtm_catchup` rc 2 (09-29 pending), 0 marked; verify_run PASS 76/76. The copy is now deleted.
+
+## Consequences - read before 2026-10-01
+
+- **The monthly rebalance is now fully manual.** Step 3 was already denied; Step 4's `rebalance.bat` is now denied too. Evan runs it.
+- If the output shows STALE-SKIP, run the printed `RETRY ... --as-of <D>` lines after the day settles. The stamp stays OK.
+- The guard also denies any Bash command naming a dispatcher module or `rebalance.bat` (even `cat`/`grep`/`git diff -- <path>`), and any command containing both "git" and "push". Use Read/Grep and a plain `git diff`.
+
+## Open (named, not fixed)
+
+- Env-var indirection of a module name.
+- `start_all.bat` and `schtasks /run TradingDailyMTM` both run the daily stop exits.
+- The hooks cover only Bash/PowerShell.
+- `hellow` cron drift (`48 11,16,21 * * *` per EE, not re-read).
+- EE's 38 medium and 18 low findings.
+- The guard's deny reason text still says "paper_rebalance" for the dispatcher rule (cosmetic).

@@ -15,6 +15,9 @@ What is actually asserted here, in the order that matters:
   3. The shadow's columns match the live table's, INCLUDING the ones added by
      `init_db()`'s defensive ALTERs rather than declared in `SCHEMA`. A shadow
      built from `SCHEMA` would silently be missing them.
+  4. The LEGACY `backtest._wipe_state()` (Form-4 walk-forward; the dashboard's
+     simulation path) shadows too. Only factor_backtest's copy did until
+     2026-09-29 (record EE item 8).
 
 Run:
     python -m scripts.momentum.test_backtest_state_isolation
@@ -90,6 +93,32 @@ def test_wipe_state_leaves_the_live_rows_alone() -> None:
     print("  [OK  ] nothing persisted to the DB file")
 
 
+def test_legacy_backtest_wipe_state_leaves_the_live_rows_alone() -> None:
+    """Record EE item 8 (2026-09-29): the LEGACY `backtest._wipe_state()` (the
+    Form-4 walk-forward, `main.py`) was never shadowed -- only factor_backtest's
+    copy was in 2026-08. It DELETEd `positions` / `portfolio_state` straight
+    through the live connection, and the Streamlit dashboard's simulation path
+    runs it. Same assertion as case 1, different function."""
+    from trading_bot import db as dbmod
+
+    _fresh_db()
+    # Imported AFTER the fixture is in place so importing market_data (which
+    # runs its schema DDL) cannot touch the real DB.
+    from trading_bot.execution import backtest
+
+    backtest._wipe_state()
+
+    with dbmod.connect() as conn:
+        live_pos = [r[0] for r in conn.execute("SELECT ticker FROM main.positions")]
+        live_cash = conn.execute(
+            "SELECT cash FROM main.portfolio_state WHERE id=1").fetchone()
+    assert live_pos == ["SENTINEL"], f"legacy backtest wiped live positions: {live_pos}"
+    assert live_cash is not None and live_cash[0] == 12345.0, \
+        f"legacy backtest wiped live portfolio_state: {live_cash}"
+    print("  [OK  ] backtest._wipe_state(): live positions/portfolio_state untouched")
+    dbmod.close_thread_connection()
+
+
 def test_price_cache_is_not_shadowed() -> None:
     """The reason a scratch-DB redirect was the WRONG fix."""
     from trading_bot import db as dbmod
@@ -141,6 +170,7 @@ def test_shadow_matches_live_columns_and_is_idempotent() -> None:
 def main() -> int:
     print("Running backtest-state isolation tests (fixture DB only)...")
     test_wipe_state_leaves_the_live_rows_alone()
+    test_legacy_backtest_wipe_state_leaves_the_live_rows_alone()
     test_price_cache_is_not_shadowed()
     test_shadow_matches_live_columns_and_is_idempotent()
     print("\nAll backtest-state isolation tests passed.")

@@ -12,7 +12,9 @@ the DB; appends a dated section to var/anomaly_report.log.
 
 Checks, for the target close date vs the prior trading day:
   1. Held names (open in any sleeve) whose |1-day move| exceeds --held-threshold
-     (default 300%).
+     (default 300%), or whose 1-day ratio sits within 5% of a common split ratio
+     (2/3/4/5/10:1 or the reverse) -- a 2:1 cliff moves only -50%, far below the
+     300% threshold (MLI 2026-06, record EE).
   2. Any cached ticker whose |1-day move| exceeds --cache-threshold (default
      1000%) — the KLAC tell.
   3. Held names with no close on the target date (stale/missing mark).
@@ -40,6 +42,16 @@ log = logging.getLogger("check_anomalies")
 # trading day when auto-picking the target/prior dates (matches check_coverage).
 from scripts.momentum.check_coverage import MIN_TRADING_DAY_COUNT  # A1: one definition
 REPORT_PATH = VAR_DIR / "anomaly_report.log"
+
+SPLIT_KS = (2, 3, 4, 5, 10)  # common split ratios (and their reverses)
+
+
+def near_split_ratio(r: float, tol: float = 0.05) -> bool:
+    """True if a 1-day close ratio r sits within `tol` (relative) of k or 1/k, k in SPLIT_KS."""
+    # shortcut: duplicated in scripts/data_audit/check_held_split_seams.py (this
+    # daily-flow scan must not import from data_audit). Merge into one module if a
+    # 3rd copy is needed.
+    return any(abs(r / k - 1.0) <= tol or abs(r * k - 1.0) <= tol for k in SPLIT_KS)
 
 
 def _ro_connect() -> sqlite3.Connection:
@@ -106,6 +118,10 @@ def scan(conn: sqlite3.Connection, target: str, prior: str,
             if abs(move) > held_thresh:
                 anomalies.append(
                     f"MOVE  {tk:8s} {move:+9.1f}%  ${p_old:.4f}->${p_new:.4f}  "
+                    f"[HELD {','.join(held[tk])}]")
+            elif near_split_ratio(p_new / p_old):
+                anomalies.append(
+                    f"SPLIT? {tk:8s} {p_new / p_old:.4f}x  ${p_old:.4f}->${p_new:.4f}  "
                     f"[HELD {','.join(held[tk])}]")
         elif abs(move) > cache_thresh and p_old >= min_price:
             anomalies.append(

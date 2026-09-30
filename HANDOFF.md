@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-26 ~22:05 CDT (record ED)** — this file is the only live snapshot
+**Last updated: 2026-09-29 ~21:50 CDT (record EF)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -20,6 +20,26 @@ Appendix AZ).
 > carried were replaced by the pointer table below (every appendix letter
 > verified to exist before deletion). **History goes in the record. If you find
 > yourself pasting a narrative block here, write an appendix and link it.**
+
+> **2026-09-29 ~21:50 CDT (record EF) - EE audit items 1-10 worked, UNCOMMITTED.**
+> - **The trade guard closes all 8 escapes** (self-check 60/0). Trading rules are
+>   scoped to this repo; git+publish is global. It now denies any Bash command
+>   naming a dispatcher module or `rebalance.bat`, even a `cat`/`grep` - use the
+>   Read/Grep tools.
+> - **2026-10-01 monthly is MANUAL (Evan):** Step 3 and Step 4 of the scheduled
+>   task are both denied. On a market-closed day the dispatcher exits 3 and
+>   `rebalance.bat` stops before any leg, with no stamp. An LLM leg with a stale
+>   bar exits 4 (STALE-SKIP, holding kept, stamp stays OK): run the printed
+>   `RETRY ... --as-of <D>` line after the day settles.
+> - The ladder writes NAV only when coverage is OK. `mtm_catchup` reads the
+>   last-rebalance stamp as a LOCAL date. 2026-09-28's 10 stale ladder rows were
+>   re-marked (+$1.39, logged).
+> - **BLOCKED-ON-EVAN:** (1) `alpaca_keys.env` Read-deny in both settings files
+>   (exact lines in EF); (2) MLI 2026-06-05 cliff (0.5008, 14 sleeves) needs an
+>   external corporate-action check. The seam checker now FAILs on it nightly
+>   (report-only, `var/anomaly_report.log`).
+> - Publishing already happened (2026-09-26 22:12 and 2026-09-29 14:28); 134 of
+>   215 public commits carry the trailer. The bins no longer tell models to add it.
 
 > **2026-09-22 ~14:30 CDT (record DV) — COLD AUDIT EXECUTED, AND A DATA DEFECT
 > IT CAUSED.** A full `/audit` produced 39 findings; 5 commits shipped
@@ -39,9 +59,7 @@ Appendix AZ).
 > same-day re-mark are unaffected. The triggers install on the live DB at the
 > first `init_db()` — i.e. tonight's 17:15 run — committed or not.
 >
-> **OPEN:** 2026-09-21 is still sub-floor (4,190 vs 5,000). Once it settles,
-> run `remark_nav_day --date 2026-09-21 --execute --reason "..."` for the 19
-> stale ladder rows. `mtm_catchup` fills the other 57.
+> (2026-09-21 was re-marked 76/76 on 2026-09-23, record DZ.)
 >
 > **2026-09-23 ~22:50 CDT (records DY, DZ) - rate limit fixed, 09-21 marked.**
 > yfinance rate-limits every refresh from ~batch 15 of 30, one ticker at a
@@ -63,7 +81,9 @@ Appendix AZ).
 > can NOT catch a run that dies at start; daily-audit STEP 0a does. Every header
 > grep now uses `\(<Weekday>\) .{1,3} <Session>`, because the bracket form fails
 > in this machine's C locale. **2026-09-24 Post-Market is a permanent hole** -
-> never backfill it. 5 snapshots now, `hellow` included; all 5 match live.
+> never backfill it. 5 snapshots now, `hellow` included. (The 2026-09-26 "all 5 match live" was
+> false by 2026-09-29: daily-audit had a ServeLocal->Citoya edit at 14:17;
+> re-snapshotted 2026-09-29 ~21:45, all 5 identical again.)
 >
 > **The audit's own headline:** record appendices DS/DT/DU are three runs of
 > this project's `daily-audit` that had already found several of these, and
@@ -763,34 +783,32 @@ Manual fallback (same steps) if you ever need to run it by hand:
 
 ```
 Trading project (D:\ClaudeCode\Trading). Read in this order: HANDOFF.md (top
-blocks are 2026-09-22..09-26, records DV-ED) -> the record's front-matter TOC ->
+blocks are 2026-09-22..09-29, records DV-EF) -> the record's front-matter TOC ->
 PRD_ROADMAP.md. The append-only record is ground truth; HANDOFF is the only live
 snapshot.
 
-STATE (verified 2026-09-26 ~22:05 CDT):
-- 76 sleeves; 2026-09-22..09-25 all marked 76/76; verify_run PASS. Frozen
+STATE (verified 2026-09-29 ~21:50 CDT):
+- Record EF work is UNCOMMITTED (guard, trading-day/coverage gates, strict LLM
+  fills, backtest shadow, split detectors). Ask Evan before committing; no
+  Co-Authored-By trailer.
+- 76 sleeves; 2026-09-22..09-28 all marked 76/76; verify_run PASS. Frozen
   tests 4/4 d=+/-0.0000pp. paper_nav is SEALED (stage 5 triggers live since
   2026-09-23): restate history only via remark_nav_day --execute --reason.
 - daily_price_refresh retries the per-ticker yfinance rate limit (60/120/240 s)
   and exits 1 when >=5% of live tickers are still missing -- that aborts the
   monthly rebalance by design. Refresh runtime is now ~9 min.
-- 61 commits ahead of origin, NOTHING published to the remote.
-
-DO FIRST -- BLOCKED-ON-EVAN, publishing the branch:
-  37 of the unpublished commits carry a Co-Authored-By trailer, which Evan's
-  CLAUDE.md now forbids "in any commits or pushes"; the remote is PUBLIC.
-  Options: (a) publish as-is (breaks the rule); (b) rewrite the messages of
-  the whole unpublished range (every commit hash the record cites since ~DK
-  changes; history rewriting is deny-listed, so Evan runs it); (c) keep it
-  local. The scheduled daily-report tasks STILL add the trailer (698be9a,
-  2026-09-24) -- their specs need a "no Co-Authored-By" line once Evan decides.
-  Publishing is deny-listed and guard-blocked for Claude. Do NOT use any of the
-  six known guard bypasses. Evan publishes, by hand.
+- PUBLISHED: 65620db was pushed 2026-09-26 22:12:07 CDT (7 minutes after record
+  ED said it was held), and 3c5f511 on 2026-09-29 14:28:50 CDT. 134 of 215
+  public commits carry the Co-Authored-By trailer. Its source was the
+  codebase-memory bins (conventions.md / tooling.md), not the task specs; both
+  bins were corrected 2026-09-29.
 
 THEN:
-- Monthly rebalance Thu 2026-10-01 ~18:03: the trading guard still denies its
-  decision-logging step (memory: trading-guard-blocks-monthly-rebalance).
-  Expect it; do not route around it.
+- Monthly Thu 2026-10-01: MANUAL (Evan). The guard now denies both the decide
+  step and the .bat step of the scheduled task. Do not route around it. After
+  the run, check for STALE-SKIP lines and their printed retry commands.
+- BLOCKED-ON-EVAN: alpaca_keys.env Read-deny (both settings files, see EF);
+  MLI 2026-06-05 cliff needs an external corporate-action source (EF item 9).
 - Stage 5 leftovers: stamp_rebalance_log atomicity (os.replace), alpaca_sync
   per-account isolation, 2 cache-poisoning bugs (warm_fundamentals,
   fetch_earnings_dates).

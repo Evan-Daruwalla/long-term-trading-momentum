@@ -18,6 +18,11 @@ REM python exit codes -- including alpaca_sync --execute, which submits real
 REM broker orders. RC_FAIL accumulates any non-zero step; it decides the
 REM stamp's --status and this batch's own exit code.
 set RC_FAIL=0
+REM Record EE item 6: exit 4 from an ops leg means STALE-SKIP -- the sleeve kept
+REM its holding and nothing traded. That is NOT a failure: setting RC_FAIL would
+REM stamp PARTIAL, and verify_run would then fail every night for the rest of the
+REM month with no automatic retry. STALE_SKIP only adds a warning before the stamp.
+set STALE_SKIP=0
 
 REM Audit 2026-08-19, edge case E4: `monthy-llm-rebalance` fires DAILY (cron
 REM `0 18 * * *`); its ONLY month gate was prose in that task's Step 0, read by
@@ -72,6 +77,10 @@ REM seed stay below (they depend on their own ops/seed steps). Sleeve roster liv
 REM in the module + HANDOFF.md. A failed sleeve is logged and skipped, not fatal.
 .venv\Scripts\python.exe -m scripts.momentum.monthly_rebalance
 set STEP_RC=%errorlevel%
+REM Record EE item 5: the dispatcher exits 3 on a market-closed day BEFORE it does
+REM anything. Stop here: no LLM ops legs, no alpaca_sync, no MTM rows, no stamp,
+REM so the month gate stays open for the first real trading day.
+if "%STEP_RC%"=="3" goto not_trading_day
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: monthly_rebalance reported a sleeve failure. See output above.
     set RC_FAIL=1
@@ -91,10 +100,13 @@ echo.
 echo === LLM-experiment CONTROL rebalance: mom_roa_top1_paper ===
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode control
 set STEP_RC=%errorlevel%
+if "%STEP_RC%"=="4" set STALE_SKIP=1
+if "%STEP_RC%"=="4" goto leg_control_done
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: llm_overlay control
     set RC_FAIL=1
 )
+:leg_control_done
 
 echo.
 echo === LLM-experiment TREATMENT rebalance: llm_overlay_mom_roa_top1_paper ===
@@ -106,10 +118,13 @@ echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops decide --ticker X --score N --verdict BUY^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.llm_overlay_ops rebalance --mode overlay
 set STEP_RC=%errorlevel%
+if "%STEP_RC%"=="4" set STALE_SKIP=1
+if "%STEP_RC%"=="4" goto leg_treatment_done
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: llm_overlay treatment
     set RC_FAIL=1
 )
+:leg_treatment_done
 
 echo.
 echo === Mark-to-market: mom_roa_top1_paper ===
@@ -137,10 +152,13 @@ echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops candidate
 echo   .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops decide --ticker XLK --score N --verdict HOLD^|VETO --invalidation P --rationale "..."
 .venv\Scripts\python.exe -m scripts.momentum.sector_overlay_ops rebalance
 set STEP_RC=%errorlevel%
+if "%STEP_RC%"=="4" set STALE_SKIP=1
+if "%STEP_RC%"=="4" goto leg_sector_done
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: sector_overlay treatment
     set RC_FAIL=1
 )
+:leg_sector_done
 
 echo.
 echo === Mark-to-market: llm_overlay_sector_top4_paper ===
@@ -161,16 +179,22 @@ echo Log decisions DEEPER in the ranking (llm_overlay_ops / sector_overlay_ops
 echo decide) for the cascade to differ from the control. See overlay_prep.
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-stock
 set STEP_RC=%errorlevel%
+if "%STEP_RC%"=="4" set STALE_SKIP=1
+if "%STEP_RC%"=="4" goto leg_cascade_stock_done
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: cascade stock
     set RC_FAIL=1
 )
+:leg_cascade_stock_done
 .venv\Scripts\python.exe -m scripts.momentum.llm_cascade_ops rebalance-sector
 set STEP_RC=%errorlevel%
+if "%STEP_RC%"=="4" set STALE_SKIP=1
+if "%STEP_RC%"=="4" goto leg_cascade_sector_done
 if not "%STEP_RC%"=="0" (
     echo STEP FAIL: cascade sector
     set RC_FAIL=1
 )
+:leg_cascade_sector_done
 
 echo.
 echo === Mark-to-market: LLM-cascade sleeves ===
@@ -209,6 +233,7 @@ echo === Stamp rebalance_log.md (records when this rebalance happened) ===
 REM The stamp is the ONLY proof this run happened: verify_run's cadence check
 REM reads it and the monthly task's Step 0 gate STOPs on it. Stamping OK after
 REM a failed run hid the failure AND locked out the retry (audit finding 1).
+if "%STALE_SKIP%"=="1" echo STALE-SKIP: a sleeve kept its holding; run the retry command printed above after the day settles.
 if "%RC_FAIL%"=="1" (
     .venv\Scripts\python.exe -m scripts.momentum.stamp_rebalance_log --status PARTIAL
 ) else (
@@ -238,3 +263,10 @@ if "%RC_FAIL%"=="1" (
 if not "%VERIFY_RC%"=="0" exit /b %VERIFY_RC%
 
 echo Rebalance complete (systematic + ladder via dispatcher; 3 LLM-experiment pairs; 3 mirrored to Alpaca paper).
+exit /b 0
+
+:not_trading_day
+echo NOT A TRADING DAY: monthly_rebalance found too few closes for the run date.
+echo Nothing was traded and nothing was marked, and rebalance_log.md was not stamped.
+echo Re-run on the first real trading day.
+exit /b 3
