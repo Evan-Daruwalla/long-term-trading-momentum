@@ -18,8 +18,8 @@ var/
 
 # Claude Code / ruflo tooling & runtime state (personal, not project source)
 .claude/*
-# ...except codebase-memory: project-source technical memory, tracked on purpose
-!.claude/codebase-memory/
+# ...except project-memory (the bins, renamed from codebase-memory 2026-09-30): project-source memory, tracked on purpose
+!.claude/project-memory/
 .mcp.json
 .claude-flow/
 .swarm/

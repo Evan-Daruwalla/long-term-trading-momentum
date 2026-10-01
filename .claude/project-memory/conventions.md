@@ -8,4 +8,4 @@
 - **State-doc tier RETIRED 2026-07-08** — never create `docs/state_<date>.md`; `HANDOFF.md` is the only live snapshot; the 5 old state docs are archived verbatim in record Appendix AZ. (record AZ, HANDOFF)
 - HTML twins (script-generated only; regen commands; `daily_report.md` newest-LAST) → **tooling.md**.
 - Commit only when a task/Evan authorizes; never push without Evan's instruction. NO Co-Authored-By trailer (CLAUDE.md, 2026-09-26).
-- `.gitignore` ignores `.claude/*` (line 13) but RE-INCLUDES `.claude/codebase-memory/` (line 15) — so this bin dir IS tracked/committed. (Corrected 2026-07-15; supersedes the earlier "local, not committed" note, which was wrong — verified via `git ls-files`.)
+- `.gitignore` ignores `.claude/*` (line 20) but RE-INCLUDES `.claude/project-memory/` (line 22; it was `.claude/codebase-memory/` until the 2026-09-30 rename) - so this bin dir IS tracked/committed. (Corrected 2026-07-15; supersedes the earlier "local, not committed" note, which was wrong — verified via `git ls-files`.)

@@ -1,4 +1,8 @@
-# codebase-memory index — Trading
+# project-memory index — Trading
+
+Read first: important.md - critical facts, injected by the important-inject hook (added 2026-09-30)
+
+New standard bins (2026-09-30; first line STATUS: = stub, see that line): decisions, people, timeline, glossary, compliance, budget, operations, services, experiments, writing, hardware, important
 
 - security.md — secrets, alpaca_keys.env, PAPER-only live guards, no-trade rules, the PreToolUse trading guard + its 2 OPEN holes (updated 2026-09-06)
 - performance.md — 5 GB DB read-only rule, no concurrent factor_backtest, timing window (updated 2026-07-08)
