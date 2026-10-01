@@ -58422,3 +58422,518 @@ This matters more than any finding above because **tomorrow is the first trading
 **A note on this run's own tooling, for the record.** The first attempt to write this entry was **denied by the PreToolUse trading guard**, which matched log-line text quoted from `var/last_daily_run.log` inside the document body. This is the known false-positive mode (memory `trading-guard-blocks-monthly-rebalance`: a guard denial in a transcript is not proof an agent tried to trade). **No trading command was issued by this task at any point** - the only operations are read-only DB queries, web research, this file append, the HTML render, and a commit of exactly `daily_report.md` and `daily_report.html`. The entry was written with the file-write tool instead, and the two `*_ops` stop-check log lines that tripped the matcher were paraphrased rather than quoted in 3h; the verbatim log blocks still in 0g are `check_coverage` and `mtm_catchup` output, which contain no command text.
 
 ---
+
+---
+
+## Report: 2026-10-01 (Thursday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+> **LAST NIGHT'S NAV NUMBERS WERE RESTATED AFTER THAT ENTRY WAS WRITTEN, AND IT WAS AUTHORIZED.** The 09-30 post-market entry published the marked 2026-09-29 book as **$7,630,670.25 / cash $35,654.51**. It is now **$7,671,269.54 / cash $64,604.11**, **+$40,599.29**. This is **not drift and not a rewrite**: it is the MLI 2-for-1 split restatement (record **EJ**), applied live at **2026-09-30 21:49:02 CDT** - after that entry compiled at 19:04 - across **42 sleeves and 3,383 `paper_nav` rows**, each carrying a `paper_nav_restatement` row. It decomposes exactly as record EJ states: cash **+$28,949.60** plus the 12 reopened pre-split lots' second share at the 09-29 close **+$11,649.69**. **Consequence: every ITD figure published in this file before today is not comparable to today's for those 42 sleeves.**
+> **2026-09-30 IS UNMARKED. `max(nav_date)` is 2026-09-29 (76/76 rows). Every 09-30 figure below is INDICATIVE and labelled.** The 17:15 MTM refused on coverage **4,306 closes against a floor of 5,000** (baseline median-of-10 **5,114**). **The 07:45 `TradingMorningMTM` heal has NOT run at compile time (07:30 CDT, 15 minutes out) and I state no expectation about its outcome.**
+> **Book marked 09-29 $7,671,269.54 (ITD +0.9378% on $7,600,000 of contributed capital) -> indicative 09-30 $7,659,687.43 (ITD +0.7854%), day -0.1510% / -$11,582.11. Indicative September -0.5749%.**
+> **MICRON'S DIRECTION IS RESOLVED AND IT IS DOWN. MU pre-market $1,055.51, -$9.60 (-0.90%) at 08:15 EDT.** That settles the open item from last night, where after-hours sources disagreed in sign: the **-1.2% / ~$1,056** read was right and the **+0.4%** read was the outlier. On the book's **516.2030** shares across **62 of 76 sleeves** that is **-$4,955.55** if it holds to the open. **Three sleeves are 99.92% MU and nothing else.** Fiscal Q4 was a blowout on any consensus (EPS **$33.42**; Yahoo Finance puts consensus at **$31.83** on **$51.49bn**, last night's entry at **$31.16-$31.72** - the beat is large either way, not averaged). Rosenblatt raised its target **$1,500 -> $1,900** today. Forward P/E **6.04** at a **$1.20T** cap after **+270% YTD**.
+> **THE MEMORY TRADE PAID THE SUPPLIERS, NOT THE PRINTER.** Reporting today is explicit that Micron's results "boost other chipmakers and AI-related companies more than Micron itself." The book holds that spread on both sides: MU **7.2485%** of priced position value, and **STX 2.2151% (65 sleeves) + LRCX 1.8521% (54) + WDC 1.7925% (65) + AMAT 1.5737% (52)**.
+> **THE 10-YEAR IS AT A 24-YEAR HIGH AND BRENT IS BACK THROUGH $100.** 10-year **5.33%, +4bp, past the 2007 peak and the highest since 2002**; 30-year **5.64%**. Chinese refiners **suspended all October product exports beyond Hong Kong and Macau until further notice**; PetroChina cancelled most of its October gasoline and jet cargoes; **Asian diesel refining margins ~$75/bbl**. Brent prints conflict by contract and hour and I publish both: spot **$96.76 (-1.30%)** early, Dec contract **$100.15 (+2.2%)** later. Energy is **13.4653%** of the book.
+> **EVERY SEPTEMBER REBALANCE SOLD AT A LOSS - ALL FIVE OF THEM (09-01, 09-08, 09-15, 09-21, 09-28), AND THE 08-31 EVENT BEFORE THEM TOO.** September realized **-$137,814.52 on $2,106,773.39 of cost basis (-6.5415%)** over **1,249** closed lots, **385 profitable (30.8247%)**. Q3 realized **-$268,829.02 (-3.2480%)** over 3,958 lots. **The book is roughly flat on the month only because one unrealized winner offsets it: MU's +$144,383.75 is 76.55% of the entire +$188,602.88 unrealized gain.** That is the single most important structural fact in this report.
+> **THE MLI RESTATEMENT TOOK THE MONTHLY LADDER GRADIENT FROM CLEARLY POSITIVE TO INDISTINGUISHABLE FROM ZERO.** OLS of since-inception return on residual weight, held on the same marked 09-29 basis so the restatement is the only thing that changes: monthly **+0.0140 -> +0.0012** pp per pp, weekly **-0.0176 -> -0.0294**, biweekly **-0.0952 -> -0.1071**. **The restatement costs every cadence about -0.012 pp per pp**, and it is the monthly rung - the only one that looked like it rewarded residual weight - that loses its signal. Adding the 09-30 day move takes the monthly reading to **-0.0079**. Section 6a prints all four bases; **the sign of the monthly slope now depends on which day you measure, which is itself the finding.**
+> **LQDA'S -57% BAR IS CONFIRMED REAL NEWS, AND INDEPENDENTLY SO.** The District of Delaware held claims **1 and 14 of U.S. Patent No. 11,826,327** valid and infringed by YUTREPIA; Liquidia will appeal and will ask the FDA to remove the PH-ILD indication. **The monthly rebalance ranks on this price tonight and it is a legitimate price, not a bad bar.** **Record EJ's open item on this was already closed by record EL at ~23:02 CDT last night** - section 3b is corroboration from a different source set, not the close.
+> **FICO IS A REGULATORY IMPAIRMENT, NOT A DIP, AND 30 SLEEVES OWN IT.** FHFA put VantageScore 4.0 on the same Fannie/Freddie pricing grid as Classic FICO; Rocket Mortgage will make VantageScore 4.0 its preferred model in Q4; BofA cut to Neutral. **-26.5% on 09-29, its worst day since 1989; -65.0% YTD.** Book position **-$27,504.42, -43.62% below basis** - the largest unrealized loss in the book.
+> **LLM OVERLAY: THE STOCK ARM'S ENTIRE LEAD IS ONE MU BET THAT JUST GOT ITS CATALYST AND WENT THE WRONG WAY PRE-MARKET.** Treatment **+14.0348%** vs control **+6.1021%**, **+7.9327pp**, unmoved since 09-01 because both hold only MU at different entry prices. Macro arm still losing: **+1.7048%** vs **+4.4288%**. `llm_overlay_log` real count **14** (`count(*)`, never `max(id)`, which is 17).
+> **CRITICAL OUTSTANDING.** (a) **The monthly rebalance fires TODAY at 18:01:03 CDT and the PreToolUse trading guard is still expected to deny both the decision-logging step and the wrapper .bat - BLOCKED-ON-EVAN since 2026-09-01, so the October run is manual.** (b) `llm_cascade_sector4_paper`'s XLB invalidation at $51.00 is breached a **15th consecutive session** (09-30 close **$48.70**) with no enforcement. (c) The 17:15 coverage gate has produced PENDING on **every trading day since at least 2026-09-14**. (d) **ETON -13.01% still has no confirmed catalyst** - and the day-of report has it falling on volume **66% BELOW average**, which deepens rather than explains it. (e) `llm_overlay_sector_top4_paper` holds **$23,087.99 idle (22.66% of NAV)**; `residual_w4555_wk_paper` **$11,580.94 (11.19%)**. (f) **Nine Fed speakers today**, including Waller 10:00 ET and Jefferson 13:30 ET, into a 5.33% 10-year.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` at compile: **Thu Oct 1 07:30:19 CDT 2026** (`date -u`: Thu Oct 1 12:30:19 UTC 2026). Reported offset **UTC-5**, so the zone label is **CDT**. Every date in this entry is the local **2026-10-01**.
+
+**0b. Market status.** US equity markets are **OPEN** today. 2026-10-01 is a Thursday and is not an NYSE holiday; October contains no US equity market holiday. It is the **first trading day of Q4 and of October**, which makes it the **monthly rebalance day**. Sections 1-6 proceed.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-01 \(Thursday\) .{1,3} Pre-Market Overnight Research' daily_report.md` printed **0** before this entry was appended. Not a re-fire.
+
+**0d. Cron echo (drift watch - records CQ.3, DG).** From `list_scheduled_tasks` at 07:05 CDT:
+
+| task | cronExpression | human | jitter | lastRunAt (UTC) | nextRunAt (UTC) |
+|---|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | At 07:01 AM, Mon-Fri | 83s | 2026-10-01T12:01:46.402Z | 2026-10-02T12:01:23.000Z |
+| `daily-trade-check-2` | `0 19 * * 1-5` | At 07:04 PM, Mon-Fri | 262s | 2026-10-01T00:04:38.903Z | 2026-10-02T00:04:22.000Z |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | At 06:00 PM, days 1-5 | 63s | 2026-09-05T23:03:04.113Z | **2026-10-01T23:01:03.000Z** |
+| `daily-audit` | `0 7 * * *` | At 07:09 AM, daily | 541s | 2026-09-30T12:09:43.993Z | 2026-10-02T12:09:01.000Z |
+
+Four observations.
+
+1. **This task's own schedule has drifted from its task file, and the drift is harmless.** The `SKILL.md` prose says the task "fires at 07:07"; the live cron is `0 7 * * 1-5` and it fired at **07:01:46 CDT**. The only thing that matters operationally is the relationship to the 07:45 heal, and firing *earlier* preserves it: this entry compiles **before** the heal either way, which is exactly the condition pre-flight 0f exists to disclose. Recorded, not corrected - changing a scheduled task is not a write this task is permitted to make.
+2. **`monthy-llm-rebalance` fires TODAY at 18:01:03 CDT** (23:01:03 UTC). `lastRunAt` is still **2026-09-05** because September's run was completed by hand after the guard denial. Read from the live list, never from a doc, per the standing rule.
+3. **`daily-audit`'s `nextRunAt` read 2026-10-02T12:09:01Z while `lastRunAt` read 2026-09-30T12:09:43Z**, which skips today - and the fields are wrong, because **today's audit did run**: record **Appendix EM** is dated 2026-10-01 ~07:18 CDT with 30 findings. So `lastRunAt` was stale at the 07:05 read rather than the audit being missed. **This is the second day in a row that `daily-audit`'s timestamp fields have misreported its own state** (the 09-30 two-read anomaly), and it is the one field in this echo that cannot currently be trusted. For the record, EM's own HIGH findings are its to carry, not this entry's; two of them - that the trade guard skips every Trading rule when a session starts at the workspace root, and that commits `c71159e` and `618faf0` were pushed on 09-30 with no doc recording it - are live items for Evan.
+4. **No drift in the two report tasks.** `0 7 * * 1-5` and `0 19 * * 1-5` are unchanged from yesterday's echo.
+
+**0e. DB access.** Opened read-only on every query: `sqlite3.connect('file:var/trades.db?mode=ro', uri=True)`. No write connection was made by this task.
+
+**0f. The 07:45 heal has not run.** This task fired at 07:01:46 and compiled at 07:30 CDT - **15 minutes before** `TradingMorningMTM`. 2026-09-30 is therefore still unmarked as of this entry, and **I state the schedule, not the outcome**. Mechanism and precedent only: on 09-30 the same heal lifted 09-29's cached close count from 4,286 to **5,110** through a 3-step retry ladder (`+1120 (169 missing)`, `+114 (55 missing)`, `+41 (14 missing)`, finishing at 14 of 5,146 recently-traded tickers missing = 0.3%, under the 5% abort threshold) and then marked **76 of 76** sleeves. That is what the mechanism did yesterday. It is not a forecast.
+
+**0g. MARK STATE - 2026-09-30 IS UNMARKED. Every 09-30 NAV in this entry is INDICATIVE.**
+
+`max(nav_date)` in `paper_nav` is **2026-09-29**, with **76 of 76** sleeve rows. There is **no 2026-09-30 row at all**.
+
+The gate, from `var/last_daily_run.log`:
+
+```
+2026-09-30 17:25:12,367 INFO check_coverage: Coverage check: date=2026-09-30  closes=4306  baseline(median of 10)=5114  floor=5000 [max(5000, 90%*5114=4602)]
+2026-09-30 17:25:12,367 ERROR check_coverage: COVERAGE FAIL: only 4306 closes on 2026-09-30 (< floor 5000). Likely incomplete publication (record Appendix AU) - do NOT MTM on this data.
+2026-09-30 17:25:17,663 INFO mtm_catchup: PENDING 2026-09-30: coverage 4306 < floor 5000 - leaving unmarked (heals later).
+```
+
+`var/ops_status.log` tail: `[OPS 2026-09-30] coverage=n/a verify=PASS` then `[OPS 2026-09-30] coverage=PENDING verify=PASS`. Directly queried close counts confirm the shortfall and its shape:
+
+| key_date | cached closes |
+|---|---|
+| 2026-09-30 | **4,306** |
+| 2026-09-29 | 5,110 |
+| 2026-09-28 | 5,113 |
+| 2026-09-25 | 5,114 |
+| 2026-09-24 | 5,114 |
+| 2026-09-23 | 5,114 |
+| 2026-09-22 | 5,112 |
+
+The structural read is unchanged and is a property of the schedule, not a fault of any run: **the 17:15 gate has produced PENDING on every trading day since at least 2026-09-14**, the evening publication is systematically short by roughly 800 closes, and **marking is done entirely by the 07:45 heal**.
+
+**Method for every indicative figure below.** Indicative sleeve NAV = the **official marked 09-29 `total_nav`** plus, summed over `status='open'` rows, `qty x (close_09-30 - close_09-29)` for every ticker that has **both** closes cached. Names missing either close contribute **exactly zero** to the day move. This is the same basis-consistent delta method as last night's entry and it cannot leak a phantom move from a pinned name. **It is not a marked close and must not be cited as one.**
+
+**0h. The 09-29 book was restated overnight by +$40,599.29, and it was authorized. This is the most important item in this section.**
+
+| quantity | published 09-30 19:04 CDT | queried now 07:05 CDT | delta |
+|---|---|---|---|
+| `sum(total_nav)` @ 2026-09-29 | $7,630,670.25 | **$7,671,269.54** | **+$40,599.29** |
+| `sum(cash)` @ 2026-09-29 | $35,654.51 | **$64,604.11** | +$28,949.60 |
+| `sum(positions_value)` @ 2026-09-29 | $7,595,015.74 | **$7,606,665.43** | +$11,649.69 |
+| rows | 76 | 76 | 0 |
+| `sum(n_open_positions)` | 3,288 | 3,288 | 0 |
+
+I treated this as a possible unauthorized rewrite of sealed NAV history and chased it to ground before writing anything else. **It is the MLI 2-for-1 split restatement, record Appendix EJ, applied live at 2026-09-30 21:49:02 CDT** - 2 hours 45 minutes *after* last night's entry compiled, which is why that entry's figures were correct when written and are superseded now. The restatement covered **3,383 `paper_nav` rows across 42 sleeves**, each written with an accompanying `paper_nav_restatement` row reading `split-repair MLI 2026-07-01 x2: record EG ...`, and it is recorded as independently verified (a check script sharing no code with the repair tool reproduced all 7,400 `paper_nav` rows of all 76 sleeves with **0 mismatches**, on a copy and on live; `verify_run` PASS 76/76; frozen tests 4/4 at d=+/-0.0000pp).
+
+The two figures reconcile exactly, which is what makes this a repair rather than a drift: **cash +$28,949.60** (30 sleeves whose June/July MLI exits were booked at half the correct share count) **plus +$11,649.69** (12 still-open pre-split lots' second share, marked at the 09-29 close of **$60.79**) **= +$40,599.29**.
+
+Supporting facts I verified directly rather than taking from the record:
+
+- `sum(paper_portfolio.cash)` is **$64,604.11** and matches `paper_nav.cash` at both 09-28 and 09-29 with **0 of 76** sleeves mismatched.
+- **Zero trades** are involved: no `entry_date` or `exit_date` anywhere in the book after **2026-09-28**, and open rows are unchanged at **3,288** across 76 sleeves and 223 tickers.
+- Cost basis is invariant on the open MLI lots, as the documented split repair requires: **qty 31.9397 x entry_price $66.5483 = entry_value $2,125.53**. MLI is held by **14** open lots.
+- Rebuilding `positions_value` from scratch (open rows x cached 09-28 and 09-29 closes) reproduces the restated stored values with a **maximum absolute difference of $1,892.09** and only **6 of 76** rows off by more than a cent - the known APGE/CRNX carry-forward error term, unchanged by the restatement. The stored rows are internally consistent with the current cache.
+- The `var/trades.db` mtime is **2026-09-30 22:01 CDT**, inside the EG/EH -> EJ working window (record commits `ca87f19`, authored and committed 21:33:20 CDT, and `6c60505`, authored 23:01:31 and committed 23:02:02 CDT). **This also retires the open question raised in the 09-30 pre-market entry about an unnamed writer touching the DB at 21:43:13 CDT on 09-29** - the same interactive session was running the split investigation and its on-a-copy rehearsal.
+
+**Consequence that matters more than the dollar figure: every ITD/MTD/since-inception number published in this file before today understates the 42 MLI-affected sleeves, which are the residual-ladder rungs plus `residual_roa_6535_paper`.** Record EJ says this in one line - *"Any ladder-gradient result computed before today included this understatement"* - and section 6 measures what it actually did to the ladder result.
+
+**0i. Held-name coverage: 219 of 223 held tickers have a 09-30 close. Four do not, and all four are the documented pinned-stub condition.**
+
+| ticker | 09-29 close | 09-30 close | sleeves holding | note |
+|---|---|---|---|---|
+| APGE | none (last 2026-09-03) | none | 6 | post-close cash-merger stub |
+| CRNX | none (last 2026-09-02) | none | 2 | post-close cash-merger stub |
+| DMAA | $10.8800 | none | 18 | trust-pinned |
+| UYSC | $11.0000 | none | 20 | deal-pinned |
+
+These contribute **exactly zero** to the indicative day move rather than being estimated (memory `momentum-screen-buys-deal-stubs`). This is the same four as yesterday; **KFII and FMBM again received closes** and are not on the list.
+
+**0j. Price anomaly scan: no new anomaly, one standing false positive, one confirmed-real extreme.**
+
+`check_anomalies` flagged **4 for 2026-09-30** - exactly the four NOCLOSE names in 0i, with `held=223 cache_new=4306`. **No held name tripped a move threshold** (`held>300% cache>1000%@>=$1.00`). The split-seam scanner again warns on **KOD** held by the four `mom_v1`/`mom_v2` sleeves (seam 2026-09-25 $32.35 -> 2026-09-28 $89.92, 2.7796x); that was confirmed real clinical-data price action on 09-30 and KOD closed **$94.80, +4.04%** - disposition unchanged, still a false positive. The scanner no longer flags MLI at all (record EJ: full-history MLI split seams 3 -> **0**).
+
+**The one extreme in the book is LQDA at -57.19% and it is confirmed real** - see section 3b. Record EJ's single open item read *"Real news or a bad bar is unknown. Check before the 2026-10-01 monthly ranks on it,"* and **record Appendix EL already closed it at ~23:02 CDT on 2026-09-30** on Evan's instruction. **What section 3b adds is independent corroboration from different sources, not a new finding** - and today is that rebalance.
+
+---
+
+### 1. Portfolio standings from the last marked close
+
+**Book: marked 09-29 $7,671,269.54 (ITD +0.9378% on $7,600,000 of contributed capital, 76 x $100,000) -> indicative 09-30 $7,659,687.43 (ITD +0.7854%), day -0.1510% / -$11,582.11.** Indicative September **-0.5749%** against the 2026-08-31 marked base of $7,703,977.89 - and September is the month that closed last night, so this is the indicative month-end number for a month that no marked row covers yet.
+
+Marked 09-29 components: cash **$64,604.11**, position value **$7,606,665.43**, **3,288** open rows across **223** tickers. **48 of 76** sleeves are above their $100,000 start on the indicative 09-30 basis, and **50 of 76** on the marked 09-29 basis - the two crossers on the day are `residual_w2575_paper` and `residual_w8515_paper`.
+
+Priced position value on the 09-30 basis (09-29 fallback for the four pinned names): **$7,585,169.44**. Total unrealized **+$188,602.88**.
+
+**Top 8 and bottom 10 sleeves, indicative 09-30:**
+
+| sleeve | marked 09-29 | indicative 09-30 | ITD (ind) | day (ind) |
+|---|---|---|---|---|
+| `llm_overlay_mom_roa_top1_paper` | $114,031.60 | $114,034.81 | **+14.0348%** | +0.0028% |
+| `llm_cascade_top1_paper` | $111,754.02 | $111,757.17 | +11.7572% | +0.0028% |
+| `qqq_benchmark_paper` | $109,460.80 | $109,733.74 | +9.7337% | +0.2493% |
+| `residual_w5545_paper` | $107,699.50 | $107,567.29 | +7.5673% | -0.1228% |
+| `residual_w6040_paper` | $107,444.93 | $107,303.27 | +7.3033% | -0.1318% |
+| `sector_top4_full_paper` | $106,680.48 | $106,192.19 | +6.1922% | -0.4577% |
+| `mom_roa_top1_paper` | $106,099.13 | $106,102.12 | +6.1021% | +0.0028% |
+| `spy_benchmark_paper` | $106,043.15 | $105,825.29 | +5.8253% | -0.2054% |
+| ... | | | | |
+| `residual_w9505_2wk_paper` | $94,861.83 | $94,477.28 | -5.5227% | -0.4054% |
+| `mom_v2_0701_paper` | $94,653.28 | $94,245.52 | -5.7545% | -0.4308% |
+| `residual_w9010_2wk_paper` | $94,083.32 | $93,757.37 | -6.2426% | -0.3465% |
+| `mom_v1_0701_paper` | $93,877.38 | $93,733.33 | -6.2667% | -0.1534% |
+| `mom_roa_6535_0701_paper` | $93,353.13 | $93,721.20 | -6.2788% | +0.3943% |
+| `residual_w8020_2wk_paper` | $93,357.33 | $93,181.38 | -6.8186% | -0.1885% |
+| `residual_w8515_2wk_paper` | $93,039.93 | $92,822.56 | **-7.1774%** | -0.2336% |
+| `mom_roa_6535_paper` | $89,806.53 | $90,143.87 | -9.8561% | +0.3756% |
+| `mom_v2_paper` | $89,004.31 | $88,598.87 | -11.4011% | -0.4555% |
+| `mom_v1_paper` | $86,813.98 | $86,634.11 | **-13.3659%** | -0.2072% |
+
+`residual_w8515_2wk_paper` is **the worst non-momentum sleeve in the book** and the worst rung in the entire 57-rung residual ladder; section 6b uses it as the ladder's floor.
+
+**Do not compare these ITD figures to the ones published yesterday for the residual rungs.** Per 0h, the 42 MLI-affected sleeves were restated upward overnight; `residual_w5545_paper` at +7.5673% and `residual_w6040_paper` at +7.3033% now include the MLI correction, which added **+$771.54 to +$1,187.93 per affected sleeve** on 09-29.
+
+**The two worst day movers have a single shared cause.** `residual_w9010_paper` **-1.6162%** and `residual_w9505_paper` **-1.4374%** are the **only sleeves worse than -0.5% on the day**, and both hold **LQDA and ETON** - the day's two largest decliners. **Four sleeves hold both** (`mom_v1_paper`, `mom_v1_0701_paper`, `residual_w9010_paper`, `residual_w9505_paper`); these two are the pair where that overlap is a large enough share of a 50-name sleeve to dominate the day. That is the high-residual end of the ladder, and it is the end section 6a shows has the worst gradient.
+
+**Top 12 holdings, 09-30 basis:**
+
+| ticker | value | weight | sleeves | 09-29 | 09-30 | day |
+|---|---|---|---|---|---|---|
+| MU | $549,812.92 | **7.2485%** | 62 | $1,065.0800 | $1,065.1100 | +0.00% |
+| QQQ | $212,078.72 | 2.7960% | 2 | $737.9300 | $739.7700 | +0.25% |
+| SPY | $207,336.05 | 2.7334% | 2 | $764.2000 | $762.6300 | -0.21% |
+| STX | $168,017.21 | 2.2151% | 65 | $913.4500 | $922.3400 | +0.97% |
+| LRCX | $140,487.14 | 1.8521% | 54 | $323.8600 | $328.5100 | +1.44% |
+| WDC | $135,961.23 | 1.7925% | 65 | $453.4800 | $454.4600 | +0.22% |
+| INSW | $129,671.90 | 1.7095% | 44 | $110.2400 | $110.1400 | -0.09% |
+| AMAT | $119,365.06 | 1.5737% | 52 | $512.0100 | $511.3800 | -0.12% |
+| TGTX | $113,626.79 | 1.4980% | 49 | $56.1900 | $55.7800 | -0.73% |
+| XLK | $111,443.20 | 1.4692% | 4 | $194.5000 | $195.7500 | +0.64% |
+| JNJ | $110,712.20 | 1.4596% | 47 | $267.5700 | $264.7400 | -1.06% |
+| AAPL | $109,991.45 | 1.4501% | 45 | $329.4000 | $333.0200 | +1.10% |
+
+**Sector weights** (`paper_positions.sector`, which carries both a `Healthcare` and a `Health Care` label - they sum to **24.1625%** and the split is a data-labelling artifact, not two exposures):
+
+| sector | value | weight |
+|---|---|---|
+| Technology | $1,958,891.72 | **25.8253%** |
+| Healthcare | $1,730,067.11 | 22.8085% |
+| Energy | $1,021,369.57 | **13.4653%** |
+| Financial Services | $680,684.11 | 8.9739% |
+| Industrials | $461,827.45 | 6.0886% |
+| Communication Services | $437,803.05 | 5.7718% |
+| Index | $419,414.77 | 5.5294% |
+| Consumer Defensive | $261,595.35 | 3.4488% |
+| Consumer Cyclical | $231,641.97 | 3.0539% |
+| Basic Materials | $187,410.77 | 2.4708% |
+| Health Care | $102,699.92 | 1.3540% |
+| Real Estate | $66,425.41 | 0.8757% |
+| Materials | $20,788.03 | 0.2741% |
+| Unknown | $4,550.22 | 0.0600% |
+
+Three sectors at or near the 20%-weight research trigger: Technology **25.8253%**, Healthcare **24.1625%** combined, Energy **13.4653%**. All three are covered in section 3.
+
+**Trade data, the past day / week / month - and this is the finding of the report.** Every September rebalance event realized a loss, and so did the 08-31 event immediately before them. **The table below has six rows; five of them are September** - 2026-08-31 is August and is shown for continuity, not counted in the September total:
+
+| exit_date | lots closed | realized P&L | on cost basis | profitable |
+|---|---|---|---|---|
+| 2026-09-28 (ladder) | 471 | **-$19,504.13** | -4.1441% | 167 (35.5%) |
+| 2026-09-21 (ladder) | 13 | -$833.23 | -3.6365% | 3 (23.1%) |
+| 2026-09-15 (ladder) | 287 | **-$46,995.90** | -8.7940% | 70 (24.4%) |
+| 2026-09-08 (ladder) | 98 | -$4,609.51 | -2.3708% | 38 (38.8%) |
+| 2026-09-01 (monthly) | 380 | **-$65,871.75** | -7.4484% | 107 (28.2%) |
+| 2026-08-31 | 311 | -$38,411.40 | -5.8774% | 93 (29.9%) |
+
+**September total (exit_date 09-01 to 09-30): -$137,814.52 realized on $2,106,773.39 of cost basis = -6.5415%, over 1,249 closed lots, 385 profitable (30.8247%). Q3: -$268,829.02 (-3.2480%) over 3,958 lots.**
+
+Worst and best names in the 09-28 ladder: **BTSG -$4,971.60 (13 sleeves)**, ELA -$4,571.42 (5), FIX -$1,780.41 (16), HP -$1,097.50 (7); against **VICR +$1,792.41 (8)**, TEN +$878.13 (14), MSGE +$544.61 (12), CAT +$495.52 (9).
+
+**No trades since 2026-09-28.** The 09-30 20:30 ladder run found neither cadence due (`weekly: last=2026-09-28 due=False | biweekly: last=2026-09-28 due=False`) and wrote no positions.
+
+Idle cash above 1% of NAV:
+
+| sleeve | cash | % of marked 09-29 NAV |
+|---|---|---|
+| `llm_overlay_sector_top4_paper` | $23,087.99 | **22.66%** |
+| `residual_w4555_wk_paper` | $11,580.94 | **11.19%** |
+| 11 other residual rungs | $1,029 - $1,208 each | 1.01% - 1.25% |
+
+`residual_w4555_wk_paper`'s idle balance rose from the $10,698.82 published yesterday to **$11,580.94** - that **+$882.12** is its share of the MLI cash restatement, not a new rejected buy.
+
+Position-count exceptions: `mom_v1_paper` and `mom_v1_0701_paper` hold **98** against a 100 target; 20 residual rungs hold **49** against 50. Everything else sits exactly at 1, 4 or 50.
+
+---
+
+### 2. Overnight and pre-market moves
+
+The market has not opened. There is no intraday performance data. Every figure here is a quoted pre-market or futures print with its own timestamp, and where two captures disagree I print both.
+
+**2a. Futures - three captures, three different times, and they do not disagree in sign today.**
+
+| capture | time | S&P 500 | Nasdaq | Dow |
+|---|---|---|---|---|
+| Newsquawk European open | 06:20 BST / 01:20 EDT | ES Dec'26 **+0.6%** | NQ Dec'26 **+1.1%** | n/a |
+| CNBC live blog | Thursday pre-market | **+0.3%** | NDX **+0.6%** | +86 pts, **+0.2%** |
+| FinancialJuice US session prep | 2026-10-01 | "around **+0.4%**" | n/a | n/a |
+| later pre-market (search aggregation, time unstated) | unstated | **+0.48%** | NDX **+0.86%** | +0.26% |
+
+Direction is consistent: **risk-on, led by the Nasdaq, with the Dow lagging** - the same shape as yesterday's tape, where the Nasdaq rose and the Dow fell 0.86%. Sources: [CNBC live blog, 2026-09-30/10-01](https://www.cnbc.com/2026/09/30/stock-market-today-live-updates.html), [Newsquawk, 2026-10-01](https://newsquawk.com/headlines/newsquawk-daily-european-opening-news---1st-october-2026), [FinancialJuice, 2026-10-01](https://features.financialjuice.com/2026/10/01/morning-juice-us-session-prep-1st-october-2).
+
+**2b. MU - the resolved item, and the only pre-market move the book really cares about.**
+
+**$1,055.51, -$9.60, -0.90%, at 2026-10-01 08:15 EDT** ([stockanalysis.com/stocks/mu](https://stockanalysis.com/stocks/mu/)). Last close **$1,065.11 +$0.03 (+0.00%)** at 2026-09-30 16:00 EDT, which the same page confirms to the cent.
+
+This settles last night's unresolved item. The 09-30 entry published two irreconcilable after-hours reads - Investing.com **+0.4%** and 24/7 Wall St. **about -1.2% at roughly $1,056**, attributed to capex concerns - and declined to average them. **The -1.2% / ~$1,056 read is the one that held**; the pre-market print is $1,055.51.
+
+Book impact if it holds to the open: **516.2030** shares across **62 of 76** sleeves, **-$4,955.55**, taking the position to **$544,857.38**. (Both endpoints are computed from the unrounded 516.2030 shares, so they do not reconcile to the cent against the rounded **$549,812.92** printed in section 1; the difference is one cent of rounding, not a discrepancy.) The three single-name sleeves move essentially one-for-one with it:
+
+| sleeve | MU qty | MU value @ $1,065.11 | marked 09-29 NAV | MU weight |
+|---|---|---|---|---|
+| `mom_roa_top1_paper` | 99.5385 | $106,019.43 | $106,099.13 | **99.9249%** |
+| `llm_overlay_mom_roa_top1_paper` | 106.9700 | $113,934.81 | $114,031.60 | **99.9151%** |
+| `llm_cascade_top1_paper` | 104.8335 | $111,659.17 | $111,754.02 | **99.9151%** |
+
+**2c. Other pre-market movers with book relevance.**
+
+- **Alphabet +1.9%** pre-market on the release of a new flagship AI model said to compete at the frontier on some benchmarks (CNBC, 2026-10-01). GOOGL is **not** a book holding; the read-through is to the Communication Services weight (5.7718%) and to the AI-capex theme the book's semi names sit in.
+- **Nvidia, AMD and Broadcom all higher** in early trading. None is a book holding; all three are the "beneficiaries, not the printer" cohort described in 3a.
+- The book's own large semi/storage names closed strong yesterday and have no contradicting pre-market print I could source: **LRCX +1.44%, STX +0.97%, WDC +0.22%, AMAT -0.12%**.
+
+**2d. Yesterday's closes - the reconciled set, and the outlier I am flagging rather than averaging.**
+
+The 09-30 post-market entry verified these point-for-point against the AP wire and they stand: **S&P 500 7,651.54 (-19.30, -0.25%) | Nasdaq Composite 26,861.06 (+63.52, +0.24%) | Dow 50,906.05 (-443.87, -0.86%) | Russell 2000 2,796.86 (-11.06, -0.39%)**.
+
+**Newsquawk's 2026-10-01 European opening note is the outlier on two counts** and I publish the disagreement rather than resolving it silently: it labels these closes **"29 September"** when the levels are plainly 09-30's, and it prints **SPX -0.20% at 7,656** against AP's -0.25% at 7,651.54. Its **NDX 30,409 (+0.23%)** is the Nasdaq-100, a different index from the Composite, so that one is not a conflict at all. **Use the AP set.**
+
+September and Q3, from the same AP-verified entry: September **S&P -0.5%, Dow -4.3%, Nasdaq +1.9%**; Q3 **S&P +2%, Nasdaq +2.5%, Dow -2.7%**.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. Micron: a blowout quarter that moved everyone except Micron.**
+
+Fiscal Q4 (ended 2026-09-03), as published in last night's entry and confirmed today: revenue **$54.23bn** against guidance of $50bn +/- $1bn; non-GAAP diluted EPS **$33.42**; GAAP gross margin **86.8%**; operating cash flow **$43.97bn**; FY2026 revenue **$133.19bn**. Q1 FY2027 guide **$61.5bn +/- $1.5bn** revenue and **$38.15 +/- $1.00** non-GAAP EPS - **13.4% above the quarter just reported**.
+
+**Consensus disagrees by source and I am not averaging it.** [Yahoo Finance](https://finance.yahoo.com/technology/article/micron-tops-q4-estimates-on-top-and-bottom-lines-offers-strong-q1-outlook-153230577.html) reports analysts looking for **EPS $31.83 on revenue $51.49bn**; last night's entry published a consensus range of **$31.16-$31.72**. Under the wider of the two the EPS beat is **+5.0%**; under the narrower it is **+5.4% to +7.3%**. **The conclusion is identical either way and does not depend on which is right**, which is why both are printed.
+
+**Why the stock did not go up is the interesting part, and it is directly actionable for this book.** Two independent framings converge:
+
+1. *The surprise has shrunk.* The quarter beat on earnings and sales by roughly **5-6%** and the guide was about **8%** above expectations - small next to the surprises that drove the earlier rally. Investors are increasingly pricing best-case outcomes ([Benzinga, 2026-10](https://benzinga.com/markets/tech/26/10/62099191/micron-stock-has-made-historic-run-traders-are-now-asking-whats-left)).
+2. *The beneficiaries are elsewhere.* CNBC's 10-01 live blog is explicit: the results "appeared to boost other chipmakers and AI-related companies more than Micron itself, whose shares are up **270%** so far this year." **Flagged as a source-vs-cache disagreement rather than reconciled silently: the book's own cached closes give +273%** ($1,065.11 against $285.41). CNBC's 270% is the published figure and is what is attributed here; the 3pp gap is most likely a different start date or an intraday quote, and neither number changes anything in this report.
+
+Analyst actions today and yesterday, each dated: **Rosenblatt $1,500 -> $1,900, buy (2026-10-01)** ([MarketBeat](https://www.marketbeat.com/instant-alerts/analyst-micron-technology-nasdaq-mu-price-target-raised-to-190000-2026-10-01/)); **Baird $1,280 -> $1,520** ([Investing.com](https://www.investing.com/news/analyst-ratings/baird-raises-micron-stock-price-target-on-ai-demand-outlook-93CH-4919714)); Morgan Stanley ("strength continues to shine through") and TD Cowen ("demand durability keeps improving") both carried as same-morning headlines; D.A. Davidson raised on memory markets being "even tighter in 2028". Against that, a same-morning bear note titled "Why Micron's 87% Gross Margin Is a Problem." Valuation after the print: **forward P/E 6.04** on a **$1.20T** market cap.
+
+**Industry backdrop, which is the real reason the book's 25.8% Technology weight is where it is.** TrendForce has conventional DRAM contract prices **+93-98% QoQ in Q1 2026** and a further **+58-63% in Q2**, with NAND **+85-90%** then **+55-60%**. DDR4 spot is **$2.10/Gb**, now above HBM3e at **$1.70/Gb** - an inversion that says the shortage is in commodity memory, not only the AI-specific part. Yahoo's October memory screen names exactly the book's cluster: **STX, WDC, MU** (plus SNDK, not held). WDC's forward P/E has gone from about **12x to about 29x** in a year, and Seagate is similar - **the multiple re-rating, not just the earnings, is now carrying these names**, and that is the part that unwinds fastest. Sources: [TrendForce](https://www.trendforce.com/presscenter/news/20260202-12911.html), [Yahoo Finance memory screen](https://finance.yahoo.com/markets/stocks/articles/4-memory-semiconductor-stocks-watch-131800867.html).
+
+**3b. LQDA / UTHR: the ruling that resolves record EJ's open item, on the day the monthly rebalance ranks on it.**
+
+On **2026-09-30** the U.S. District Court for the District of Delaware held **claims 1 and 14 of U.S. Patent No. 11,826,327** - United Therapeutics' patent on inhaled treprostinil for pulmonary hypertension in interstitial lung disease (PH-ILD) - **valid and infringed** by Liquidia's YUTREPIA, while invalidating other asserted claims. **Liquidia will appeal and will ask the FDA to remove the PH-ILD indication from YUTREPIA's label** (reported variously as revising its NDA to exclude the indication - the same action), and was ordered to propose a judgment on remedies within a week. Sources: [Liquidia announcement coverage](https://www.quiverquant.com/news/Liquidia+Corporation+Announces+District+Court+Ruling+on+United+Therapeutics+Patent+Claims+for+YUTREPIA), [Yahoo Finance, 2026-09-30](https://finance.yahoo.com/markets/stocks/articles/liquidia-shares-crater-court-rules-182327931.html), [Seeking Alpha](https://seekingalpha.com/news/4648660-liquidia-plunges-amid-court-ruling-in-united-therapeutics-patent-fight).
+
+**This is a confirmed legal catalyst, so the -57.19% bar is a real price and the monthly ranking tonight may legitimately rank on it.** **Record Appendix EL closed this at ~23:02 CDT on 2026-09-30, before this entry** - it reached the same verdict (*"a genuine move, not a data error"*, noting the ratio 0.4281 is 14% from a 0.5 split and so not split-shaped) from a different source set. **This section is corroboration, not the close.** EL also records the second-order expectation in the same terms used in 5a below: LQDA's momentum collapses, so the momentum sleeves are likely to sell it, and *"that is unverified; the rebalance decides."*
+
+**Source spread on the magnitude, published rather than averaged.** Intraday reports have LQDA **-25%** and **-52%** and UTHR **+6.2%** at different hours ([GuruFocus -52%](https://www.gurufocus.com/news/9104007/liquidia-lqda-shares-drop-52-after-delaware-court-patent-ruling), [GuruFocus -25%](https://www.gurufocus.com/news/9103788/liquidia-corp-lqda-shares-plunge-25-after-patent-dispute-court-ruling)); the book's own close-to-close prints are **LQDA $70.69 -> $30.26 (-57.19%)** and **UTHR $481.47 -> $541.89 (+12.55%)**. Those are not in conflict - they are snapshots of a collapsing intraday tape versus the official close, and **the close is the only basis the book marks on**.
+
+**The book was accidentally long the winner nearly five times wider than the loser.** LQDA sits in **6** sleeves (`mom_v1_paper`, `mom_v2_paper`, `mom_v1_0701_paper`, `mom_v2_0701_paper`, `residual_w9010_paper`, `residual_w9505_paper`), 131.32 shares, **$3,973.74**; UTHR sits in **29** sleeves, 121.5005 shares, **$65,839.92**. Net contribution yesterday was positive. **This was luck, not construction** - nothing in either screen knew the two names were opposite sides of one docket.
+
+**3c. FICO: a regulatory impairment that 30 sleeves own and no screen can exit before the next rebalance.**
+
+The catalyst is a change to how Fannie Mae and Freddie Mac price loans, announced by FHFA head Bill Pulte: **VantageScore 4.0 is placed on the same pricing grid as Classic FICO**, ending the effective pricing monopoly ([Schaeffer's, 2026-09-29](https://www.schaeffersresearch.com/content/news/2026/09/29/fair-issac-stock-crumbles-after-mortgage-pricing-monopoly-ends), [Motley Fool, 2026-09-29](https://www.fool.com/investing/2026/09/29/why-fair-isaac-corporation-plunged-today/)). **Rocket Mortgage has since said VantageScore 4.0 will become its preferred model for eligible direct-to-consumer loans in Q4** - the demand-side confirmation that the pricing change converts into lost volume. **Bank of America cut FICO from Buy to Neutral** on 09-30 ([GuruFocus](https://www.gurufocus.com/news/9103533/fico-shares-drop-273-after-bank-of-america-downgrades-amid-pricing-grid-changes)).
+
+Price action: **-26.5% on 2026-09-29, its worst day since 1989**; a further **-4.11% on 09-30 to $592.47**; **-32.6% on the week and -65.0% YTD** ([Forbes, 2026-09-30](https://www.forbes.com/sites/jimosman/2026/09/30/fico-stock-crashed-27-a-mortgage-price-war-could-send-it-lower/)).
+
+Book position: **30 sleeves, 59.9984 shares, cost $63,051.65, value $35,547.23, -$27,504.42 = -43.62% below basis.** It is **the largest single unrealized loss in the book**. The 30 holders are every residual rung **w05 through w50** and **not one rung w55 through w95** - a mechanical consequence of how the residual weight sorts, and a useful natural experiment: the low-residual half of the ladder, which is the half *leading* on return, is also the half that owns the worst name.
+
+**3d. Macro: the long end is the regime, and today is the heaviest Fedspeak day of the quarter.**
+
+**Rates.** The 10-year rose as much as **4bp to 5.33%**, **past the 2007 peak and the highest since 2002**, with persistent inflation, heavy government borrowing and strong growth keeping expectations elevated ([Bloomberg, 2026-10-01](https://www.bloomberg.com/news/articles/2026-10-01/treasury-10-year-yield-hits-highest-since-2002-on-rate-outlook-mup7ryq2), [CNBC, 2026-10-01](https://www.cnbc.com/2026/10/01/us-treasury-bond-yield.html)). Wednesday's closes were **10-year 5.298% (+1bp)** and **30-year 5.64%**. Newsquawk's 01:20 EDT capture had the 10-year at **5.28%**. The UK 30-year gilt went **above 6%** before easing - this is a **global** bond move, not a US-specific one ([Investing.com](https://investing.com/news/forex-news/sterling-today-pound-slips-as-global-bond-rout-lifts-dollar-gilt-yields-hit-6-4926602)).
+
+**Yesterday's data, carried forward because it sets today's expectations.** August core PCE came in **+0.2% MoM / 3.0% YoY** against +0.3%/3.3% expected, with July revised down to 3.0%; Q2 GDP's third estimate was revised **up 0.7pp to 2.2%**. October hike odds fell to **35%** from about 51%. **And yields rose anyway** - cooler inflation did not buy the long end anything, which is the single most informative macro fact available to this book right now.
+
+**A correction carried forward.** The 09-30 pre-market entry cited **72.5%** CME-implied October hike odds; the 09-30 post-market entry retracted that as unreproducible and the outlier of three sources, putting the pre-PCE level at **about 51%** and post-PCE at **35%**. **Use 35%.** Repeated here so the 72.5% figure does not sit uncorrected in this file's searchable history.
+
+**Hawkish counterweight.** Minneapolis Fed's **Kashkari, a 2026 voter, has pencilled in one more hike this year and another next year**, citing inflation persisting around 3% (Newsquawk, 2026-10-01). Against 35% market-implied odds for October, that is a live gap.
+
+**Today's docket** (times ET, from [FinancialJuice](https://features.financialjuice.com/2026/10/01/morning-juice-us-session-prep-1st-october-2) and [Newsquawk](https://newsquawk.com/headlines/newsquawk-daily-european-opening-news---1st-october-2026), both 2026-10-01):
+
+| time ET | release | forecast | prior |
+|---|---|---|---|
+| 08:30 | Initial jobless claims (w/e 09-26) | **200k** (range 195-210k) | 197k |
+| 08:30 | Continuing claims | 1.725M (range 1.705-1.75M) | 1.719M |
+| 09:45 | S&P Manufacturing PMI, Sept final | 57 (range 55.5-57.1) | 57 |
+| 10:00 | **ISM Manufacturing PMI, Sept** | **55.0** (range 53.8-56) | 54.6 |
+| - | Challenger job cuts (Sept) | - | - |
+| - | Atlanta Fed GDPNow (Q3) | - | - |
+
+**Nine Fed speakers**, the densest schedule in weeks: **Barkin, Collins and Schmid** on a rural-economy panel at 09:05; **Waller** on Fed economic data at 10:00; **Jefferson** on the economy and monetary policy at 13:30; **Bowman** on financial regulation at 15:00; **Cook** on a central banking panel at 15:30; plus **Williams** and **Logan**. With the market at 35% for October and a voter publicly at "one more hike this year," **any of these is a repricing risk for a book that is 25.8% long-duration technology**.
+
+**Earnings after the close: Nike** fiscal Q1 2027 at 16:15 ET, consensus EPS **$0.44** on revenue **$11.34bn**. **NKE is not a book holding**; it matters only as a consumer-demand read.
+
+**3e. Energy: Brent back through $100 on a Chinese export halt, and the book is long the dislocation by accident.**
+
+**The catalyst is specific and datable.** Chinese refiners have **suspended exports of oil products beyond Hong Kong and Macau until further notice from Beijing**, with Beijing withholding authorization ahead of the Golden Week holiday that runs **to October 7**, prioritizing a relatively constrained domestic market. **PetroChina cancelled the majority of its planned October gasoline and jet fuel shipments** on Wednesday. Sources: [Business Recorder](https://www.brecorder.com/news/40442157/chinese-refiners-suspend-oct-fuel-exports-petrochina-cancels-cargoes-sources-say), [Rigzone, 2026-10-01](https://www.rigzone.com/news/china_fuel_exporters_cancel_some_cargoes-01-oct-2026-184744-article), [OilPrice](https://oilprice.com/Latest-Energy-News/World-News/China-Halts-Fuel-Exports-Until-Further-Notice.html).
+
+**This lands on an already-short product market**: the world is absorbing lost supply from war in the Middle East and Ukrainian strikes on Russian refining infrastructure. **Asian diesel refining margins have surged to around $75/bbl.**
+
+**Crude prints conflict by contract and by hour, and both are published.** Brent spot **$96.76, -1.30%** on 2026-10-01 ([TradingEconomics](https://tradingeconomics.com/commodity/brent-crude-oil)); **Brent Dec'26 last seen +2.2% at $100.15** later in the day on the export news; Newsquawk's 01:20 EDT capture had **WTI Nov'26 -1.7%** and **Brent Dec'26 -1.2%**. **These are not a contradiction - they are a reversal within one session, and the sequence (down overnight, up on the China headline) is itself the information.** Spot gold +0.6%.
+
+**Book exposure, and the distinction that matters: this is a refined-product and freight dislocation, not a crude-price event**, and the book's energy names split across exactly that line.
+
+| name | value | sleeves | 09-30 move | exposure type |
+|---|---|---|---|---|
+| INSW (International Seaways) | $129,671.90 | 44 | -0.09% | crude/product tankers - **freight** |
+| XLE | $106,342.88 | 4 | -0.06% | broad energy |
+| EDRY (EuroDry) | $84,818.38 | 41 | **-2.48%** | dry bulk - **not** product freight |
+| NRT (North European Oil Royalty Trust) | $76,675.81 | 44 | **+4.04%** | royalty - **price** |
+| TPL (Texas Pacific Land) | $60,919.96 | 33 | - | royalty - price |
+| PARR (Par Pacific) | $59,165.84 | 28 | **+4.23%** | **refining margin** |
+| NGL | $48,573.04 | 35 | - | midstream |
+
+**PARR +4.23% and NRT +4.04% on 09-30 are the two names that moved with the thesis, and they moved before the export halt was widely reported** - the market was already pricing product tightness. **EDRY -2.48% is the tell that the book's shipping exposure is not the right shipping exposure**: dry bulk carries ore and grain, not diesel, so it takes the freight-cost headwind of dearer bunker fuel without the product-arbitrage tailwind. A screen that selects on price momentum cannot tell those two apart. Section 6c takes that up.
+
+**3f. ETON: still unexplained, and the volume makes it stranger.**
+
+ETON (Eton Pharmaceuticals) fell **-13.01%, $59.19 -> $51.49** on 09-30 and is held by **9 sleeves** (`mom_v1_paper`, `mom_v1_0701_paper`, and the high-residual rungs `residual_w8515_paper`, `w9010`, `w9505` plus their `_wk` and `_2wk` twins), 194.6384 shares, **$10,021.93**.
+
+**I could not confirm a catalyst, and I am naming that rather than filling it in.** The only same-day report I could source has it **-7.4% to $54.82 in mid-day trading on volume of 148,892 shares against a 432,453 average - about 66% BELOW average** ([MarketBeat, 2026-09-30](https://www.marketbeat.com/instant-alerts/price-eton-pharmaceuticals-nasdaq-eton-stock-price-down-74-heres-why-2026-09-30/)). **A double-digit decline on a third of normal volume is a liquidity event, not a news event**, and that makes the absence of a catalyst more notable, not less.
+
+What exists and does **not** explain a 09-30 move: two August insider sales (Director Paul V. Maier, 50,000 shares at $59.07 on 08-28; David Krempa, 25,000 at $65.07 on 08-24); a **Weiss Ratings change on 09-22** which that report describes self-contradictorily as a downgrade "from a 'sell (d-)' rating to a 'hold (c)'" - **sell to hold is an upgrade, so the source's own wording is unreliable here and I am not treating it as a bearish catalyst**; a **Moderate Buy** consensus at a **$67.50** target; and a **2026-09-28 launch of IMPAVIDO (miltefosine)** for leishmaniasis, which is positive news two days before the fall. **Open item, carried forward.**
+
+---
+
+### 4. LLM overlay status
+
+**4a. Stock arm - the lead is one MU bet, the catalyst has now happened, and the pre-market print went against the treatment.**
+
+| sleeve | role | marked 09-29 | indicative 09-30 | ITD (ind) | holding |
+|---|---|---|---|---|---|
+| `llm_overlay_mom_roa_top1_paper` | treatment | $114,031.60 | $114,034.81 | **+14.0348%** | MU 106.9700 @ $933.91 (2026-09-01) |
+| `mom_roa_top1_paper` | control | $106,099.13 | $106,102.12 | **+6.1021%** | MU 99.5385 @ $829.91 (2026-08-03) |
+| `llm_cascade_top1_paper` | 3rd arm | $111,754.02 | $111,757.17 | +11.7572% | MU 104.8335 @ $933.91 (2026-09-01) |
+
+**Spread +7.9327pp, and it has not moved since 2026-09-01** - both arms hold only MU, at different entry prices, so the spread is arithmetic on two entry points rather than a signal about anything. **The treatment's advantage comes entirely from the control having bought MU 29 days earlier at a lower price**, which is a quirk of the arms' entry timing, not an LLM edge.
+
+**The decision that was supposed to be tested has now been tested.** Log id 17 (2026-09-01, MU, score **7.0**, **BUY**, invalidation **$820.00**) explicitly reasoned through this exact event: *"fiscal-Q4 earnings 09-30 AMC is a binary the sleeve holds through (one day before the Oct rebalance)."* The sleeve held through it. The quarter was a blowout and **MU is -0.90% pre-market**. **Invalidation at $820.00 is nowhere near breached** - the pre-market print is $1,055.51, **28.7% above** it.
+
+**`llm_overlay_log` real count is 14** (`count(*)`). **`max(id)` is 17** and would overstate the kill-switch tally by 3; ids 4, 5 and 9 are missing. Kill switch is 12 months / 30 picks - **14 of 30 logged, 4 months in**.
+
+**4b. Macro arm - still losing, and the losing is now structural rather than noise.**
+
+| sleeve | role | marked 09-29 | indicative 09-30 | ITD (ind) | holdings | cash |
+|---|---|---|---|---|---|---|
+| `llm_overlay_sector_top4_paper` | treatment | $101,899.92 | $101,704.81 | **+1.7048%** | XLV, XLE, XLK | **$23,087.99** |
+| `sector_top4_paper` | control | $104,922.49 | $104,428.78 | **+4.4288%** | XLE, XLK, XLI, XLV | $24.83 |
+| `llm_cascade_sector4_paper` | 3rd arm | $99,569.10 | $99,202.96 | **-0.7970%** | XLV, XLE, XLK, XLB | $22.26 |
+
+**Treatment trails control by 2.7240pp**, and the mechanism is visible: the treatment's **$23,087.99 of idle cash is 22.66% of its NAV**, sitting there since the 2026-09-01 **XLI veto** (log id 25, score 3.0, invalidation $170.00). **A quarter of the sleeve has been uninvested through a month in which the control's XLI slot, whatever it did, at least had the chance to do something.** This is the honest prior from the experiment's launch - macro is where an LLM has least edge - arriving on schedule.
+
+For the record, the continuous systematic twin `sector_top4_full_paper` is at **+6.1922%**, above both LLM-cohort sector arms. (Per the standing quirk, it differs from `sector_top4_paper` only in pre-07-01 P&L; picks are identical going forward.)
+
+**4c. The cascade's XLB invalidation is breached for a 15th consecutive session and nothing enforces it.**
+
+`llm_cascade_sector4_paper` holds XLB (426.8589 shares, entry $52.10, 2026-09-01) under log id 27, which set invalidation at **$51.00**. XLB closed **$48.70** on 09-30 - **4.51% below the level**. The breach began **2026-09-10** and has held every session since:
+
+```
+09-10 50.76  09-11 50.95  09-14 50.49  09-15 50.73  09-16 50.36
+09-17 50.71  09-18 49.99  09-21 49.71  09-22 50.53  09-23 50.28
+09-24 49.68  09-25 49.80  09-28 49.47  09-29 49.10  09-30 48.70
+```
+
+**Fifteen sessions, zero enforcement actions.** The log's own rationale called the position *"honestly marginal at 6"* and set $51.00 as *"both just below the 50DMA and the 08-03 low close 51.01"* - the level was chosen deliberately and has been ignored since it broke. **If an invalidation level is never acted on, the experiment is not testing the overlay it claims to test**, and the log becomes a record of intentions rather than rules. This is the longest-running unaddressed item in the LLM experiment.
+
+---
+
+### 5. Risk flags and upcoming events
+
+**5a. BLOCKED-ON-EVAN, firing today: the monthly rebalance is manual.**
+
+**`monthy-llm-rebalance` fires today at 18:01:03 CDT** (cron `0 18 1-5 * *` + 63s jitter, `nextRunAt` 2026-10-01T23:01:03Z). Since 2026-09-01 (records DN/DO/DP) the PreToolUse trading guard denies the decision-logging step, and **since 2026-09-29 (record EF) the wrapper `.bat` is denied too (guard 60/0)**, so the task cannot complete either of its two paths. **September was rescued by hand the same night** (clean: 76/76 marked, 128 Alpaca orders, frozen tests 0.0000pp) - that fixed nothing, and **today hits the identical denial.** Expect it.
+
+Operational notes for the manual run, from memory and record EF: **rc 3 = not a trading day; rc 4 = LLM STALE-SKIP (run the printed `RETRY ... --as-of <D>` line)**. **Leave the rebalance log at its old date so the month gate stays open.** `last_rebalanced_at` currently shows 38 sleeves at 2026-09-29T01:32Z (the 09-28 ladder) and the rest at 2026-09-02T02:58-03:09Z (the September monthly), with 4 NULL; `verify_run` reports `last_rebalance(2026-09-01/OK) settled_month(2026-09)`, so the October gate is open.
+
+**Two data conditions the ranking will meet tonight, both now resolved rather than open:**
+
+1. **LQDA at $30.26 is a real, confirmed price** (3b). It will rank legitimately. **Note the second-order effect: a 57% one-day collapse makes LQDA a momentum *reject*, so the likely outcome is that six sleeves sell it at a large realized loss tonight** - which is the mechanism described in 5d, not a data problem.
+2. **MLI is restated** (0h), so the 42 affected sleeves rank on corrected quantities for the first time. **Record EJ flags one scale-invariance caveat that does not bite tonight but will bite research**: halved MLI closes now fall below `MIN_PRICE_USD=5` in 2010, parts of 2011-12 and 2020-03, so **any backtest spanning 2010-13 or 2020-21 will see MLI's universe membership shift**. The frozen windows are unaffected (d=0.0000pp).
+
+**5b. Concentration: one name is the book's entire profit.**
+
+**MU is 7.2485% of priced position value and its +$144,383.75 unrealized gain is 76.55% of the book's entire +$188,602.88.** Strip MU and the book's unrealized gain is **$44,219.13** on roughly $7.0m of non-MU positions, about 0.6%. **Three sleeves are 99.92% MU with no diversification at all.** The earnings binary has passed without resolving the risk - a 6.04x forward P/E after +270% YTD means the stock is cheap on numbers nobody doubts and expensive on a cycle nobody can date, and the next scheduled catalyst is the Q1 FY2027 print.
+
+**5c. The coverage gate and the 20:30 NAV write remain structurally unsound, independent of today.**
+
+The 17:15 gate has produced **PENDING on every trading day since at least 2026-09-14**, so all marking is done by the 07:45 heal and **no post-close report in this file can ever cite a same-day marked NAV**. Separately, per memory `coverage-fail-blast-radius`: a sub-floor coverage day **skips sells while still filling buys**, and the 20:30 ladder writes NAV **with no coverage gate at all**, so `max(nav_date)` can be a date nobody marked. **`verify_run` PASSes through both conditions** - it did again last night, 76/76 - so **a PASS is not evidence that marking happened**. Yesterday's 20:30 run happened to write nothing because neither cadence was due; that was schedule luck, not a guard.
+
+**5d. The screens realize a loss on every rebalance and have no mechanism to exit an impairment early.**
+
+Five consecutive September rebalance events, all negative - plus the 08-31 event before them - **-$137,814.52 realized in September at a 30.82% hit rate** (section 1). FICO is the cleanest illustration: a **regulatory change to its core business model** on 09-29, a **-65.0% YTD** chart, **BofA to Neutral**, and 30 sleeves still hold it because **the next scheduled opportunity to sell is tonight at the earliest and, for the weekly rungs, 2026-10-05**. The residual and momentum screens have no event-driven exit. **This is a known design choice, not a bug** - record BU closed the preemptive-overlay family and the 2026-05-27 stop15 work closed the reactive-stop family, both on measured evidence - but the cost is now visible in dollars rather than in backtests.
+
+**5e. Standing items, unchanged.**
+
+- **XLB invalidation breached 15 sessions with no enforcement** (4c). Longest-running unaddressed experiment item.
+- **Idle cash**: `llm_overlay_sector_top4_paper` $23,087.99 (22.66% of NAV), `residual_w4555_wk_paper` $11,580.94 (11.19%).
+- **Deal-pinned stubs**: APGE, CRNX, DMAA, UYSC price nothing day to day (0i). Last night's measurement put five such stubs plus KFII at **$111,628.10 = 1.4717%** of priced value. Cost is the slot, not the loss.
+- **ETON** -13.01% with no confirmed catalyst (3f).
+- **`daily-audit`'s `nextRunAt` skips today** (0d item 3). Reported as read, not interpreted.
+
+**5f. Calendar.**
+
+| when | event | book relevance |
+|---|---|---|
+| today 08:30 ET | jobless claims, continuing claims | rate path |
+| today 09:45 / 10:00 ET | S&P Mfg PMI final / **ISM Manufacturing** | Industrials 6.09%, rate path |
+| today 09:05-15:30 ET | **9 Fed speakers** incl. Waller 10:00, Jefferson 13:30 | 25.8% long-duration tech |
+| today 16:15 ET | Nike FQ1 2027 (not held) | consumer read-through |
+| **today 18:01:03 CDT** | **`monthy-llm-rebalance` - manual, guard-denied** | whole book |
+| to 2026-10-07 | China Golden Week; product export halt "until further notice" | Energy 13.47% |
+| within ~1 week | **LQDA remedies judgment proposal** | 6 sleeves |
+| Q4 | Rocket Mortgage adopts VantageScore 4.0 as preferred | FICO, 30 sleeves |
+| 2026-11-06 | KFII SPAC merger deadline | 19 sleeves |
+| 2026-12-11 | continuing resolution expiry (signed 2026-09-02) | macro |
+
+---
+
+### 6. Strategic insights: structural edge, and what today's data supports
+
+**6a. The headline finding: the monthly ladder gradient's positive reading does not survive the MLI correction.**
+
+Record EJ states, without measuring it: *"Any ladder-gradient result computed before today included this understatement."* Here is the measurement. OLS of since-inception return (pp) on residual weight (pp), 19 rungs per cadence, same signal and same universe.
+
+**All four bases are printed, because mixing two of them is exactly how this result can be made to say something it does not.** `old_total_nav` in `paper_nav_restatement` holds the pre-restatement values, so the restatement can be isolated from the day move:
+
+| cadence | (A) marked 09-29, PRE | (B) marked 09-29, POST | restatement effect (B-A) | (C) indicative 09-30, PRE | (D) indicative 09-30, POST |
+|---|---|---|---|---|---|
+| monthly | **+0.013994** | **+0.001244** | **-0.012750** | +0.004811 | **-0.007939** |
+| weekly | -0.017612 | -0.029441 | -0.011829 | -0.020330 | **-0.032160** |
+| biweekly | -0.095231 | -0.107103 | -0.011872 | -0.097796 | **-0.109668** |
+
+Column A reproduces the slopes published in the 09-30 post-market entry (+0.0140 / -0.0176 / -0.0952) to four decimals, which is the check that this is the same calculation.
+
+**What the restatement actually did: it cost every cadence about -0.0120 pp per pp, consistently.** That is the clean, basis-independent result - the correction lands almost identically on all three cadences, which is what you would expect from an error distributed across rungs rather than correlated with the signal.
+
+**What it did to the monthly rung specifically: +0.0140 -> +0.0012, a 91% reduction, leaving it indistinguishable from zero rather than negative.** Adding the 09-30 day move pushes it to **-0.0079**. So the monthly slope crosses zero **between the marked and the indicative basis**, and **the sign depends on which day you measure** - which is a stronger statement about how little signal is there than a sign flip would have been.
+
+**The claim I will not make:** that the restatement flipped the monthly gradient negative. **It did not on the marked basis.** Reading column A against column D - the pre-restatement marked slope against the post-restatement indicative slope - would show a "-0.0219 sign flip" that conflates the correction with one day of price moves, and that is the version of this table I nearly published. **The honest version is that no cadence has a gradient worth deploying against, and the monthly rung's apparent reward for residual weight was 91% accounting error and the rest noise.**
+
+**What this does and does not establish.** It does **not** establish that residual momentum has negative alpha; five months of forward paper data on 57 correlated rungs cannot establish that, and the slopes still differ by a factor of 86 across cadences on the marked post-restatement basis (+0.001244 monthly against -0.107103 biweekly), which is itself evidence that cadence noise dominates signal. **What it establishes is narrower: the one encouraging number in the ladder result was 91% wrong, and nothing in the corrected picture is deployable.**
+
+**It also makes a procedural point worth more than the result**: the restatement was caught because this report compared a published figure to a fresh query and refused to let a $40,599.29 difference pass. **Had it simply re-queried and published, the gradient's collapse would have been absorbed silently into the next week's numbers.**
+
+**6b. The month's real structure: the screens lose money trading, and one unrealized bet hides it.**
+
+September: **realized -$137,814.52** (-6.5415% of cost basis turned over, 30.82% hit rate), **unrealized +$188,602.88 of which MU is +$144,383.75**, book **indicative -0.5749%**.
+
+Read those three numbers together and the book's performance decomposes into **a trading process that is reliably negative and one position that is carrying everything**. That is not a strategy; it is a strategy plus an accident. And the accident is load-bearing: **the book's top two sleeves are both 99.92%-MU top-1 sleeves** (`llm_overlay_mom_roa_top1_paper` +14.0348%, `llm_cascade_top1_paper` +11.7572%), which means the book's best results come from its least diversified construction. **The third 99.92%-MU sleeve, the control `mom_roa_top1_paper`, is 7th at +6.1021%** - behind `qqq_benchmark_paper`, two residual rungs and `sector_top4_full_paper` - because it entered MU 29 days earlier at a lower price but has held through more of the drawdown.
+
+**The honest reading is that five months of forward data have not demonstrated edge in any systematic sleeve.** For the 2026-05-01 cohort: `mom_v1_paper` **-13.3659%** ITD, `mom_v2_paper` **-11.4011%**, `mom_roa_6535_paper` **-9.8561%**, against the same-cohort `spy_benchmark_paper` **+5.8253%** and `qqq_benchmark_paper` **+9.7337%** - **gaps of 15.68 to 23.10pp**. **The 2026-07-01 cohort's gaps are smaller and must be stated separately rather than folded in**: `mom_v1_0701_paper` **-6.2667%**, `mom_v2_0701_paper` **-5.7545%** and `mom_roa_6535_0701_paper` **-6.2788%** trail their own `spy_benchmark_0701_paper` (+1.5108%) by **7.27 to 7.79pp**, because that cohort started after the worst of the drawdown. The residual ladder's best rung (+7.5673%) beats the 05-01 SPY by 1.74pp and loses to QQQ by 2.17pp; **its worst rung, `residual_w8515_2wk_paper` at -7.1774%, loses to SPY by 13.00pp.** **No sleeve in the book has a defensible claim to structural edge on forward data**, and saying so plainly is worth more to the record than finding a framing in which one does.
+
+**6c. A new sleeve concept that today's data genuinely supports - and the reason this is a pre-registration, not a proposal.**
+
+**The observation.** The book is long a refined-product and freight dislocation (3e) through names it selected on price momentum, and it holds the wrong half of the freight exposure. **PARR +4.23%** (refining margin) and **NRT +4.04%** (royalty) moved with the thesis; **EDRY -2.48%** (dry bulk) moved against it, because dry bulk pays more for bunker fuel and carries none of the diesel arbitrage. **A momentum screen cannot distinguish a refiner from a dry-bulk carrier**; both are energy-adjacent names that recently went up.
+
+**The testable version.** Within the energy complex, separate exposures by **what the cash flow is a function of** - crude price (royalties: NRT, TPL), refining crack (PARR), product freight (INSW), dry freight (EDRY) - and test whether a crack-spread or product-freight tilt has distinguishable forward returns from a price-level tilt. **The data to test it is already in the book**: 7 energy names, 13.4653% of position value, daily marks since inception, and a natural event window opening today as the Chinese export halt runs to at least 2026-10-07.
+
+**Why this is a pre-registration and not a deployment.** It fails the bar on three counts I can name now:
+
+1. **n = 7 names and one event.** One Chinese export suspension is one observation. The 09-30 moves are consistent with the thesis and also consistent with chance across 7 names.
+2. **No in-sample / held-out split exists for it.** The project's rule is that every strategy gets both before it is trusted (data audit, 2026-05-28). This concept has neither.
+3. **It is a sector-timing bet wearing a factor's clothes.** The risk-overlay family was closed in record BU precisely because overlays that look like structure turn out to be regime bets. **A crack-spread tilt is a commodity view, and the project has demonstrated no ability to take commodity views.**
+
+**What would make it worth testing**: a backtest of a crack-spread-weighted energy sub-portfolio against a price-weighted one, 2015-2024 in-sample and 2024-2026 held-out, on the existing `factor_backtest` harness, run **sequentially** per the standing never-concurrent rule. **That is a roadmap task, not a conclusion from today.** No recommendation.
+
+**6d. One structural finding that is ready, from last night, restated because it is one line of code.**
+
+Last night's entry measured a **20-day realized-volatility screen that separates five deal-pinned and trust-pinned stubs (KFII 0.0420%, APGE 0.0824%, CRNX 0.1037%, DMAA 0.1202%, UYSC 0.1930%) from the next-lowest real name (FMBM 0.3115%) with zero false positives** - $111,628.10 = 1.4717% of priced value across 19, 6, 2, 18 and 20 sleeves. **A volatility floor is a one-line, testable replacement for a hand-maintained merger-stub blocklist**, and it addresses the documented failure where a deal-pinned price has near-zero volatility and so **residual and risk-adjusted screens like it more** (memory `momentum-screen-buys-deal-stubs`).
+
+**It remains a pre-registration for the stated reason: the margin was one name wide on one day's book of 223.** Today's data neither strengthens nor weakens it - the same four stubs again failed to price (0i), which is the condition, not the test. **The test is whether the gap survives a month of daily books, and that measurement has not been run.**
+
+**6e. What today's data does not support, said explicitly.**
+
+- **Not supported: that the memory cycle has peaked.** The MU print was a blowout and the stock fell. That is one day of tape against one quarter of fundamentals, and the project has no mechanism to trade the difference.
+- **Not supported: exiting the FICO position early.** The regulatory impairment is real (3c), but the reactive-exit family was closed on measured evidence (2026-05-27 stop15 work; record BU), and **overriding a closed finding on one vivid example is exactly the error the frozen-test discipline exists to prevent.**
+- **Not supported: any conclusion from the LLM stock arm.** The +7.9327pp spread is two entry prices on the same stock (4a). **The experiment has produced 14 logged decisions in 4 months against a 30-pick kill switch and has not yet produced a single clean treatment-versus-control comparison.**
