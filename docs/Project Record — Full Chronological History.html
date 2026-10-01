@@ -231,7 +231,9 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ec---five-scheduled-task-defects-closed-record-eb-the-prescribed-bracket-pattern-failed-in-the-c-locale-09-24-post-market-is-a-permanent-hole-dz-corrected-2026-09-26-2120-cdt">EC - Five scheduled-task defects closed (record EB); the prescribed bracket pattern failed in the C locale; 09-24 post-market is a permanent hole; DZ corrected</a> (09-26)<br />
 - <a href="#appendix-ed---docs-sync-37-unpublished-commits-carry-the-forbidden-co-authored-by-trailer-publishing-held-for-evan-2026-09-26-2205-cdt">ED - docs-sync: 37 unpublished commits carry the forbidden Co-Authored-By trailer; publishing held for Evan</a> (09-26)<br />
 - <a href="#appendix-ee---scheduled-daily-audit-67-findings---the-trade-guard-has-8-escapes-including-both-live-rebalance-dispatchers-and-the-branch-was-published-7-minutes-after-record-ed-said-it-was-not-2026-09-29-0738-cdt">EE - Scheduled daily-audit: 67 findings - the trade guard has 8 escapes including both live rebalance dispatchers, and the branch was published 7 minutes after record ED said it was not</a> (09-29)<br />
-- <a href="#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt">EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN</a> (09-29)</p>
+- <a href="#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt">EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN</a> (09-29)<br />
+- <a href="#appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt">EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call</a> (09-29)<br />
+- <a href="#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt">EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)</a> (09-29)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -14176,6 +14178,77 @@ in <code>D:\ClaudeCode\Trading\.claude\settings.json</code> AND<br />
 <li>EE's 38 medium and 18 low findings.</li>
 <li>The guard's deny reason text still says "paper_rebalance" for the dispatcher rule (cosmetic).</li>
 </ul>
+<h1 id="appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt">Appendix EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call (2026-09-29, ~21:57 CDT)</h1>
+<h2 id="what_6">WHAT</h2>
+<p>Evan asked (2026-09-29) for the external corporate-action check that records EE<br />
+and EF left open as item 9.</p>
+<p><strong>Answer: MLI's cliff is a REAL 2-for-1 forward split, not a 50% drawdown. The<br />
+book never applied it.</strong> Nothing was repaired; the repair is Evan's call.</p>
+<h2 id="source-primary">Source (primary)</h2>
+<p>Mueller Industries 8-K, Exhibit 99.1 (SEC EDGAR), read 2026-09-29 ~21:55 CDT:<br />
+- announced "June 1, 2026";<br />
+- "two-for-one forward stock split";<br />
+- record date "June 25, 2026";<br />
+- distribution "after the close of trading on June 30, 2026";<br />
+- split-adjusted trading from "July 1, 2026".</p>
+<p>URL: https://www.sec.gov/Archives/edgar/data/89439/000008943926000025/ex-99_16302026stocksplit.htm</p>
+<p>The company release (ir.muellerindustries.com, 2026-06-01) and the OCC memo</p>
+<h1 id="59085-2026-06-02-agree">59085 (2026-06-02) agree.</h1>
+<h2 id="why-the-cache-cliff-sits-at-06-05-not-07-01">Why the cache cliff sits at 06-05, not 07-01</h2>
+<p>yfinance restates split history. After 2026-07-01, <code>daily_price_refresh</code>'s 30-day<br />
+window rewrote the recent June closes onto the post-split basis. Closes before<br />
+the window stayed on the pre-split basis. So the seam sits at the window's<br />
+edge, not at the ex-date:<br />
+- <code>price_cache</code> 06-04 132.58 -&gt; 06-05 66.40;<br />
+- 06-30 61.47 -&gt; 07-01 57.42, with no jump at the real ex-date;<br />
+- 06-01 (63.15) is also already adjusted;<br />
+- 657 closes from 2023-10-23..2026-06-04 (excluding 06-01) are still on the pre-split basis.</p>
+<p>That is why no day-over-day detector ever saw it; only the all-bars seam checker<br />
+(record EF) does. This entry does not establish why 06-02..06-04 escaped the<br />
+rewrite.</p>
+<p>This is the same failure class as KLAC's 10:1 in 2026-06 (CLAUDE.md quirk,<br />
+memory corporate_action_splits): a real split with qty never adjusted.</p>
+<h2 id="measured-impact-read-only-live-db-2026-09-29-2155-cdt-my-arithmetic-from-stored-rows">Measured impact (read-only, live DB, 2026-09-29 ~21:55 CDT; my arithmetic from stored rows)</h2>
+<ul>
+<li><strong>12 open pre-split lots</strong> (residual_w0595/w1090/w1585/w2080 x monthly/wk/2wk):</li>
+<li>qty 15.9699, entry 133.0965, 2026-05-01, never doubled;</li>
+<li>each is marked at half its value: <strong>$970.81 understated per sleeve</strong>, <strong>$11,649.69 total</strong> at the 09-29 close of 60.79.</li>
+<li><strong>The 2 later lots</strong> (residual_w2575 08-03, residual_w3070 09-01) were bought on the post-split basis and are correct.</li>
+<li><strong>26 closed lots</strong> entered before and exited on/after 2026-07-01 were sold with the pre-split qty at post-split prices:</li>
+<li>proceeds never received (qty x exit_price) = <strong>$24,812.44</strong>, part of EE's -$35,779.63 realized;</li>
+<li>the other 11 closed MLI rows (-$4,894.65) do not straddle the split.</li>
+<li><strong>38 sleeves</strong> held a pre-split lot on/after 2026-07-01. Their NAV understatement totals ~$36,462 (open + closed; sum of the two lines above).</li>
+<li>They carry <strong>2,357 paper_nav rows</strong> since 2026-07-01, all understated.</li>
+<li>The ranking inputs were likely distorted too: a -50% "crash" sits inside MLI's momentum window. Likely, not verified; it may explain part of the 26 sales.</li>
+<li>Direction: the affected sleeves are the LOW-residual ladder rungs that HANDOFF reports as leading. Their true NAVs are HIGHER than recorded.</li>
+</ul>
+<h2 id="repair---not-done-options-for-evan">Repair - NOT done; options for Evan</h2>
+<ol>
+<li><strong>Full restatement (precedent: the KLAC repair re-marked the contaminated days).</strong><br />
+   - Halve the pre-split-basis closes (not 06-01, not 06-05+).<br />
+   - Double qty and halve entry price on the 12 open lots.<br />
+   - Restate the 26 closed lots and their sleeves' cash.<br />
+   - Re-mark paper_nav 2026-07-01..now for the 38 sleeves with logged restatements.<br />
+   - Test on a DB copy first. <code>backadjust_split.py</code> cannot do this as-is: it assumes one clean cliff, and after record EF's fix it correctly refuses the 06-30/07-01 boundary (cliff ~1.07).</li>
+<li><strong>Forward-only.</strong> Fix the positions, cash and cache now; leave the 2,357 rows as recorded, with a documented one-day jump.</li>
+<li><strong>Document only.</strong></li>
+</ol>
+<h2 id="open_2">Open</h2>
+<ul>
+<li>The 2 later lots are correct as-is.</li>
+<li>Other held names may carry the same pattern from before the seam checker existed. The checker (EF) now reports only MLI as a FAIL across 223 held tickers.</li>
+</ul>
+<h1 id="appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt">Appendix EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT) (2026-09-29, ~22:27 CDT)</h1>
+<h2 id="correction-to-record-egs-timestamps-eg-itself-is-untouched">Correction to record EG's timestamps (EG itself is untouched)</h2>
+<p>EG's heading says "2026-09-29, ~21:57 CDT", and its body says the SEC 8-K was<br />
+"read 2026-09-29 ~21:55 CDT" and the DB measured "~21:55 CDT". <strong>Those three<br />
+times were estimates, not clock reads</strong>, which breaks the project rule to run<br />
+<code>date</code> before writing any timestamp.</p>
+<p>The <code>date</code> call made in the same command as the EG append printed<br />
+<strong>2026-09-29 22:27:22 CDT</strong>. The last clock read before the SEC fetch and the DB<br />
+measurement was <strong>21:48:50 CDT</strong> (the <code>git status</code> after record EF). So both<br />
+happened between 21:48:50 and 22:27:22 CDT; the exact times are unknown.</p>
+<p>EG's content (the SEC 8-K facts and the DB measurements) is unaffected.</p>
 </div>
 </body>
 </html>

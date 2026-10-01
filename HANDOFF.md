@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-29 ~21:50 CDT (record EF)** — this file is the only live snapshot
+**Last updated: 2026-09-29 ~22:28 CDT (records EF-EH)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -35,9 +35,12 @@ Appendix AZ).
 >   last-rebalance stamp as a LOCAL date. 2026-09-28's 10 stale ladder rows were
 >   re-marked (+$1.39, logged).
 > - **BLOCKED-ON-EVAN:** (1) `alpaca_keys.env` Read-deny in both settings files
->   (exact lines in EF); (2) MLI 2026-06-05 cliff (0.5008, 14 sleeves) needs an
->   external corporate-action check. The seam checker now FAILs on it nightly
->   (report-only, `var/anomaly_report.log`).
+>   (exact lines in EF); (2) **MLI is a REAL 2-for-1 split (SEC 8-K; split-adjusted
+>   trading from 2026-07-01) that the book never applied (record EG).** 12 open
+>   lots are marked at half value ($11,649.69 at the 09-29 close), and 26 closed
+>   lots missed $24,812.44 of proceeds. 38 sleeves / 2,357 NAV rows since 07-01
+>   are understated. Repair options are in EG (full restatement / forward-only /
+>   document); Evan decides. The seam checker FAILs on it nightly (report-only).
 > - Publishing already happened (2026-09-26 22:12 and 2026-09-29 14:28); 134 of
 >   215 public commits carry the trailer. The bins no longer tell models to add it.
 
@@ -808,7 +811,7 @@ THEN:
   step and the .bat step of the scheduled task. Do not route around it. After
   the run, check for STALE-SKIP lines and their printed retry commands.
 - BLOCKED-ON-EVAN: alpaca_keys.env Read-deny (both settings files, see EF);
-  MLI 2026-06-05 cliff needs an external corporate-action source (EF item 9).
+  MLI 2-for-1 split (ex 2026-07-01) never applied - pick a repair option (EG).
 - Stage 5 leftovers: stamp_rebalance_log atomicity (os.replace), alpaca_sync
   per-account isolation, 2 cache-poisoning bugs (warm_fundamentals,
   fetch_earnings_dates).
