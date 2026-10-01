@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-09-29 ~22:28 CDT (records EF-EH)** — this file is the only live snapshot
+**Last updated: 2026-09-30 ~22:05 CDT (record EJ)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -34,13 +34,16 @@ Appendix AZ).
 > - The ladder writes NAV only when coverage is OK. `mtm_catchup` reads the
 >   last-rebalance stamp as a LOCAL date. 2026-09-28's 10 stale ladder rows were
 >   re-marked (+$1.39, logged).
-> - **BLOCKED-ON-EVAN:** (1) `alpaca_keys.env` Read-deny in both settings files
->   (exact lines in EF); (2) **MLI is a REAL 2-for-1 split (SEC 8-K; split-adjusted
->   trading from 2026-07-01) that the book never applied (record EG).** 12 open
->   lots are marked at half value ($11,649.69 at the 09-29 close), and 26 closed
->   lots missed $24,812.44 of proceeds. 38 sleeves / 2,357 NAV rows since 07-01
->   are understated. Repair options are in EG (full restatement / forward-only /
->   document); Evan decides. The seam checker FAILs on it nightly (report-only).
+> - **BLOCKED-ON-EVAN:** `alpaca_keys.env` Read-deny in both settings files
+>   (exact lines in EF).
+> - **MLI 2-for-1 split RESTATED live 2026-09-30 21:49 CDT (record EJ).** 42
+>   sleeves, 3,383 NAV rows (each logged in paper_nav_restatement), cash
+>   +$28,949.60. Book +$40,599.29 on 09-29. An independent check found 0
+>   mismatches; verify 76/76; frozen d=0.0000. Tool:
+>   `scripts/data_audit/repair_split_mixed_basis.py` (uncommitted).
+>   **Ladder-gradient results computed before 09-30 included the understatement.**
+> - **LQDA -57% on the 09-30 bar (70.69 -> 30.26), not a split ratio; held by 6
+>   sleeves.** Check whether it is real news before the 10-01 monthly ranks on it.
 > - Publishing already happened (2026-09-26 22:12 and 2026-09-29 14:28); 134 of
 >   215 public commits carry the trailer. The bins no longer tell models to add it.
 
@@ -811,7 +814,7 @@ THEN:
   step and the .bat step of the scheduled task. Do not route around it. After
   the run, check for STALE-SKIP lines and their printed retry commands.
 - BLOCKED-ON-EVAN: alpaca_keys.env Read-deny (both settings files, see EF);
-  MLI 2-for-1 split (ex 2026-07-01) never applied - pick a repair option (EG).
+  (MLI split restated 2026-09-30, record EJ.) Check LQDA's 09-30 -57% bar.
 - Stage 5 leftovers: stamp_rebalance_log atomicity (os.replace), alpaca_sync
   per-account isolation, 2 cache-poisoning bugs (warm_fundamentals,
   fetch_earnings_dates).

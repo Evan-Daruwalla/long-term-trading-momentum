@@ -196,6 +196,8 @@ lives in the dated entry, not the digest.
 - [EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call](#appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt) (09-29)
 - [EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)](#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt) (09-29)
 - [EI - Secret-gate wrapper hook fails closed when the shared gate is missing](#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt) (09-30)
+- [EJ - MLI 2-for-1 split restated across the book: 42 sleeves, 3,383 NAV rows, book +40,599.29 on 09-29; independent check 0 mismatches](#appendix-ej---mli-2-for-1-split-restated-across-the-book-42-sleeves-3383-nav-rows-book-4059929-on-09-29-independent-check-0-mismatches-2026-09-30-2202-cdt) (09-30)
+- [EK - Project-memory bins: renamed, important.md added, new standard bins as stubs](#appendix-ek---project-memory-bins-renamed-importantmd-added-new-standard-bins-as-stubs-2026-09-30-2253-cdt) (09-30)
 
 ---
 
@@ -13078,3 +13080,126 @@ hook, using a throwaway repo:
 - after: `canary: 5 passed, 0 failed` (clean diff allowed, planted AWS key
   blocked, missing gate blocked with "broken, fix it").
 - `sh -n` passes.
+
+# Appendix EJ - MLI 2-for-1 split restated across the book: 42 sleeves, 3,383 NAV rows, book +40,599.29 on 09-29; independent check 0 mismatches (2026-09-30, ~22:02 CDT)
+## WHAT
+
+**MLI's 2-for-1 split (record EG) is now applied to the whole book, live at
+2026-09-30 21:49:02 CDT.** Evan chose EG option 1, the full restatement, on
+2026-09-30. Accounting is restated; the trades made on the bad data stand.
+
+The new tool is `scripts/data_audit/repair_split_mixed_basis.py`. Its fixture
+test is `test_repair_split_mixed_basis.py` (67/67).
+
+Source: the Mueller Industries 8-K, Ex. 99.1, gives split-adjusted trading from
+2026-07-01:
+https://www.sec.gov/Archives/edgar/data/89439/000008943926000025/ex-99_16302026stocksplit.htm
+
+Invocation:
+`--ticker MLI --ratio 2 --ex-date 2026-07-01 --basis-cutover 2026-06-05 --already-adjusted 2026-06-01`
+
+## WHY a new tool
+
+`backadjust_split.py` cannot do this:
+- the cache is MIXED-BASIS (06-01 and 06-05..06-30 had already been rewritten to the post-split basis);
+- fills and marks were made on whichever basis the cache held at the time;
+- its cache guard refuses the 06-30/07-01 boundary (cliff ~1.07).
+
+A red-team pass of the plan found that sorting lots by date against the ex-date
+was wrong. Lots must be classified PER LEG BY PRICE BASIS: threshold =
+close(ex) x sqrt(2) = 81.2041.
+- Four replay-seeded sleeves had SOLD MLI in June at post-split prices with pre-split quantities.
+- Seeded sleeves' June NAV rows were marked from the half-price cache.
+- remark_nav_day could not be used: it re-marks all 76 sleeves from the current cache (record CK). So the NAV fix is analytic: only the MLI component changes.
+
+## Changes (all numbers are tool-printed)
+
+| Part | Change |
+|---|---|
+| price_cache, key_date < 06-05 except 06-01 | close /2 (4,130 rows, 4,128 non-NULL); next_open /2 (228); volume x2 (4,129); next_open_vol x2 (228) |
+| splits_json | `[2026-07-01, 2.0]` appended (1 -> 2 events) |
+| dividends_json | 25 of 25 amounts dated before 07-01 halved |
+| 12 open pre-split lots | qty x2, entry_price /2 (entry_value kept) |
+| 30 pre->post closed lots (26 exiting >= 07-01, 4 June exits) | qty x2, entry_price /2, exit_value / realized_pnl / pct recomputed |
+| 2 pre->pre closed lots | qty x2, entry_price /2, exit_price /2 (value, P&L, cash unchanged) |
+| 7 post-split lots | untouched |
+| paper_portfolio.cash | **+$28,949.60** over 30 sleeves (+$24,812.44 exits >= 07-01, +$4,137.16 June exits) |
+| paper_nav | **3,383 rows across 42 sleeves**, each with a `paper_nav_restatement` row ("split-repair MLI 2026-07-01 x2: record EG ...") |
+
+**Book effect on the latest marked day (2026-09-29): +$40,599.29 across the 42
+sleeves (76-sleeve book $7,630,670.25 -> $7,671,269.54).** That equals the cash
++$28,949.60 plus the 12 open lots' second share at the 09-29 close
+(+$11,649.69), so the two independent figures reconcile. Per-sleeve 09-29
+deltas run +$771.54 to +$1,187.93.
+
+The affected sleeves are the residual-ladder rungs (plus residual_roa_6535_paper),
+mostly the LOW-residual end HANDOFF reports as leading. **Any ladder-gradient
+result computed before today included this understatement.**
+
+## HOW verified
+
+Copy first (SQLite backup, 21:33), then live.
+- **Fixture test 67/67**, test-first (it failed with ImportError before the tool existed). The agent also ran 7 seeded mutants; each failed the test.
+- **Independent check script** (shares no code with the tool), run against before-snapshots of the copy and of live. It recomputes every cache row, every lot column, every sleeve's cash and all 7,400 paper_nav rows of all 76 sleeves from the plan's rules. **0 mismatches** on the copy and **0 on live**. Restatement count 3,383 = rows changed.
+- **Seam continuity** (stored NAV minus ledger replay, day-over-day, 42 sleeves):
+  - the MLI-caused jumps in the live-marked residual_roa_6535_paper (06-05 +$1,313.37, 07-01 -$1,075.37) are gone;
+  - one flag remains, 2026-06-29 +$2,528.28. It was **+$2,483.67 BEFORE the repair**, a pre-existing non-MLI jump. Its +$44.61 change is the removed MLI half-valuation error between 06-26 and 06-29. Not investigated.
+- verify_run PASS 76/76 (copy and live).
+- historical_state selfcheck: 76/76 reconstruct exactly, max cash delta $0.000000.
+- Full-history MLI split-seam scan: 3 -> **0**. `check_held_split_seams` no longer flags MLI.
+- 18 test modules rc=0; guard 60/0.
+- Frozen tests 4/4 at d=+/-0.0000pp (v1 +14.5547%/70, +1.8792%/156; v2 +14.4062%/38, +10.2194%/87).
+
+## Deviations from the approved plan (made by Opus during R3; each was a safe refusal first)
+
+1. **The P3 "basis clear" margin was 25%, which was wrong.** The two bases sit ~sqrt(2) either side of the threshold (~29% below / ~41% above), so real post-split fills at 57-70 were refused. Now 10%; the nearest real fill is 14.2% away.
+2. **Fill-reference columns.** The plan said they are NULL on all MLI rows; 2 lots (3509, 5612) carry a post-split exit_ref (60.97, 2026-09-28). The guard now refuses only a non-NULL ref on a PRE-split leg; post-split refs are correct as-is.
+3. **The agent generalized the NAV position delta to qty_old x (N-1) x close.** It is identical at N=2.
+
+## Caveats
+
+- **Not fully scale-invariant for backtests.** `MIN_PRICE_USD=5` and the 252-day old-price check in universe.py mean halved MLI closes now fall below $5 in 2010, parts of 2011-12 and 2020-03. The frozen windows are unaffected (d=0.0000), but any backtest over 2010-13 or 2020-21 will see MLI's universe membership shift.
+- `initialized_at` is UTC; the tool reads its first 10 characters (the July seed dates are unambiguous).
+
+## Process note (my error)
+
+The first full test sweep used a glob that also picked up
+`scripts/momentum/research/test_*.py`. Those are research backtests, not unit
+tests. One timed out at 300 s; two orphaned `research.test_ensemble` python
+processes were found still running and killed at ~22:00 CDT, BEFORE the frozen
+tests ran. They read price_cache with shadowed backtest state, so nothing live
+was written.
+
+## Found while verifying (not fixed)
+
+- **LQDA: 09-29 70.69 -> 09-30 30.26 (-57%) on the newest bar.** Not a split ratio, and splits_json is empty. Held by mom_v1, mom_v2, mom_v1_0701, mom_v2_0701, residual_w9010 and residual_w9505. Real news or a bad bar is unknown. **Check before the 2026-10-01 monthly ranks on it.**
+- `backadjust_split.py:71` divides `next_open_range` (a ratio).
+
+## Open
+
+- Uncommitted: the tool, its test, this entry, HANDOFF.
+- The DB copy and the task-plan are deleted after this entry.
+
+# Appendix EK - Project-memory bins: renamed, important.md added, new standard bins as stubs (2026-09-30, ~22:53 CDT)
+**Evan, 2026-09-30 (asked in the Skills session):** "change the name to project-memory bins and create new bins covering all types of things a project would contain ... You must include an important.md bin that has the most project critical things in it." The cross-project design is in the Skills record entry of the same date.
+
+## What changed here
+
+- Bins folder `.claude/project-memory`: renamed from `.claude/codebase-memory/` with `git mv`; `.gitignore` re-include changed to `!.claude/project-memory/` (lines 21-22), so the new folder is still tracked (`git check-ignore` confirms).
+- New `important.md`: 10 numbered critical entries (What / Constrains / Why / Source), each citing CLAUDE.md, HANDOFF.md or a bin; written by Opus and spot-checked on disk. The new `important-inject` hook injects it the first time a session touches this project, and again after compaction.
+- New stub bins (first line `STATUS: N/A` or `STATUS: empty`, naming where the facts live today): decisions, people, timeline, glossary, compliance, budget, operations, services, experiments, writing, hardware. The pm-cadence age rule skips stubs.
+- INDEX.md: "Read first: important.md" and "New standard bins" lines added (heading renamed where it said codebase-memory).
+- Reference lines updated: `.gitignore`:21-22; `conventions.md`:11 (also corrected its stale `.gitignore` line numbers 13/15 -> 20/22). `HANDOFF.md`:809 left: past tense.
+
+## Why
+
+The bins were shaped around code. A survey of every project found scheduled jobs, external services, experiments, decisions, people, deadlines, compliance, budget, writing and hardware facts with no bin; each now has one home, and the most critical facts are injected instead of hoped-for.
+
+## Proof (2026-09-30)
+
+- `pm-cadence.js --canary` 79/79; `important-inject.js --canary` 41/41 (installed and public copies identical).
+- `important-inject.js` with cwd = this project printed `[IMPORTANT - Trading]` and the path of its important.md.
+
+## Next
+
+Phase 4, a later sitting: move the facts each stub points to into its bin, with a lossless check. Nothing here was committed by this session.

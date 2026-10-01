@@ -234,7 +234,9 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt">EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN</a> (09-29)<br />
 - <a href="#appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt">EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call</a> (09-29)<br />
 - <a href="#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt">EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)</a> (09-29)<br />
-- <a href="#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt">EI - Secret-gate wrapper hook fails closed when the shared gate is missing</a> (09-30)</p>
+- <a href="#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt">EI - Secret-gate wrapper hook fails closed when the shared gate is missing</a> (09-30)<br />
+- <a href="#appendix-ej---mli-2-for-1-split-restated-across-the-book-42-sleeves-3383-nav-rows-book-4059929-on-09-29-independent-check-0-mismatches-2026-09-30-2202-cdt">EJ - MLI 2-for-1 split restated across the book: 42 sleeves, 3,383 NAV rows, book +40,599.29 on 09-29; independent check 0 mismatches</a> (09-30)<br />
+- <a href="#appendix-ek---project-memory-bins-renamed-importantmd-added-new-standard-bins-as-stubs-2026-09-30-2253-cdt">EK - Project-memory bins: renamed, important.md added, new standard bins as stubs</a> (09-30)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -14274,6 +14276,143 @@ hook, using a throwaway repo:<br />
 - after: <code>canary: 5 passed, 0 failed</code> (clean diff allowed, planted AWS key<br />
   blocked, missing gate blocked with "broken, fix it").<br />
 - <code>sh -n</code> passes.</p>
+<h1 id="appendix-ej---mli-2-for-1-split-restated-across-the-book-42-sleeves-3383-nav-rows-book-4059929-on-09-29-independent-check-0-mismatches-2026-09-30-2202-cdt">Appendix EJ - MLI 2-for-1 split restated across the book: 42 sleeves, 3,383 NAV rows, book +40,599.29 on 09-29; independent check 0 mismatches (2026-09-30, ~22:02 CDT)</h1>
+<h2 id="what_7">WHAT</h2>
+<p><strong>MLI's 2-for-1 split (record EG) is now applied to the whole book, live at<br />
+2026-09-30 21:49:02 CDT.</strong> Evan chose EG option 1, the full restatement, on<br />
+2026-09-30. Accounting is restated; the trades made on the bad data stand.</p>
+<p>The new tool is <code>scripts/data_audit/repair_split_mixed_basis.py</code>. Its fixture<br />
+test is <code>test_repair_split_mixed_basis.py</code> (67/67).</p>
+<p>Source: the Mueller Industries 8-K, Ex. 99.1, gives split-adjusted trading from<br />
+2026-07-01:<br />
+https://www.sec.gov/Archives/edgar/data/89439/000008943926000025/ex-99_16302026stocksplit.htm</p>
+<p>Invocation:<br />
+<code>--ticker MLI --ratio 2 --ex-date 2026-07-01 --basis-cutover 2026-06-05 --already-adjusted 2026-06-01</code></p>
+<h2 id="why-a-new-tool">WHY a new tool</h2>
+<p><code>backadjust_split.py</code> cannot do this:<br />
+- the cache is MIXED-BASIS (06-01 and 06-05..06-30 had already been rewritten to the post-split basis);<br />
+- fills and marks were made on whichever basis the cache held at the time;<br />
+- its cache guard refuses the 06-30/07-01 boundary (cliff ~1.07).</p>
+<p>A red-team pass of the plan found that sorting lots by date against the ex-date<br />
+was wrong. Lots must be classified PER LEG BY PRICE BASIS: threshold =<br />
+close(ex) x sqrt(2) = 81.2041.<br />
+- Four replay-seeded sleeves had SOLD MLI in June at post-split prices with pre-split quantities.<br />
+- Seeded sleeves' June NAV rows were marked from the half-price cache.<br />
+- remark_nav_day could not be used: it re-marks all 76 sleeves from the current cache (record CK). So the NAV fix is analytic: only the MLI component changes.</p>
+<h2 id="changes-all-numbers-are-tool-printed">Changes (all numbers are tool-printed)</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>price_cache, key_date &lt; 06-05 except 06-01</td>
+<td>close /2 (4,130 rows, 4,128 non-NULL); next_open /2 (228); volume x2 (4,129); next_open_vol x2 (228)</td>
+</tr>
+<tr>
+<td>splits_json</td>
+<td><code>[2026-07-01, 2.0]</code> appended (1 -&gt; 2 events)</td>
+</tr>
+<tr>
+<td>dividends_json</td>
+<td>25 of 25 amounts dated before 07-01 halved</td>
+</tr>
+<tr>
+<td>12 open pre-split lots</td>
+<td>qty x2, entry_price /2 (entry_value kept)</td>
+</tr>
+<tr>
+<td>30 pre-&gt;post closed lots (26 exiting &gt;= 07-01, 4 June exits)</td>
+<td>qty x2, entry_price /2, exit_value / realized_pnl / pct recomputed</td>
+</tr>
+<tr>
+<td>2 pre-&gt;pre closed lots</td>
+<td>qty x2, entry_price /2, exit_price /2 (value, P&amp;L, cash unchanged)</td>
+</tr>
+<tr>
+<td>7 post-split lots</td>
+<td>untouched</td>
+</tr>
+<tr>
+<td>paper_portfolio.cash</td>
+<td><strong>+$28,949.60</strong> over 30 sleeves (+$24,812.44 exits &gt;= 07-01, +$4,137.16 June exits)</td>
+</tr>
+<tr>
+<td>paper_nav</td>
+<td><strong>3,383 rows across 42 sleeves</strong>, each with a <code>paper_nav_restatement</code> row ("split-repair MLI 2026-07-01 x2: record EG ...")</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Book effect on the latest marked day (2026-09-29): +$40,599.29 across the 42<br />
+sleeves (76-sleeve book $7,630,670.25 -&gt; $7,671,269.54).</strong> That equals the cash<br />
++$28,949.60 plus the 12 open lots' second share at the 09-29 close<br />
+(+$11,649.69), so the two independent figures reconcile. Per-sleeve 09-29<br />
+deltas run +$771.54 to +$1,187.93.</p>
+<p>The affected sleeves are the residual-ladder rungs (plus residual_roa_6535_paper),<br />
+mostly the LOW-residual end HANDOFF reports as leading. <strong>Any ladder-gradient<br />
+result computed before today included this understatement.</strong></p>
+<h2 id="how-verified_5">HOW verified</h2>
+<p>Copy first (SQLite backup, 21:33), then live.<br />
+- <strong>Fixture test 67/67</strong>, test-first (it failed with ImportError before the tool existed). The agent also ran 7 seeded mutants; each failed the test.<br />
+- <strong>Independent check script</strong> (shares no code with the tool), run against before-snapshots of the copy and of live. It recomputes every cache row, every lot column, every sleeve's cash and all 7,400 paper_nav rows of all 76 sleeves from the plan's rules. <strong>0 mismatches</strong> on the copy and <strong>0 on live</strong>. Restatement count 3,383 = rows changed.<br />
+- <strong>Seam continuity</strong> (stored NAV minus ledger replay, day-over-day, 42 sleeves):<br />
+  - the MLI-caused jumps in the live-marked residual_roa_6535_paper (06-05 +$1,313.37, 07-01 -$1,075.37) are gone;<br />
+  - one flag remains, 2026-06-29 +$2,528.28. It was <strong>+$2,483.67 BEFORE the repair</strong>, a pre-existing non-MLI jump. Its +$44.61 change is the removed MLI half-valuation error between 06-26 and 06-29. Not investigated.<br />
+- verify_run PASS 76/76 (copy and live).<br />
+- historical_state selfcheck: 76/76 reconstruct exactly, max cash delta $0.000000.<br />
+- Full-history MLI split-seam scan: 3 -&gt; <strong>0</strong>. <code>check_held_split_seams</code> no longer flags MLI.<br />
+- 18 test modules rc=0; guard 60/0.<br />
+- Frozen tests 4/4 at d=+/-0.0000pp (v1 +14.5547%/70, +1.8792%/156; v2 +14.4062%/38, +10.2194%/87).</p>
+<h2 id="deviations-from-the-approved-plan-made-by-opus-during-r3-each-was-a-safe-refusal-first">Deviations from the approved plan (made by Opus during R3; each was a safe refusal first)</h2>
+<ol>
+<li><strong>The P3 "basis clear" margin was 25%, which was wrong.</strong> The two bases sit ~sqrt(2) either side of the threshold (~29% below / ~41% above), so real post-split fills at 57-70 were refused. Now 10%; the nearest real fill is 14.2% away.</li>
+<li><strong>Fill-reference columns.</strong> The plan said they are NULL on all MLI rows; 2 lots (3509, 5612) carry a post-split exit_ref (60.97, 2026-09-28). The guard now refuses only a non-NULL ref on a PRE-split leg; post-split refs are correct as-is.</li>
+<li><strong>The agent generalized the NAV position delta to qty_old x (N-1) x close.</strong> It is identical at N=2.</li>
+</ol>
+<h2 id="caveats">Caveats</h2>
+<ul>
+<li><strong>Not fully scale-invariant for backtests.</strong> <code>MIN_PRICE_USD=5</code> and the 252-day old-price check in universe.py mean halved MLI closes now fall below $5 in 2010, parts of 2011-12 and 2020-03. The frozen windows are unaffected (d=0.0000), but any backtest over 2010-13 or 2020-21 will see MLI's universe membership shift.</li>
+<li><code>initialized_at</code> is UTC; the tool reads its first 10 characters (the July seed dates are unambiguous).</li>
+</ul>
+<h2 id="process-note-my-error">Process note (my error)</h2>
+<p>The first full test sweep used a glob that also picked up<br />
+<code>scripts/momentum/research/test_*.py</code>. Those are research backtests, not unit<br />
+tests. One timed out at 300 s; two orphaned <code>research.test_ensemble</code> python<br />
+processes were found still running and killed at ~22:00 CDT, BEFORE the frozen<br />
+tests ran. They read price_cache with shadowed backtest state, so nothing live<br />
+was written.</p>
+<h2 id="found-while-verifying-not-fixed">Found while verifying (not fixed)</h2>
+<ul>
+<li><strong>LQDA: 09-29 70.69 -&gt; 09-30 30.26 (-57%) on the newest bar.</strong> Not a split ratio, and splits_json is empty. Held by mom_v1, mom_v2, mom_v1_0701, mom_v2_0701, residual_w9010 and residual_w9505. Real news or a bad bar is unknown. <strong>Check before the 2026-10-01 monthly ranks on it.</strong></li>
+<li><code>backadjust_split.py:71</code> divides <code>next_open_range</code> (a ratio).</li>
+</ul>
+<h2 id="open_3">Open</h2>
+<ul>
+<li>Uncommitted: the tool, its test, this entry, HANDOFF.</li>
+<li>The DB copy and the task-plan are deleted after this entry.</li>
+</ul>
+<h1 id="appendix-ek---project-memory-bins-renamed-importantmd-added-new-standard-bins-as-stubs-2026-09-30-2253-cdt">Appendix EK - Project-memory bins: renamed, important.md added, new standard bins as stubs (2026-09-30, ~22:53 CDT)</h1>
+<p><strong>Evan, 2026-09-30 (asked in the Skills session):</strong> "change the name to project-memory bins and create new bins covering all types of things a project would contain ... You must include an important.md bin that has the most project critical things in it." The cross-project design is in the Skills record entry of the same date.</p>
+<h2 id="what-changed-here">What changed here</h2>
+<ul>
+<li>Bins folder <code>.claude/project-memory</code>: renamed from <code>.claude/codebase-memory/</code> with <code>git mv</code>; <code>.gitignore</code> re-include changed to <code>!.claude/project-memory/</code> (lines 21-22), so the new folder is still tracked (<code>git check-ignore</code> confirms).</li>
+<li>New <code>important.md</code>: 10 numbered critical entries (What / Constrains / Why / Source), each citing CLAUDE.md, HANDOFF.md or a bin; written by Opus and spot-checked on disk. The new <code>important-inject</code> hook injects it the first time a session touches this project, and again after compaction.</li>
+<li>New stub bins (first line <code>STATUS: N/A</code> or <code>STATUS: empty</code>, naming where the facts live today): decisions, people, timeline, glossary, compliance, budget, operations, services, experiments, writing, hardware. The pm-cadence age rule skips stubs.</li>
+<li>INDEX.md: "Read first: important.md" and "New standard bins" lines added (heading renamed where it said codebase-memory).</li>
+<li>Reference lines updated: <code>.gitignore</code>:21-22; <code>conventions.md</code>:11 (also corrected its stale <code>.gitignore</code> line numbers 13/15 -&gt; 20/22). <code>HANDOFF.md</code>:809 left: past tense.</li>
+</ul>
+<h2 id="why_1">Why</h2>
+<p>The bins were shaped around code. A survey of every project found scheduled jobs, external services, experiments, decisions, people, deadlines, compliance, budget, writing and hardware facts with no bin; each now has one home, and the most critical facts are injected instead of hoped-for.</p>
+<h2 id="proof-2026-09-30">Proof (2026-09-30)</h2>
+<ul>
+<li><code>pm-cadence.js --canary</code> 79/79; <code>important-inject.js --canary</code> 41/41 (installed and public copies identical).</li>
+<li><code>important-inject.js</code> with cwd = this project printed <code>[IMPORTANT - Trading]</code> and the path of its important.md.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>Phase 4, a later sitting: move the facts each stub points to into its bin, with a lossless check. Nothing here was committed by this session.</p>
 </div>
 </body>
 </html>
