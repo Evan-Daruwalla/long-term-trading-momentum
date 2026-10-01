@@ -1,10 +1,12 @@
 # Project: Trading
 
-Paper-trading systematic-equity platform. Evan is 17 — the deliverable is the
+Paper-trading systematic-equity platform. Evan turned 18 on 2026-09-08 - the deliverable is the
 **track record and the engineering rigor**, not "make money now": every strategy
 gets in-sample/held-out validation before it's trusted, decisions are logged and
-never backdated, data bugs are audited and documented rather than hidden. At 18
-the proven sleeves convert to live trading backed by a defensible history.
+never backdated, data bugs are audited and documented rather than hidden. Now that he
+is 18, converting a proven sleeve to live trading is Evan's explicit decision, not an
+automatic step - none has started as of 2026-09-30, and everything stays paper until
+he makes it.
 
 ## Start of session (read in this order)
 

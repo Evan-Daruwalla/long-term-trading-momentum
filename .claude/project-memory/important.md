@@ -48,11 +48,11 @@
 **Why:** renaming breaks the monthly automation chain.
 **Source:** CLAUDE.md:40-42; detail in tooling.md.
 
-## 8. Paper only until Evan decides otherwise - his age is RECORDED INCONSISTENTLY (2026-09-30)
-**What:** CLAUDE.md:3 and disclosure.md say Evan is 17 (proven sleeves convert to live trading at 18), but Citoya's security.md (Billing heading) says he has been 18 since 2026-09-08. Unresolved - ask Evan; do not resolve it from the docs.
-**Constrains:** until Evan says otherwise, nothing may imply live trading or real capital, and no live-conversion work starts.
+## 8. Paper only until Evan himself decides to go live (2026-09-30)
+**What:** Evan turned 18 on 2026-09-08 (confirmed by Evan, 2026-09-30). The project's premise - proven sleeves convert to live trading at 18 - is now HIS explicit decision, not an automatic step; no conversion has started.
+**Constrains:** never create a live account, enter keys, change the broker base URL, or start live-conversion work; nothing public may imply live trading or real capital until Evan has gone live himself.
 **Why:** going live is irreversible and moves real money; the repo is public.
-**Source:** CLAUDE.md:3-7; disclosure.md:9-22; Citoya citoya-v2 security.md (Billing).
+**Source:** CLAUDE.md:3-7; disclosure.md:9; Evan, 2026-09-30.
 
 ## 9. LIVE 2026-10-01: the monthly rebalance is MANUAL (2026-09-30)
 **What:** Steps 3 and 4 of the scheduled task are denied by the guard; Evan runs it. Afterwards look for STALE-SKIP lines and run the printed `RETRY ... --as-of <D>` line. LQDA fell 57% on the 09-30 bar (70.69 -> 30.26), held by 6 sleeves - check it is real news before the monthly ranks on it.

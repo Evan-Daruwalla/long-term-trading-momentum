@@ -6,7 +6,7 @@ before it is needed, not after.
 
 Standing constraints that already apply if anything is published:
 
-- **Evan is 17.** No brokerage account in his name; the Alpaca account is PAPER
+- **Evan turned 18 on 2026-09-08**, but there is still no live brokerage account in his name; the Alpaca account is PAPER
   only. Any case study, portfolio entry, or public README must not imply live
   trading or real capital at risk.
 - **`alpaca_keys.env` is secret** — never printed, logged, committed, screenshotted,
