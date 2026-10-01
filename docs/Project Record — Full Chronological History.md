@@ -195,6 +195,7 @@ lives in the dated entry, not the digest.
 - [EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN](#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt) (09-29)
 - [EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call](#appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt) (09-29)
 - [EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)](#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt) (09-29)
+- [EI - Secret-gate wrapper hook fails closed when the shared gate is missing](#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt) (09-30)
 
 ---
 
@@ -13046,3 +13047,34 @@ measurement was **21:48:50 CDT** (the `git status` after record EF). So both
 happened between 21:48:50 and 22:27:22 CDT; the exact times are unknown.
 
 EG's content (the SEC 8-K facts and the DB measurements) is unaffected.
+
+# Appendix EI - Secret-gate wrapper hook fails closed when the shared gate is missing (2026-09-30, ~21:54 CDT)
+**Evan, 2026-09-30:** "can you do that", then "commit", for the secret-gate
+fail-closed change below. The change was made from the Skills project
+session (Skills record EA has the cross-repo picture). No Python changed, so
+the frozen tests do not apply.
+
+## What changed
+
+`scripts/git-hooks/pre-commit` only:
+- The missing-gate branch used to warn "secret gate SKIPPED (fail-open)" and
+  let the commit through unscanned. It now prints "commit-gate BLOCKED:
+  secret gate not found ... broken, fix it" and exits 1. The commit is
+  refused unless bypassed deliberately with `git commit --no-verify`.
+- The header comment's fail-policy line was updated to match.
+
+## Why
+
+The shared gate (`~/.claude/skills/commit-gate/hooks/pre-commit`) was made
+fail-closed on 2026-09-29 (Skills record DZ). This repo's own wrapper still
+failed open when that file was missing, e.g. with HOME unset. Every commit
+was then unscanned, in a repo that holds `alpaca_keys.env`.
+
+## Proof
+
+`sh scripts/gate-delegation-canary.sh` (in the Skills repo) against this
+hook, using a throwaway repo:
+- before the change: `canary: 3 passed, 2 failed`;
+- after: `canary: 5 passed, 0 failed` (clean diff allowed, planted AWS key
+  blocked, missing gate blocked with "broken, fix it").
+- `sh -n` passes.

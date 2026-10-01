@@ -11,8 +11,8 @@
 #      regenerate its HTML twin and stage the result, so the two can never drift.
 #
 # Fail policy differs on purpose:
-#   - secret scanner: fail OPEN on scanner error (a scanner bug must not wedge
-#     commits) but NOISILY.
+#   - secret scanner: fail CLOSED (missing gate or scanner error blocks;
+#     changed 2026-09-29). Bypass deliberately with --no-verify.
 #   - html render: fail CLOSED (block the commit) — a broken/stale twin is the
 #     exact problem this hook exists to prevent.
 # Emergency bypass for either:  git commit --no-verify  (don't make it a habit).
@@ -27,8 +27,9 @@ GATE="${HOME}/.claude/skills/commit-gate/hooks/pre-commit"
 if [ -f "$GATE" ]; then
   sh "$GATE" || exit 1
 else
-  echo "commit-gate WARNING: gate not found at $GATE — secret gate SKIPPED (fail-open)." >&2
-  echo "The commit proceeds UNSCANNED." >&2
+  echo "commit-gate BLOCKED: secret gate not found at $GATE - broken, fix it." >&2
+  echo "Install the commit-gate skill, or bypass deliberately with git commit --no-verify." >&2
+  exit 1
 fi
 
 # ── Record invariants ────────────────────────────────────────────────────────

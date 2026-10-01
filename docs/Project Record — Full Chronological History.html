@@ -233,7 +233,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ee---scheduled-daily-audit-67-findings---the-trade-guard-has-8-escapes-including-both-live-rebalance-dispatchers-and-the-branch-was-published-7-minutes-after-record-ed-said-it-was-not-2026-09-29-0738-cdt">EE - Scheduled daily-audit: 67 findings - the trade guard has 8 escapes including both live rebalance dispatchers, and the branch was published 7 minutes after record ED said it was not</a> (09-29)<br />
 - <a href="#appendix-ef---record-ee-items-1-10-worked-guard-closes-the-8-escapes-600-trading-day-and-coverage-gates-strict-llm-fills-09-28-re-marked-keys-read-deny-blocked-on-evan-2026-09-29-2150-cdt">EF - Record EE items 1-10 worked: guard closes the 8 escapes (60/0), trading-day and coverage gates, strict LLM fills, 09-28 re-marked; keys Read-deny BLOCKED-ON-EVAN</a> (09-29)<br />
 - <a href="#appendix-eg---mli-cliff-is-a-real-2-for-1-split-sec-8-k-ex-2026-07-01-the-book-never-applied-38-sleeves-understated-365k-repair-is-evans-call-2026-09-29-2157-cdt">EG - MLI cliff is a REAL 2-for-1 split (SEC 8-K, ex 2026-07-01) the book never applied: 38 sleeves understated ~36.5k; repair is Evan's call</a> (09-29)<br />
-- <a href="#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt">EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)</a> (09-29)</p>
+- <a href="#appendix-eh---correction-record-egs-timestamps-were-estimates-not-clock-reads-eg-appended-2227-cdt-2026-09-29-2227-cdt">EH - Correction: record EG's timestamps were estimates, not clock reads (EG appended 22:27 CDT)</a> (09-29)<br />
+- <a href="#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt">EI - Secret-gate wrapper hook fails closed when the shared gate is missing</a> (09-30)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -14249,6 +14250,30 @@ times were estimates, not clock reads</strong>, which breaks the project rule to
 measurement was <strong>21:48:50 CDT</strong> (the <code>git status</code> after record EF). So both<br />
 happened between 21:48:50 and 22:27:22 CDT; the exact times are unknown.</p>
 <p>EG's content (the SEC 8-K facts and the DB measurements) is unaffected.</p>
+<h1 id="appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt">Appendix EI - Secret-gate wrapper hook fails closed when the shared gate is missing (2026-09-30, ~21:54 CDT)</h1>
+<p><strong>Evan, 2026-09-30:</strong> "can you do that", then "commit", for the secret-gate<br />
+fail-closed change below. The change was made from the Skills project<br />
+session (Skills record EA has the cross-repo picture). No Python changed, so<br />
+the frozen tests do not apply.</p>
+<h2 id="what-changed">What changed</h2>
+<p><code>scripts/git-hooks/pre-commit</code> only:<br />
+- The missing-gate branch used to warn "secret gate SKIPPED (fail-open)" and<br />
+  let the commit through unscanned. It now prints "commit-gate BLOCKED:<br />
+  secret gate not found ... broken, fix it" and exits 1. The commit is<br />
+  refused unless bypassed deliberately with <code>git commit --no-verify</code>.<br />
+- The header comment's fail-policy line was updated to match.</p>
+<h2 id="why">Why</h2>
+<p>The shared gate (<code>~/.claude/skills/commit-gate/hooks/pre-commit</code>) was made<br />
+fail-closed on 2026-09-29 (Skills record DZ). This repo's own wrapper still<br />
+failed open when that file was missing, e.g. with HOME unset. Every commit<br />
+was then unscanned, in a repo that holds <code>alpaca_keys.env</code>.</p>
+<h2 id="proof">Proof</h2>
+<p><code>sh scripts/gate-delegation-canary.sh</code> (in the Skills repo) against this<br />
+hook, using a throwaway repo:<br />
+- before the change: <code>canary: 3 passed, 2 failed</code>;<br />
+- after: <code>canary: 5 passed, 0 failed</code> (clean diff allowed, planted AWS key<br />
+  blocked, missing gate blocked with "broken, fix it").<br />
+- <code>sh -n</code> passes.</p>
 </div>
 </body>
 </html>
