@@ -59596,3 +59596,210 @@ The 2026-09-30 entry measured a 20-day realized-volatility screen separating fiv
 **The observation worth recording is about the asymmetry of position COUNT, not of outcome.** FICO sits in **30** sleeves and is the book's worst unrealized loss. UTHR sits in **29** and had an 18.67% two-day win. KOD sits in **4** and had the week's best move by a factor of ten. **Sleeve count is set by how many rungs happen to rank a name, which is uncorrelated with how consequential that name turns out to be** - so the book's largest exposures are systematically *not* its highest-conviction ones in any economic sense. **That is a known property of running 57 correlated rungs on one signal, and it is the structural reason the ladder's cross-sectional results keep coming back as noise** (6b). **Whether fewer, less correlated rungs would produce a measurable gradient is a research question with a clean form and no answer in today's data.**
 
 ---
+
+## Report: 2026-10-02 (Friday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-01 is still UNMARKED at compile time.** `max(nav_date)` in `paper_nav` is **2026-09-30** (76 rows). The 17:15 coverage gate failed last night (`closes=4287`, `floor=5000`) and the **07:45 `TradingMorningMTM` heal has not run yet** - this entry was compiled from 07:02 CDT onward, before it. **Every 10-01 NAV below is INDICATIVE** (`paper_portfolio.cash + sum(qty x last close <= 2026-10-01)`). Re-queried this morning, it reproduces last night's figure to the cent.
+>
+> **Book: indicative $7,734,908.43 against marked 09-30 $7,659,687.43 (+0.9820%), ITD +1.7751%** on $7,600,000.00. No position has changed since the 2026-09-28 ladder: 0 entries, 0 exits dated 2026-10-01 or later. **Leaders:** `llm_overlay_mom_roa_top1_paper` +17.4878%, `llm_cascade_top1_paper` +15.1412%, `qqq_benchmark_paper` +10.0690%. **Laggards:** `mom_v1_paper` -12.9539%, `mom_v2_paper` -10.7005%, `mom_roa_6535_paper` -8.5300%.
+>
+> **Pre-market:** S&P futures **+0.43%**, Dow **+0.50%**, Nasdaq-100 **+0.55%**, Russell **+0.68%** (Yahoo, 05:00 CDT). **Oil fell hard:** Brent December **-3.1% to $99.13**, WTI **-4% to $89.18**, and European gasoil futures **about -5% to $1,380.5/t**, on a report that EU nations are discussing a release of diesel and crude reserves. That is a direct hit to the refining margin behind the book's 7 refiners ($318,743.67, 4.1556% of priced value), which gained +3.49% to +6.99% yesterday. **FICO -6.6% to -6.9% pre-market** on a Bloomberg report that FHFA will move Fannie and Freddie to two-bureau credit checks. That is a second regulatory hit in four sessions, on the book's largest unrealized loser (30 sleeves, $39,703.92, -37.03%). 10-year **~5.24-5.25%**, off its multidecade high on haven demand tied to France's fiscal problems.
+>
+> **Macro catalyst: September payrolls at 07:30 CDT (08:30 ET), before the open.** Consensus is **84k-95k depending on the survey** (90k median per FactSet/Bloomberg/Reuters), down from 162k in August. Unemployment is expected at **4.1%**. Fed funds futures put a December hike at about **74%** and an October 28 hike at about **35%**. In this regime a strong print is the hawkish risk.
+>
+> **LLM overlay (indicative 10-01):** stock arm treatment +17.4878% vs control +9.3152%, spread **+8.1726pp**, the whole of it from the BE veto (record correction in last night's entry). Macro arm treatment +2.1566% vs control +5.1594%, **-3.0028pp**, with $23,087.99 (22.60%) idle. **XLB $48.54 vs $51.00 invalidation: 16 sessions breached, zero enforcement.** `llm_overlay_log` = 14 rows (`count(*)`), 5 BUY / 9 VETO.
+>
+> **Critical outstanding:** (1) **The October monthly is still undone, BLOCKED-ON-EVAN.** `monthy-llm-rebalance` fires again at about 18:01 CDT today and is expected to be denied the same way as last night. (2) **NEW: 10 ladder rungs bought WBD on 2026-09-28 as a cash-deal stub.** Paramount Skydance expects to close the merger on **2026-10-06** at $31 cash + $0.00277778/day after 09-30. Cost $21,494.69, maximum payout $21,565.06 (**+$70.37**). From 10-06 on it is expected to become a 4th no-close name. (3) No 10-01 close for **APGE, CRNX, UYSC**. (4) Coverage has been PENDING on 18 straight trading days (per last night's entry).
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Fri Oct  2 07:02:07 CDT 2026`, offset `-0500` -> **CDT**. Local date **2026-10-02**, weekday **Friday**. All times in this entry are CDT.
+
+**0b. Market status.** 2026-10-02 is a normal NYSE/Nasdaq trading day (not a holiday). The September Employment Situation is due at 08:30 ET ([FinanceCalendar](https://www.financecalendar.com/us-jobs-report/), [Newsquawk preview](https://www.newsquawk.com/headlines/preview-us-september-jobs-data-is-due-on-2nd-october-2026-at-1330bst0830edt)).
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-02 \(Friday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. This is not a re-fire.
+
+**0d. Cron echo** (from `list_scheduled_tasks`, read this run):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-05T12:01:23Z | **2026-10-02T12:01:59Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-03T00:04:22Z | 2026-10-02T00:04:52Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | **2026-10-02T23:01:03Z** | 2026-10-01T23:01:32Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-03T12:09:01Z | 2026-10-01T12:09:24Z | 541s |
+
+**This run fired at 07:01:59 CDT.** The cron `0 7 * * 1-5` with 83s jitter is self-consistent, and Monday's 07:01:23 matches it. **A doc discrepancy, flagged rather than fixed:** this task's own prompt says it "fires at 07:07". The live schedule fires at about 07:01. Either way it runs before the 07:45 heal, so 0f is unaffected. **`daily-audit` shows `lastRunAt 2026-10-01T12:09:24Z` and `nextRunAt 2026-10-03T12:09:01Z`.** Its 2026-10-02 fire (about 07:09 CDT today) had not happened when the list was read at about 07:03, yet `nextRunAt` already points at tomorrow. That is either how the scheduler displays an in-window fire or a skipped run. **I cannot tell which from this read.** The daily audit's own output for 10-02 is what settles it.
+
+**0e. DB opened read-only** as `file:var/trades.db?mode=ro`, `uri=True`, for every query behind this entry.
+
+**0f. Morning heal not yet run.** `TradingMorningMTM` runs at 07:45. This entry was compiled before then. **The outcome of the 10-01 heal is not predicted here.** Price coverage for 2026-10-01 still stands at **4,287 closes** (09-24: 5,114, 09-25: 5,114, 09-28: 5,113, 09-29: 5,110, 09-30: 5,109). That is unchanged from the gate reading, so no late-publishing data had reached `price_cache` when this entry was queried.
+
+**0g. `max(nav_date)` = 2026-09-30, 76 rows. 2026-10-01 is UNMARKED.** Last night's tail of `var/last_daily_run.log`: `verify_run: RESULT: PASS (76/76 sleeves OK)` and `[OPS 2026-10-01] coverage=PENDING verify=PASS`. Per the standing caveat, the PASS covers settled days only. It does **not** mean 10-01 was marked. **Method for every 10-01 figure below:** `indicative NAV = paper_portfolio.cash + SUM(qty x last close <= 2026-10-01)`, carried forward for names with no 10-01 close. This morning's re-query gives **$7,734,908.43** total, identical to the 2026-10-01 post-market entry.
+
+**0h. Held names with no 10-01 close: 3 of 223.** **APGE** (last close 2026-09-03, $135.07), **CRNX** (2026-09-02, $84.95), **UYSC** (2026-09-30, $11.00). All three are deal-pinned stubs. This is the same set as last night.
+
+**0i. NEW: WBD is a deal-pinned stub bought eight days before the expected deal close.** 10 sleeves (`residual_w7525/8020/8515/9010/9505` x `_wk` and `_2wk`) bought **695.2733 shares at $30.9154 on 2026-09-28**, costing **$21,494.69** (0.2802% of priced value). Paramount Skydance and WBD expect to close on **2026-10-06**. WBD holders get **$31 cash plus $0.00277778 per share for each day after 2026-09-30**, which is **$31.01666668** at a 10-06 close ([StockTitan](https://www.stocktitan.net/news/WBD/paramount-skydance-and-warner-bros-discovery-announce-anticipated-5v4kia9u4a5l.html), [Yahoo Finance](https://finance.yahoo.com/media-advertising/articles/paramount-skydance-warner-bros-discovery-102322316.html)). Nasdaq will move Moderna into the Nasdaq-100 in WBD's place, effective before the open on 2026-10-09 ([StreetInsider](https://www.streetinsider.com/Corporate+News/Moderna+to+join+the+Nasdaq-100+index,+replacing+Warner+Bros.+Discovery/27138539.html)). WBD's DB closes from 09-22 to 10-01 run $30.76 to $30.95, the flat tape of a pinned stock. **Maximum payout at $31.01666668: $21,565.06 = +$70.37 (+0.33%) over the whole holding.** **This is the pattern the APGE/CRNX/UYSC memory already documents:** a cash-pinned price has near-zero volatility, and residual/risk-adjusted screens score that as quality. The cost is the slot, not the money. Between $1,720.71 and $2,611.88 per rung sits in a name that can return at most 0.33%, and after the close it is expected to stop pricing. **Reported only; any exclusion rule is Evan's call.**
+
+**0j. Price anomalies.** No held name moved more than 300% on its last bar. FICO's path (`09-28 840.89 -> 09-29 617.87 -> 09-30 592.47 -> 10-01 661.75`) and LQDA's 09-30 -57.19% are both confirmed news events (last night's entry; FICO again in section 2). KOD's 09-28 jump is confirmed real (Phase 3 DAYBREAK).
+
+**0k. No overnight position or rebalance activity.** `paper_positions` rows with `entry_date` or `exit_date` >= 2026-10-01: **0**. `max(paper_portfolio.last_rebalanced_at)` = `2026-09-29T01:32:09Z` (the 09-28 ladder). No `var/monthly_rebalance_2026-10*` file exists. 3,288 positions are open across 223 names.
+
+---
+
+### 1. Portfolio standings from last close (INDICATIVE 2026-10-01)
+
+Unchanged since the 2026-10-01 post-market entry (same positions, same price rows). Re-queried this morning, not copied.
+
+| # | sleeve | ind. NAV 10-01 | ITD % |
+|---|---|---|---|
+| 1 | llm_overlay_mom_roa_top1_paper | 117,487.81 | +17.4878 |
+| 2 | llm_cascade_top1_paper | 115,141.19 | +15.1412 |
+| 3 | qqq_benchmark_paper | 110,068.98 | +10.0690 |
+| 4 | residual_w5545_paper | 109,339.48 | +9.3395 |
+| 5 | mom_roa_top1_paper | 109,315.23 | +9.3152 |
+| 6 | residual_w6040_paper | 109,005.82 | +9.0058 |
+| 7 | sector_top4_full_paper | 106,918.46 | +6.9185 |
+| 8 | residual_w4555_paper | 106,577.72 | +6.5777 |
+| 9 | residual_w5050_paper | 106,423.86 | +6.4239 |
+| 10 | spy_benchmark_paper | 106,014.01 | +6.0140 |
+| ... | (full 76-row table in the 2026-10-01 post-market entry, section 2) | | |
+| 72 | mom_v1_0701_paper | 94,181.29 | -5.8187 |
+| 73 | residual_w8515_2wk_paper | 93,863.82 | -6.1362 |
+| 74 | mom_roa_6535_paper | 91,470.00 | -8.5300 |
+| 75 | mom_v2_paper | 89,299.51 | -10.7005 |
+| 76 | mom_v1_paper | 87,046.12 | -12.9539 |
+
+**Book: start $7,600,000.00 | marked 09-30 $7,659,687.43 | indicative 10-01 $7,734,908.43 | day +0.9820% | ITD +1.7751%.** Priced position value **$7,670,304.32** across 223 names.
+
+**Largest holdings (10-01 close):** MU $566,475.97 (7.3853%, 62 sleeves, +39.72% unrealized); QQQ 2.7734%; SPY 2.7079%; STX 2.2457% (65); LRCX 1.8962% (54); WDC 1.8042% (65); INSW 1.7590% (44); AMAT 1.6107% (52); XLK 1.4682%; TGTX 1.4240% (49); AAPL 1.4224% (45); XLE 1.4135%; JNJ 1.4102% (47); ATEX 1.4063% (59).
+
+---
+
+### 2. Overnight and pre-market moves
+
+**2a. Index futures** (Yahoo Finance live blog, 05:00 CDT, [link](https://finance.yahoo.com/markets/live/stock-market-today-friday-october-2-dow-sp-500-nasdaq-september-jobs-report-080623878.html)):
+
+| contract | level | change |
+|---|---|---|
+| S&P 500 (ES=F) | 7,757.25 | **+0.43%** (+33.25) |
+| Dow (YM=F) | 51,497.00 | +0.50% (+256.00) |
+| Nasdaq-100 (NQ=F) | 30,930.25 | +0.55% (+169.75) |
+| Russell 2000 (RTY=F) | 2,846.00 | +0.68% (+19.10) |
+
+**Source disagreement, flagged:** a CNBC snapshot quoted in search results put S&P futures at +0.5%, Dow at +299 points (+0.6%) and Nasdaq-100 at +0.7% ([CNBC live blog](https://www.cnbc.com/2026/10/01/stock-market-today-live-updates-.html); the page itself returned 403, so I have only the search excerpt). The two are snapshots at different times. **I publish Yahoo's figures because they carry a timestamp; the untimed CNBC numbers are the outlier.** Direction agrees: futures up across the board, small caps leading.
+
+**2b. Oil: down 3-4% overnight. This is the move that matters most for the book today.**
+
+- **Brent December -3.1% to $99.13, WTI -4% to $89.18.** Cause: a report that EU nations are discussing a reserve release. **France proposed that EU nations release 50 million barrels of diesel and that IEA members release 50 million barrels of crude.** European **gasoil futures, the diesel benchmark, fell about 5% to $1,380.5/t** ([CNBC, 2026-10-02](https://www.cnbc.com/2026/10/02/oil-wti-brent-diesel-stock-release-europe.html), [OilPrice](https://oilprice.com/Latest-Energy-News/World-News/WTI-Sinks-Nearly-4-as-EU-Weighs-Emergency-Stockpile-Release.html)). Yahoo at 05:00 CDT had WTI November at **$89.39, -3.75%**, consistent within a snapshot's drift.
+- The pressure came from Washington. Treasury Secretary Bessent urged Europe to "immediately" tap reserves; Energy Secretary Wright said he was "highly confident" Europe could help; key EU states held emergency talks ([Bloomberg, 2026-10-01](https://www.bloomberg.com/news/articles/2026-10-01/europe-holds-emergency-diesel-talks-as-us-pressure-mounts), [Al Jazeera, 2026-10-02](https://www.aljazeera.com/news/2026/10/2/trump-says-us-may-ask-europe-to-release-diesel-reserves)).
+- **Earlier and conflicting levels, flagged:** OilPrice at 00:06 CDT had Brent at **$102.24** and WTI at **$92.62** ([OilPrice](https://oilprice.com/Latest-Energy-News/World-News/Brent-Holds-Above-102-as-Gulf-Export-Rebound-Offsets-US-Military-Moves.html)). I read it as a pre-move snapshot, because $99.13 at -3.1% implies a base near $102.30, which fits $102.24 (an inference from the arithmetic, not stated by either source). TradingEconomics showed Brent **$102.15 on 10-02** and **$96.76 on 10-01**. The 10-01 figure contradicts last night's sourced Brent December quote ("last +2.2% at $100.15", a level, not a stated close) and the ~$102 overnight base, so **the TradingEconomics series is treated as the outlier and not used.**
+- **A size claim I am not publishing as fact:** one low-quality aggregator said Washington wants a **120-million-barrel release over six months**. That conflicts with CNBC's 50 + 50 million France proposal and has no second source. The CNBC figure stands.
+
+**2c. Single names held by the book:**
+
+| name | pre-market | sleeves | value 10-01 | catalyst |
+|---|---|---|---|---|
+| **FICO** | **-6.6% to -6.9%** | 30 | $39,703.92 | FHFA reportedly moving Fannie/Freddie to **bi-merge** (two-bureau) credit reports, possibly announced by Pulte as soon as **10-12** in Chicago, effective 1-3 months later ([Bloomberg, 2026-10-01](https://www.bloomberg.com/news/articles/2026-10-01/pulte-s-fhfa-to-ease-credit-data-requirement-for-fannie-freddie), [HousingWire](https://www.housingwire.com/articles/fhfa-bi-merge-credit-reports-fannie-freddie/), [Investing.com](https://in.investing.com/news/stock-market-news/us-creditreporting-stocks-fall-as-fhfa-weighs-twobureau-mortgage-rule-5616427)) |
+| WBD | pinned | 10 | $21,518.71 | merger expected to close 10-06; see 0i |
+
+**FICO, the arithmetic.** Two Investing.com snapshots give **-6.6%** and **-6.9%** (the second in its [premarket-movers piece](https://in.investing.com/news/stock-market-news/premarket-movers-ike-tumbles-10-synaptics-jumps-on-57b-deal-5616516)). Equifax was -3.4% and TransUnion -2.4% in both. These are claims about different moments, so they are not reconciled to one number. Applied to the 10-01 value, the move would be **-$2,620.46 to -$2,739.57**, roughly two-thirds of yesterday's +$4,156.68 bounce. **The mechanism is unclear, and I say so:** a bi-merge rule cuts bureau report volume directly, and FICO's link to it is second-order. I found no source that quantifies FICO's exposure. Separately, **BofA downgraded FICO to Neutral and halved its target to $700 from $1,400** ([Yahoo Finance](https://finance.yahoo.com/markets/stocks/article/fair-isaac-stock-pops-11-2-days-after-rout-even-as-bofa-cuts-price-target-175347281.html), [Investing.com](https://www.investing.com/news/analyst-ratings/bofa-downgrades-fair-isaac-stock-rating-on-regulatory-changes-93CH-4924659)), while BMO reiterated Outperform after the DLP approval.
+
+**Last night's 3d framed the 10-01 bounce as a counter-example to an early-exit rule. Today's pre-market partly undoes that bounce.** Both points stand: one reversal day and one re-decline day are two observations, and neither settles whether an impairment exit would help. The measured evidence against reactive exits (record BU; 2026-05-27 Attempt 13) is unchanged.
+
+**2d. Pre-market movers NOT held** (context only): Nike -9.6% to $31.79 (revenue $11.21bn vs $11.35bn expected, weak full-year guidance); Synaptics +13.8% (onsemi changed the deal to all-cash at $123); Moderna +2.2% to $193.15 (Nasdaq-100 add) ([Investing.com](https://in.investing.com/news/stock-market-news/premarket-movers-ike-tumbles-10-synaptics-jumps-on-57b-deal-5616516)). **The Investing.com page stamps itself "4:38 PM ET" on 10-02, which is after this entry was written.** It is probably a regional-edition time zone, but that is an inference, not something the page says. Boeing +3% (Navy F/A-XX selection) and Concentrix -11.1% appear only in a search summary I did not fetch, so they are listed without weight. None of these names is in `paper_positions`.
+
+**2e. Asia overnight.** The Nikkei 225 closed **-0.17% at 68,841** ([TradingEconomics](https://tradingeconomics.com/japan/stock-market)). I found no confirmed 10-02 KOSPI, SK Hynix or Samsung close. That matters for the MU/STX/WDC read-through and is reported as missing.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. September payrolls, 07:30 CDT.**
+
+| measure | consensus | prior | source |
+|---|---|---|---|
+| Nonfarm payrolls | **90k** median; range 60k-130k | 162k | [FactSet](https://insight.factset.com/total-nonfarm-payrolls-for-september-2026-are-projected-to-rise-by-90000), [Bloomberg](https://www.bloomberg.com/news/articles/2026-09-26/us-jobs-report-seen-showing-90-000-payrolls-4-1-unemployment-rate) |
+| Unemployment rate | 4.1% | 4.1% | same |
+| Avg hourly earnings y/y | +3.2% | +3.1% | Yahoo live blog |
+
+**The consensus spread is wide, and the figures are not averaged.** Dow Jones: **84k** (search-result excerpt, page not fetched). Yahoo: **85k**. FactSet/Bloomberg/Reuters median: **90k**. FactSet via AP: **95k**. I publish the **90k median** as the reference and treat 84k and 95k as the tails.
+
+**Why it matters for this book specifically.** The rate regime is hiking, not cutting. Fed funds futures price **~74% for a December 9 hike and ~35% for an October 28 hike** (hold ~66%) ([DeFiRate](https://defirate.com/prediction-markets/fed-decision-odds/)). Goldman pushed its next-hike call to December after the cooler inflation data ([Investing.com/Reuters](https://investing.com/news/economy-news/goldman-sachs-pushes-fed-rate-hike-forecast-to-december-4926222)). A hot print raises October hike odds and pressures long-duration growth. **The book is 26.22% Technology, with $1.15m in five memory/semicap names (14.94% of priced value, per last night).** A soft print does the opposite. **Dallas Fed President Lorie Logan is listed as speaking today, time TBD, by one source only. Another says no Fed events are scheduled.** Treat it as unconfirmed.
+
+**3b. Rates and France.** The US 10-year sits at **~5.24-5.25%**, easing from Thursday's multidecade high. France's 10-year hit **4.96%** Thursday, its highest since July 2002, before easing to about **4.92%**. The OAT-Bund spread is **over 140bp**, the widest since 2012. The High Council of Public Finances called the government's 2027 growth forecast optimistic ([Euronews, 2026-10-02](https://www.euronews.com/2026/10/02/bonds-steady-as-french-borrowing-costs-hit-24-year-high-and-uk-30-year-yields-top-6), [FXStreet, 2026-10-02](https://www.fxstreet.com/news/global-treasury-yields-ease-amid-rising-frances-fiscal-political-concerns-202610020744)). UK 30-year yields are above 6% (Euronews headline). **For this book the safe-haven bid is a mild positive:** it pulls US long yields down. A disorderly French move would be the risk-off version.
+
+**3c. Energy: the reserve-release report hits the exact leg that paid yesterday.** The book's refiners at 10-01 closes:
+
+| name | sleeves | value | 10-01 move |
+|---|---|---|---|
+| VLO | 33 | $77,012.36 | +5.38% |
+| PARR | 28 | $62,493.10 | +5.62% |
+| DINO | 25 | $58,681.26 | +5.01% |
+| **PSX** | **22** | **$42,447.41** | **+3.49%** |
+| MPC | 20 | $36,147.39 | +6.25% |
+| DK | 15 | $27,370.69 | +4.16% |
+| PBF | 8 | $14,591.46 | +6.99% |
+
+**Total $318,743.67 = 4.1556% of priced value.** **Correction to last night's section 3e:** its refiner table listed six names at $276,296.26 and **left out PSX**, which is held by 22 sleeves (Phillips 66 is a refiner with chemicals and midstream). With PSX, the refining leg is $42,447.41 larger.
+
+Yesterday's thesis was that China's export halt widens the diesel crack, and the refiners delivered +3.49% to +6.99%. **Today's news is the mirror image:** a 50M-barrel diesel release targets that same crack, and gasoil futures fell about 5%. **The direct mechanism is not in doubt.** Gasoil is the diesel benchmark, and refiners earn the spread over crude. With crude down 3-4% and gasoil down about 5%, the spread is roughly flat to slightly narrower. **The direction for the refiner stocks at the open is not predicted.** The other energy exposure: INSW $134,922.82 (44 sleeves, product/crude tankers), APA $48,954.43 (E&P, crude price), TPL $62,907.43, NRT $75,773.74, XLE $108,417.86. INSW reported Q3 bookings averaging **$61,000/day** against a **$14,500/day** cash break-even ([Yahoo Finance](https://finance.yahoo.com/markets/stocks/articles/international-seaways-stock-outlook-tanker-145500281.html)). A reserve release that moves barrels across the Atlantic is not obviously bad for tanker demand. The effect's sign is not knowable from today's information.
+
+**China's fuel-export halt still stands.** National Day runs to **2026-10-07**, and no October export permits have been issued beyond Hong Kong and Macau ([OilPrice](https://oilprice.com/Latest-Energy-News/World-News/China-Halts-October-Fuel-Exports-as-Global-Diesel-Crunch-Deepens.html)). Today's move is an offsetting policy headline, not a reversal of the original supply shock. A third US aircraft carrier and about 10,000 troops are moving to the Persian Gulf (OilPrice, Yahoo). That geopolitical support is still under the price.
+
+**3d. Held-name news, by weight.** Names searched with no ticker-specific overnight catalyst found are listed as such, not filled in.
+
+- **MU** ($566,475.97): no overnight news found. Last close **$1,097.39**. The 10-01 analyst target raises (Rosenblatt $1,900, DA Davidson $2,100, Mizuho $1,400) are covered in last night's entry. One aggregator gives a $1,520.76 average target; last night's source gave $1,430. **These are different analyst panels, so the figures are not reconciled.**
+- **STX / LRCX / WDC / AMAT**: no overnight catalyst. 10-01 moves of +2.52 / +3.53 / +1.78 / +3.50% match BigGo Finance's sector wrap, which attributes the day to optical and memory leadership ([BigGo](https://finance.biggo.com/news/93925290-6cc4-4425-a027-aab5b8a45257)).
+- **TGTX** ($109,226.76, 49 sleeves): the next hard catalyst is **full Phase 3 ENHANCE results at MSToronto2026, 2026-10-21 to 10-23**. A shareholder law firm has announced a fiduciary-duty investigation ([PR Newswire](https://prnewswire.com/news-releases/kuehn-law-encourages-investors-of-tg-therapeutics-inc-to-contact-law-firm-302891005.html)). Takeover rumors have been reported ([Yahoo Finance](https://finance.yahoo.com/healthcare/articles/tgtx-stock-alert-know-takeover-193547123.html)) but are unconfirmed and not acted on.
+- **EXEL** ($103,255.22, 42 sleeves): hit an all-time high of **$59.73** on 2026-09-30 ([Investing.com](https://uk.investing.com/news/stock-market-news/exelixis-stock-hits-alltime-high-at-5973-usd-93CH-4890016)); closed $57.94 on 10-01 (-0.80%). The FDA extended the zanzalintinib review by three months (major amendment). **The extension's date is not in the source I have**, so it is reported as background, not overnight news.
+- **ATEX** ($107,864.51, 59 sleeves, -11.23% unrealized): GuruFocus's 09-29 close of **$79.04** matches the DB exactly. A Form 4 was filed for 2026-09-29, with net insider selling of $24.1m over 12 months ([GuruFocus](https://www.gurufocus.com/news/9102340/anterix-inc-atex-shares-fall-33-what-gf-score-of-72-tells-investors)). **Yesterday's +5.07% has no catalyst I can confirm.**
+- **AAPL, JNJ, NRC, SEZL, EDRY, DAVE, SCCO, KLAC, NHC, KRYS**: not individually searched beyond the above; no overnight catalyst surfaced in the market-wide sweeps. **EDRY's +8.15% on 10-01 against a falling Baltic Dry Index is still unexplained** (carried from last night). **ETON's 09-30 -13.01% is still unexplained** (carried, third session).
+
+---
+
+### 4. LLM overlay status
+
+No new decision rows: `llm_overlay_log` holds **14 rows** (`count(*)`; 5 BUY, 9 VETO; latest `decision_date` 2026-09-01). `sector_overlay_log` holds **27 rows**, latest 2026-09-01. **The October decisions would be written by the monthly task, which is BLOCKED-ON-EVAN (section 5).**
+
+| arm | treatment ITD | control ITD | spread | note |
+|---|---|---|---|---|
+| Stock (top-1) | **+17.4878%** | +9.3152% | **+8.1726pp** | all from the BE veto: +$17,308.86 avoided loss, -$9,136.27 cash drag |
+| Stock cascade | +15.1412% | - | - | MU since 09-01 |
+| Macro (sector-4) | +2.1566% | +5.1594% | **-3.0028pp** | $23,087.99 idle since the 09-01 XLI veto |
+| Macro cascade | -0.4118% | - | - | holds XLB through its invalidation |
+
+**MU invalidation $820.00 vs last close $1,097.39, 33.8% above it.** No risk at the open.
+
+**XLB invalidation $51.00 vs 10-01 close $48.54: 16 consecutive sessions through the level** (first breach 2026-09-10), zero enforcement actions. Nothing in today's macro news (oil, France, payrolls) is specific to materials.
+
+**Today's oil move touches the macro arm directly.** All four macro sleeves hold **XLE** (10-01 close $62.70). An energy-sector decline at the open would hit control and treatment about equally, because both hold it. **The spread between them is driven by the treatment's idle XLI cash, not by XLE.**
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **October monthly rebalance: BLOCKED-ON-EVAN.** It fired at 18:01:32 CDT on 10-01 and changed nothing. The guard denies the decision-logging step (records DN/DO/DP) and, since 2026-09-29, the wrapper `.bat` too (record EF). **It fires again today at about 18:01 CDT** (`nextRunAt 2026-10-02T23:01:03Z`) and is expected to fail the same way. Manual run notes: **rc 3** = not a trading day; **rc 4** = LLM STALE-SKIP, then run the printed `RETRY ... --as-of <D>` line; leave the rebalance log at its old date. **Every day it slips, the ranking runs on different prices.** FICO's pre-market move and today's energy move are both inputs that differ from a 10-01 run.
+2. **Payrolls, 07:30 CDT.** Rate-sensitive for a book that is 26.22% Technology.
+3. **Refiners vs diesel release**: $318,743.67 (4.1556%), seven names, gasoil about -5% overnight. The EU position is not final. A formal release decision, or a US diesel-export-ban threat (EU trade chief Sefcovic called one "unexpected"), would move this leg again.
+4. **FICO**: a possible FHFA bi-merge announcement as soon as **2026-10-12**. 30 sleeves, -37.03% unrealized, the book's largest unrealized loss.
+5. **WBD merger expected to close 2026-10-06.** 10 rungs hold a stub that is expected to stop pricing after the close. APGE, CRNX and UYSC set the precedent: they are still open and carried at their last close.
+6. **TGTX ENHANCE data, 2026-10-21 to 10-23**: 49 sleeves, $109,226.76.
+7. **FOMC 2026-10-27/28**: ~35% hike odds.
+8. **China fuel-export permits after 2026-10-07**: the other half of the refining thesis.
+9. **10-01 unmarked**: if the 07:45 heal fails again, 10-01 stays pending. Coverage has been PENDING on 18 straight trading days, 2026-09-08 through 10-01 (per last night's entry).
+
+---
+
+### 6. Strategic insights
+
+**6a. Three cash-deal stubs plus WBD make a repeatable screen defect, not an anecdote.** The momentum-screen deal-stub memory recorded APGE/CRNX/UYSC at $51,163.88 (0.6726%). WBD adds **$21,494.69**. **It is not the ladder's first stub:** UYSC is held by 20 `_wk`/`_2wk` rungs with entry dates 2026-07-01, 07-06, 08-17 and 08-31 (landing-check finding; the draft of this line wrongly said WBD was the first). WBD sits only in the w75-w95 `_wk` and `_2wk` rungs, the most residual-momentum-weighted. **What this supports, stated as a research question and not a recommendation:** does excluding names with a pending definitive cash acquisition (an SEC merger-agreement flag, or near-zero 20-day realized volatility next to a known deal price) change any rung's held-out result? The prior is that the drag is small in dollars and nonzero in slots: each stub is a ~2% weight earning almost nothing for a month. **No edge claim follows from four instances.**
+
+**6b. Today tests whether yesterday's "refining spread beats commodity price" framing has structure.** Yesterday crude rose about 2% and the refiners rose +3.49% to +6.99%: the spread leg outran crude. Today crude is down 3-4% and the diesel benchmark is down about 5%. If the framing is right, refiners should do worse than E&P and royalty names today, because their specific input (the diesel crack) fell more than crude. **That is a falsifiable cross-sectional prediction for today's close, logged before the open:** the 7-refiner basket underperforms APA + TPL + NRT on 2026-10-02. If it does not, the 10-01 move was more "energy beta" than "crack spread". Last night's TPL/NRT split already weakened the royalty-as-one-category grouping. **Logged for the post-market entry to score; nothing is acted on.**
+
+**6c. The book's realized record is still the most important number and has not moved.** 5,999 closed positions, **-$128,945.15 realized (-1.0180% on $12.67m turned over), 45.74% hit rate**, against an unrealized gain that is **61.04% MU** (all from last night's queries; no exits since). Nothing overnight changes that. The LLM stock arm's +8.1726pp lead rests on one veto (n=1). The monthly ladder's ITD gradient across weights is indistinguishable from zero (last night's 6b, R2 0.0076); only the biweekly ITD slope carried explanatory power there (R2 0.5168), which is one cadence, not a pattern. **No new sleeve concept is supported by today's data.** The one candidate rule above (6a) is a filter on existing sleeves, not a new sleeve.
+
+---
