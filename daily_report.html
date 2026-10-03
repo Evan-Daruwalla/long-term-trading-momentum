@@ -175590,6 +175590,596 @@ verify_run (17:24):                        last_rebalance(2026-09-01/OK) settled
 <p><strong>6b. Today tests whether yesterday's "refining spread beats commodity price" framing has structure.</strong> Yesterday crude rose about 2% and the refiners rose +3.49% to +6.99%: the spread leg outran crude. Today crude is down 3-4% and the diesel benchmark is down about 5%. If the framing is right, refiners should do worse than E&amp;P and royalty names today, because their specific input (the diesel crack) fell more than crude. <strong>That is a falsifiable cross-sectional prediction for today's close, logged before the open:</strong> the 7-refiner basket underperforms APA + TPL + NRT on 2026-10-02. If it does not, the 10-01 move was more "energy beta" than "crack spread". Last night's TPL/NRT split already weakened the royalty-as-one-category grouping. <strong>Logged for the post-market entry to score; nothing is acted on.</strong></p>
 <p><strong>6c. The book's realized record is still the most important number and has not moved.</strong> 5,999 closed positions, <strong>-$128,945.15 realized (-1.0180% on $12.67m turned over), 45.74% hit rate</strong>, against an unrealized gain that is <strong>61.04% MU</strong> (all from last night's queries; no exits since). Nothing overnight changes that. The LLM stock arm's +8.1726pp lead rests on one veto (n=1). The monthly ladder's ITD gradient across weights is indistinguishable from zero (last night's 6b, R2 0.0076); only the biweekly ITD slope carried explanatory power there (R2 0.5168), which is one cadence, not a pattern. <strong>No new sleeve concept is supported by today's data.</strong> The one candidate rule above (6a) is a filter on existing sleeves, not a new sleeve.</p>
 <hr />
+<h2 id="report-2026-10-02-friday---post-market-close-analysis">Report: 2026-10-02 (Friday) - Post-Market Close Analysis</h2>
+<blockquote>
+<p><strong>DAILY SUMMARY</strong></p>
+<p><strong>Today is UNMARKED.</strong> <code>max(nav_date)</code> in <code>paper_nav</code> is <strong>2026-10-01</strong> (76 rows; the 07:45 morning heal marked 10-01). The 17:15 coverage gate FAILED again (<code>closes=4306</code> against <code>floor=5000</code>, baseline median 5113) and <code>mtm_catchup</code> left 2026-10-02 unmarked. <strong>Every 10-02 NAV and day-move below is INDICATIVE</strong>: <code>paper_portfolio.cash + sum(qty x last close &lt;= 2026-10-02)</code> against the marked 10-01 row.</p>
+<p><strong>Book: indicative $7,727,978.30 against marked 10-01 $7,734,943.23 = -0.0900% (-$6,964.94), ITD +1.6839%, week +0.4410%</strong> (vs marked 09-25) on $7,600,000.00. <strong>The book fell on a day the S&amp;P 500 rose +0.73%; 57 of 76 sleeves fell.</strong> One cause: <strong>STX -10.21% and WDC -10.22%</strong>, held by the same 65 sleeves, cost <strong>-$31,735.22</strong>, which is 4.6x the book's whole day loss. Without those two names the book would have been up about +0.32% (arithmetic, not a counterfactual NAV).</p>
+<p><strong>Sleeve ranking, best to worst ITD (indicative):</strong> <code>llm_overlay_mom_roa_top1_paper</code> <strong>+15.0810%</strong> | <code>llm_cascade_top1_paper</code> <strong>+12.7824%</strong> | <code>qqq_benchmark_paper</code> +11.1889% | <code>residual_w5545_paper</code> +9.0384% | <code>residual_w6040_paper</code> +8.8181% | <code>sector_top4_full_paper</code> +7.4638% | <code>mom_roa_top1_paper</code> +7.0756% | <code>spy_benchmark_paper</code> +6.7980% ... worst: <code>mom_v1_paper</code> <strong>-12.1614%</strong> | <code>mom_v2_paper</code> <strong>-9.9986%</strong> | <code>mom_roa_6535_paper</code> <strong>-7.3440%</strong> | <code>residual_w8515_2wk_paper</code> -6.4408% | <code>residual_w8020_2wk_paper</code> -5.8793%. Full 76-row table in section 2.</p>
+<p><strong>Key movers (held):</strong> <strong>STX -10.21%</strong> ($945.57 -&gt; $848.99) and <strong>WDC -10.22%</strong> ($462.56 -&gt; $415.29), both on about 5x normal volume, after <strong>Toshiba said it will double HDD production capacity</strong> for AI data centers (Philippines expansion). <strong>MU -2.05%</strong> ($1,097.39 -&gt; $1,074.89; -$11,614.57 across 62 sleeves; no MU-specific news found). <strong>MXL +14.99%</strong>, <strong>TER +8.00%</strong>, <strong>ETON +6.50%</strong>, <strong>TXG +5.34%</strong>, <strong>BTSG +5.22%</strong>, <strong>NGL +4.42%</strong> (35 sleeves). Decliners: <strong>UCTT -7.57%</strong>, <strong>AXGN -6.34%</strong>, <strong>UTHR -5.19%</strong> (29 sleeves), <strong>NRC -4.55%</strong> (41 sleeves), <strong>KOD -4.07%</strong>. <strong>FICO closed flat (-0.08%, $661.25)</strong> after trading about -8% pre-market on the FHFA bi-merge report.</p>
+<p><strong>Macro:</strong> <strong>September payrolls +29,000</strong> vs ~90k consensus; July and August revised down a combined <strong>60,000</strong>; <strong>unemployment 4.2%</strong>; average hourly earnings <strong>+0.1% m/m, +3.0% y/y</strong> (BLS). Stocks rallied on it: <strong>S&amp;P 500 +0.73% to 7,722.72, Nasdaq +1.19% to 27,190.86, Dow +0.49% to 51,176.96</strong>. October hike odds cut to <strong>16%</strong> (Yahoo). Oil: <strong>G7 to release up to 100M barrels of crude and diesel</strong> (Macron); <strong>WTI settled $91.11 (-1.9%), Brent Dec $102.25 (-0.1%)</strong>, US diesel -3% to $4.50/gal.</p>
+<p><strong>LLM overlay standings (indicative).</strong> Stock arm: treatment <strong>+15.0810%</strong> vs control <strong>+7.0756%</strong>, spread <strong>+8.0054pp</strong> (all three hold only MU, so the spread is unchanged in kind; it is still the BE veto). Macro arm: treatment <strong>+2.4813%</strong> vs control <strong>+5.6705%</strong>, <strong>-3.1892pp</strong>, $23,087.99 (22.53% of NAV) idle. <strong>XLB $48.86 vs $51.00 invalidation: 17th consecutive session breached</strong>, zero enforcement.</p>
+<p><strong>Critical outstanding items:</strong> (1) <strong>October monthly rebalance still undone, BLOCKED-ON-EVAN.</strong> <code>monthy-llm-rebalance</code> fired again at 18:01:45 CDT and changed nothing. <strong>NEW: <code>verify_run</code> now FAILS</strong> the rebalance-cadence check (<code>last_rebalance(2026-09-01) settled_month(2026-10)</code>), the first FAIL since 10-01 became a settled day. (2) Coverage PENDING at the 17:15 gate again: <strong>19 straight trading days counted from 2026-09-08</strong> (the anchor earlier entries used); <code>var/ops_status.log</code> holds 62 PENDING stamps back to 2026-07-10, so the true run is likely longer and is not recounted here. (3) No 10-02 close for <strong>APGE, CRNX, UYSC, DMAA</strong> (all deal-pinned stubs). (4) <strong>The pre-market entry's logged refiner prediction HELD</strong>: 7 refiners -0.5501% vs APA+TPL+NRT +0.8648% (value-weighted). One day, one point.</p>
+</blockquote>
+<hr />
+<h3 id="0-data-integrity-and-operational-status_72">0. Data integrity and operational status</h3>
+<p><strong>0a. Clock.</strong> <code>date</code> returned <code>Fri Oct  2 19:05:11 CDT 2026</code> (UTC <code>Sat Oct  3 00:05:11 UTC 2026</code>), offset <strong>UTC-5 -&gt; CDT</strong>. Local date <strong>2026-10-02</strong>, weekday <strong>Friday</strong>. Every timestamp in this entry is CDT.</p>
+<p><strong>0b. Market status.</strong> Normal NYSE/Nasdaq session. Not a holiday, no halt.</p>
+<p><strong>0c. Duplicate check.</strong> <code>grep -cE '^## Report: 2026-10-02 \(Friday\) .{1,3} Post-Market Close Analysis' daily_report.md</code> returned <strong>0</strong> before this append. Not a re-fire.</p>
+<p><strong>0d. Cron echo</strong> (from <code>list_scheduled_tasks</code>, read this run):</p>
+<table>
+<thead>
+<tr>
+<th>task</th>
+<th>cron</th>
+<th>nextRunAt (UTC)</th>
+<th>lastRunAt (UTC)</th>
+<th>jitter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>daily-trade-check-2</code> (this one)</td>
+<td><code>0 19 * * 1-5</code></td>
+<td>2026-10-06T00:04:22Z</td>
+<td><strong>2026-10-03T00:05:05Z</strong></td>
+<td>262s</td>
+</tr>
+<tr>
+<td><code>daily-trade-check</code></td>
+<td><code>0 7 * * 1-5</code></td>
+<td>2026-10-05T12:01:23Z</td>
+<td>2026-10-02T12:01:59Z</td>
+<td>83s</td>
+</tr>
+<tr>
+<td><code>monthy-llm-rebalance</code></td>
+<td><code>0 18 1-5 * *</code></td>
+<td>2026-10-03T23:01:03Z</td>
+<td><strong>2026-10-02T23:01:45Z</strong></td>
+<td>63s</td>
+</tr>
+<tr>
+<td><code>daily-audit</code></td>
+<td><code>0 7 * * *</code></td>
+<td>2026-10-03T12:09:01Z</td>
+<td>2026-10-02T12:09:37Z</td>
+<td>541s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>This task's cron is correct at <code>0 19</code>.</strong> <code>lastRunAt 2026-10-03T00:05:05Z</code> is this run (19:05:05 CDT). No drift. <strong><code>daily-audit</code> lastRunAt <code>2026-10-02T12:09:37Z</code></strong> answers the open question in this morning's entry: the 10-02 audit did fire at about 07:09 CDT. <strong><code>monthy-llm-rebalance</code> fired at 18:01:45 CDT today</strong>, its second October fire, and its next fire is Saturday 10-03 (cron <code>1-5</code>, so it runs on non-trading days 10-03/10-04 too; per the task memory, rc 3 = not a trading day).</p>
+<p><strong>0e. DB opened read-only</strong> as <code>file:var/trades.db?mode=ro</code>, <code>uri=True</code>, on every query behind this entry.</p>
+<p><strong>0f. Not the first trading day of the month.</strong> The monthly task did fire at 18:01:45; every query here ran after 19:05 and none returned <code>database is locked</code>. <code>paper_positions</code> rows with <code>entry_date</code> or <code>exit_date</code> &gt;= 2026-10-01: <strong>0</strong>. <code>max(paper_portfolio.last_rebalanced_at)</code> = <code>2026-09-29T01:32:09Z</code> (the 09-28 ladder). No <code>var/monthly_rebalance_2026-10*</code> file exists.</p>
+<p><strong>0g. TODAY IS UNMARKED - all 10-02 NAVs INDICATIVE.</strong></p>
+<pre><code>(abridged: timestamps without milliseconds, prefixes and trailing advice cut; full lines in var/last_daily_run.log)
+2026-10-02 17:25:05 INFO  check_coverage: date=2026-10-02  closes=4306  baseline(median of 10)=5113  floor=5000 [max(5000, 90%*5113=4601)]
+2026-10-02 17:25:05 ERROR check_coverage: COVERAGE FAIL: only 4306 closes on 2026-10-02 (&lt; floor 5000).
+2026-10-02 17:25:08 INFO  mtm_catchup: PENDING 2026-10-02: coverage 4306 &lt; floor 5000 - leaving unmarked (heals later).
+[OPS 2026-10-02] coverage=PENDING verify=FAIL
+</code></pre>
+<p><code>4306</code> fails both limbs (absolute 5000, relative 4601). <code>daily_refresh</code> retried three times: 841 recovered, then 398, then 0, with 15 still missing. <strong>10-01 healed overnight:</strong> <code>price_cache</code> now holds <strong>5,107</strong> closes for 10-01 (was 4,287 at last night's gate) and <code>paper_nav</code> has 76 rows for 10-01.</p>
+<p><strong>Method for every indicative figure, stated once:</strong></p>
+<pre><code>indicative NAV = paper_portfolio.cash
+               + SUM over open paper_positions of qty x (last close &lt;= 2026-10-02 for that ticker)
+day move       = indicative 2026-10-02 / paper_nav.total_nav(2026-10-01) - 1
+</code></pre>
+<p><strong>The marked 10-01 book ($7,734,943.23) is $34.80 above last night's indicative 10-01 figure ($7,734,908.43).</strong> The cause is the 10-01 closes that arrived after last night's gate (4,287 -&gt; 5,107): the marked row matches today's cache, last night's figure used the partial one. 10-01 priced position value is now <strong>$7,670,339.12</strong> (last night: $7,670,304.32).</p>
+<p><strong>0h. Held-name price coverage: 219 of 223.</strong> Four have no 2026-10-02 close, all flagged by <code>check_anomalies</code>:</p>
+<table>
+<thead>
+<tr>
+<th>ticker</th>
+<th>last close</th>
+<th>held by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APGE</td>
+<td>2026-09-03, $135.07</td>
+<td>6 sleeves (mom_v1/v2, both cohorts; mom_roa_6535, both cohorts)</td>
+</tr>
+<tr>
+<td>CRNX</td>
+<td>2026-09-02, $84.95</td>
+<td>2 sleeves (<code>mom_v1_paper</code>, <code>mom_v1_0701_paper</code>)</td>
+</tr>
+<tr>
+<td>UYSC</td>
+<td>2026-10-01, $11.00</td>
+<td>20 sleeves (all <code>_wk</code>/<code>_2wk</code> rungs w50-w95)</td>
+</tr>
+<tr>
+<td>DMAA</td>
+<td>2026-10-01, $10.89</td>
+<td>18 sleeves (<code>_wk</code>/<code>_2wk</code> rungs w55-w95)</td>
+</tr>
+</tbody>
+</table>
+<p>All four are deal-pinned stubs; the indicative NAV carries each at its last close. <strong>DMAA is back in the no-close set today</strong> after pricing on 10-01, so the set is 4 again, not 3.</p>
+<p><strong>0i. Price anomalies.</strong> No held name crossed the 300% threshold. The split-seam scan flagged <strong>KOD</strong> again (<code>09-25 $32.35 -&gt; 09-28 $89.92</code>), already confirmed as the Phase 3 DAYBREAK result in the 10-01 post-market entry; it closed <strong>$94.45 today (-4.07%)</strong>. <strong>STX and WDC's -10% moves are real</strong>, confirmed by news (section 3a) and by volume in <code>price_cache</code>: <strong>STX 13,521,412 shares vs 2,480,800-3,402,300 on the five prior sessions; WDC 24,651,005 vs 5,935,300-7,429,800.</strong> One caveat on that volume: today's figures are not round hundreds while every prior day's are, which suggests a same-evening, not-yet-final count. The ~5x spike stands either way.</p>
+<p><strong>0j. <code>verify_run</code>: FAIL - and this one is a real finding.</strong></p>
+<pre><code>(abridged; full lines in var/last_daily_run.log)
+verify_run: [FAIL] (rebalance cadence)  last_rebalance(2026-09-01/OK) settled_month(2026-10)
+  - rebalance cadence: last rebalance 2026-09-01 predates the settled month 2026-10 - this month's monthly rebalance has NOT run (check the monthy-llm-rebalance cron, record CN)
+verify_run: RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)
+</code></pre>
+<p>All 76 sleeves pass continuity, ledger and drift ($0.00). <strong>The FAIL is the cadence check, and it is correct</strong>: the October monthly has not run. Last night verify PASSed because 10-01 was not yet a settled day; the morning heal settled it, and now the check sees October. <strong>This is the first time the automation itself has flagged the missing monthly, rather than these entries.</strong> It will FAIL every day until Evan runs the monthly.</p>
+<hr />
+<h3 id="1-market-summary_26">1. Market summary</h3>
+<p><strong>Indices (2026-10-02 close)</strong> (<a href="https://finance.yahoo.com/markets/live/stock-market-today-friday-october-2-dow-sp-500-nasdaq-september-jobs-report-080623878.html">Yahoo Finance live blog, 2026-10-02</a>):</p>
+<table>
+<thead>
+<tr>
+<th>index</th>
+<th>close</th>
+<th>change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S&amp;P 500</td>
+<td><strong>7,722.72</strong></td>
+<td><strong>+56.27 / +0.73%</strong></td>
+</tr>
+<tr>
+<td>Nasdaq Composite</td>
+<td><strong>27,190.86</strong></td>
+<td><strong>+319.27 / +1.19%</strong></td>
+</tr>
+<tr>
+<td>Dow Jones Industrial Average</td>
+<td><strong>51,176.96</strong></td>
+<td><strong>+250.40 / +0.49%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Cross-check against last night's sourced closes: 7,666.45 + 56.27 = 7,722.72 and 50,926.56 + 250.40 = 51,176.96 both reconcile exactly; 26,871.60 + 319.27 = 27,190.87, <strong>one cent off the published 27,190.86</strong> (rounding in the source's change figure; the published level is used). <a href="https://www.cnbc.com/2026/10/01/stock-market-today-live-updates-.html">CNBC's headline</a> (page returned 403; headline only): "Stocks rise Friday after soft jobs data, Nvidia leads Nasdaq to intraday record." Per Yahoo, <strong>the S&amp;P 500 and Dow posted weekly losses and the Nasdaq a weekly gain.</strong> The book's <code>spy_benchmark_paper</code> week is -0.2217% and <code>qqq_benchmark_paper</code> +0.6823%, consistent.</p>
+<p><strong>The jobs report.</strong> BLS, released 08:30 ET (<a href="https://www.bls.gov/news.release/empsit.nr0.htm">BLS Employment Situation, 2026-10-02</a>): "Both nonfarm payroll employment (+29,000) and the unemployment rate (4.2 percent) changed little in September." <strong>July revised down 31,000 and August down 29,000, a combined -60,000.</strong> Average hourly earnings <strong>+0.1% m/m to $37.81, +3.0% y/y.</strong> Against this morning's references (90k median, 4.1% unemployment, +3.2% y/y AHE) <strong>it missed on all three.</strong> <strong>One conflict, flagged and not resolved:</strong> Yahoo writes that unemployment "rose to 4.2%", and this morning's Bloomberg-sourced preview carried August at 4.1%; my fetch of the BLS page summarized August as also 4.2%. <strong>Which August figure is right is not settled by what I read; September at 4.2% is not in dispute.</strong> A first search result claiming "+661,000 and 7.9% unemployment" is from the 2020 report and is discarded.</p>
+<p><strong>Rates.</strong> Yahoo shows the <strong>10-year at 5.28% (+0.04)</strong> at the close. <strong>A soft jobs print with a higher 10-year is counterintuitive, and I have one source for it</strong>, so it is reported, not explained. <strong>Hike odds fell sharply:</strong> Yahoo reports bond traders cut <strong>October hike odds to 16%, from 64% a week earlier.</strong> This morning's entry carried ~35% for October from DeFiRate. These are different sources at different times; the direction (down hard) is what both support.</p>
+<p><strong>Oil</strong> (<a href="https://rigzone.com/news/oil_falls_as_g7_taps_emergency_supplies-02-oct-2026-184766-article">Rigzone, 2026-10-02</a>): <strong>WTI November settled $91.11 (-1.9%); Brent December $102.25 (-0.1%)</strong>; US diesel futures <strong>-3% to $4.50/gal</strong>. French President Macron said the <strong>G7 will release up to 100 million barrels of crude stocks and diesel</strong>. Saudi Arabia raised flows on its cross-country pipeline above 80% of capacity after repairs. <strong>Reconciliation:</strong> this morning's -3.1% Brent / -4% WTI were pre-market snapshots; crude recovered most of it by the settle. Yahoo's WTI figure ($91.26, -1.73%) is an untimed quote, not the settle; <strong>the Rigzone settles are published, Yahoo's is the outlier.</strong> The policy is bigger than this morning's version (50M + 50M proposed by France) - <strong>up to 100M, now announced, G7-wide.</strong></p>
+<p><strong>Sector performance (SPDR proxies from <code>price_cache</code>, 10-01 -&gt; 10-02 closes):</strong></p>
+<table>
+<thead>
+<tr>
+<th>sector ETF</th>
+<th>10-01</th>
+<th>10-02</th>
+<th>change</th>
+<th>book weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XLY Cons. Disc.</td>
+<td>108.81</td>
+<td>110.04</td>
+<td><strong>+1.13%</strong></td>
+<td>3.0133%</td>
+</tr>
+<tr>
+<td>XLK Technology</td>
+<td>197.81</td>
+<td>199.81</td>
+<td><strong>+1.01%</strong></td>
+<td>25.9273%</td>
+</tr>
+<tr>
+<td>XLI Industrials</td>
+<td>168.64</td>
+<td>169.95</td>
+<td>+0.78%</td>
+<td>6.2274%</td>
+</tr>
+<tr>
+<td>XLB Materials</td>
+<td>48.54</td>
+<td>48.86</td>
+<td>+0.66%</td>
+<td>2.7726%</td>
+</tr>
+<tr>
+<td>XLU Utilities</td>
+<td>39.68</td>
+<td>39.83</td>
+<td>+0.38%</td>
+<td>-</td>
+</tr>
+<tr>
+<td>XLC Comm. Svcs</td>
+<td>109.94</td>
+<td>110.32</td>
+<td>+0.35%</td>
+<td>5.7600%</td>
+</tr>
+<tr>
+<td>XLRE Real Estate</td>
+<td>40.68</td>
+<td>40.81</td>
+<td>+0.32%</td>
+<td>0.8826%</td>
+</tr>
+<tr>
+<td>XLP Cons. Staples</td>
+<td>80.33</td>
+<td>80.53</td>
+<td>+0.25%</td>
+<td>3.4056%</td>
+</tr>
+<tr>
+<td>XLE Energy</td>
+<td>62.70</td>
+<td>62.82</td>
+<td>+0.19%</td>
+<td>13.8130%</td>
+</tr>
+<tr>
+<td>XLF Financials</td>
+<td>53.46</td>
+<td>53.49</td>
+<td>+0.06%</td>
+<td>8.9498% (Fin. Svcs)</td>
+</tr>
+<tr>
+<td>XLV Health Care</td>
+<td>166.20</td>
+<td>166.18</td>
+<td><strong>-0.01%</strong></td>
+<td>23.6570%</td>
+</tr>
+</tbody>
+</table>
+<p>Book weights are from <code>paper_positions.sector</code> (the label stored on each position, which also tags sector ETFs such as XLE/XLK), so they will not match a ticker-level sector cache that leaves ETFs unmapped. They merge the duplicate labels flagged last night (<code>Healthcare</code>+<code>Health Care</code>, <code>Basic Materials</code>+<code>Materials</code>); "Index" ETFs (SPY/QQQ) are 5.5345% and one NULL-sector name 0.0566%. <strong>Every SPDR sector rose or was flat. Technology rose +1.01% and the book's technology names lost money</strong>, because the book's largest technology bloc is storage, not the GPU/networking names that led (Nvidia +1.3%, Broadcom +3.3%, AMD +2.9% per Yahoo/TheStreet search excerpt; not held).</p>
+<hr />
+<h3 id="2-full-nav-table---all-76-sleeves-indicative-2026-10-02">2. Full NAV table - all 76 sleeves (INDICATIVE 2026-10-02)</h3>
+<p>Ranked best to worst since inception. <code>nav 10-01</code> is the <strong>marked</strong> <code>paper_nav</code> row; <code>nav 10-02</code> and all three percentage columns are <strong>indicative</strong> per 0g. WTD = indicative 10-02 vs marked 2026-09-25.</p>
+<p>| # | sleeve | nav 10-01 (marked) | nav 10-02 (ind.) | day % | ITD % | WTD % | cash | n |<br />
+| 1 | llm_overlay_mom_roa_top1_paper | 117,487.81 | 115,080.98 | -2.0486 | +15.0810 | -0.6822 | 100.00 | 1 |<br />
+| 2 | llm_cascade_top1_paper | 115,141.19 | 112,782.44 | -2.0486 | +12.7824 | -0.6822 | 98.00 | 1 |<br />
+| 3 | qqq_benchmark_paper | 110,068.98 | 111,188.90 | +1.0175 | +11.1889 | +0.6823 | 0.00 | 1 |<br />
+| 4 | residual_w5545_paper | 109,339.48 | 109,038.40 | -0.2754 | +9.0384 | +1.8011 | 945.59 | 48 |<br />
+| 5 | residual_w6040_paper | 109,005.82 | 108,818.12 | -0.1722 | +8.8181 | +1.8635 | 1,042.31 | 47 |<br />
+| 6 | sector_top4_full_paper | 106,918.46 | 107,463.79 | +0.5100 | +7.4638 | +0.1074 | 24.88 | 4 |<br />
+| 7 | mom_roa_top1_paper | 109,315.23 | 107,075.61 | -2.0488 | +7.0756 | -0.6823 | 82.69 | 1 |<br />
+| 8 | spy_benchmark_paper | 106,014.01 | 106,798.03 | +0.7395 | +6.7980 | -0.2217 | -0.00 | 1 |<br />
+| 9 | residual_w4555_paper | 106,577.72 | 106,308.46 | -0.2526 | +6.3085 | +0.6685 | 911.78 | 49 |<br />
+| 10 | residual_w5050_paper | 106,423.86 | 105,987.83 | -0.4097 | +5.9878 | +1.0929 | 937.19 | 48 |<br />
+| 11 | sector_top4_paper | 105,159.43 | 105,670.54 | +0.4860 | +5.6705 | +0.0911 | 24.83 | 4 |<br />
+| 12 | residual_w6535_paper | 105,384.96 | 105,266.76 | -0.1122 | +5.2668 | +1.7938 | 1,205.37 | 46 |<br />
+| 13 | residual_w4060_paper | 105,473.02 | 105,164.24 | -0.2928 | +5.1642 | +0.4266 | 914.89 | 48 |<br />
+| 14 | residual_w4555_2wk_paper | 105,038.20 | 104,867.33 | -0.1627 | +4.8673 | +0.3266 | 1,048.84 | 49 |<br />
+| 15 | residual_w4060_2wk_paper | 104,824.08 | 104,524.68 | -0.2856 | +4.5247 | -0.1091 | 1,048.75 | 49 |<br />
+| 16 | residual_w5050_wk_paper | 104,641.68 | 104,434.33 | -0.1982 | +4.4343 | +0.5311 | 911.61 | 50 |<br />
+| 17 | residual_w4555_wk_paper | 104,591.89 | 104,258.53 | -0.3187 | +4.2585 | +0.6073 | 11,580.94 | 49 |<br />
+| 18 | residual_w7030_paper | 104,273.93 | 104,243.86 | -0.0288 | +4.2439 | +1.4983 | 41.96 | 46 |<br />
+| 19 | residual_w3565_2wk_paper | 104,331.83 | 103,979.10 | -0.3381 | +3.9791 | -0.3271 | 1,046.23 | 50 |<br />
+| 20 | qqq_benchmark_0706_paper | 102,657.65 | 103,702.17 | +1.0175 | +3.7022 | +0.6823 | 0.00 | 1 |<br />
+| 21 | residual_roa_6535_paper | 103,770.90 | 103,685.92 | -0.0819 | +3.6859 | +1.7527 | 1,033.12 | 47 |<br />
+| 22 | residual_w3565_paper | 103,985.33 | 103,655.48 | -0.3172 | +3.6555 | -0.2786 | 930.43 | 49 |<br />
+| 23 | residual_w6040_wk_paper | 103,916.21 | 103,637.16 | -0.2685 | +3.6372 | +1.1887 | 960.82 | 48 |<br />
+| 24 | residual_w5545_wk_paper | 103,906.46 | 103,403.01 | -0.4845 | +3.4030 | +1.0071 | 800.60 | 50 |<br />
+| 25 | residual_w0595_2wk_paper | 103,662.35 | 103,268.91 | -0.3795 | +3.2689 | -0.9845 | 0.01 | 50 |<br />
+| 26 | residual_w6040_2wk_paper | 103,235.46 | 102,933.93 | -0.2921 | +2.9339 | +1.1407 | 967.44 | 48 |<br />
+| 27 | residual_w0595_paper | 102,976.37 | 102,753.35 | -0.2166 | +2.7533 | -0.6499 | 1.75 | 49 |<br />
+| 28 | residual_w1585_2wk_paper | 102,966.31 | 102,739.83 | -0.2200 | +2.7398 | -0.7821 | 5.00 | 50 |<br />
+| 29 | residual_w3565_wk_paper | 103,042.21 | 102,686.89 | -0.3448 | +2.6869 | -0.1771 | 888.22 | 50 |<br />
+| 30 | residual_w7525_paper | 102,496.79 | 102,605.91 | +0.1065 | +2.6059 | +1.2516 | 47.89 | 46 |<br />
+| 31 | residual_w1585_wk_paper | 102,703.56 | 102,567.78 | -0.1322 | +2.5678 | -0.7398 | 5.72 | 50 |<br />
+| 32 | residual_w9505_paper | 102,530.93 | 102,535.04 | +0.0040 | +2.5350 | -0.3312 | 46.53 | 46 |<br />
+| 33 | llm_overlay_sector_top4_paper | 102,156.62 | 102,481.31 | +0.3178 | +2.4813 | +0.1275 | 23,087.99 | 3 |<br />
+| 34 | spy_benchmark_0701_paper | 101,691.77 | 102,443.83 | +0.7395 | +2.4438 | -0.2217 | 0.00 | 1 |<br />
+| 35 | residual_w5050_2wk_paper | 102,517.32 | 102,305.44 | -0.2067 | +2.3054 | +0.1702 | 1,072.87 | 50 |<br />
+| 36 | residual_w4060_wk_paper | 102,543.07 | 102,301.77 | -0.2353 | +2.3018 | -0.1433 | 889.96 | 49 |<br />
+| 37 | residual_w6535_wk_paper | 102,303.07 | 102,141.41 | -0.1580 | +2.1414 | +1.0829 | 979.77 | 49 |<br />
+| 38 | residual_w5545_2wk_paper | 102,449.96 | 102,122.42 | -0.3197 | +2.1224 | +0.4823 | 932.44 | 50 |<br />
+| 39 | residual_w6535_2wk_paper | 102,201.84 | 102,118.96 | -0.0811 | +2.1190 | +0.9270 | 1,029.36 | 49 |<br />
+| 40 | residual_w8020_paper | 101,865.34 | 101,819.14 | -0.0453 | +1.8191 | +0.7429 | 43.95 | 46 |<br />
+| 41 | residual_w3070_wk_paper | 102,254.34 | 101,815.59 | -0.4291 | +1.8156 | -0.7393 | 1,047.89 | 50 |<br />
+| 42 | residual_w1090_2wk_paper | 101,965.96 | 101,726.12 | -0.2352 | +1.7261 | -0.7565 | 1.53 | 50 |<br />
+| 43 | residual_w2080_2wk_paper | 101,872.70 | 101,697.67 | -0.1718 | +1.6977 | -0.5438 | 55.17 | 50 |<br />
+| 44 | residual_w2080_wk_paper | 101,723.14 | 101,607.89 | -0.1133 | +1.6079 | -0.4145 | 17.60 | 50 |<br />
+| 45 | residual_w1090_paper | 101,603.70 | 101,543.92 | -0.0588 | +1.5439 | -0.6130 | 5.04 | 49 |<br />
+| 46 | residual_w8515_paper | 101,221.19 | 101,204.35 | -0.0166 | +1.2044 | +0.4258 | 48.00 | 46 |<br />
+| 47 | residual_w3070_paper | 101,377.20 | 101,152.82 | -0.2213 | +1.1528 | -0.3063 | 911.22 | 49 |<br />
+| 48 | residual_w1090_wk_paper | 101,351.72 | 101,146.18 | -0.2028 | +1.1462 | -0.6852 | 1.98 | 50 |<br />
+| 49 | residual_w7525_wk_paper | 101,065.77 | 101,041.18 | -0.0243 | +1.0412 | +0.8130 | 18.30 | 49 |<br />
+| 50 | residual_w2080_paper | 101,098.59 | 100,882.54 | -0.2137 | +0.8825 | -0.5494 | 9.52 | 49 |<br />
+| 51 | residual_w2575_paper | 100,325.77 | 100,122.35 | -0.2028 | +0.1224 | -0.6658 | 925.75 | 49 |<br />
+| 52 | residual_w8020_wk_paper | 100,284.92 | 100,093.59 | -0.1908 | +0.0936 | +0.4936 | 21.06 | 49 |<br />
+| 53 | llm_cascade_sector4_paper | 99,588.16 | 100,047.02 | +0.4608 | +0.0470 | -0.2698 | 22.26 | 4 |<br />
+| 54 | residual_w9505_wk_paper | 100,107.60 | 99,964.39 | -0.1431 | -0.0356 | +0.4298 | 17.53 | 48 |<br />
+| 55 | residual_w7030_wk_paper | 99,768.44 | 99,789.21 | +0.0208 | -0.2108 | +0.9871 | 1,069.52 | 49 |<br />
+| 56 | residual_w1585_paper | 99,761.24 | 99,675.95 | -0.0855 | -0.3241 | -0.5525 | 7.17 | 49 |<br />
+| 57 | residual_w2575_wk_paper | 100,099.27 | 99,618.18 | -0.4806 | -0.3818 | -0.5029 | 978.85 | 50 |<br />
+| 58 | residual_w2575_2wk_paper | 100,021.49 | 99,587.75 | -0.4336 | -0.4122 | -0.7414 | 978.85 | 50 |<br />
+| 59 | residual_w3070_2wk_paper | 99,666.16 | 99,376.94 | -0.2902 | -0.6231 | -0.4550 | 1,047.81 | 50 |<br />
+| 60 | residual_w8515_wk_paper | 99,353.03 | 99,122.61 | -0.2319 | -0.8774 | +0.3122 | 19.33 | 48 |<br />
+| 61 | residual_w9010_wk_paper | 99,149.92 | 98,958.01 | -0.1936 | -1.0420 | +0.6230 | 14.95 | 48 |<br />
+| 62 | residual_w9010_paper | 98,965.18 | 98,926.96 | -0.0386 | -1.0730 | -0.5618 | 45.71 | 46 |<br />
+| 63 | residual_w0595_wk_paper | 99,064.50 | 98,716.68 | -0.3511 | -1.2833 | -0.8335 | 0.01 | 50 |<br />
+| 64 | residual_w7030_2wk_paper | 98,037.60 | 98,086.80 | +0.0502 | -1.9132 | +1.1241 | 1,208.09 | 49 |<br />
+| 65 | residual_w7525_2wk_paper | 97,589.49 | 97,616.71 | +0.0279 | -2.3833 | +0.9748 | 17.71 | 49 |<br />
+| 66 | residual_roa_6535_0701_paper | 97,116.62 | 97,080.17 | -0.0375 | -2.9198 | +1.8879 | 76.86 | 46 |<br />
+| 67 | mom_roa_6535_0701_paper | 95,100.01 | 96,626.42 | +1.6051 | -3.3736 | +3.6224 | 23.68 | 50 |<br />
+| 68 | mom_v2_0701_paper | 95,044.41 | 96,120.17 | +1.1319 | -3.8798 | +4.3638 | 62.57 | 50 |<br />
+| 69 | residual_w9505_2wk_paper | 95,559.36 | 95,489.27 | -0.0733 | -4.5107 | +0.4288 | 17.06 | 48 |<br />
+| 70 | mom_v1_0701_paper | 94,181.29 | 95,251.96 | +1.1368 | -4.7480 | +3.1402 | 59.54 | 98 |<br />
+| 71 | residual_w9010_2wk_paper | 95,022.15 | 94,851.49 | -0.1796 | -5.1485 | +0.5022 | 13.78 | 48 |<br />
+| 72 | residual_w8020_2wk_paper | 94,331.78 | 94,120.66 | -0.2238 | -5.8793 | +0.4064 | 18.31 | 49 |<br />
+| 73 | residual_w8515_2wk_paper | 93,863.82 | 93,559.24 | -0.3245 | -6.4408 | +0.0863 | 17.31 | 48 |<br />
+| 74 | mom_roa_6535_paper | 91,470.00 | 92,655.97 | +1.2966 | -7.3440 | +3.2314 | 21.26 | 50 |<br />
+| 75 | mom_v2_paper | 89,299.51 | 90,001.37 | +0.7860 | -9.9986 | +3.6929 | 51.48 | 50 |<br />
+| 76 | mom_v1_paper | 87,046.12 | 87,838.58 | +0.9104 | -12.1614 | +2.5579 | 61.65 | 98 |</p>
+<p><strong>Book: start $7,600,000.00 | marked 10-01 $7,734,943.23 | indicative 10-02 $7,727,978.30 | day -0.0900% (-$6,964.94) | ITD +1.6839% | WTD +0.4410%.</strong> 19 sleeves up, 57 down. Priced position value <strong>$7,663,374.19</strong> across 223 names. Marked 10-01 vs marked 09-30: <strong>+0.9825%</strong>.</p>
+<p><strong>Who rose today, and why it is one pattern:</strong> every benchmark and ETF sleeve (QQQ +1.0175%, SPY +0.7395%, the four sector sleeves +0.32% to +0.51%), all six <code>mom_*</code> sleeves (+0.79% to +1.61%), and five high-residual rungs that were barely positive (+0.0040% to +0.1065%). The <code>mom_*</code> sleeves hold STX and WDC too, so their gain is not avoidance; they carry KOD, KLAC, SCCO and other names that rose. <strong>The three MU-only sleeves fell -2.0486% each</strong>, the single-name cost of MU's -2.05%.</p>
+<hr />
+<h3 id="3-key-position-analysis_50">3. Key position analysis</h3>
+<p><strong>3a. STX and WDC: -10.2% each on a competitor's capacity plan - the day's whole story.</strong></p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>10-01</th>
+<th>10-02</th>
+<th>day</th>
+<th>sleeves</th>
+<th>value 10-02</th>
+<th>day $</th>
+<th>unrealized</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STX</td>
+<td>945.57</td>
+<td>848.99</td>
+<td><strong>-10.21%</strong></td>
+<td>65</td>
+<td>$154,655.47</td>
+<td><strong>-$17,593.41</strong></td>
+<td>+16.06%</td>
+</tr>
+<tr>
+<td>WDC</td>
+<td>462.56</td>
+<td>415.29</td>
+<td><strong>-10.22%</strong></td>
+<td>65</td>
+<td>$124,242.71</td>
+<td><strong>-$14,141.81</strong></td>
+<td><strong>-9.73%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cause, confirmed by several sources:</strong> Toshiba plans to <strong>double its HDD production capacity</strong> for AI data-center drives, centered on its Philippines plant, with a medium-term target of <strong>30% of the market by storage capacity</strong> (<a href="https://finance.yahoo.com/markets/stocks/articles/seagate-tumbles-10-western-digital-125250923.html">Yahoo Finance, 2026-10-02 07:52 CDT</a>; <a href="https://www.benzinga.com/markets/tech/26/10/62134172/why-is-seagate-technology-stock-sinking-friday">Benzinga</a>; <a href="https://www.gurufocus.com/news/9108081/seagate-technology-stx-shares-drop-1021-amid-sector-challenges-on-october-2-2026">GuruFocus</a>). Search-result excerpts put the investment at <strong>about 60 billion yen (~$380 million), by fiscal 2027</strong>; a <a href="https://parameter.io/toshibas-400m-hard-drive-investment-triggers-sharp-selloff-in-seagate-stx-and-western-digital/">Parameter</a> headline says "$400M". <strong>The Yahoo article I fetched gives no amount or timeline, so the amount is excerpt-sourced; ~60bn yen is the figure with a currency attached and is the one carried, $400M is the rounded outlier.</strong> GuruFocus's close of <strong>$848.99 (-$96.58, -10.21%)</strong> matches the DB to the cent; one excerpt cites an intraday low near <strong>$819.18 (-13.37%)</strong>.</p>
+<p><strong>Why the market cared - the companies' own words.</strong> The Yahoo piece quotes WDC CEO Irving Tan on the tight supply environment giving "increased pricing leverage", and Seagate CEO Dave Mosley that "the total number of units is not really increasing." <strong>The bull case on both stocks has been supply discipline; a third producer doubling capacity attacks exactly that.</strong> Both companies beat estimates every quarter of fiscal 2026 (search excerpt), so the move is about future pricing, not current results.</p>
+<p><strong>What it means for this book.</strong> STX and WDC sit in <strong>the same 65 sleeves</strong>: every residual rung (57), both <code>residual_roa_6535</code> sleeves, and all six <code>mom_*</code> sleeves. Together they were <strong>$310,633.40 at the 10-01 close, about 4.05% of priced value (10-01 base $7,670,339.12)</strong>. <strong>WDC is now underwater (-9.73%)</strong>; it was bought at higher prices across several rebalances. <strong>This is the concentration flagged in last night's 7g, in its sharpest form: the two names are one bet (HDD supply discipline), held identically by 65 sleeves, and one press report cut $31,735.22 in a session the index rose.</strong> No sleeve has a stop, so nothing triggers.</p>
+<p><strong>3b. MU -2.05%: likely read-through, not MU news.</strong> MU closed <strong>$1,074.89</strong> (from $1,097.39), costing <strong>-$11,614.57</strong> across 62 sleeves, on volume of 26,523,742 against 45,735,400 on 10-01. <strong>I found no MU-specific 10-02 news.</strong> The search returned older items (a 2026 drawdown story, capex). <strong>The memory read-through from an HDD supply headline is plausible but is my inference, not a sourced claim.</strong> MU is still <strong>7.2404% of priced value, +36.86% unrealized</strong>.</p>
+<p><strong>3c. Semicap held up: LRCX +2.17%, AMAT +2.03%, KLAC +3.27%, TER +8.00%, AEHR +5.52%.</strong> Same storage/semis bloc, opposite direction. LRCX (+$3,160.32), KLAC (+$2,773.75) and AMAT (+$2,506.90) were three of the four biggest dollar gainers. <strong>TER +8.00% and MXL +14.99% have no 10-02 catalyst I could find</strong>: searches returned only older results (TER's July earnings, MXL's May rally). They are reported as unexplained, not filled in. That semicap rose while storage fell 10% supports reading 3a as a storage-specific supply story, not a semis-wide de-rating.</p>
+<p><strong>3d. FICO: the pre-market -6.6% to -8% did not survive the session.</strong> FICO closed <strong>$661.25 vs $661.75 (-0.08%)</strong>, 30 sleeves, $39,673.92. Yahoo reported a <strong>-8% pre-market</strong> move on the bi-merge report (<a href="https://finance.yahoo.com/markets/stocks/article/fair-isaac-stock-pops-11-2-days-after-rout-even-as-bofa-cuts-price-target-175347281.html">Yahoo Finance</a>). A search excerpt gives an intraday range of <strong>$599.72 to $675.38</strong> - not fetched, so not relied on. <strong>This morning's entry estimated a -$2,620.46 to -$2,739.57 hit; the realized move was about -$30.</strong> The FHFA bi-merge announcement possibly on <strong>2026-10-12</strong> (Pulte) is still pending. FICO's path: 09-28 $840.89 -&gt; 09-29 $617.87 -&gt; 09-30 $592.47 -&gt; 10-01 $661.75 -&gt; 10-02 $661.25.</p>
+<p><strong>3e. Energy: the refiner prediction logged this morning held.</strong> This morning's 6b logged: "the 7-refiner basket underperforms APA + TPL + NRT on 2026-10-02."</p>
+<table>
+<thead>
+<tr>
+<th>basket</th>
+<th>names</th>
+<th>equal-weight</th>
+<th>value-weighted (10-01 base)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refiners</td>
+<td>VLO -0.53, PARR -2.56, DINO +0.59, PSX +0.13, MPC +0.52, DK -0.20, PBF -1.89</td>
+<td>-0.56%</td>
+<td><strong>-0.5501%</strong> ($318,743.68)</td>
+</tr>
+<tr>
+<td>E&amp;P + royalty</td>
+<td>APA +0.78, TPL +1.11, NRT +0.71</td>
+<td>+0.87%</td>
+<td><strong>+0.8648%</strong> ($187,635.61)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gap about -1.4pp, prediction held.</strong> Mechanism fits: US diesel futures -3% while WTI -1.9% and Brent -0.1% (Rigzone) - the diesel crack, which refiners earn, fell more than crude. <strong>One day, one data point</strong>; it does not upgrade the energy concept in 7d. <strong>NGL +4.42%</strong> (35 sleeves, +$2,273.77) and <strong>INSW +1.06%</strong> (44 sleeves, $136,347.40) rose; no catalyst searched for either.</p>
+<p><strong>3f. Healthcare drags, no catalyst found:</strong> <strong>UTHR -5.19%</strong> ($571.38 -&gt; $541.70, 29 sleeves, -$3,606.13), <strong>NRC -4.55%</strong> ($21.32 -&gt; $20.35, 41 sleeves, -$4,613.57), <strong>AXGN -6.34%</strong> (14 sleeves), <strong>CRMD -3.10%</strong> (24 sleeves), <strong>KOD -4.07%</strong>. Searches for UTHR and NRC on 10-02 returned only older items (UTHR's Q2 revenue miss; NRC earnings expected <strong>2026-10-27</strong>). <strong>UTHR gave back part of its two-day LQDA-ruling gain; that is a plausible reading, not a sourced one.</strong> LQDA itself closed <strong>$28.64 (+2.32%)</strong>.</p>
+<p><strong>3g. ETON +6.50% ($51.98 -&gt; $55.36)</strong> recovers part of the 09-30 -13.01% drop. <strong>Both moves are still unexplained</strong>, now three sessions on.</p>
+<p><strong>3h. EDRY +0.27% ($55.88)</strong> after 10-01's unexplained +8.15%. Still no catalyst.</p>
+<p><strong>3i. WBD $30.94</strong> (-$0.01), the pinned stub in 10 rungs. Deal close expected <strong>2026-10-06</strong> (this morning's 0i).</p>
+<p><strong>3j. Nothing approaching a stop or target</strong>, because the systematic sleeves have none. The only levels are the LLM invalidations in section 4.</p>
+<hr />
+<h3 id="4-llm-overlay-treatment-vs-control_21">4. LLM overlay: treatment vs control</h3>
+<table>
+<thead>
+<tr>
+<th>arm</th>
+<th>treatment ITD</th>
+<th>control ITD</th>
+<th>spread</th>
+<th>day (t / c)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stock top-1</td>
+<td><strong>+15.0810%</strong></td>
+<td>+7.0756%</td>
+<td><strong>+8.0054pp</strong></td>
+<td>-2.0486% / -2.0488%</td>
+</tr>
+<tr>
+<td>Stock cascade</td>
+<td>+12.7824%</td>
+<td>(vs control)</td>
+<td>+5.7068pp</td>
+<td>-2.0486%</td>
+</tr>
+<tr>
+<td>Macro sector-4</td>
+<td>+2.4813%</td>
+<td>+5.6705%</td>
+<td><strong>-3.1892pp</strong></td>
+<td>+0.3178% / +0.4860%</td>
+</tr>
+<tr>
+<td>Macro cascade</td>
+<td>+0.0470%</td>
+<td>(vs control)</td>
+<td>-5.6235pp</td>
+<td>+0.4608%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4a. Stock arm.</strong> All three sleeves hold only MU, so they moved together (-2.0486% to -2.0488%) and the spread narrowed from +8.1726pp to +8.0054pp only because a percentage loss on a larger base is a larger point loss. <strong>The cause is still the BE veto</strong> (last night's 4a). <strong>MU $1,074.89 vs $820.00 invalidation = 31.08% above.</strong> <code>llm_overlay_log</code> = <strong>14 rows</strong> (<code>count(*)</code>), 5 BUY / 9 VETO, latest <code>decision_date</code> 2026-09-01. No October decisions exist; they are written by the blocked monthly.</p>
+<p><strong>4b. Macro arm.</strong> Treatment lost ground again on a day every sector rose: <strong>$23,087.99 (22.53% of NAV) idle</strong> since the 09-01 XLI veto, and XLI rose <strong>+0.78%</strong> today. The control holds XLI; the treatment does not. <strong>The spread widened from -3.0028pp to -3.1892pp.</strong> XLI's 09-01 veto level was <strong>$170.00</strong>; XLI closed <strong>$169.95</strong> - five cents under the veto level.</p>
+<p><strong>4c. XLB invalidation: 17th consecutive session breached.</strong> XLB <strong>$48.86</strong> vs <strong>$51.00</strong> (up +0.66% today, still 4.20% under). The cascade holds it; zero enforcement, because enforcement waits for a monthly that has not run.</p>
+<hr />
+<h3 id="5-week-and-period-summary_21">5. Week and period summary</h3>
+<p><strong>5a. Week (marked Friday 2026-09-25 -&gt; indicative Friday 2026-10-02).</strong></p>
+<p>Book <strong>+0.4410%</strong> vs <code>spy_benchmark_paper</code> <strong>-0.2217%</strong> and <code>qqq_benchmark_paper</code> <strong>+0.6823%</strong>. S&amp;P 500 and Dow weekly losses, Nasdaq gain (Yahoo).</p>
+<ul>
+<li><strong>Best week:</strong> <code>mom_v2_0701_paper</code> <strong>+4.3638%</strong>, <code>mom_v2_paper</code> <strong>+3.6929%</strong>, <code>mom_roa_6535_0701_paper</code> +3.6224%, <code>mom_roa_6535_paper</code> +3.2314%, <code>mom_v1_0701_paper</code> +3.1402%.</li>
+<li><strong>Worst week:</strong> <code>residual_w0595_2wk_paper</code> <strong>-0.9845%</strong>, <code>residual_w0595_wk_paper</code> -0.8335%, <code>residual_w1585_2wk_paper</code> -0.7821%, <code>residual_w1090_2wk_paper</code> -0.7565%, <code>residual_w2575_2wk_paper</code> -0.7414%.</li>
+</ul>
+<p><strong>The <code>mom_v*</code> weekly lead is mostly KOD, measured.</strong> KOD went $32.35 -&gt; $94.45 over the week. Its contribution as a share of each sleeve's 09-25 NAV: <strong><code>mom_v2_0701_paper</code> 2.9752pp</strong> (of +4.3638%), <strong><code>mom_v2_paper</code> 2.6715pp</strong> (of +3.6929%), <code>mom_v1_0701_paper</code> 1.5270pp (of +3.1402%), <code>mom_v1_paper</code> 1.3164pp (of +2.5579%). <strong>One Phase 3 readout is 68% to 72% of the two <code>mom_v2</code> sleeves' week.</strong> The <code>mom_roa_6535</code> sleeves do not hold KOD and still had +3.2% to +3.6%. Those I did not decompose.</p>
+<p><strong>The week's other half:</strong> STX -7.40% (09-25 $916.83 -&gt; $848.99) and WDC -9.09% ($456.81 -&gt; $415.29), nearly all of it today.</p>
+<p><strong>5b. Realized record unchanged:</strong> 5,999 closed positions, <strong>-$128,945.15 realized</strong> on $12,666,756.29 of entry value. No exits since 09-28.</p>
+<p><strong>5c. The October monthly: two fires, zero effect, and the automation now agrees.</strong> Fires at 2026-10-01 18:01:32 and 2026-10-02 18:01:45 CDT. No position changes, no run log, <code>last_rebalanced_at</code> unchanged. <strong><code>verify_run</code> FAILs the cadence check as of tonight (0j).</strong> The task fires again Saturday through Monday (<code>1-5</code>). <strong>Every slipped day, the ranking runs on different prices</strong>: today alone moved STX/WDC 10% and MU 2%, both large in every momentum ranking. <strong>BLOCKED-ON-EVAN; nothing here works around it.</strong></p>
+<p><strong>5d. Coverage.</strong> The 17:15 gate stamped PENDING again: <strong>19 consecutive trading days counted from 2026-09-08</strong> (extending last night's count of 18). That anchor undercounts: <code>var/ops_status.log</code> has 62 <code>coverage=PENDING</code> stamps back to 2026-07-10, and every PASS stamp since 09-07 (09-07, 09-12, 09-13, 09-20, 09-26) is a holiday or weekend. The true start of the run is not recounted here. Each day has healed later (10-01 healed this morning at 5,107 closes). <strong>The gate works as designed; the cost is that every evening entry is indicative.</strong></p>
+<p><strong>5e. Calendar.</strong> 10-06 WBD deal close (expected). 10-07 end of China's National Day, fuel-export permits. 10-12 possible FHFA bi-merge announcement (FICO). 10-21 to 10-23 TGTX ENHANCE data. 10-27 NRC earnings. 10-27/28 FOMC (16% hike odds per Yahoo).</p>
+<hr />
+<h3 id="6-ladder-gradient-and-the-structural-read_22">6. Ladder gradient and the structural read</h3>
+<p><strong>6a. Today's regression - residual weight vs return across the 19 rungs of each cadence:</strong></p>
+<table>
+<thead>
+<tr>
+<th>cadence</th>
+<th>ITD slope (pp/pp)</th>
+<th>R2</th>
+<th>DAY slope (pp/pp)</th>
+<th>R2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>monthly</td>
+<td>+0.011604</td>
+<td>0.0126</td>
+<td>+0.002382</td>
+<td>0.2542</td>
+</tr>
+<tr>
+<td>weekly</td>
+<td>-0.014137</td>
+<td>0.0482</td>
+<td>+0.001822</td>
+<td>0.1353</td>
+</tr>
+<tr>
+<td>biweekly</td>
+<td><strong>-0.091671</strong></td>
+<td><strong>0.5022</strong></td>
+<td>+0.002255</td>
+<td>0.2391</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The day gradient was small and positive (high-residual rungs lost less), and it was NOT driven by today's biggest move.</strong> STX and WDC are held by <strong>all 57 rungs</strong>, so they hit low- and high-residual rungs alike. The gradient came from what differs: <strong>FICO</strong> (rungs w05-w50 only; flat today) and <strong>MU</strong> (w15-w95; -2.05%) are not it either. <strong>I did not decompose it further, so its cause is not stated.</strong> Day slopes of +0.0018 to +0.0024 with R2 0.14-0.25 are about 7x smaller than last night's +0.016-0.017 (R2 0.69-0.75). <strong>Today does not repeat last night's factor reading.</strong></p>
+<p><strong>6b. ITD gradient, fifth basis.</strong> Monthly ITD slope: <strong>+0.0140, +0.0012, -0.0079, +0.0092, now +0.0116</strong>, R2 <strong>0.0126</strong>. It still explains about 1% of cross-rung variance. <strong>Last night's conclusion stands: the monthly ladder's ITD gradient is indistinguishable from zero.</strong> The biweekly negative slope is again the only tight fit (R2 0.5022, from 0.5168): one cadence, one sign, and it says more residual weight did <em>worse</em>.</p>
+<p><strong>6c. Cohorts against their benchmarks (indicative 10-02).</strong></p>
+<p><strong>2026-05-01 cohort</strong> (the 57 residual rungs' NAV series also start 2026-05-01; <code>paper_portfolio.initialized_at</code> shows they were created 2026-07-14 and backfilled - see records):</p>
+<table>
+<thead>
+<tr>
+<th>sleeve</th>
+<th>ITD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>qqq_benchmark_paper</td>
+<td>+11.1889%</td>
+</tr>
+<tr>
+<td>sector_top4_full_paper</td>
+<td>+7.4638%</td>
+</tr>
+<tr>
+<td>spy_benchmark_paper</td>
+<td>+6.7980%</td>
+</tr>
+<tr>
+<td>residual_roa_6535_paper</td>
+<td>+3.6859%</td>
+</tr>
+<tr>
+<td>57 residual rungs</td>
+<td>mean +1.6488%, median +1.8191%; <strong>2 of 57 above SPY</strong> (w5545, w6040 monthly), <strong>0 above QQQ</strong>, 41 above zero</td>
+</tr>
+<tr>
+<td>mom_roa_6535_paper</td>
+<td>-7.3440%</td>
+</tr>
+<tr>
+<td>mom_v2_paper</td>
+<td>-9.9986%</td>
+</tr>
+<tr>
+<td>mom_v1_paper</td>
+<td>-12.1614%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2026-07-01 / 07-06 cohort</strong> (not to be pooled with the above):</p>
+<table>
+<thead>
+<tr>
+<th>sleeve</th>
+<th>ITD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>qqq_benchmark_0706_paper</td>
+<td>+3.7022%</td>
+</tr>
+<tr>
+<td>spy_benchmark_0701_paper</td>
+<td>+2.4438%</td>
+</tr>
+<tr>
+<td>residual_roa_6535_0701_paper</td>
+<td>-2.9198%</td>
+</tr>
+<tr>
+<td>mom_roa_6535_0701_paper</td>
+<td>-3.3736%</td>
+</tr>
+<tr>
+<td>mom_v2_0701_paper</td>
+<td>-3.8798%</td>
+</tr>
+<tr>
+<td>mom_v1_0701_paper</td>
+<td>-4.7480%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every systematic stock sleeve trails both benchmarks in both cohorts.</strong> That was true last night and the 10-02 storage drop widened it: SPY gained +0.74% and QQQ +1.02% while the 57 rungs ranged -0.4845% to +0.1065%.</p>
+<hr />
+<h3 id="7-strategic-insights_8">7. Strategic insights</h3>
+<p><strong>7a. Verdict first: today is the plainest evidence yet that the book's breadth is fake.</strong> 76 sleeves, 223 names, 3,288 positions - and <strong>one press report about a third company's factory cut the book $31,735.22 on an up day, because 65 sleeves hold the same two names.</strong> Last night's 7g said sleeve count is uncorrelated with how consequential a name turns out to be. Today adds the other half: <strong>the names that 65 sleeves agree on are correlated with each other</strong> (STX and WDC fell -10.21% and -10.22%, 0.01pp apart). Counted by independent bets, the book is far smaller than 76.</p>
+<p><strong>7b. What this supports, as a research question and not a recommendation:</strong> a cap on how many sleeves may hold one <em>theme</em> (e.g. HDD storage), not just one name. The measurable form: in backtest, does a cross-sleeve exposure cap change the ladder's variance without changing its mean? <strong>That would be a portfolio-construction rule over the existing sleeves, not a new sleeve.</strong> No edge claim follows; the evidence is one day.</p>
+<p><strong>7c. The refiner prediction held - first scored pre-registration from these entries.</strong> Refiners -0.55% vs E&amp;P/royalty +0.86% (3e), on the day the diesel crack was squeezed by a G7 release. <strong>This supports "refiners trade the crack, not crude" as a mechanism.</strong> It does not support an energy sleeve: one day, two baskets, and the logged prediction was a direction, not a size. Bar unchanged.</p>
+<p><strong>7d. The <code>mom_v2</code> weekly lead is a lottery ticket that paid, and it should be labeled so.</strong> 68-72% of the two <code>mom_v2</code> sleeves' week was one biotech readout (KOD, 5a). <strong>A momentum screen that bought KOD two months before an unpredictable trial result was not forecasting the trial.</strong> This does not argue against the sleeves; it argues against reading any single week's ranking as skill.</p>
+<p><strong>7e. Not supported by today's data:</strong><br />
+- <strong>That the residual ladder rewards residual weight.</strong> Monthly ITD slope +0.0116 at R2 0.0126, fifth basis in four days (6b).<br />
+- <strong>That any systematic stock sleeve has beaten its benchmark.</strong> None has, in either cohort (6c).<br />
+- <strong>That the LLM stock arm's lead grew or shrank on skill.</strong> All three arms hold MU; today was arithmetic (4a).</p>
+<p><strong>7f. No new sleeve concept is supported by today's data.</strong> The one candidate (7b) is a constraint on the existing sleeves, and its prior evidence is one session.</p>
+<hr />
 </div>
 </body>
 </html>
