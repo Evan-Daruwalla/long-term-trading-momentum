@@ -60165,3 +60165,221 @@ Book **+0.4410%** vs `spy_benchmark_paper` **-0.2217%** and `qqq_benchmark_paper
 **7f. No new sleeve concept is supported by today's data.** The one candidate (7b) is a constraint on the existing sleeves, and its prior evidence is one session.
 
 ---
+
+## Report: 2026-10-05 (Monday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **The last session (Fri 2026-10-02) is MARKED.** `max(nav_date)` in `paper_nav` = **2026-10-02** (76 rows). Coverage for 10-02 healed over the weekend: **5,105 closes** at the 2026-10-04 17:25 gate (floor 5000, PASS). All NAVs below are marked closes, not indicative.
+>
+> **Book: $7,727,980.66 marked 10-02, ITD +1.6840%** on $7,600,000.00; day **-0.0900% (-$6,962.57)** vs marked 10-01; week **+0.4410%** vs marked 09-25. The marked figure is $2.36 above Friday night's indicative $7,727,978.30. **No trades since the 2026-09-28 ladder** (0 entries, 0 exits dated >= 2026-10-01). **Leaders:** `llm_overlay_mom_roa_top1_paper` +15.0810%, `llm_cascade_top1_paper` +12.7824%, `qqq_benchmark_paper` +11.1889%. **Laggards:** `mom_v1_paper` -12.1614%, `mom_v2_paper` -9.9986%, `mom_roa_6535_paper` -7.3440%.
+>
+> **Pre-market (Yahoo, 06:54 CDT, vs Friday settle):** S&P futures **-0.05%**, Nasdaq-100 **-0.17%**, Dow **-0.03%**, Russell **+0.14%**; VIX **16.17 (+5.62%)**. Held names vs Friday's DB close: **STX +2.10%** and **WDC +1.50%** (partial bounce after Friday's -10.2% each on Toshiba's HDD capacity plan), **MU -0.49%**, **EDRY +3.82%** and **INSW +1.87%** (thin), **EXEL +1.90%** (3 prints), **FICO +1.29%**. Sum across the 41 held names with a print: about **+$2,646.84** (0.034% of book) - thin quotes, indicative only.
+>
+> **Macro:** Oil mixed after the **G7 agreed (10-02) to release 100M barrels of crude and diesel over four months**: WTI **$90.26 (-0.93%)**, Brent Dec **$102.63 (+0.37%)** at 06:54 CDT, after trading down to **$101.72** at 06:40 GMT ([AA](https://www.aa.com.tr/en/energy/oil/brent-crude-slips-as-g7-oil-reserve-release-eases-supply-concerns/60045)). **Heating oil (diesel proxy) +2.07% to $4.5944** - the refining-margin input moved opposite to crude. 10-year closed Friday at **5.277%** (+4.0bp). Today: **ISM Services 10:00 ET**. Week: **FOMC September minutes Wed 10-07 14:00 ET**; CPI is **10-14**, not this week.
+>
+> **LLM overlay (marked 10-02):** stock arm treatment **+15.0810%** vs control **+7.0756%**, spread **+8.0054pp** (still all from the 08-03 BE veto; all three hold only MU). Macro arm treatment **+2.4813%** vs control **+5.6705%**, **-3.1892pp**, $23,087.99 idle. **XLB $48.86 vs $51.00 invalidation: 17 closes below it (first 2026-09-10), zero enforcement.** `llm_overlay_log` = 14 rows (`count(*)`), 5 BUY / 9 VETO; `sector_overlay_log` = 27 rows.
+>
+> **Critical outstanding:** (1) **October monthly rebalance still undone, BLOCKED-ON-EVAN.** `verify_run` FAILs rebalance cadence on every run since 10-02. **Today's ~18:01 CDT fire is the LAST one in the cron's `1-5` window**; after it, the task does not fire again until 2026-11-01. (2) **WBD cash deal expected to close TUESDAY 10-06** at **$31.01666668/share**: 10 ladder rungs, 695.2733 shares, cost $21,494.69, payout $21,565.06 (**+$70.37** vs cost, +$53.30 vs Friday's mark). From 10-06 on, WBD becomes a no-close name like **APGE** and **CRNX** (both still stale). (3) Concentration: **MU = $149,432.23 of the book's $256,925.81 unrealized gain (58.16%)**; STX and WDC are each held by 65 sleeves.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Mon Oct  5 07:01:44 CDT 2026`, offset `-0500` -> **CDT**. Local date **2026-10-05**, weekday **Monday**. Every time in this entry is CDT unless marked GMT/UTC/ET.
+
+**0b. Market status.** Monday 2026-10-05 is a normal NYSE/Nasdaq trading day (no holiday). ISM Services is due at 10:00 ET ([finviz week ahead, 2026-10-01](https://finviz.com/news/397961/the-week-ahead-fomc-meeting-minutes-take-center-stage)).
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-05 \(Monday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. Not a re-fire.
+
+**0d. Cron echo** (from `list_scheduled_tasks`, read this run at about 07:02):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-06T12:01:23Z | **2026-10-05T12:01:38Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-06T00:04:22Z | 2026-10-03T00:05:05Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | **2026-10-05T23:01:03Z** | 2026-10-04T23:01:11Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-06T12:09:01Z | 2026-10-04T12:09:03Z | 541s |
+
+**This run fired at 07:01:38 CDT**, consistent with `0 7 * * 1-5` + jitter. No drift on this task. The doc discrepancy flagged on 10-02 stands: this task's prompt says it fires at 07:07; the live schedule fires at about 07:01. Both precede the 07:45 heal. **`monthy-llm-rebalance` last fired Sun 10-04 at 18:01:11 CDT** and fires once more today at about 18:01; **10-05 is the last day of `1-5`**, so if Evan has not run October by hand, nothing scheduled retries it this month. **`daily-audit` shows lastRunAt 2026-10-04 and nextRunAt 2026-10-06** while today's 07:09 fire was not yet due - the same display seen on 10-02, which that evening's entry confirmed was a normal in-window fire.
+
+**0e. DB opened read-only** as `file:var/trades.db?mode=ro`, `uri=True`, for every query behind this entry.
+
+**0f. Morning heal.** `TradingMorningMTM` runs at 07:45, after this compile. The last session (10-02) is already marked and Sat/Sun are not trading days, so no session is pending for it. The 2026-10-04 07:55 morning run logged `marked=0 ... latest=2026-10-02 coverage_ok=True pending=none`.
+
+**0g. Last session MARKED.** `max(nav_date)` = **2026-10-02**, 76 rows (10-01, 09-30, 09-29, 09-28 also 76 each). The 10-02 gate failed Friday night (`closes=4306`, per the 10-02 post-market entry; that log line has since been overwritten); the weekend re-runs healed it:
+
+```
+2026-10-04 17:25:20 INFO check_coverage: Coverage check: date=2026-10-02  closes=5105  baseline(median of 10)=5113  floor=5000 [max(5000, 90%*5113=4601)]
+2026-10-04 17:25:20 INFO check_coverage: COVERAGE PASS: 5105 closes on 2026-10-02 (>= floor 5000).
+2026-10-04 17:25:23 INFO mtm_catchup: catch-up done: marked=0 skipped_pre_rebalance=0 latest=2026-10-02 coverage_ok=True pending=none
+```
+
+`marked=0` at that run means 10-02 had already been marked by an earlier weekend run; this entry did not trace which one. `var/ops_status.log` shows `coverage=PASS` on 10-03 and 10-04 and `verify=FAIL` on every line since 10-02 (cause in 0i).
+
+**0h. Held tickers missing a recent close.** 223 distinct open tickers. As of 10-02: **APGE** (last close 2026-09-03, $135.07; 6 sleeves) and **CRNX** (last close 2026-09-02, $84.95; 2 sleeves) - both deal-closed stubs, flagged `NOCLOSE` by `check_anomalies`. **UYSC ($11.00) and DMAA ($10.89) now carry 10-02 closes**; Friday night's entry listed them as missing at the 17:15 gate, and the weekend refresh filled them. **WBD** joins the no-close list from 10-06 if the merger closes as expected (section 3b).
+
+**0i. verify_run FAIL - rebalance cadence only.** Last line of the 2026-10-04 20:30 ladder-run verify: `RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)` - `last rebalance 2026-09-01 predates the settled month 2026-10`. All 76 sleeves pass continuity, ledger, drift and pre-inception checks. The FAIL is the undone October monthly, nothing else.
+
+**0j. Price anomalies.** No held name crossed the 300% threshold. The split-seam scan (non-blocking) flagged again: **KOD** (`09-25 $32.35 -> 09-28 $89.92`, 2.7796x; the Phase 3 DAYBREAK result, confirmed in the 10-01 post-market entry) and **LQDA** (`09-29 $70.69 -> 09-30 $30.26`, 0.4281x; closed $28.64 on 10-02). Neither is a split ratio, both were matched to news in earlier entries, and nothing new was found on either this morning.
+
+---
+
+### 1. Portfolio standings from last close (MARKED 2026-10-02)
+
+**Book:** 76 sleeves, **$7,727,980.66**, ITD **+1.6840%**, day -0.0900% (-$6,962.57), week +0.4410%, vs marked 09-30 +0.8916%. Priced position value $7,663,376.55 against open cost $7,406,450.74 -> **unrealized +$256,925.81** (APGE and CRNX carried at stale September marks).
+
+**Top 10 and bottom 10 by ITD:**
+
+| rank | sleeve | NAV | ITD | day 10-02 | week |
+|---|---|---|---|---|---|
+| 1 | `llm_overlay_mom_roa_top1_paper` | $115,080.98 | +15.0810% | -2.0486% | -0.6822% |
+| 2 | `llm_cascade_top1_paper` | $112,782.44 | +12.7824% | -2.0486% | -0.6822% |
+| 3 | `qqq_benchmark_paper` | $111,188.90 | +11.1889% | +1.0175% | +0.6823% |
+| 4 | `residual_w5545_paper` | $109,038.40 | +9.0384% | -0.2754% | +1.8011% |
+| 5 | `residual_w6040_paper` | $108,818.12 | +8.8181% | -0.1722% | +1.8635% |
+| 6 | `sector_top4_full_paper` | $107,463.79 | +7.4638% | +0.5100% | +0.1074% |
+| 7 | `mom_roa_top1_paper` | $107,075.61 | +7.0756% | -2.0488% | -0.6823% |
+| 8 | `spy_benchmark_paper` | $106,798.03 | +6.7980% | +0.7395% | -0.2217% |
+| 9 | `residual_w4555_paper` | $106,308.46 | +6.3085% | -0.2526% | +0.6685% |
+| 10 | `residual_w5050_paper` | $105,987.83 | +5.9878% | -0.4097% | +1.0929% |
+| 67 | `mom_roa_6535_0701_paper` | $96,626.42 | -3.3736% | +1.6051% | +3.6224% |
+| 68 | `mom_v2_0701_paper` | $96,120.17 | -3.8798% | +1.1319% | +4.3638% |
+| 69 | `residual_w9505_2wk_paper` | $95,489.35 | -4.5106% | -0.0733% | +0.4289% |
+| 70 | `mom_v1_0701_paper` | $95,251.96 | -4.7480% | +1.1368% | +3.1402% |
+| 71 | `residual_w9010_2wk_paper` | $94,851.57 | -5.1484% | -0.1795% | +0.5022% |
+| 72 | `residual_w8020_2wk_paper` | $94,120.73 | -5.8793% | -0.2237% | +0.4065% |
+| 73 | `residual_w8515_2wk_paper` | $93,559.32 | -6.4407% | -0.3244% | +0.0864% |
+| 74 | `mom_roa_6535_paper` | $92,655.97 | -7.3440% | +1.2966% | +3.2314% |
+| 75 | `mom_v2_paper` | $90,001.37 | -9.9986% | +0.7860% | +3.6929% |
+| 76 | `mom_v1_paper` | $87,838.58 | -12.1614% | +0.9104% | +2.5579% |
+
+The full 76-row table is in the 10-02 post-market entry (indicative); the marked values match it to within cents (e.g. `residual_w8515_2wk_paper` -6.4407% marked vs -6.4408% indicative).
+
+**Sector weights of priced position value:** Technology **25.93%**, Healthcare **22.33%** (+ XLV, labelled "Health Care", 1.32% -> **23.65%**), Energy 13.81%, Financial Services 8.95%, Industrials 6.23%, Communication Services 5.76%, Index 5.53%. **Technology and Healthcare are both above 20%**, so both got sector searches (section 3).
+
+**Largest positions (book-wide):** MU $554,861.40 (7.2404%, 62 sleeves), QQQ 2.8041%, SPY 2.7304%, **STX 2.0181% (65 sleeves)**, LRCX 1.9391%, INSW 1.7792%, AMAT 1.6449%, **WDC 1.6213% (65 sleeves)**, XLK 1.4844%, TGTX 1.4431%.
+
+---
+
+### 2. Overnight / pre-market moves
+
+**Index futures and rates** (Yahoo chart API, read 06:54 CDT; reference = Friday 10-02 settle, confirmed against the 5-day daily series):
+
+| instrument | Fri 10-02 | 06:54 CDT 10-05 | change |
+|---|---|---|---|
+| S&P 500 (ES=F) | 7,777.25 | 7,773.00 | -0.05% |
+| Nasdaq-100 (NQ=F) | 31,061.75 | 31,009.00 | -0.17% |
+| Dow (YM=F) | 51,477 | 51,460 | -0.03% |
+| Russell 2000 (RTY=F) | 2,850.90 | 2,855.00 | +0.14% |
+| WTI (CL=F) | 91.11 | 90.26 | -0.93% |
+| Brent Dec (BZ=F) | 102.25 | 102.63 | +0.37% |
+| Heating oil (HO=F) | 4.5011 | 4.5944 | +2.07% |
+| VIX | 15.31 | 16.17 | +5.62% |
+| 10-yr yield (^TNX) | 5.277% (10-01: 5.237%) | no Monday quote | - |
+
+Consistent with Sunday-evening coverage: S&P futures little changed, Nasdaq-100 down nearly 0.2% ([CNBC live, 2026-10-04](https://www.cnbc.com/2026/10/04/stock-market-today-live-updates.html) - search snippet only; the page returned 403 to both fetch and browser).
+
+**Held names, pre-market vs Friday's DB close** (Yahoo 1-minute pre-market bars; last print 07:00-07:04 CDT unless a time is shown; "bars" = 1-minute bars with a print, a liquidity tell). **Pre-market prices are shown rounded to cents; `chg` and `$ impact` were computed from the unrounded Yahoo quote**, so recomputing them from the printed price differs by a few dollars on some rows (e.g. EDRY: 58.01 printed, 58.0145 quoted):
+
+| ticker | sleeves | Fri close | pre-mkt | chg | $ impact | bars |
+|---|---|---|---|---|---|---|
+| MU | 62 | 1,074.89 | 1,069.59 | -0.49% | -$2,735.98 | 245 |
+| STX | 65 | 848.99 | 866.85 | **+2.10%** | +$3,253.45 | 242 |
+| WDC | 65 | 415.29 | 421.53 | **+1.50%** | +$1,865.93 | 242 |
+| LRCX | 54 | 347.49 | 344.50 | -0.86% | -$1,278.67 | 182 |
+| AMAT | 52 | 540.04 | 537.24 | -0.52% | -$654.48 | 201 |
+| KLAC | 35 | 206.89 | 204.84 | -0.99% | -$866.42 | 149 |
+| INSW | 44 | 115.81 | 117.97 (06:40) | +1.87% | +$2,548.58 | 12 |
+| EDRY | 41 | 55.88 | 58.01 (03:00) | +3.82% | +$3,513.39 | 2 |
+| EXEL | 42 | 58.39 | 59.50 (06:01) | +1.90% | +$1,978.14 | 3 |
+| FICO | 30 | 661.25 | 669.75 (06:54) | +1.29% | +$509.99 | 29 |
+| UTHR | 29 | 541.70 | 535.00 (06:16) | -1.24% | -$814.04 | 4 |
+| FTI | 34 | 68.82 | 68.01 (04:29) | -1.18% | -$802.13 | 2 |
+| VLO | 33 | 406.30 | 404.00 (06:47) | -0.57% | -$433.65 | 4 |
+| AAPL | 45 | 333.69 | 332.83 | -0.26% | -$282.99 | 243 |
+| GOOGL | 44 | 343.50 | 343.29 | -0.06% | -$50.37 | 245 |
+| WBD | 10 | 30.94 | 30.95 | +0.03% | +$5.91 | 34 |
+| QQQ | 2 | 749.58 | 748.58 | -0.13% | -$285.88 | 245 |
+| SPY | 2 | 769.64 | 769.30 | -0.04% | -$92.41 | 188 |
+
+No pre-market print at all for ATEX, NRC, NHC, NRT, ECPG, TPL, BOTJ, ESEA, CBL, NGL. **The EDRY, EXEL, FTI and UTHR moves rest on 2-4 prints each and should not be read as the open.** Summed over the 41 queried held names that printed: **+$2,646.84**, about 0.034% of the book - effectively flat.
+
+**A method correction made while compiling, recorded so it is not repeated:** Yahoo's `chartPreviousClose` on the 1-day stock chart returned **Thursday 10-01's** close (MU $1,097.39), not Friday's. Measured against it, STX looked -8.33% and WDC -8.87% pre-market, which is false. Every stock move above is measured against the 10-02 close in `price_cache` instead (cross-check: WBD $30.94 in both the DB and Yahoo's most-active list).
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. STX / WDC - Toshiba HDD capacity (follow-up to Friday's -10%).** STX closed **$848.99 (-10.21%)** and WDC **$415.29 (-10.22%)** on 10-02 after Toshiba said it would double HDD production capacity ([Yahoo/Insider Monkey, 2026-10-04](https://finance.yahoo.com/markets/stocks/articles/toshiba-doubling-hard-drive-output-014807229.html)). Per a Nikkei report as summarized in search results, the plan is about **JPY 60bn (~$400M) to double capacity by fiscal 2027**, with a medium-term goal of lifting Toshiba's capacity share from just over 10% to 30% ([Investing.com](https://www.investing.com/news/stock-market-news/seagate-and-western-digital-shares-fall-on-toshiba-hdd-expansion-4929584); those figures come from the search summary and were not re-fetched - treat as unverified detail). Book cost on Friday: **STX -$17,593.41, WDC -$14,141.81**, 65 sleeves each. **This morning both are bouncing (+2.10%, +1.50%) on active pre-market trade (242 bars each).** No weekend analyst action on either was found; searches returned only 2025-dated rating items, which are excluded.
+
+**3b. WBD - merger closes Tuesday 10-06 (expected).** After a federal judge in California approved the settlement on 2026-09-30, Paramount Skydance and WBD said they expect to close on **Tuesday 2026-10-06**, subject to customary conditions. Consideration on that date: **$31.01666668/share** ($31.00 + $0.00277778 per calendar day after 09-30) ([finviz](https://finviz.com/news/397490/paramount-skydance-and-warner-bros-discovery-expect-merger-to-close-october-6)). Held by the 10 rungs `residual_w{7525,8020,8515,9010,9505}_{wk,2wk}_paper`: 695.2733 shares, cost $21,494.69, Friday mark $21,511.76, payout **$21,565.06**. The source does not say when WBD stops trading. **Operationally:** after delisting, `price_cache` gets no new WBD closes; the position is carried at its last mark until a rebalance exits it - the APGE/CRNX pattern (momentum screens buy deal-pinned stubs). The cash does not reach the sleeves until then.
+
+**3c. Oil, the G7 release, and refiners.** G7 leaders agreed on 10-02 to release **100M barrels from crude and diesel reserves over four months**, with significant diesel volumes in the first 20 days; the IEA will assess whether more diesel is needed ([AA, 2026-10-05 10:22 GMT](https://www.aa.com.tr/en/energy/oil/brent-crude-slips-as-g7-oil-reserve-release-eases-supply-concerns/60045)). Middle East crude exports rose above pre-war levels on four of seven days in the last week of September (Reuters via [CNBC, 2026-10-05](https://www.cnbc.com/2026/10/05/oil-slips-as-middle-east-crude-exports-rise-g7-to-release-stocks.html), search snippet only). **Brent prints differ by time, not by source:** $101.72 (-0.5%) at 06:40 GMT (AA), $101.59 (-0.65%) in the Reuters/CNBC snippet (time not shown), **$102.63 (+0.37%) at 11:54 GMT** (Yahoo). The summary publishes the latest. **Heating oil +2.07% while WTI -0.93%** is the reverse of Friday (US diesel -3%, WTI -1.9%, per the 10-02 post-market entry): the diesel crack widened overnight. Refining names held: VLO (33 sleeves), PARR (28), DINO (25), PSX (22), CLMT (21), MPC (20), DK (15), PBF (8). Their pre-market prints are thin (VLO -0.57% on 4 bars, DINO -0.36% on 3, PARR unchanged on 4) and **do not yet reflect the crack move**. Not a prediction; the gap is logged for the post-market entry to check.
+
+**3d. Rates and the Fed.** The 10-year closed Friday at **5.277%**, up from 5.237% on 10-01 (Yahoo ^TNX daily series), despite the soft payroll print (+29k, per the 10-02 post-market entry). AA cites market pricing of **over 80% probability of no change in October** and elevated expectations of a **25bp December hike** (same AA article). The week's Fed event is the **September FOMC minutes, Wed 10-07, 14:00 ET** ([finviz week ahead](https://finviz.com/news/397961/the-week-ahead-fomc-meeting-minutes-take-center-stage)). Search results cited French 10-year yields near 4.9-4.96% and a Bund spread above 120bp as the European fiscal backdrop; **no dated primary source for today's French level could be fetched, so no figure is published for it.**
+
+**3e. Technology (25.93%) - sector search.** No new sector-wide catalyst found for 10-05 beyond the HDD story. The memory-supply story behind MU is unchanged: an article dated 2026-10-02 reports Micron's CEO saying supply stays tight through 2028 ([Northeast Times, 2026-10-02](https://northeasttimes.com/2026/10/02/micron-ceo-says-memory-supply-will-stay-tight-through-2028-keeping-prices-high/); 403 on fetch, headline only). MU's post-earnings target raises were covered in the 10-01 post-market entry and are not repeated. **Search results claiming "chip rivalry" news for this weekend were 2025 items and are excluded.**
+
+**3f. Healthcare (23.65% incl. XLV) - sector search.** **No healthcare- or biotech-wide catalyst dated 2026-10-03 to 10-05 was found**; searches returned 2025 tariff/MFN coverage only, excluded. Ticker searches for UTHR and NRC found nothing dated after their Friday declines (-5.19%, -4.55%); UTHR's latest dated item remains its fiscal Q2 revenue miss. The KOD search returned only pre-readout items. TGTX (49 sleeves, 1.4431%) has ENHANCE data expected 10-21 to 10-23 per the 10-02 post-market calendar.
+
+**3g. FICO.** +1.29% pre-market ($669.75, 29 bars) after closing flat Friday. No new primary-source development on the FHFA bi-merge report was found this weekend; the FHFA and Freddie Mac pages in the results are older ([FHFA fact sheet](https://www.fhfa.gov/news/fact-sheet/fact-sheet-credit-score-models-and-credit-report-requirements)). Book position: 30 sleeves, cost $63,051.65, value $39,673.92 at Friday's close (-37.08%).
+
+**3h. Shipping (INSW +1.87%, EDRY +3.82%, both thin).** A search returned a FreightWaves article quoting VLCC rates of $98,400/day "as of October 4" - **on fetch it is dated Monday 2019-10-07**, so it is excluded. No dated 2026 tanker-rate source was found this morning. EDRY's +8.15% on 10-01 is still unexplained.
+
+**Sources rejected this run (wrong date or unverifiable):** an oil article claiming WTI $104.16 / Brent $101.91 for "Monday October 5" (WTI above Brent, inconsistent with every other print found); MU articles quoting a $869 share price; the 2019 FreightWaves item; an ISM Services "September" figure of 55.4 that the same source says was released 09-03 (i.e. the August print). **No ISM Services consensus is published here because none was verified.**
+
+---
+
+### 4. LLM overlay status (MARKED 2026-10-02)
+
+| arm | treatment | control | spread | holdings |
+|---|---|---|---|---|
+| Stock (mom_roa top-1) | `llm_overlay_mom_roa_top1_paper` **+15.0810%** | `mom_roa_top1_paper` **+7.0756%** | **+8.0054pp** | all MU |
+| Stock cascade | `llm_cascade_top1_paper` +12.7824% | (same control) | +5.7068pp | MU |
+| Macro (sector top-4) | `llm_overlay_sector_top4_paper` **+2.4813%** | `sector_top4_paper` **+5.6705%** | **-3.1892pp** | XLV, XLE, XLK + $23,087.99 cash |
+| Macro cascade | `llm_cascade_sector4_paper` +0.0470% | (same control) | -5.6235pp | XLV, XLE, XLK, XLB |
+
+- **Stock arm:** all three sleeves hold only MU; the spread is the 2026-08-03 BE veto carried forward (record correction in the 10-01 post-market entry). MU stop $820.00 (log id 17, 2026-09-01 BUY, score 7) vs Friday close $1,074.89: 23.71% cushion. MU's -0.49% pre-market moves all three equally.
+- **Macro arm:** **XLB $48.86 (Fri) vs $51.00 invalidation (log id 27, 2026-09-01 HOLD, score 6): 17 closes below the level since 2026-09-01, the first on 2026-09-10.** Held only by `llm_cascade_sector4_paper`. Nothing enforces sector-overlay invalidations between monthly decisions; that is a design fact, flagged on every entry since.
+- **Logs:** `llm_overlay_log` **14 rows** by `count(*)` (5 BUY / 9 VETO; ids have gaps, so `max(id)=17` is not the count). `sector_overlay_log` 27 rows. **No decision dated 2026-10-xx exists in either table** - the October decisions are part of the undone monthly.
+
+---
+
+### 5. Risk flags and upcoming events
+
+| when | event | book exposure |
+|---|---|---|
+| **Today 10:00 ET** | ISM Services (Sept) | macro; no verified consensus |
+| **Today ~18:01 CDT** | `monthy-llm-rebalance`, last fire of the `1-5` window | guard denial expected per memory; October stays undone unless Evan runs it |
+| **Tue 10-06** | WBD merger close (expected), $31.01666668/sh | 10 rungs, $21,511.76 |
+| Tue 10-06 | US trade balance | - |
+| **Wed 10-07 14:00 ET** | FOMC September minutes | rate-sensitive; 10-yr at 5.277% |
+| Wed 10-07 | end of China's National Day (fuel-export permits, per 10-02 entry) | refiners |
+| Thu 10-08 | Jobless claims, wholesale trade | - |
+| Fri 10-09 | UMich preliminary sentiment | - |
+| 10-12 | possible FHFA bi-merge announcement (per 10-02 entry; not re-verified) | FICO, 30 sleeves |
+| 10-14 08:30 ET | September CPI | - |
+| 10-21 to 10-23 | TGTX ENHANCE data (per 10-02 entry) | TGTX 49 sleeves, $110,591.59 |
+| 10-27 | NRC earnings | NRC 41 sleeves |
+| 10-27/28 | FOMC | - |
+
+Earnings this week with no direct holding found: APLD, STZ, DAL, LEVI, PEP (finviz week ahead).
+
+**Standing risk flags:**
+1. **Monthly not run (BLOCKED-ON-EVAN).** Every monthly-cadence sleeve is still on September's picks, now 4 calendar days past the 10-01 rebalance date. The weekly/biweekly ladder rungs are unaffected. After today, no automation retries October.
+2. **Correlated single-name concentration.** MU 7.24% of value and 58.16% of unrealized gain; STX+WDC 3.64% of value, each held by the same 65 sleeves. Friday showed the shape of this risk: one competitor's capex headline cost $31,735.22, 4.6x the book's whole day loss.
+3. **Deal-stub drag.** APGE and CRNX (stale since early September) and WBD from 10-06: capital the screens bought or kept after the price was pinned. WBD's whole remaining upside vs Friday's mark is +$53.30.
+4. **Coverage gate.** 10-02 failed at 17:15 Friday and healed only on the weekend. Prior entries count the 17:15 gate PENDING on every trading day since at least 2026-09-08; if that pattern holds, tonight's 10-05 gate will be PENDING too.
+
+---
+
+### 6. Strategic insights
+
+**6a. The HDD shock tests what the momentum screens are actually buying.** STX and WDC entered dozens of sleeves on trailing returns built on scarcity pricing (each up more than 230% over 12 months per the Yahoo article). A capacity announcement from the smallest of three suppliers repriced both by 10% in a day. **That is the known weakness of price momentum in supply-constrained cyclicals: the signal measures the shortage, and the shortage ends by a competitor's capex decision, which the price series cannot see.** Today's partial bounce (+1.5% to +2.1%) is not evidence either way. If there is a sleeve concept here, it is a *supply-response flag* - down-weight momentum names whose industry has announced capacity additions - and it is a hypothesis only: it needs a dated capex-announcement dataset the project does not have, and a pre-registered test before any number is quoted. **No recommendation.**
+
+**6b. MU concentration is the book's single largest fact.** 58.16% of the book's unrealized gain sits in one name held by 62 of 76 sleeves and 100% of three. The 76 sleeves are less diversified than their count suggests: the "experiment" and "systematic" sleeves are largely running the same MU bet. It also freezes the LLM stock-arm read: since 09-01 all three arms hold the same name, so the spread cannot change until the next decision.
+
+**6c. Nothing in today's data supports a new long-term sleeve.** The diesel-crack divergence (3c) is one overnight observation; the refiner thread was already logged as a one-day data point on 10-02. Two data points in opposite directions are noise until a test is written down first.
+
+---
