@@ -61345,3 +61345,184 @@ Ranked best to worst since inception. `nav 10-05` is the **marked** `paper_nav` 
 **7f. No new sleeve concept is supported by today's data.** The one structural idea (7b, a concentration cap) changes how existing sleeves are built; it is not a new source of return.
 
 ---
+
+## Report: 2026-10-07 (Wednesday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-06 is still UNMARKED.** `max(nav_date)` in `paper_nav` is **2026-10-05** (76 rows). `price_cache` holds **4,299** closes for 10-06 against the 5,000 floor, unchanged since last night's 17:25 gate. The 07:45 `TradingMorningMTM` heal had **not run at compile time (07:05 CDT)**; its outcome is not predicted. **Every 10-06 figure below is INDICATIVE**, same method as the 10-06 post-market entry; recomputed this morning, the book total matches last night's to the cent.
+>
+> **Book: indicative 10-06 $7,698,821.94 vs marked 10-05 $7,776,397.72 = -0.9976%, ITD +1.3003%, MTD +0.5109%, WTD -0.3773%** on $7,600,000.00. Best ITD: `qqq_benchmark_paper` +12.6841%, `llm_overlay_mom_roa_top1_paper` +11.9436%. Worst: `mom_v1_paper` -13.9367%, `mom_v2_paper` -12.2554%.
+>
+> **Pre-market: risk-off, led by chips.** Dow futures -305 pts (-0.58%), S&P 500 futures -0.33%, Nasdaq 100 futures -0.70% (Invezz, via search summary). SPY -0.23%, QQQ -0.59% (Current Logic brief). **10-year back above 5.30%** (5.307%, +3bp, GuruFocus 04:50 UTC). TipRanks puts **MU -2% to -3%** pre-market on yields and oil; **STX near $796.69** (about -1.1% vs the $805.63 close; one source). MU is 7.0514% of priced value in 62 sleeves.
+>
+> **Macro:** **FOMC September minutes 14:00 ET** (the meeting that hiked) plus a **$39bn 10-year auction**. **Oil up on a Gulf storm and Houthi attacks:** Brent $101.80 (+1.21%), WTI $89.90 (+0.51%) per Yahoo/Reuters 06:16 CDT. Tropical Depression Nine is forecast to become the first Atlantic hurricane of 2026 and reach the northern Gulf Coast Friday; the offshore areas in its path produce 15% of US crude. **The book holds 4.2087% in refiners** (VLO, DINO, PARR, PSX, MPC, DK, PBF); VLO, MPC and PBF operate refineries named as in the path.
+>
+> **Overnight catalysts on held names:** **CBL -7.77% explained.** Canyon Capital, adviser to holders of more than 20% of CBL, filed a Form 144 for **1,307,500 shares (~$68.2M) via Goldman on 10-06**. **TXG -17.47%: still no catalyst** (GuruFocus names none). **WBD: the cash price is confirmed at ~$31.02/share**; 6 rungs still hold 383.7402 shares open with nothing booked.
+>
+> **LLM overlay (indicative):** stock arm treatment +11.9436% vs control +4.1562% (**+7.7874pp**); macro arm treatment +3.3142% vs control +6.7687% (**-3.4545pp**). MU $1,045.56 is 27.51% above its $820.00 invalidation. **XLB $49.73 is below its $51.00 invalidation (19th close)**, not enforced. No October decisions logged.
+>
+> **Critical outstanding:** (1) **October monthly rebalance still undone - BLOCKED-ON-EVAN**; `verify_run` FAILs only the cadence check (76/76 sleeves OK). (2) 10-06 unmarked. (3) WBD settlement not booked. (4) Six held names have no 10-06 close (APGE, CRNX, FMBM, KCHV, UYSC, WBD).
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Wed Oct  7 07:02:12 CDT 2026` at start, offset **-0500 -> CDT**. Local date **2026-10-07**, weekday **Wednesday**. Compile time is about 07:05 CDT. All times are CDT unless marked ET/UTC.
+
+**0b. Market status.** Wednesday 2026-10-07 is a normal NYSE/Nasdaq trading day. Columbus Day is 10-12, and equity markets are open that day too.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-07 \(Wednesday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. Not a re-fire.
+
+**0d. Cron echo** (`list_scheduled_tasks`, read this run):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-08T12:01:23Z | **2026-10-07T12:02:04Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-08T00:04:22Z | 2026-10-07T00:04:56Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | 2026-11-02T00:01:03Z | 2026-10-05T23:01:24Z | 63s |
+| `daily-audit` | `0 7 * * *` | **2026-10-08T12:09:01Z** | **2026-10-06T12:09:29Z** | 541s |
+
+**This task's cron is correct at `0 7`.** `lastRunAt 12:02:04Z` (07:02:04 CDT) is this run, consistent with the 83s jitter. **Flag: `daily-audit` reports `nextRunAt` 2026-10-08T12:09:01Z while its `lastRunAt` is 2026-10-06.** Its cron `0 7 * * *` should fire 2026-10-07 at about 12:09Z, about 7 minutes after this read. Whether today's audit will fire is **not known**; the tool's `nextRunAt` points past it. The daily-audit's own STEP 0a is the detector if it does not. `monthy-llm-rebalance` is still `0 18 1-5 * *` (the 2026-09-02 form, not restored; Evan's call per memory). Nothing retries October.
+
+**0e. DB opened read-only** (`file:var/trades.db?mode=ro`, `uri=True`) for every query.
+
+**0f. Morning heal not yet run.** `TradingMorningMTM` fires at 07:45; this entry compiled at about 07:05. `var/last_morning_run.log` is still yesterday's (2026-10-06 07:54, marked 10-05 76/76). **I state the schedule and do not predict the outcome.** The 20:30 ladder ran last night and traded nothing: `weekly: last=2026-10-05 ... due=False | biweekly: last=2026-09-28 ... due=False` - "Both cadences already rebalanced inside their current period; nothing due today." `max(entry_date)` = `max(exit_date)` = 2026-10-05.
+
+**0g. 2026-10-06 is UNMARKED - all 10-06 NAVs INDICATIVE.** `paper_nav` dates since 09-30: 09-30, 10-01, 10-02, 10-05, each 76 rows. Last night's gate (`var/last_daily_run.log`): `COVERAGE FAIL: only 4299 closes on 2026-10-06 (< floor 5000)`, then `mtm_catchup: PENDING 2026-10-06`. `price_cache` close counts: 10-01 5,108 | 10-02 5,105 | 10-05 5,105 | **10-06 4,299**, so nothing new has landed overnight. Method:
+
+```
+indicative NAV = paper_portfolio.cash + SUM(open qty x last close <= 2026-10-06)
+day = ind / nav(10-05) - 1 ; WTD vs nav(10-02) ; MTD vs nav(09-30) ; ITD vs starting_cash
+```
+
+**0h. Held names without a 10-06 close: 6 of 233**, carried at their last close: APGE (2026-09-03, $135.07, 6 sleeves), CRNX (2026-09-02, $84.95, 2), WBD (2026-10-05, $30.95, 6), UYSC (2026-10-05, $11.00, 20), KCHV (2026-10-05, $10.48, 6), FMBM (2026-10-05, $40.93, 1). The same six as last night.
+
+**0i. Price anomalies.** No held name moved more than +/-20% on 10-06. The largest were TWST -18.55% and TXG -17.47%; nothing is near a split-artifact magnitude. The future-dated RMCF `price_cache` rows (key_date 2027-07-27, NULL) are still present; already logged in the record, not new.
+
+**0j. `verify_run`: FAIL, cadence only.** The 17:25 and 20:30 runs both print `RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)`, `last_rebalance(2026-09-01/OK) settled_month(2026-10)`. `var/ops_status.log` last line: `[OPS 2026-10-06] coverage=PENDING verify=FAIL`.
+
+---
+
+### 1. Portfolio standings (indicative 10-06; INDICATIVE per 0g)
+
+**The 76-row table is unchanged from section 2 of the 2026-10-06 post-market entry.** I re-ran it this morning from the same DB state and every row matches; no 10-06 close has been added since. Extremes and cohort lines only:
+
+| sleeve | nav 10-05 (marked) | nav 10-06 (ind.) | day % | ITD % | MTD % |
+|---|---|---|---|---|---|
+| qqq_benchmark_paper | 112,170.88 | 112,684.11 | +0.4575 | **+12.6841** | +2.6887 |
+| llm_overlay_mom_roa_top1_paper | 113,911.79 | 111,943.56 | -1.7279 | +11.9436 | -1.8339 |
+| llm_cascade_top1_paper | 111,636.61 | 109,707.68 | -1.7279 | +9.7077 | -1.8339 |
+| sector_top4_full_paper | 108,107.64 | 108,570.62 | +0.4283 | +8.5706 | +2.2397 |
+| residual_w5545_paper | 110,006.33 | 108,492.42 | -1.3762 | +8.4924 | +0.8600 |
+| spy_benchmark_paper | 107,518.21 | 108,109.35 | +0.5498 | +8.1093 | +2.1583 |
+| residual_roa_6535_paper | 104,405.20 | 103,208.40 | -1.1463 | +3.2084 | +1.0754 |
+| residual_roa_6535_0701_paper | 97,776.82 | 96,647.29 | -1.1552 | -3.3527 | +1.1851 |
+| mom_roa_6535_0701_paper | 96,530.21 | 94,435.17 | -2.1703 | -5.5648 | +0.7618 |
+| mom_v2_0701_paper | 95,936.09 | 93,629.24 | -2.4046 | -6.3708 | -0.6539 |
+| mom_v1_0701_paper | 95,145.14 | 93,317.01 | -1.9214 | -6.6830 | -0.4442 |
+| mom_roa_6535_paper | 92,577.87 | 90,500.22 | -2.2442 | -9.4998 | +0.3953 |
+| mom_v2_paper | 89,954.31 | 87,744.59 | -2.4565 | -12.2554 | -0.9642 |
+| mom_v1_paper | 87,731.50 | 86,063.35 | -1.9014 | **-13.9367** | -0.6588 |
+
+**Book: start $7,600,000.00 | marked 10-05 $7,776,397.72 | indicative 10-06 $7,698,821.94 | day -0.9976% (-$77,575.79) | ITD +1.3003% | MTD +0.5109% | WTD -0.3773%.** 8 sleeves up and 68 down; only the ETF-only sleeves rose. Priced position value $7,654,152.06; 233 names; 3,281 open positions.
+
+**Largest weights (share of priced value):** MU 7.0514% (62 sleeves), QQQ 2.8453%, SPY 2.7673%, STX 1.9173% (65), LRCX 1.8655% (54), INSW 1.7914% (44), AMAT 1.6148% (51), WDC 1.6066% (65). **Sectors above 20%:** Technology 25.3094%, Healthcare 21.3409% (+1.3312% under the duplicate label "Health Care"). Energy is 14.6770%.
+
+---
+
+### 2. Overnight and pre-market moves
+
+**Index futures** (pre-market snapshots; the sources took them at different, unstated times):
+
+| measure | move | source |
+|---|---|---|
+| Dow futures | **-305 pts, -0.58%** | [Invezz, 2026-10-07](https://invezz.com/news/2026/10/07/dow-futures-plunge-305-points-5-things-to-know-before-wall-street-opens-on-oct-7/) (headline + search summary; page 403 on fetch) |
+| S&P 500 futures | -0.33% | same |
+| Nasdaq 100 futures | -0.70% | same |
+| SPY pre-market | -0.23% at $777.32 | [Current Logic Morning Brief, 2026-10-07](https://currentlogic.substack.com/p/the-morning-brief-october-07-2026) |
+| QQQ / IWM pre-market | -0.59% / -0.61% | same |
+
+The [stockanalysis.com pre-market page](https://stockanalysis.com/markets/premarket/), via search summary, had S&P -0.30% / Nasdaq 100 -0.65% / Dow -0.57% / Russell -0.71%. That is consistent in direction and within 0.05pp; it was not fetched and is undated. **Carried: Invezz's futures figures.** Current Logic's sector pre-market: XLE +0.44%, XLV +0.26%, XLK -0.53%, XLB -0.44%.
+
+**Held names with a sourced pre-market read:**
+
+| name | sleeves | weight | 10-06 close | pre-market | source |
+|---|---|---|---|---|---|
+| MU | 62 | 7.0514% | $1,045.56 | **-2% to -3%** (a range, not a print) | [TipRanks, 2026-10-07](https://www.tipranks.com/news/why-chip-stocks-micron-sandisk-and-amd-are-down-today-october-7-and-what-wall-street-sees-next) |
+| AMD | 4 | - | - | -2% to -3% | same |
+| STX | 65 | 1.9173% | $805.63 | "near 796.69" (about -1.11%) | Current Logic |
+
+**Caveat on TipRanks:** its page shows "11:32 AM" with no zone. That cannot be ET, because this entry compiled at about 08:05 ET. The figures are carried as pre-market only because the article says "premarket". It gives the cause as "Rising Treasury yields and oil prices", and puts SOXX -1.7%. **Rough exposure, labelled as such:** MU at -2% to -3% on its 7.0514% weight is about -0.14% to -0.21% of the book before the open. **No sourced pre-market quote was found for WDC, LRCX, AMAT or KLAC.** A search summary gave WDC "$412.42, range $406.81-$433.25" for 10-07. A range that wide before the open matches 10-06 intraday trading, not pre-market, so **it is rejected.**
+
+**Not held, for context** (Current Logic): STZ -4.82% after Modelo/Corona volume losses; CEG -2.15%, giving back part of Tuesday's Google-contract gain.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. Rates.** [GuruFocus, 2026-10-07 04:50 UTC](https://www.gurufocus.com/news/9112841/us-treasury-yields-rise-ahead-of-key-auction-and-fomc-minutes): **10-year 5.307% (+3bp)**, 30-year 5.69% (+4bp), 2-year 4.801% (+1bp). A [CNBC 2026-10-07](https://www.cnbc.com/2026/10/07/treasury-yields-auction-fomc-minutes.html) search summary had 10-year +6bp at 5.322% and 30-year 5.703% (page 403; a later snapshot is likely, but its time is unverified). **Carried: 5.307% (fetched); CNBC's 5.322% is flagged as a later or different snapshot, not averaged.** Either way, Tuesday's 4bp rally has reversed. The same GuruFocus page cites CME FedWatch at **78% probability of no change at the next meeting**. **Today: $39bn 10-year auction and the September FOMC minutes at 14:00 ET** ([Admiral Markets preview](https://admiralmarkets.com/analytics/traders-blog/fomc-minutes-october-2026)). The September meeting **raised rates** for the first time since 2023 (search summary of the same coverage; the vote count was not fetched). The minutes are the first detailed read on how many members want a second hike.
+
+**3b. Oil: storm plus Middle East.** [Yahoo/Reuters, 2026-10-07 06:16 CDT](https://finance.yahoo.com/energy/articles/oil-prices-rise-storms-air-004803079.html): **Brent $101.80 (+$1.22, +1.21%), WTI $89.90 (+$0.46, +0.51%).** The earlier [Reuters via Investing.com, 00:22 GMT](https://www.investing.com/news/commodities-news/oil-prices-rise-as-storms-and-air-strikes-threaten-supply-4935487) had Brent $101.51 (+0.92%) and WTI $90.25 (+0.82). Current Logic had WTI $90.24 / Brent $101.63. **Carried: Yahoo's 06:16 CDT figures as the latest. Note on WTI:** +$0.46 to $89.90 implies a base of $89.44, Monday's settle level. Last night's entry carried Yahoo's $90.02 as Tuesday's close. **So the two Reuters snapshots likely measure from different reference prices, and I do not reconcile them further.** Drivers:
+- **Tropical Depression Nine** is expected to reach tropical-storm strength by early Wednesday, pass north of the Yucatan Thursday, and approach the northern US Gulf Coast **Friday**. It is forecast to become 2026's first Atlantic hurricane. Offshore areas in its path produce **15% of US crude and 5% of natural gas**. **Six refineries operated by Shell, Valero, Marathon, PBF and Chevron** could be affected; Shell and Chevron are evacuating non-essential offshore staff ([Baird Maritime, 2026-10-07](https://www.bairdmaritime.com/offshore/drilling-production/gulf-of-mexico-energy-infrastructure-under-threat-from-looming-storm)).
+- Houthi attacks on Saudi airports at Jazan and Najran on Monday evening (Investing.com/Reuters). Offsetting: Saudi East-West pipeline at 5.8m bpd. Yahoo/Reuters also reports **European diesel futures +13%**.
+
+**Book exposure:** Energy is 14.6770% of priced value. **Refiners total $322,141.93 = 4.2087%**: VLO 1.0327% (33 sleeves), DINO 0.8184%, PARR 0.7677%, PSX 0.6314%, MPC 0.5489%, DK 0.2476%, PBF 0.1621%. VLO, MPC and PBF are named operators in the path. **The direction for refiners is ambiguous**: an outage cuts their own throughput, while cracks (diesel +13% in Europe) rise. I do not predict it. Upstream: APA 0.7142%, XOM 0.3047%, PR 0.1377%; INSW (tankers) 1.7914%.
+
+**3c. STX / WDC: the CEO-sale item.** Current Logic says "Seagate's CEO sold $17.4M stock before Tuesday's 9.18% drop." **[SEC Form 4, filed 2026-10-02](https://www.sec.gov/Archives/edgar/data/0001137789/000113778926000261/wk-form4_1790971667.xml): William D. Mosley (CEO) exercised 14,000 options at $46.23 and sold shares on 2026-10-01 at $898.0956-$927.8963. A footnote says all of it was under a Rule 10b5-1 plan adopted 2026-02-18.** The $17.4M total spans more than this one filing and was not verified, so it is not published. **The sale was pre-scheduled eight months earlier; it is not evidence of a view on the TDK or Toshiba news.** No new STX/WDC catalyst overnight; the 10-06 drivers (Toshiba capacity, the Bloomberg report of a Seagate/Toshiba contest for TDK's head unit) stand per the 10-06 post-market entry.
+
+**3d. MU.** TipRanks cites Citi's Atif Malik pointing to **"mid-2027 as a possible peak"** for memory pricing; its consensus figure ($1,595.58 average target) is aggregator data and not re-verified. A Yahoo piece ("Micron Stock Is Waiting On One Answer", undated in the search result) mentions a **$600M Netlist patent settlement**. **The settlement's date was not verified, so it is not presented as overnight news.** Today's driver per TipRanks is macro (yields, oil), not MU-specific.
+
+**3e. CBL -7.77% (10-06): explained by a holder sale.** [Stocktitan Form 144 summary, filed 2026-10-06](https://www.stocktitan.net/sec-filings/CBL/144-cbl-associates-properties-inc-sec-filing-3cc88d8c8ab8.html): **Canyon Capital Advisors LLC**, adviser to funds holding over 20% of CBL, proposed selling **1,307,500 shares (aggregate $68,238,425.00) through Goldman Sachs, approximate sale date 2026-10-06.** That is 4.23% of the 30,942,757 shares outstanding. The shares came from the 2021-11-02 bankruptcy restructuring. That fits last night's 6.0x volume (782,183 vs 131,400). A search summary adds a **Ladenburg Thalmann Buy, $55 target** (10-06), not fetched. CBL: 26 sleeves, 0.6451%, -9.68% unrealized.
+
+**3f. TXG -17.47%: still no catalyst.** [GuruFocus, 2026-10-06](https://www.gurufocus.com/news/9112255/10x-genomics-inc-txg-shares-fall-175-what-gf-score-of-57-tells-investors) confirms -17.5% to $80.66 and names no announcement. A [QuiverQuant item](https://www.quiverquant.com/news/10x+Genomics+Slides+as+Rally+Cools+After+Recent+Product-Launch+Surge) (via search summary, not fetched) frames it as profit-taking after the Atera/Sentira launch run. That is commentary, not a catalyst. **Reported as unexplained.**
+
+**3g. DAVE -6.99%: a source conflict, flagged.** A search summary of a third-party page has DAVE closing 10-06 at **$357.67 (-3.05%) on 52,660 shares**. `price_cache` has **$343.14 (-6.99%) on 258,836**. The 10-06 post-market entry's sources did not contradict the DB. **The DB close is carried; the $357.67 is flagged as the outlier** (unfetched, and its volume suggests a partial session). This matters: if the DB were wrong, DAVE's -$6,739.38 would be overstated. The 10-06 bar becomes final when 10-06 is marked. **No DAVE catalyst found.**
+
+**3h. WBD: the cash price is now confirmed.** [Yahoo, 2026-10-06](https://finance.yahoo.com/markets/stocks/articles/110-billion-paramount-warner-merger-131045915.html): "$31.00 per share in cash, or about $31.02 with accrued daily payments through closing"; the combined company trades as SKYD on NYSE. [Quartz](https://qz.com/paramount-warner-bros-discovery-skydance-merger-closes-100626) (via search summary): $31.01666668 per share, WBD ceased trading on Nasdaq Tuesday. **Book state is unchanged:** 383.7402 shares across 6 rungs (`residual_w9010_wk_paper` and the `_2wk` w7525/w8020/w8515/w9010/w9505), carried at $30.95. At $31.01666668 the payout is about $11,902.34 vs $11,876.76 carried. **Nothing in the system books a cash-merger exit automatically** (APGE/CRNX have sat at their last bars since early September). This is a reconciliation item for Evan, not acted on.
+
+**3i. Searched names with nothing new found:** EDRY, TGTX, NRC, LRCX, AMAT and KLAC were not individually searched this morning (time budget). **No claim is made about them.** TGTX ENHANCE data window 10-21 to 10-23 is per prior entries.
+
+---
+
+### 4. LLM overlay status (indicative 10-06)
+
+| arm | treatment ITD | control ITD | spread |
+|---|---|---|---|
+| Stock top-1 | +11.9436% | +4.1562% | **+7.7874pp** |
+| Stock cascade | +9.7077% | +4.1562% | +5.5515pp |
+| Macro sector-4 | +3.3142% | +6.7687% | **-3.4545pp** |
+| Macro cascade | +1.2500% | +6.7687% | -5.5187pp |
+
+- **Stock arm:** all three sleeves hold only MU. **MU $1,045.56 vs $820.00 invalidation (log id 17) = 27.51% above.** A -2% to -3% open would not come near it. `llm_overlay_log`: **14 rows (`count(*)`)**, latest `decision_date` 2026-09-01.
+- **Macro arm:** treatment holds XLV/XLE/XLK + $23,087.99 cash since the 09-01 XLI veto; control holds XLI/XLE/XLK/XLV. XLI $171.58 sits above its $170.00 veto level for a second close. Pre-market XLE +0.44% / XLV +0.26% / XLK -0.53% (Current Logic) all affect both arms; only the XLI-vs-cash difference separates them.
+- **XLB invalidation:** XLB $49.73 vs $51.00 (log id 27): **19th close below, 2.49% under**, held only by `llm_cascade_sector4_paper`. Pre-market -0.44%. Zero enforcement. `sector_overlay_log`: 27 rows, latest 2026-09-01.
+- **No October decisions exist** in either log, because the October monthly has not run.
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **October monthly rebalance - BLOCKED-ON-EVAN.** Every sleeve still holds September's picks into the second week of October. The scheduled task cannot complete under the trade guard; nothing in this entry works around it.
+2. **Same-name concentration into a chip-led risk-off open.** MU (62 sleeves, 7.0514%), STX/WDC (65 each, 3.5239% together), LRCX/AMAT/KLAC (4.5711% together). Tuesday these names cost the book while the index set records. Today's pre-market tape is down in exactly this group.
+3. **FOMC minutes 14:00 ET + $39bn 10-year auction.** The 10-year is already back above 5.30%. Hike-leaning minutes plus a weak auction is the scenario most adverse to the long-duration growth names. No prediction.
+4. **Gulf storm into Friday's landfall window.** 4.2087% in refiners plus 14.6770% total energy. A one-directional effect cannot be assumed (3b).
+5. **Coverage gate**: the 17:25 gate logged `coverage=PENDING` on every trading-day evening in the `ops_status.log` tail, 2026-09-29 through 10-06 (six sessions). The morning heals have been carrying the marks. If 10-06 is not healed at 07:45, two sessions will be unmarked by tonight.
+6. **WBD / APGE / CRNX stubs** still on the books (3h).
+7. **`daily-audit` nextRunAt anomaly** (0d).
+
+**Calendar:** 10-07 FOMC minutes 14:00 ET, 10-year auction. 10-09 (Fri) storm landfall window. 10-12 weekly ladder; biweekly period began 09-28 (the ladder log says not due on 10-06; the next due date is not verified here). 10-14 September CPI (per prior entries). 10-21 to 10-23 TGTX ENHANCE. 10-27/28 FOMC.
+
+---
+
+### 6. Strategic insights
+
+**6a. Verdict: nothing in the overnight data changes last night's read. The stock sleeves are a concentrated bet on the AI-hardware supply chain, and that chain is the most rate-sensitive part of the book.** Today's pre-market (chips -2% to -3% on a +3bp 10-year) is the second test in two sessions of whether that exposure is a factor bet the benchmarks don't carry. It will be measurable at tonight's close: compare the book's day return to SPY's and see whether the gap lines up with the MU/STX/WDC/semicap basket.
+
+**6b. CBL adds a third case to the "visible seller" pattern (10-05 SPHR, 10-06 TWST, now CBL).** In each case the sell pressure was disclosed: ARK's daily trades and Form 4s for TWST, a Form 144 for CBL. **CBL is different in one way: the Form 144 was filed the same day as the drop, not weeks ahead.** A "public seller" filter would have caught TWST in advance but CBL only at the event. Three names is anecdote, not a test. The hypothesis worth pre-registering, if Evan chooses to: *momentum names with a >2% shares-outstanding Form 144 or a 10+ session activist/fund selling streak underperform their momentum cohort over the next 20 sessions.* Form 144 data is free from EDGAR. **This is a research question, not a recommendation.** The closed Form 4 work (2026-05) tested insider *buying* as an entry signal; this would test disclosed *selling* as an exit signal.
+
+**6c. The STX CEO sale is a counter-example worth recording.** A large, fresh insider sale ahead of a -9% day looks like a signal, but it ran under a 10b5-1 plan adopted 2026-02-18. **Any seller filter must exclude 10b5-1 sales or it will fire on scheduled noise.** Form 4 footnotes make that separable.
+
+**6d. Not supported by today's data:** a refiner or energy tilt from the storm (direction ambiguous); a new sleeve concept. **No recommendation.**
+
+---
