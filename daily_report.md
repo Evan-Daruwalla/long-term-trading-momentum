@@ -62422,3 +62422,175 @@ Ranked best to worst since inception. `nav 10-07` is the **marked** `paper_nav` 
 - **A new sleeve concept.** No recommendation.
 
 ---
+
+## Report: 2026-10-09 (Friday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-08 is still UNMARKED.** `max(nav_date)` in `paper_nav` is **2026-10-07** (76 rows). `price_cache` holds **4,291** closes for 10-08 against the 5,000 floor, unchanged since last night's 17:25 gate. The 07:45 `TradingMorningMTM` heal had **not run at compile time (about 07:10 CDT)**; its outcome is not predicted. **Every 10-08 figure below is INDICATIVE**; re-run this morning from the same DB state, every one of the 76 rows and the book total match last night's post-market entry to the cent.
+>
+> **Book: indicative 10-08 $7,682,829.55 vs marked 10-07 $7,683,814.52 = -0.0128%, ITD +1.0899%, MTD +0.3021%, WTD -0.5843%** on $7,600,000.00. Best ITD: `llm_overlay_mom_roa_top1_paper` +10.9038%, `qqq_benchmark_paper` +10.8922%, `llm_cascade_top1_paper` +8.6887%. Worst: `mom_v1_paper` -16.9720%, `mom_v2_paper` -15.7934%, `mom_roa_6535_paper` -13.6769%.
+>
+> **Pre-market: Thursday's rotation is reversing.** At 04:00 ET, Nasdaq-100 futures +0.85%, S&P 500 +0.42%, Dow +0.14% (Yahoo). **MU "up more than 1%"** with the chip rebound (Yahoo), after Bloomberg reported OpenAI expects to reach or exceed **$70bn** annualized revenue by end-2026, against the FT's ~$50bn end-September run rate that hit chips on 10-08. **AAPL "down more than 1.5%"** on a report that Apple asked suppliers to cut iPhone 18 Pro / Pro Max component orders 15-20% (Nikkei, via Yahoo; not confirmed by a second outlet); AAPL is 1.4720% of priced value in 45 sleeves. **Oil down about 1%**: WTI $90.46 (-1.13%) on Yahoo's quote; Brent $103.2-$103.45 across three reports, after Trump said the US would not attack Iran before the midterms.
+>
+> **Macro today:** University of Michigan sentiment (preliminary October) at 10:00 ET, consensus 48, prior 48.1 (Yahoo). **Hurricane Isaias, NHC advisory 11A at 07:00 CDT: 110 mph, "on the cusp of major hurricane strength"**, moving NNE at 15 mph; landfall expected late Friday or early Saturday (search summaries of CNN/NPR). **62.89% of Gulf oil output (about 1.28 million bpd) was shut in as of 11:00 CDT Thursday** (federal data via WMTV); this verifies the figure last night's entry could not publish. Book: refiners 4.4113% of priced value, Energy 15.0808%.
+>
+> **LLM overlay (indicative 10-08):** stock arm treatment +10.9038% vs control +3.1886% (**+7.7152pp**); macro arm treatment +3.5179% vs control +6.5959% (**-3.0780pp**). MU $1,035.84 is 26.32% above its $820.00 invalidation. **XLB $49.27 vs $51.00 invalidation: 21st close below**, not enforced. No October decisions logged (`llm_overlay_log` 14 rows, `sector_overlay_log` 27 rows, both latest 2026-09-01).
+>
+> **Critical outstanding:** (1) **October monthly rebalance still undone - BLOCKED-ON-EVAN**; `verify_run` FAILs only the cadence check (76/76 sleeves OK). (2) 10-08 unmarked. (3) WBD settlement not booked (383.7402 shares, 6 rungs). (4) No 10-08 close for APGE, CHPG, CRNX, KFII, UYSC, WBD. (5) A search result placing LRCX +8% / AMAT +5% pre-market "today" was a **2026-07-30** article; rejected (section 2).
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Fri Oct  9 07:01:39 CDT 2026` at start, offset **-0500 -> CDT** (second read 07:05:43 CDT). Local date **2026-10-09**, weekday **Friday**. Compile time is about 07:10 CDT. Times are CDT unless marked ET/UTC.
+
+**0b. Market status.** Friday 2026-10-09 is a normal NYSE/Nasdaq trading day (futures are trading and the UMich release is scheduled, per Yahoo below). Not a holiday.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-09 \(Friday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. Not a re-fire.
+
+**0d. Cron echo** (`list_scheduled_tasks`, read this run):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-12T12:01:23Z | **2026-10-09T12:01:32Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-10T00:04:22Z | 2026-10-09T00:04:23Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | 2026-11-02T00:01:03Z | 2026-10-05T23:01:24Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-10T12:09:01Z | 2026-10-08T12:09:56Z | 541s |
+
+**This task's cron is correct at `0 7`.** `lastRunAt 12:01:32Z` (07:01:32 CDT) is this run; `nextRunAt` skips to Monday 10-12, as a Mon-Fri cron should. **`daily-audit` reads `nextRunAt` 2026-10-10 while `lastRunAt` is still 2026-10-08**: today's fire (due about 12:09Z) is not shown as run, and `nextRunAt` has already moved past it. On 10-07 and 10-08 a similar reading resolved itself within minutes. **Resolved during this run:** a second `list_scheduled_tasks` read before commit shows `daily-audit` `lastRunAt` **2026-10-09T12:09:10Z**, so today's audit fired. `monthy-llm-rebalance` is still `0 18 1-5 * *` (not restored; Evan's call per memory). Nothing retries October.
+
+**0e. DB opened read-only** (`file:var/trades.db?mode=ro`, `uri=True`) for every query.
+
+**0f. Morning heal not yet run.** `TradingMorningMTM` fires at 07:45; this entry compiled at about 07:10. `var/last_morning_run.log` is yesterday's (2026-10-08 07:55, `marked=76 ... latest=2026-10-07`). **I state the schedule and do not predict the outcome.** The 20:30 ladder ran last night (`var/last_ladder_run.log` 2026-10-08 20:30:04, `RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)`). `max(entry_date)` = `max(exit_date)` = 2026-10-05; `max(last_rebalanced_at)` = 2026-10-06T01:32:26Z. Nothing has traded since 10-05.
+
+**0g. 2026-10-08 is UNMARKED - all 10-08 NAVs INDICATIVE.** `paper_nav` dates since 09-30: 09-30, 10-01, 10-02, 10-05, 10-06, 10-07, each 76 rows. `price_cache` close counts: 10-05 5,105 | 10-06 5,101 | 10-07 5,099 | **10-08 4,291** (nothing new overnight). `var/ops_status.log` last line: `[OPS 2026-10-08] coverage=PENDING verify=FAIL`. Method, same as last night:
+
+```
+indicative NAV = paper_portfolio.cash + SUM(open qty x last close <= 2026-10-08)
+day = ind / nav(10-07) - 1 ; WTD vs nav(10-02) ; MTD vs nav(09-30) ; ITD vs starting_cash
+```
+
+**0h. Held names without a 10-08 close: 6 of 233**, carried at their last close: APGE (2026-09-03, $135.07), CRNX (2026-09-02, $84.95), WBD (2026-10-06, $30.95), CHPG (2026-10-07, $10.50), KFII (2026-10-07, $10.71), UYSC (2026-10-07, $10.91). The same six as last night.
+
+**0i. Price anomalies.** None new; `price_cache` did not change overnight. Last night's largest held moves (MXL -12.72%, COCO +10.52%, COHR -9.63%) are far below split-artifact size.
+
+---
+
+### 1. Portfolio standings (indicative 10-08; INDICATIVE per 0g)
+
+**The 76-row table is unchanged from section 2 of the 2026-10-08 post-market entry.** I re-ran it this morning from the same DB state and every row matches. Extremes only:
+
+| sleeve | ITD | day (10-08) | MTD | WTD |
+|---|---|---|---|---|
+| llm_overlay_mom_roa_top1_paper | **+10.9038%** | -4.7900% | -2.7457% | -3.6298% |
+| qqq_benchmark_paper | +10.8922% | -1.3395% | +1.0557% | -0.2668% |
+| llm_cascade_top1_paper | +8.6887% | -4.7900% | -2.7457% | -3.6298% |
+| residual_w5545_paper (best stock rung) | +8.4496% | +0.1854% | +0.8203% | -0.5400% |
+| sector_top4_full_paper | +8.2568% | +0.2055% | +1.9442% | +0.7379% |
+| spy_benchmark_paper | +7.3933% | -0.4233% | +1.4817% | +0.5574% |
+| mom_roa_6535_paper | -13.6769% | -2.9314% | -4.2385% | -6.8348% |
+| mom_v2_paper | -15.7934% | -2.5103% | -4.9575% | -6.4385% |
+| mom_v1_paper | **-16.9720%** | -2.0965% | -4.1624% | -5.4766% |
+
+**Book: start $7,600,000.00 | marked 10-07 $7,683,814.52 | indicative 10-08 $7,682,829.55 | day -0.0128% | ITD +1.0899% | MTD +0.3021% | WTD -0.5843%.** Priced position value $7,638,159.68 across 233 names, 3,281 open positions.
+
+**Largest holdings (share of priced value, 10-08 closes):** MU 7.0004% (62 sleeves, +31.89% unrealized) | QQQ 2.8059% | SPY 2.7547% | INSW 1.8777% (44) | STX 1.8479% (65) | LRCX 1.7949% (54) | AMAT 1.5550% (51) | WDC 1.5405% (65, -14.50% unrealized) | XLE 1.4769% | XLK 1.4742% | **AAPL 1.4720% (45)** | JNJ 1.4278% | EXEL 1.4039% | TGTX 1.3926% | ATEX 1.3088% (59, -17.74% unrealized). **Sector weights over 20% (from last night, same price state): Technology 24.7591%, Healthcare 22.7145% (both labels).**
+
+---
+
+### 2. Overnight and pre-market moves
+
+**Futures.** [Yahoo Finance, "Why Are Nasdaq Futures Surging Premarket?", 2026-10-09](https://finance.yahoo.com/markets/stocks/articles/why-nasdaq-futures-surging-premarket-083857424.html), as of 04:00 ET: **Nasdaq-100 +0.85% (+263 to 31,232.50), S&P 500 +0.42% (+32.50 to 7,848.75), Dow +0.14% (+70 to 51,563.00).** The [Yahoo live blog, 2026-10-09](https://finance.yahoo.com/markets/live/stock-market-today-friday-october-9-dow-sp-500-nasdaq-080148117.html) gives the same quotes plus Russell 2000 futures +0.34% (2,819.20) and rounds them to +0.8% / +0.4% / +0.1%. **Flag:** a search summary of [TheStreet, 2026-10-09](https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-oct-09-2026) gave S&P futures 7,846.75 (+0.39%) and Dow 51,553.00 (+0.12%); the direct fetch returned HTTP 403, so those are a different, unverified snapshot. The Yahoo 04:00 ET figures are published.
+
+**Held names with a sourced pre-market move:**
+
+| name | book weight / sleeves | pre-market | cause (source) |
+|---|---|---|---|
+| MU | 7.0004% / 62 | "up more than 1%" | chip rebound after Thursday's losses ([Yahoo premarket piece](https://finance.yahoo.com/markets/stocks/articles/why-nasdaq-futures-surging-premarket-083857424.html)) |
+| AAPL | 1.4720% / 45 | "down more than 1.5%" | Nikkei reported that Apple asked suppliers to cut iPhone 18 Pro / Pro Max component orders 15-20% on soft early demand and higher prices (same Yahoo piece) |
+
+**The AAPL report is Nikkei's, seen only through Yahoo.** Searches for the 15-20% iPhone 18 Pro order cut returned only older stories (an iPhone 17 production cut; a staggered iPhone 18 launch, e.g. [Notebookcheck](https://www.notebookcheck.net/Different-iPhone-18-and-iPhone-18-Pro-release-dates-to-result-in-20-reduction-in-iPhone-18-shipments-in-2026.1232570.0.html)). The Nikkei article itself was not fetched. Published as Nikkei's report via Yahoo, not confirmed by a second outlet. No exact pre-market price is published for MU or AAPL: Yahoo gives only "more than" thresholds, and I did not find a timestamped quote.
+
+**Not held, for context:** Lumentum (LITE) +3-5% after its CEO said its optical components are effectively sold out through early 2029; SpaceX +3% on spectrum licenses and an FCC approval, with TMUS/T/VZ "down 6%" (same Yahoo piece); Delta -3% after a Q3 miss on fuel costs (Yahoo live blog). The book holds optical names COHR, CIEN and VIAV (6 sleeves each, 0.1188% / 0.1184% / 0.1255%) and satellite names GSAT and VSAT (2 sleeves each, 0.0269% / 0.0245%); **no source ties any of them to today's news**, so no move is attributed.
+
+**Rejected (negative cross-check).** A search summary claimed WDC and STX "+3%", LRCX "more than 8%" and AMAT "nearly 5%" pre-market on 2026-10-09. The underlying [iTiger article](https://www.itiger.com/news/1193028613) is dated **2026-07-30 19:25**. It is stale and is not used. No current pre-market figure was found for STX, WDC, LRCX or AMAT (together 6.7383% of priced value).
+
+**Oil.**
+
+| benchmark | Thursday settle | Friday quote | source |
+|---|---|---|---|
+| Brent | **$104.28** (reconciled, see flag) | $103.42 (-0.82%) at 10:35 UAE time | [The National, 2026-10-09](https://www.thenationalnews.com/business/energy/2026/10/09/oil-headed-for-weekly-gain-on-impact-of-middle-east-tension-and-hurricane-isaias/) |
+| Brent | | $103.2 (-1%) | [HDFC Sky, 2026-10-09](https://hdfcsky.com/news/brent-crude-oil-price-today-october-9-2026-brent-falls-1percent-to-103-2-as-trump-signals-iran-talks) |
+| WTI | $91.49 | $90.46 (-1.03 / -1.13%) | Yahoo live blog quote |
+| WTI | | $90.81 (-0.74%) | The National |
+| WTI | | $90.6 (-0.9%) | HDFC Sky |
+
+**Brent settle flag:** The National says Brent closed Thursday at **$104.20 (+4.1%)**. Last night's entry published **$104.28** from a search summary of CNBC. A search summary of [Angel One, 2026-10-09](https://www.angelone.in/news/commodities/crude-oil-prices-fall-after-trump-rules-out-iran-attack-before-midterms-october-9-2026) (not fetched) gives Brent -0.8% to $103.45; $103.45 / 0.992 = $104.28. **$104.28 stays the published settle; The National's $104.20 is flagged as the outlier.** WTI is consistent across sources: $90.46 + $1.03 = $91.49 (Yahoo), and $90.81 / 0.9926 = $91.49 (The National). The National says Brent is on track for a weekly gain and WTI for a weekly decline. **Cause:** Trump said Thursday the US would not attack Iran before the November midterms and that talks were "productive" (search summaries of [CNBC](https://www.cnbc.com/2026/10/09/oil-falls-as-trump-comments-on-iran-talks-ease-supply-concerns.html), HTTP 403 on fetch, and Angel One); The National adds US sanctions on 17 vessels carrying Iranian crude.
+
+**Rates.** The Yahoo live blog's quote box shows the **10-year at 5.23% (-0.05)**. That is the same level and change Yahoo printed for **Thursday's** close, so the box may not be showing a Friday move. **Not confirmed as a Friday-morning reading**; no second source found.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. OpenAI revenue: the 10-08 shock got a counter-headline overnight.** [Bloomberg, 2026-10-08](https://www.bloomberg.com/news/articles/2026-10-08/openai-s-annualized-revenue-nears-50-billion-ft-says) carried the FT's ~$50bn run-rate figure. [Investing.com, 2026-10-09 01:02](https://www.investing.com/news/stock-market-news/openai-expects-to-reach-70-bln-revenue-by-end2026-bloomberg-reports-4940179) reports Bloomberg's follow-up: OpenAI expects to "reach or exceed $70 billion" annualized revenue by end-2026, driven chiefly by enterprise. The Yahoo live blog cites the same Bloomberg report. **The two figures do not contradict each other:** ~$50bn is the end-September run rate and $70bn is a year-end projection. The 10-08 selloff priced the first headline and futures are pricing the second. MU's -4.79% on 10-08 cost the book -$26,925.16 (last night, 3a). Whether today recovers it is not known before the open.
+
+**3b. Hurricane Isaias.** [NHC](https://www.nhc.noaa.gov/), **advisory 11A, 07:00 CDT 2026-10-09: 110 mph, 27.0N 87.7W, moving NNE at 15 mph**, "ON THE CUSP OF MAJOR HURRICANE STRENGTH"; preparations in the warning areas "should be completed within the next few hours". Category 3 starts at 111 mph. A search summary of [CNN's live page, 2026-10-09](https://www.cnn.com/2026/10/09/weather/live-news/hurricane-isaias-gulf-storm) (HTTP 451 on fetch) puts it about 245 miles south of Pensacola and 170 miles SSE of the Mississippi River mouth, with hurricane-force winds reaching parts of the Florida Panhandle and coastal Alabama as early as late Friday afternoon. A search summary of [NPR, 2026-10-09](https://www.npr.org/2026/10/09/nx-s1-5996396/hurricane-isaias-updates) (fetch timed out) has landfall late Friday or early Saturday affecting the Florida Panhandle, southern Alabama and southern Mississippi. **NHC's page gave no landfall point, so the exact landfall location is not published here**; last night's unverified CNN claim that the track runs "just east of New Orleans" is neither confirmed nor contradicted by a fetched source.
+
+**Shut-ins, now verified:** [WMTV, 2026-10-09](https://www.wmtv15news.com/2026/10/09/hurricane-isaias-shuts-down-nearly-two-thirds-gulf-oil-production-could-affect-gas-prices/), citing federal data as of **11:00 CDT Thursday**: **62.89% of Gulf oil production (about 1.28 million bpd)** and **57.35% of gas (about 1.13 bcf/d)** shut in; **121 of 371** manned platforms evacuated. This is the figure last night's entry declined to publish from an unfetched source. HDFC Sky's "1.3 million barrels per day, 62.9%" agrees after rounding.
+
+**Book exposure (from last night, same price state):** refiners **4.4113%** of priced value (VLO 1.0955%, DINO 0.8640%, PARR 0.7758%, PSX 0.6604%, MPC 0.5894%, DK 0.2511%, PBF 0.1751%); Energy **15.0808%**; INSW 1.8777%. **Which refineries are in the path is not established by any fetched source**, so no plant-level exposure is claimed. The refiners rose +1.51% to +6.76% on 10-08 (last night, 3f); oil is down about 1% pre-market.
+
+**3c. Economic calendar today.** University of Michigan consumer sentiment, preliminary October, **10:00 ET**: consensus **48**, prior **48.1** (Yahoo live blog). Nothing else scheduled was found.
+
+**3d. Held-name company news (last 24h).** Searched: MU, ATEX, STX/WDC/LRCX/AMAT, AAPL.
+- **MU:** no Micron-specific overnight news. Search results were older (Moody's upgrade, New York fab groundbreaking, fiscal Q1 2026 results), not dated this week; not used.
+- **ATEX** (59 sleeves, -5.84% on 10-08, unexplained): still **no catalyst found**. Results are quote pages and older earnings coverage; next earnings 2026-11-10 (search summary, unchanged from prior entries).
+- **AAPL:** the order-cut report (section 2).
+- **STX/WDC/LRCX/AMAT:** no news; the only "today" item was the rejected July article.
+
+---
+
+### 4. LLM overlay status (indicative 10-08)
+
+| arm | treatment ITD | control ITD | spread |
+|---|---|---|---|
+| Stock top-1 | **+10.9038%** | +3.1886% | **+7.7152pp** |
+| Stock cascade | +8.6887% | +3.1886% | +5.5001pp |
+| Macro sector-4 | +3.5179% | +6.5959% | **-3.0780pp** |
+| Macro cascade | +1.2662% | +6.5959% | -5.3298pp (unrounded -5.32978; the 10-08 post-market entry's -5.3297pp is the difference of the rounded ITDs) |
+
+- **Stock arm:** all three sleeves hold only MU. **MU $1,035.84 (10-08 close) vs $820.00 invalidation (log id 17, 2026-09-01 BUY) = 26.32% above.** No exact pre-market price was found. `llm_overlay_log` = **14 rows** (`count(*)`), 5 BUY / 9 VETO, latest `decision_date` 2026-09-01.
+- **Macro arm:** treatment holds XLV/XLE/XLK + $23,087.99 cash (the 09-01 XLI veto). **XLI $168.40 is still below the $170.00 veto level** (log id 25).
+- **XLB $49.27 vs $51.00 invalidation (log id 27, HOLD): 21 closes below since 2026-09-10** (re-counted this morning from `price_cache`). Held only by the macro cascade; not enforced.
+- `sector_overlay_log` = **27 rows**, latest 2026-09-01. **No October decision exists in either log**, because the October monthly has not run.
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **October monthly rebalance undone - BLOCKED-ON-EVAN.** Seventh October session on September's picks today. Nothing here works around it.
+2. **10-08 unmarked** until the 07:45 heal; outcome not predicted.
+3. **Isaias landfall late today or early Saturday**, near Category 3 (NHC 11A). Energy 15.0808% and refiners 4.4113% of priced value. **Exposure only, not a forecast**: an outage at a Gulf refinery and a wider crack spread push refiner equities in opposite directions.
+4. **A single-name, single-theme book again.** MU at 7.0004% in 62 sleeves, plus the semi/storage group (STX, LRCX, AMAT, WDC: 6.7383%), all point the same way on the OpenAI headline. Pre-market says the 10-08 rotation reverses; that is futures, not a close.
+5. **AAPL order-cut report** (Nikkei via Yahoo, no second outlet), 1.4720% of priced value in 45 sleeves.
+6. **Stubs:** WBD 383.7402 shares (6 rungs), APGE 60.0609 (6), CRNX 21.206 (2); nothing books a cash-merger exit automatically. KFII / UYSC / CHPG have no 10-08 close.
+7. **Calendar (from prior entries, not re-verified today):** 10-12 weekly ladder; 10-14 September CPI; 10-21 to 10-23 TGTX ENHANCE data (TGTX 1.3926%, 48 sleeves); 10-27/28 FOMC.
+
+---
+
+### 6. Strategic insights
+
+**6a. Verdict first: three sessions, one factor flipping sign.** 10-07: MU up, rest of the book down. 10-08: MU -$26,925.16, rest of the book +$25,940.19 (tech down, energy up). 10-09 pre-market: chips up, oil down, so the same exposure is set to flip again. **The book's daily P&L is being driven by a tech-vs-energy split across sleeves, not by stock selection inside them.** The `mom_*` sleeves (tech-heavy, almost no energy) and the residual rungs (energy, shipping, refiners) sit on opposite sides of it (last night, 3e).
+
+**6b. The headline-chasing lesson.** The 10-08 selloff and the 10-09 rebound came from two reports about the same company that measure different things (a run rate vs a year-end target). A sleeve that rebalances monthly cannot act on that, and should not; the honest read is that MU's 7% weight makes the book's monthly result partly a bet on AI-capex headlines. The same-name cap question (raised 10-06 and 10-07) still needs a pre-registered backtest before any number is offered.
+
+**6c. Research idea carried forward, not a recommendation:** the sector-weight vs within-sector selection decomposition from last night's 7c. Today adds one reason: if the `mom_*` deficit since 09-01 narrows on a rotation-driven day like today, that supports "sector bet" over "selection skill" for both families. It is the cheapest test that could separate them, and it uses data already in `paper_positions.sector` and `price_cache`.
+
+**6d. Not supported by today's data:**
+- **That any sleeve has an edge shown by this week.** Pre-market moves are futures and single-name quotes, not closes.
+- **That the hurricane is a trade.** The storm's effect on refiners runs both ways, and no fetched source names the plants in its path.
+- **A new sleeve concept.** No recommendation.
+
+---
