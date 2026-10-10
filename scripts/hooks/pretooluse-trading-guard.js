@@ -3,7 +3,9 @@
  * trading-guard — PreToolUse hook (matcher: Bash|PowerShell).
  *
  * Denies the commands that move real state in this project: the rebalancers,
- * the LLM decide/rebalance ops paths, an Alpaca order submit, and `git push`.
+ * the LLM decide/rebalance ops paths, and an Alpaca order submit. (It denied
+ * `git push` too, in every project, until Evan had that rule deleted on
+ * 2026-10-10; the `Bash(git push:*)` prefix deny in settings.json is separate.)
  * CLAUDE.md and every scheduled-task spec forbid these in prose; this is the
  * mechanism that actually enforces it.
  *
@@ -18,8 +20,7 @@
  * structurally cannot catch. A hook sees the whole command string.
  *
  * The `git add -A` prefix rule in settings.json DOES work and is kept as a
- * second layer; this hook covers `git push` because a prefix rule misses
- * `cd x && git push` and `git -C x push`.
+ * second layer.
  *
  * DESIGN (rewritten after record EE, 2026-09-29, which found 8 escapes):
  *  - Rules are INVOCATION-SHAPED, not bare words. A bare-word `rebalance` rule
@@ -27,8 +28,8 @@
  *    monthy-llm-rebalance, and SQL like exit_reason='rebalance'. Each TRADING
  *    rule names a module, a .bat wrapper, an *_ops subcommand, or a flag.
  *  - SCOPING. This hook is registered user-wide, so the Trading-only rules must
- *    not fire in other projects. RULES split into GLOBAL (publishing, wrong in
- *    every repo) and TRADING. TRADING applies when payload.cwd or the command
+ *    not fire in other projects. RULES split into GLOBAL (every repo; empty
+ *    since the push rule was deleted 2026-10-10) and TRADING. TRADING applies when payload.cwd or the command
  *    matches ClaudeCode[\\/]Trading, and ALSO when payload.cwd is missing
  *    (fail closed: an unknown location is treated as Trading).
  *  - THREE STRINGS per command are tested, and any hit denies: the raw command;
@@ -44,10 +45,8 @@
  * KNOWN LIMITS (not closed, by design): an env-var or variable-indirected module
  * name (`X=paper_; python -m ...${X}rebalance`) cannot be seen by a string
  * matcher; a clone of this repo outside a path matching ClaudeCode/Trading
- * scopes to the GLOBAL rules only unless its cwd is missing; the git rule
- * over-matches any command carrying both `git` and `push` (a commit message that
- * mentions push denies; rephrase); and hooks cover only Bash/PowerShell, not
- * the Read/Edit tools.
+ * scopes to the GLOBAL rules only unless its cwd is missing; and hooks cover
+ * only Bash/PowerShell, not the Read/Edit tools.
  *
  * Always exits 0 — the block is expressed via permissionDecision:"deny", never
  * via a crash. On an internal error it fails OPEN but NOISY, except that a
@@ -58,10 +57,9 @@
 
 // Each entry: [regex, human reason]. Matched case-insensitively against three
 // forms of the command (see DESIGN above).
-const GLOBAL_RULES = [
-  [/\bgit\b[\s\S]*\bpush\b|\bpush\b[\s\S]*\bgit\b/i,
-   "publishing is Evan's call. A bare `git push` publishes the WHOLE branch, so unreviewed in-progress commits ride along (record DI.3, realised 2026-08-19 07:08 CDT)."],
-];
+// Empty since 2026-10-10: its only rule, the `git push` deny, was deleted at
+// Evan's request. Pushing stays Evan's call by policy (CLAUDE.md).
+const GLOBAL_RULES = [];
 
 const TRADING_RULES = [
   [/\b(?:monthly_|ladder_forward_|paper_)rebalance\b/i,

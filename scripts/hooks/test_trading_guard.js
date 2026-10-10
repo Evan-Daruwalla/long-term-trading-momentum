@@ -34,13 +34,14 @@ const DENY = [
   ".venv\\Scripts\\python.exe -m scripts.momentum.sector_overlay_ops rebalance",
   ".venv\\Scripts\\python.exe -m scripts.momentum.llm_overlay_ops decide",
   ".venv\\Scripts\\python.exe -m scripts.momentum.alpaca_sync --execute",
-  "git push",
-  "git push origin master",
-  "cd /d/ClaudeCode/Trading && git push",   // prefix rule misses this; hook must not
-  "GIT_DIR=. git   push --force",
 ];
 
 const ALLOW = [
+  // the guard's git push rule was deleted 2026-10-10 at Evan's request
+  "git push",
+  "git push origin master",
+  "cd /d/ClaudeCode/Trading && git push",
+  "GIT_DIR=. git   push --force",
   "git status",
   "git add daily_report.md daily_report.html",
   'git commit -m "Daily report: 2026-08-20 post-market close analysis entry"',
@@ -123,15 +124,11 @@ const DENY_TRADING = [
   `.venv\\Scripts\\python.exe -m trading_bot.execution.alpaca_sync --all --ex`,
   `.venv\\Scripts\\python.exe -m trading_bot.execution.alpaca_sync --all --e`,
   `.venv\\Scripts\\python.exe -c "from trading_bot.execution import alpaca_sync as a; a.sync_account(x, execute = True)"`,
-  // push with a flag between git and push, and an indirected push
-  `git -C D:/ClaudeCode/Trading ${PSH} origin master`,
-  `set X=${PSH} & git %X%`,
   // shell-quoting splits inside a token (^ ' " \ are stripped before matching)
   `.venv\\Scripts\\python.exe -m scripts.momentum.paper_reb^alance`,
   `.venv\\Scripts\\python.exe -m scripts.momentum.paper_reb''alance`,
   `.venv\\Scripts\\python.exe -m scripts.momentum.paper_reb""alance`,
   `.venv\\Scripts\\python.exe -m scripts.momentum.paper_reb\\alance`,
-  `git pu\\sh`,
 ];
 
 const ALLOW_TRADING = [
@@ -149,6 +146,10 @@ const ALLOW_TRADING = [
   `.venv\\Scripts\\python.exe -m scripts.data_audit.remark_nav_day --date 2026-09-28`,
   `.venv\\Scripts\\python.exe -m trading_bot.execution.alpaca_sync --all`,
   `.venv\\Scripts\\python.exe -m trading_bot.execution.alpaca_sync --all --dry-run`,
+  // push shapes the deleted rule (2026-10-10) used to catch
+  `git -C D:/ClaudeCode/Trading ${PSH} origin master`,
+  `set X=${PSH} & git %X%`,
+  `git pu\\sh`,
 ];
 
 for (const c of DENY_TRADING) {
@@ -170,8 +171,8 @@ for (const c of ALLOW_TRADING) {
   else { fail++; console.log("FAIL (no cwd field, should DENY - fail closed):", c); }
 }
 
-// cwd scoping: outside Trading the Trading-only rules do not apply, but the
-// user-wide git-publish rule still does (the hook is registered for every project).
+// cwd scoping: outside Trading the Trading-only rules do not apply, and since
+// 2026-10-10 no rule is user-wide (the git push rule was deleted).
 {
   const outside = `.venv\\Scripts\\python.exe -m scripts.momentum.paper_${RB}`;
   let r = run(bashIn(outside, CITOYA_CWD));
@@ -179,8 +180,8 @@ for (const c of ALLOW_TRADING) {
   else { fail++; console.log("FAIL (Citoya cwd, Trading-only rule should be scoped out):", outside, r.raw); }
 
   r = run(bashIn(`git ${PSH}`, CITOYA_CWD));
-  if (r.decision === "deny") { pass++; }
-  else { fail++; console.log("FAIL (Citoya cwd, git publish should still DENY):", `git ${PSH}`); }
+  if (r.decision === "allow") { pass++; }
+  else { fail++; console.log("FAIL (Citoya cwd, git push should ALLOW since 2026-10-10):", `git ${PSH}`, r.raw); }
 
   // a command that names the Trading path pulls the Trading rules back in
   const named = `cd D:/ClaudeCode/Trading && .venv/Scripts/python.exe -m scripts.momentum.paper_${RB}`;
