@@ -5,7 +5,7 @@
  * Denies the commands that move real state in this project: the rebalancers,
  * the LLM decide/rebalance ops paths, and an Alpaca order submit. (It denied
  * `git push` too, in every project, until Evan had that rule deleted on
- * 2026-10-10; the `Bash(git push:*)` prefix deny in settings.json is separate.)
+ * 2026-10-10, when the `Bash(git push:*)` settings.json denies went too.)
  * CLAUDE.md and every scheduled-task spec forbid these in prose; this is the
  * mechanism that actually enforces it.
  *
