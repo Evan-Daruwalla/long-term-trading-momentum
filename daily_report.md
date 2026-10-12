@@ -62968,3 +62968,195 @@ Spreads are differences of the 4-decimal ITDs shown.
 - **A new sleeve concept.** No recommendation.
 
 ---
+
+## Report: 2026-10-12 (Monday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-09 is now MARKED: `max(nav_date)` = 2026-10-09, 76 rows.** Friday was left pending at the 17:25 gate (4,298 closes) and was marked on 2026-10-10. `price_cache` now holds **5,096** closes for 10-09. **The marked book, $7,726,080.96, equals Friday night's indicative figure to the cent**, and so does every one of the 76 sleeve rows. Nothing is pending, so the 07:45 `TradingMorningMTM` run has nothing to heal; it only refreshes prices. Today is a normal NYSE/Nasdaq session. **The SIFMA bond market is closed for Columbus Day** (investingLive; Wisevoter).
+>
+> **Book (marked 10-09): $7,726,080.96, day +0.5630% (+$43,250.50), ITD +1.6590%, MTD +0.8668%, WTD -0.0246%** on $7,600,000.00. Best ITD: `qqq_benchmark_paper` +11.4396%, `llm_overlay_mom_roa_top1_paper` +10.1721%, `residual_w5545_paper` +8.8771%. Worst: `mom_v1_paper` -15.7498%, `mom_v2_paper` -14.1494%, `mom_roa_6535_paper` -12.5243%.
+>
+> **Pre-market: MU is the book's problem this morning.** **MU $1,006.20, -2.2%** at 05:04 (Investing.com), on China's CXMT announcing next-generation 4F2 DRAM work plus the Taiwan unions' bonus demand (Taipei rally 10-19, Taichung-union mediation 10-22). MU is **6.9150% of priced value in 62 sleeves**. At $1,006.20 the book would lose **-$11,769.43 (-0.1523%)** on MU alone, and the three MU-only sleeves about -2.214%. SK Hynix fell as much as 4.01% intraday in Seoul (TradingKey). Index futures are flat: **S&P 500 +0.09%, Dow +0.15%, Nasdaq-100 -0.12%** at 05:09 CDT (Yahoo). Other held semis (KuCoin, timezone not stated): LRCX -1.04%, AMAT -1.08%, STX +1.06%, WDC +1.01%, COHR +3.4%.
+>
+> **Macro and weekend:** **Oil whipsawed.** Brent rose **+1.3% to $106.10** early (Investing.com, 05:52 ET) on the weekend Houthi missile strikes on Riyadh's King Khalid airport (12-13 killed; sources differ). By 06:30 CDT it was **about $104 (-0.2%), WTI about $91 (-0.7%)** (OilPrice.com), after Trump said on Sunday that Russia and Ukraine had agreed an "energy ceasefire". Kyiv says it did not know about it in advance, and Russia has not confirmed it (NBC). **Isaias made landfall Friday 21:30 ET near Destin, FL, at Category 2 (105 mph)** (Fox Weather). The Pascagoula and Mobile ports are back to normal (Baird Maritime). **New candidate cause for Friday's refiner drop:** Trump's Russian-diesel deal, announced Friday (NBC), with diesel futures "about 4%" lower at Friday's close (24/7 Wall St). **This week:** JNJ Q3 results Tue 10-13 before the open (company release; 48 sleeves, 1.4472%). The bank earnings that also start Tuesday (JPM, GS, Citi) are not held. **September CPI Wed 10-14 08:30 ET**, headline expected about 3.6-3.7% YoY vs 3.4% (Admiral Markets).
+>
+> **LLM overlay (marked 10-09):** stock arm treatment **+10.1721%** vs control +2.5078% (**+7.6643pp**); macro arm treatment +3.9927% vs control +7.1832% (**-3.1905pp**). MU pre-market $1,006.20 is **22.71% above** its $820.00 invalidation. **XLB $49.43 vs $51.00: 22nd close below**, not enforced. XLI $169.25 is still below its $170.00 veto level. No October decisions logged (`llm_overlay_log` 14 rows, `sector_overlay_log` 27 rows, both latest 2026-09-01).
+>
+> **Critical outstanding:** (1) **The October monthly rebalance is still undone (BLOCKED-ON-EVAN).** `verify_run` FAILs only the cadence check (76/76 sleeves OK). Today is the eighth October session on September's picks. (2) **No 10-09 close for APGE, CRNX or WBD**, all stubs (down from six names on Friday). (3) MU exposure is concentrated and its pre-market move is negative (section 2). (4) Weekly ladder at 20:30 tonight.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Mon Oct 12 07:02:24 CDT 2026` at start, offset **-0500 -> CDT**; a second read gave 07:08:21 CDT. Local date **2026-10-12**, weekday **Monday**. Times are CDT unless marked ET/UTC/GMT.
+
+**0b. Market status. Open.** Monday 2026-10-12 is Columbus Day / Indigenous Peoples' Day. NYSE and Nasdaq trade normal hours. SIFMA recommends a full close of US dollar fixed-income trading ([investingLive](https://investinglive.com/stock-market-update/us-stocks-open-but-bond-market-shut-for-columbus-day-what-traders-need-to-know/); the fetch tool gave the page date as 2026-09-10, which looks like a day/month swap and was not resolved; [Wisevoter, 2026-10-09](https://wisevoter.com/world/us/2026/10/09/us-stock-exchanges-remain-open-october-holiday), search summary). **So there is no cash-Treasury reference today:** a 10-year yield quoted today is not a session print. Banks and federal offices are closed, and no federal data is scheduled.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-12 \(Monday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. This is not a re-fire.
+
+**0d. Cron echo** (`list_scheduled_tasks`, read this run):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-13T12:01:23Z | **2026-10-12T12:02:16Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-13T00:04:22Z | 2026-10-10T00:04:38Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | 2026-11-02T00:01:03Z | 2026-10-05T23:01:24Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-13T12:09:01Z | 2026-10-11T12:09:38Z | 541s |
+
+**This task's cron is correct at `0 7`.** `lastRunAt 12:02:16Z` (07:02:16 CDT) is this run. The task file says "fires at 07:07"; the live cron is 07:00 plus up to 83s of jitter, so this run started at 07:02. `nextRunAt` (Tue 10-13) is right. `daily-trade-check-2` next fires tonight at about 19:04 CDT. **`daily-audit` shows `nextRunAt` 10-13 while `lastRunAt` is still 10-11.** Today's fire (due about 12:09Z, after this run started) is not yet recorded, and `nextRunAt` has already moved past it. This is the same reading that resolved itself on 10-09. `monthy-llm-rebalance` is still `0 18 1-5 * *`, so nothing retries October.
+
+**0e. DB opened read-only** (`file:var/trades.db?mode=ro`, `uri=True`) for every query.
+
+**0f. Morning heal: not yet run, and nothing to heal.** `TradingMorningMTM` fires at 07:45; this entry was compiled at about 07:08-07:30. `var/last_morning_run.log` is from Sunday 2026-10-11 07:55: `catch-up done: marked=0 ... latest=2026-10-09 coverage_ok=True pending=none`. The Sunday 17:25 daily run and the 20:30 ladder run (`2026-10-11 is not a trading day (0 closes < 1000); nothing to rebalance`) both end `RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)`. **Which run marked 10-09 on 10-10 cannot be recovered:** `var/ops_status.log` reads `[OPS 2026-10-10] coverage=n/a`, then `[OPS 2026-10-10] coverage=PASS`, but the logs themselves were overwritten on 10-11. `max(entry_date)` = `max(exit_date)` = 2026-10-05; `max(last_rebalanced_at)` = 2026-10-06T01:32:26Z. **Nothing has traded since 10-05.**
+
+**0g. Latest session MARKED.** `paper_nav` dates since 10-01, all 76 rows each: 10-01, 10-02, 10-05, 10-06, 10-07, 10-08, **10-09**. `price_cache` close counts, re-queried this morning: 10-05 **5,106** | 10-06 **5,102** | 10-07 **5,100** | 10-08 **5,098** | 10-09 **5,096** (4,298 at Friday's gate). The first four are each +1 against the counts in Friday's entry; one more close per date arrived over the weekend refreshes (not investigated). **Check on the indicative method:** the marked 10-09 book is $7,726,080.96, and Friday night's indicative figure was $7,726,080.96. All 76 rows match.
+
+**0h. Held names without a 10-09 close: 3 of 233**, carried at their last close. **APGE** (2026-09-03, $135.07; 60.0609 shares, 6 sleeves), **CRNX** (2026-09-02, $84.95; 21.206 shares, 2 sleeves), **WBD** (2026-10-06, $30.95; 383.7402 shares, 6 sleeves). All three are deal stubs; nothing books a cash-merger exit automatically. UYSC, KCHV and FMBM, missing on Friday night, now have 10-09 closes. Sunday's `check_anomalies` flagged the same three as `NOCLOSE` (3 anomalies for 10-09).
+
+**0i. Price anomalies.** Nothing new. Sunday's split-seam scan (non-blocking) flagged again: **KOD** (`09-25 $32.35 -> 09-28 $89.92`, 2.7796x; the DAYBREAK Phase 3 readout, matched to news in earlier entries; 10-09 close $99.87) and **LQDA** (`09-29 $70.69 -> 09-30 $30.26`, 0.4281x; matched to news in earlier entries; 10-09 close $27.38). **Both are real moves, not data breaks.** Four `mom_*` positions in FTH carry a NULL `sector` (0.0518% of priced value). This is reported only; it was not investigated.
+
+**0j. `verify_run`: FAIL, on the rebalance cadence only.** All 76 sleeves pass continuity, ledger and drift. The Sunday 17:25 log ends with `VERIFY FAIL - daily run left a settled-history gap`; the only FAIL line above it is the cadence check (`last_rebalance(2026-09-01/OK) settled_month(2026-10)`).
+
+---
+
+### 1. Portfolio standings (MARKED 2026-10-09 close)
+
+**The 76-row table is the one in section 2 of the 2026-10-09 post-market entry, which was then indicative and is now marked.** It was re-run this morning from `paper_nav`, and a `diff` of all 76 table rows against that entry is empty. Extremes and anchors:
+
+| sleeve | nav 10-09 | day | ITD | MTD | WTD |
+|---|---|---|---|---|---|
+| qqq_benchmark_paper | 111,439.59 | +0.4936% | **+11.4396%** | +1.5545% | +0.2255% |
+| llm_overlay_mom_roa_top1_paper | 110,172.13 | -0.6597% | +10.1721% | -3.3873% | -4.2656% |
+| residual_w5545_paper (best stock rung) | 108,877.15 | +0.3942% | +8.8771% | +1.2177% | -0.1479% |
+| sector_top4_full_paper | 108,871.65 | +0.5680% | +8.8717% | +2.5232% | +1.3101% |
+| spy_benchmark_paper | 108,037.19 | +0.5995% | +8.0372% | +2.0901% | +1.1603% |
+| mom_roa_top1_paper (stock control) | 102,507.79 | -0.6598% | +2.5078% | -3.3876% | -4.2660% |
+| mom_roa_6535_paper | 87,475.70 | +1.3352% | -12.5243% | -2.9599% | -5.5909% |
+| mom_v2_paper | 85,850.55 | +1.9523% | -14.1494% | -3.1020% | -4.6120% |
+| mom_v1_paper | 84,250.21 | +1.4720% | **-15.7498%** | -2.7517% | -4.0852% |
+
+**Book: start $7,600,000.00 | marked 10-08 $7,682,830.46 | marked 10-09 $7,726,080.96 | day +0.5630% (+$43,250.50) | ITD +1.6590% | MTD +0.8668% | WTD -0.0246%.** 57 sleeves rose and 19 fell. Priced position value **$7,681,411.08** across 233 names and 3,281 open positions.
+
+**Largest holdings (share of priced value, 10-09 closes):** MU **6.9150%** (62 sleeves, +31.01% unrealized) | QQQ 2.8039% | SPY 2.7556% | STX 1.8569% (65) | INSW 1.8365% (44) | LRCX 1.7751% (54) | WDC 1.5473% (65, -13.64% unrealized) | AMAT 1.5386% (51) | XLK 1.4733% | XLE 1.4650% | AAPL 1.4475% (45) | **JNJ 1.4472% (48)** | SEZL 1.4424% (35, +48.28%) | ATEX 1.4391% (59, -9.03%) | TGTX 1.4374% (48) | EXEL 1.4158% (43) | XLV 1.3560% | NRC 1.2588% (41) | EDRY 1.2583% (41) | DAVE 1.2529% (45) | SCCO 1.1756% (38). Below the top 21, for the semis cluster: KLAC 1.0765% (35).
+
+**Sector weights over 20%:** Technology **24.6900%**, Healthcare **22.9413%** (`Healthcare` 21.5853% + `Health Care` 1.3560%). Energy 14.8623%, Financial Services 9.7799%.
+
+---
+
+### 2. Overnight and pre-market moves
+
+**Futures.**
+
+| time | S&P 500 | Dow | Nasdaq-100 | source |
+|---|---|---|---|---|
+| 03:03 CDT (08:03 UTC) | "just above flatline" | "just above flatline" | -0.2% | [Yahoo via AOL, 2026-10-12](https://www.aol.com/articles/stock-market-today-dow-p-080321000.html) |
+| **05:09 CDT** | **+6.75 (+0.09%)** | **+79.00 (+0.15%)** | **-38.75 (-0.12%)** | [Yahoo premarket movers, 2026-10-12](https://finance.yahoo.com/markets/stocks/articles/premarket-movers-iren-jumps-anthropic-100951528.html) |
+
+The 05:09 figures are published. A search summary rounded them to "Dow and S&P +0.1%, Nasdaq-100 little changed", which is consistent. Context (AOL): the S&P 500 and Nasdaq set record highs last week; JPMorgan, Goldman Sachs and Citi report Tuesday.
+
+**MU: the morning's main book-level move.**
+
+| source | time | MU |
+|---|---|---|
+| [Stocktwits, 2026-10-12](https://stocktwits.com/news-articles/markets/equity/micron-sk-hynix-stocks-slip-overnight-china-s-cxmt-advances-next-gen-dram-technology/cZxIRD4RBFV) | 03:01 EDT | "dipped 1% in overnight trading" |
+| [Investing.com, 2026-10-12](https://investing.com/news/stock-market-news/why-is-micron-technology-stock-sliding-today-93CH-4943557) | 05:04 (zone not stated) | **-2.2%, $1,006.20** |
+| Yahoo premarket movers | 05:09 CDT | -2.1% |
+| [KuCoin flash, 2026-10-12](https://www.kucoin.com/news/flash/semiconductor-storage-and-optical-communication-stocks-mixed-in-pre-market-on-october-12) | "10:43:59" (zone not stated) | -2.32% |
+
+**Published: $1,006.20 (-2.2%), the only quote with a price.** $1,006.20 / $1,029.00 - 1 = -2.2157%, which matches. The -1% is an earlier overnight snapshot; -2.1% and -2.32% are other times. **Book arithmetic at $1,006.20, not a forecast:** 516.2030 MU shares across 62 sleeves -> **-$11,769.43, -0.1523% of the 10-09 book.** The three MU-only sleeves would move -2.2137% (`llm_overlay_mom_roa_top1_paper`, `llm_cascade_top1_paper`) and -2.2140% (`mom_roa_top1_paper`).
+
+**Why MU is down (sourced):**
+- **CXMT.** At a Shanghai industry event, ChangXin Memory's president said CXMT plans a server-memory product on a "4F square" DRAM cell design by end-2026. He also said its fifth-generation "G5" DRAM platform entered mass production last month (Stocktwits). [TradingKey, 2026-10-12](https://www.tradingkey.com/analysis/stocks/us-stocks/262210868-cxmt-dram-progress-samsung-sk-hynix-shares-fall-tradingkey) adds that CXMT plans DDR5 RDIMM server memory "before the end of 2026" and "has not yet disclosed full technical specifications or a specific mass-production timeline". It gives Q2 2026 DRAM revenue shares of **CXMT 10% (from 4% a year earlier), Samsung about 38%, SK Hynix about 25%, Micron about 24%**. [Kyunghyang Shinmun, 2026-10-12](https://khan.co.kr/en/article/202610121617007) (search summary) carries the same plan.
+- **Korea reacted harder than the US pre-market.** TradingKey: Samsung fell as much as about **4.2%** to 252,500 won, and SK Hynix as much as about **4.01%** to 1,624,000 won, intraday. **Flag:** Stocktwits gives SK Hynix "-0.8% in local trading hours". That is an earlier reading; the intraday-low figures are published.
+- **Taiwan labor.** Investing.com: the Taoyuan union wants "15% of operating profit toward quarterly employee bonuses", which Micron has declined to formalize. It puts the workforce at roughly 15,000 Taiwanese workers, over 80% of Micron's Taiwan staff. **Two dated events:** members are encouraged to attend a rally in Taipei on 10-19 (the article does not name the organizing union), and a further mediation session with the **Taichung** union (not Taoyuan) is set for 10-22. The strike-authorization vote itself was reported in the 10-08 pre-market entry. Those two dates are new.
+- **Not used:** Investing.com mentions Form 4 filings on 10-11/12 "details undisclosed". A search summary says MU goes ex-dividend $0.15 on 10-14. That is **not verified**; if true, the dividend-unadjusted `price_cache` will show it as a $0.15 price drop that day.
+
+**Other held semis/storage/optical (KuCoin, zone not stated, single source):** LRCX **-1.04%** (54 sleeves, 1.7751%), AMAT **-1.08%** (51, 1.5386%), STX **+1.06%** (65, 1.8569%), WDC **+1.01%** (65, 1.5473%), COHR **+3.4%** (6 sleeves, 0.1221%). No price levels are given, so no dollar figures are computed for them. **Storage (STX/WDC) is up while memory (MU) is down.** That fits a DRAM-specific story (CXMT), not a sector selloff. This is an inference, and no source states it.
+
+**Not held, for context (Yahoo 05:09 CDT):** IREN up "more than 5%" (Anthropic cloud deal), CCC Intelligent Solutions +9.5% (GTCR/Elliott buyout talks), Stellantis up, GoDaddy down (RBC downgrade). A search summary of [CNBC's premarket list](https://www.cnbc.com/2026/10/12/stocks-making-the-biggest-moves-premarket-crm-fslr-biib.html) (HTTP 403 on fetch) gave CRM +4% (BofA double upgrade), FSLR +2.4%, BIIB +2%, and AT&T/T-Mobile/Verizon -7.8% to -10.2%. Those telecom figures are not verified and may be Friday's moves. **None of these names is held** (DB check: CRM, FSLR, BIIB, IREN, CCCS, T, TMUS, VZ, IONQ, GDDY, STLA all 0 sleeves).
+
+**Oil: three readings in about two hours.**
+
+| time | Brent | WTI | source |
+|---|---|---|---|
+| Fri 10-09 settle | $104.72 | $91.85 | 10-09 post-market entry (Reuters via Yahoo) |
+| Sun 23:04 GMT | $105.48 (+$0.76, +0.73%) | $92.44 (+$0.59, +0.64%) | search summary, outlet not identified |
+| **04:52 CDT (05:52 ET)** | **$106.10 (+1.3%)** Dec | **$93.10 (+1.4%)** | [Investing.com, 2026-10-12](https://in.investing.com/news/commodities-news/oil-prices-dip-after-trump-announces-russiaukraine-energy-ceasefire-5627390) |
+| 05:56 CDT (10:56 GMT) | | $91.90 (+1.00%) | [FXStreet, 2026-10-12](https://www.fxstreet.com/news/wti-rebounds-as-middle-east-tensions-clash-with-russia-ukraine-peace-hopes-202610121056) |
+| **06:30 CDT** | **about $104 (-0.2%)** | **about $91 (-0.7%)** | [OilPrice.com, 2026-10-12](https://oilprice.com/Latest-Energy-News/World-News/Oil-Stuck-Between-Middle-East-Escalation-and-Russia-Ukraine-Energy-Truce.html) |
+
+**Reconciliation.** Each of these matches Friday's settles: the Sunday-evening row ($104.72 + $0.76 = $105.48; $91.85 + $0.59 = $92.44), Investing.com ($106.10 / 1.013 = $104.74; $93.10 / 1.014 = $91.81) and OilPrice.com's percentages. **Outlier:** FXStreet's $91.90 "+1.00%" implies a $90.99 reference, which matches no settle in this record. It is probably a spot/CFD quote and is not used. **Flag:** the Investing.com page shows "updated 5:28 PM ET", a time that had not yet happened when this was compiled; only its 05:52 ET figures are used. A search summary also gave Brent $103.94 (-0.74%), which reconciles to $104.72, with no time stated. **Oil was up about 1.3% before dawn and about flat to down by 06:30 CDT. Where it opens is not known.**
+
+**Rates.** The cash Treasury market is closed today (0b). No Monday yield is published. Friday's 10-year was 5.24% (10-09 post-market entry). A substack headline claiming "10Y tops 5.3%" was found; it is undated against a session and is not used.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. Middle East: the weekend escalation.** Houthi missiles hit Riyadh's King Khalid International Airport on Saturday 10-10, and it was hit again on Sunday. **Casualty counts differ:** FXStreet says the initial strike "reportedly" killed 12 and injured more than 300. [CBS News](https://www.cbsnews.com/news/houthis-threat-saudi-airspace-attack-riyadh-airport/) (headline via search) says the Saturday strike killed 13 and the second hit killed one; the Yahoo-syndicated week preview also says 13. **Published as 12-13; not reconciled.** [FXLeaders, 2026-10-12](https://www.fxleaders.com/news/2026/10/12/crude-oil-prices-swing-as-saudi-airport-struck-again-in-fresh-attack/): a projectile struck near Dammam's King Fahd airport, and the Houthis declared Saudi airspace a "military operations zone". FXStreet also reports a drone strike on a tanker near the Sohar anchorage off Oman, and an OPEC cut to its demand-growth forecast (to 400,000 bpd, from 1.4 million at the start of the year). Investing.com says Iran called a US proposal to reopen the Strait of Hormuz "insufficient". OilPrice.com quotes ING that Persian Gulf flows are "at their highest levels since the start of the US-Iran war". A [week-ahead piece syndicating Yahoo copy, 2026-10-12](https://www.louisvelazquez.com/stock-market-today-oct-12-2026-dow-futures-climb-as-wall-street-gears-up-for-busy-week/) says the administration is reportedly considering joining the Saudi-led campaign against the Houthis.
+
+**3b. Russia: diesel deal (Friday) and "energy ceasefire" (Sunday).** [NBC News, 2026-10-11/12](https://www.nbcnews.com/world/ukraine/trump-russia-ukraine-agree-energy-ceasefire-zelenskyy-diesel-rcna602766): the diesel deal was announced Friday 10-09. The US lifted sanctions on Russian fuel, and Trump said Russia would release 300,000 tons of diesel "immediately", 500,000 tons in November and one million tons after that. On Sunday morning Trump posted on Truth Social: "Effective immediately, there is an ENERGY CEASEFIRE". **Zelenskyy said "We learned from the media"**, and Ukrainian officials said Russian strikes on energy sites continued. Kremlin spokesman Peskov said "contacts are ongoing". NBC notes that a similar announcement a month earlier was violated by both sides.
+
+**3c. Correction to Friday's refiner attribution, by addition only.** The 10-09 post-market entry (3d) put the refiner drop (PARR -6.57%, PBF -5.67%, DK -2.73%, VLO -2.26%, MPC -1.79%, PSX -1.21%, DINO +0.48%; -$8,174.52 for the book) down to the hurricane track sparing Louisiana, as a timing inference that no source stated. **A better-sourced candidate now exists.** [24/7 Wall St, 2026-10-12](https://247wallst.com/investing/2026/10/12/president-trump-has-struck-a-deal-with-putin-for-russian-diesel-to-ease-prices-but-the-unintended-consequences-could-be-devastating/) says "Diesel futures fell about 4% at Friday's close". It and [Benzinga](https://www.benzinga.com/markets/commodities/26/10/62285582/trump-says-putin-is-sending-russian-diesel-so-much-for-sanctions) (HTTP 403 on fetch; search summary) report MPC "about 2%", VLO "about 1.9%" and PBF 4.6% lower on Friday. **Those figures disagree with the DB closes (MPC -1.79%, VLO -2.26%, PBF -5.67%); they are likely intraday, and the DB closes stand.** **Flag on the 24/7 article:** the fetched text dates the announcement "Friday, October 12", but Friday was 10-09. NBC's "announced Friday" is used for the date. **Still an inference:** more Russian diesel lowers diesel cracks, which hurts refiners, and that fits the tape better than the hurricane track. But no fetched source ties PARR or PBF specifically to the deal. Refiners are about 4.28% of priced value (VLO 1.0647%, DINO 0.8632%, PARR 0.7208%, PSX 0.6488%, MPC 0.5756%, DK 0.2429%, PBF 0.1642%).
+
+**3d. Hurricane Isaias: landed east of the refineries.** [Fox Weather](https://www.foxweather.com/weather-news/isaias-first-atlantic-hurricane-threatening-gulf-coast): **landfall Friday 10-09 21:30 ET near Destin, FL, Category 2, 105 mph, 971 mb.** [Baird Maritime, 2026-10-12](https://bairdmaritime.com/shipping/ports/gulfport-pascagoula-port-operations-isaias): the Coast Guard returned Gulfport and Pascagoula to normal port condition, and Mobile to normal from 16:00 on Saturday 10-10. Pensacola, Destin, Panama City and Port St. Joe are still in recovery, with commercial vessel movements suspended. Search summaries say at least 4 people died (CNN), that Chevron said Pascagoula "remained operational" as of Thursday (Quartz/CNBC), and that Gulf production should "resume significantly by early next week". **None of these was fetched, and no post-storm refinery status was found.** The named refineries (Chevron Pascagoula, Vertex Mobile) belong to companies the book does not hold. The Investing.com oil piece still cites "over 60%" of Gulf output offline as a precaution, which is not a current shut-in figure.
+
+**3e. Economic calendar this week.**
+- **Mon 10-12:** bond market closed; no federal data.
+- **Tue 10-13: JNJ Q3.** The press release comes at about 06:45 ET and the call at 08:30 ET ([J&J release, 2026-08-31](https://s203.q4cdn.com/636242992/files/doc_news/Johnson--Johnson-to-Host-Investor-Conference-Call-on-Third-Quarter-Results-2026.pdf), fetched). Consensus EPS of about $3.02-3.04 is from a search summary and was not verified. JNJ is **1.4472% of priced value in 48 sleeves**. JPMorgan, Goldman Sachs and Citi also report (AOL); **none is held.**
+- **Wed 10-14: September CPI, 08:30 ET.** [Admiral Markets, 2026-10-08](https://admiralmarkets.com/analytics/traders-blog/us-cpi-preview-september-2026-forecasts-and-the-core-cpi-outlook): headline YoY 3.4% in August -> **about 3.6-3.7%** expected; MoM 0.4% -> about 0.6%; core YoY 2.4% -> about 2.4%; core MoM 0.3% -> about 0.2-0.3%. Cleveland Fed nowcast (as of 10-07): 3.60% headline, 2.39% core. The cited driver is September gasoline averaging "$4.33 a gallon", a record for that month.
+- **Thu 10-15:** PPI per the week-ahead piece; AOL says inflation and retail sales data come Wednesday and Thursday. The exact Thursday release list was not verified.
+- From prior entries, not re-verified today: TGTX ENHANCE data 10-21 to 10-23 (TGTX 1.4374%, 48 sleeves); FOMC 10-27/28; UMich final 10-23.
+
+**3f. Held-name company news (10-10 to 10-12).** Searched: MU (above), AAPL, INSW, ATEX, TGTX, STX/WDC/LRCX/AMAT, VLO/MPC/PBF.
+- **AAPL:** nothing dated after Friday's Nikkei order-cut report (10-09 entries); results were older launch coverage.
+- **INSW, ATEX, TGTX:** no items dated this weekend. The results were Q1/Q2 2026 earnings coverage. ATEX's 10-09 +10.58% is still unexplained.
+- **Refiners:** 3c.
+- **Not searched:** SEZL, DAVE, EXEL, NRC, EDRY, KLAC, and the rest of the 233 names.
+
+---
+
+### 4. LLM overlay status (marked 10-09)
+
+| arm | treatment ITD | control ITD | spread |
+|---|---|---|---|
+| Stock top-1 | **+10.1721%** | +2.5078% | **+7.6643pp** |
+| Stock cascade | +7.9716% | +2.5078% | +5.4638pp |
+| Macro sector-4 | +3.9927% | +7.1832% | **-3.1905pp** |
+| Macro cascade | +1.8058% | +7.1832% | -5.3774pp |
+
+- **Stock arm.** All three sleeves hold only MU (106.97 / 104.8335 / 99.5385 shares). **MU pre-market $1,006.20 vs the $820.00 invalidation (log id 17, 2026-09-01 BUY) = 22.71% above**; the 10-09 close of $1,029.00 was 25.49% above. A -2.2% open would cut every arm by the same percentage, so the spread changes only through share counts. **The comparison is still blind**: treatment and control hold the same ticker. `llm_overlay_log` = **14 rows** (`count(*)`): 5 BUY / 9 VETO, latest `decision_date` 2026-09-01.
+- **Macro arm.** The treatment holds XLV/XLE/XLK plus **$23,087.99 cash** from the 09-01 XLI veto. **XLI $169.25 is below its $170.00 veto level** (log id 25); the 10-09 entry counted this as the third straight close below it since 10-06's $171.58 (10-08 $168.40 and 10-09 $169.25 re-checked this morning; 10-07 not re-checked).
+- **XLB $49.43 vs $51.00 invalidation (log id 27, HOLD): 22 closes below since 2026-09-10** (re-counted this morning from `price_cache`). Only the macro cascade holds it (426.8589 shares). It is not enforced.
+- `sector_overlay_log` = **27 rows**, latest 2026-09-01. **No October decision exists in either log**, because the October monthly has not run.
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **The October monthly rebalance is still undone (BLOCKED-ON-EVAN).** Today is the eighth October session on September's picks. Nothing here works around it.
+2. **MU concentration meets a two-part negative catalyst.** 6.9150% of priced value in 62 sleeves, plus all three stock-arm overlay sleeves. CXMT's progress is a competitive item with no timeline; the Taiwan labor dates are **10-19 (rally) and 10-22 (mediation)**. At $1,006.20 the book carries about -0.15% from MU alone.
+3. **Event risk tomorrow and Wednesday:** JNJ Q3 before Tuesday's open (1.4472%, 48 sleeves); CPI Wednesday 08:30 ET with headline expected to rise on gasoline. JNJ is held in 48 of the 76 sleeves; Healthcare overall is 22.9413% of priced value.
+4. **Energy is pulled two ways.** The Middle East (Riyadh strikes, a tanker hit off Oman) pushes oil up. The Russia diesel deal and the unconfirmed "energy ceasefire" push diesel and refiner margins down. Energy is 14.8623% of priced value, refiners about 4.28%, INSW 1.8365%, EDRY 1.2583%. **This is exposure only**: the two forces hit crude-linked and refining names in opposite directions.
+5. **Thin rates reference today** (bond market closed). Treasury futures trade without the cash market (investingLive).
+6. **Stubs:** WBD 383.7402 shares (6 rungs), APGE 60.0609 (6), CRNX 21.206 (2). Nothing books a cash-merger exit automatically.
+7. **Weekly ladder at 20:30 tonight**; its outcome is not predicted.
+
+---
+
+### 6. Strategic insights
+
+**6a. Verdict first: the morning's risk is idiosyncratic, and the book holds it 62 times.** The index is flat pre-market, but MU is -2.2% on news about a competitor and a labor dispute. Neither is in any sleeve's signal: the momentum and ROA screens choose MU on its price path and profitability, with no view on DRAM competition or labor. On 10-09 MU was the only reason the stock-arm overlay sleeves fell while the book rose. Today it is again the largest single-name line in the pre-market arithmetic. **This is the same-name concentration question raised on 10-06, 10-07, 10-08 and 10-09.** It still needs a pre-registered backtest of a per-name cap before any number is offered.
+
+**6b. Friday's attribution shows how fragile timing inferences are.** The 10-09 post-market entry blamed the refiner drop on the hurricane track, with a clear "inference" label. Three days later a sourced alternative, the Russian diesel deal, fits better. The label did its job: the claim was never stated as fact. Sector stories in this record should keep carrying that label until a source names the cause. **For the research idea carried since 10-08 (sector weight vs within-sector selection), this argues for decomposing on returns only and leaving narrative causes out of the test.**
+
+**6c. Pre-market direction, one more data point.** Friday's pre-market call (chips up, oil down) was judged "half right" in the 10-09 post-market entry (7b): wrong at the close for MU and for oil, while tech overall still rose (XLK +0.51%). This morning the S&P is flat while MU, oil and Korea move hard. Nothing here changes the earlier conclusion: pre-market direction is not information a monthly-rebalanced book can use.
+
+**6d. Not supported by today's data:**
+- **That CXMT changes MU's competitive position near term.** TradingKey notes no specifications and no mass-production timeline. A -2.2% pre-market quote is not a close.
+- **That the "energy ceasefire" is real.** Neither Russia nor Ukraine has confirmed it (NBC).
+- **That any sleeve has shown an edge this week.** WTD the book is -0.0246% against the SPY sleeve's +1.1603% (marked).
+- **A new sleeve concept.** No recommendation.
+
+---
