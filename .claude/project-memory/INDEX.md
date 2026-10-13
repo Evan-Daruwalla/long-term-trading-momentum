@@ -17,7 +17,7 @@ Standards bins (updated 2026-07-15; the committed choices, one home each):
 - testing.md — the frozen-test contract (d=±0.0000pp, paste real output) + verifiers + test-on-a-copy rule.
 - data.md — price_cache invariant, trades.db read-only, no concurrent factor_backtest, paper_* schema, sacred history.
 - tooling.md — module invocation, the 6 scheduled tasks (daily/morning/ladder/weekly-backup/dashboard + monthy-rebalance), timing window, HTML render, .bat gotchas. **Read the LIVE cron via `list_scheduled_tasks`, never this file or HANDOFF — 4 documented drifts (records AP, BS, CN, DO.3).**
-- disclosure.md — what may leave this project (stub 2026-09-06; Evan is 17, PAPER only, numbers must trace to the record). ALWAYS load before any case study / portfolio / public README.
+- disclosure.md — what may leave this project (stub 2026-09-06; Evan is 18 since 2026-09-08, PAPER only until he decides, numbers must trace to the record). ALWAYS load before any case study / portfolio / public README.
 
 Cross-bin invariants (always load these):
 - `price_cache` closes are split-adjusted, dividend-UNADJUSTED (`auto_adjust=False`). Every writer honors it.

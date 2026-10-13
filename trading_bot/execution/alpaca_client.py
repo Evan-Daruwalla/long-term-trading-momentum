@@ -68,7 +68,8 @@ class AlpacaClient:
         # APCA_API_BASE_URL would be inherited by every scheduled cmd.exe,
         # including rebalance.bat's alpaca_sync step. Now the claim is true:
         # reaching the live host takes a deliberate, in-code allow_live=True.
-        # Evan is 17 and this account is PAPER only.
+        # This account is PAPER only until Evan himself decides to go live
+        # (he turned 18 on 2026-09-08; .claude/project-memory/important.md #8).
         if self.base_url == LIVE_BASE_URL and not allow_live:
             raise AlpacaError(
                 0, None,

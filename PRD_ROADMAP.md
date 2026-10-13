@@ -20,8 +20,9 @@ weight ladder (19 monthly + 19 `_wk` + 19 `_2wk`, records BW/CD) and the QQQ con
 authoritative in `HANDOFF.md`.]**, three of them
 mirrored to real Alpaca PAPER accounts, a daily 5:15pm mark-to-market task, and a monthly
 rebalance task that fires **unattended** starting 2026-08-01. The track record — clean,
-verifiable, never backdated, never fabricated — is the asset; Evan is 17 and building the rigor
-and the record before he can trade real money at 18.
+verifiable, never backdated, never fabricated — is the asset; Evan ~~is 17 and building the rigor
+and the record before he can trade real money at 18~~ (struck 2026-10-13: he
+turned 18 on 2026-09-08; going live is his explicit decision, not automatic).
 
 The system just crossed from "operated by hand" to "runs by itself." This plan builds the
 guardrails, verifications, and reports that let an unattended system be trusted: data-quality
