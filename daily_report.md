@@ -64285,3 +64285,268 @@ Spreads are differences of the 4-decimal ITDs shown.
 **Sources (fetched unless marked):** Motley Fool close 2026-10-13 16:54; Motley Fool MU 2026-10-13 10:40 ET; Alain Guillot recap 2026-10-13; Strategitz global close 2026-10-13; Investing.com AMAT 2026-10-13 12:33; 24/7 Wall St chip equipment 2026-10-13 12:53 ET; 24/7 Wall St JNJ 2026-10-13 11:48 ET; NBC News diesel 2026-10-13 13:49 EDT; investingLive oil settle 2026-10-13; bloomingbit yields 2026-10-13 13:35; TokenPost PARR 2026-10-13 17:06 EDT; MarketBeat ZVRA insider 2026-10-13. Search summaries only (not fetched): Benzinga JNJ (403), Seeking Alpha JNJ and PARR, Raymond James / Mizuho PARR actions, CNBC and Bloomberg Williams headlines, Reuters oil reprint, HDFC Sky oil (rejected), Motley Fool Bank of America headline, Discovery Alert IEA date, EDRY / ZVRA aggregators.
 
 ---
+
+## Report: 2026-10-14 (Wednesday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-13 is still UNMARKED.** `max(nav_date)` in `paper_nav` is **2026-10-12** (76 rows). The 17:28 gate failed for 10-13 (`closes=4196` vs `floor=5000`), and `price_cache` still holds 4,196 closes for 10-13 at compile time. The 07:45 `TradingMorningMTM` heal **has not run yet** (this entry was compiled from 07:01 to about 07:15 CDT); whether it marks 10-13 is not predicted. **Every 10-13 figure below is INDICATIVE** (`cash + qty x last close <= 10-13`; method in 0g). The recompute this morning matches last night's 76-row table exactly (diff run, 0 lines differ). No ladder trades: the 20:30 run on 10-13 found both cadences "already rebalanced inside their current period".
+>
+> **Book (indicative 10-13): $7,649,305.10, day -0.4359% (-$33,489.30) vs marked 10-12 $7,682,794.40; WTD -0.9937%, MTD -0.1355%, ITD +0.6488%** on $7,600,000.00. 31 sleeves up, 45 down. Best ITD: `qqq_benchmark_paper` +10.2974%, `sector_top4_full_paper` +9.1255%, `spy_benchmark_paper` +7.9595%. Worst: `mom_v1_paper` -19.9597%, `mom_v2_paper` -19.2176%, `mom_roa_6535_paper` -16.9105%.
+>
+> **Pre-market: Dow and S&P futures up a little, Nasdaq-100 down a little; chips weak again after ASML.** 04:00 ET: Dow +0.3%, S&P +0.1%, Nasdaq flat, Russell +0.3% (Stocktwits). A later Yahoo snapshot (about 08:02 ET, untimed): S&P 7,867.00 (+0.14%), Dow 52,085 (+0.29%), Nasdaq-100 30,746.25 (-0.15%). **ASML** (not held) reported Q3 sales of EUR 11.7B and raised its 2026 sales guide to EUR 44-45B, but sources disagree on the stock's direction (-3% overnight vs "over 1%" up pre-market; section 2). **MU "down marginally"** (no figure; 62 sleeves, 6.4616%); **its $0.15 dividend goes ex today.** **FAST -3%** after an in-line quarter and heavier spending plans (23 sleeves, 0.7028%). **LQDA +45%** on a global settlement with United Therapeutics (6 sleeves, 0.0462%, -67.15% unrealized).
+>
+> **Macro: September CPI at 08:30 ET** (consensus headline 0.6% m/m, 3.6% y/y; core 0.2% m/m, 2.5% y/y). **Oil up after a Houthi missile hit an Aramco administrative building in Dhahran late Tuesday:** Brent $106.32 (+0.6%) and WTI $94.80 (+0.7%) at 03:45 GMT (Reuters via financefeeds); a later Yahoo widget had WTI at $95.89 (+1.86%). No production or export disruption was reported. 10-year 5.22% (-2bp, Yahoo). Fed speakers Bowman, Barkin and Goolsbee; Beige Book today.
+>
+> **LLM overlay (indicative 10-13, unchanged from last night):** stock arm treatment **+2.0627%** vs control **-5.0382%** (**+7.1009pp**; all three sleeves hold only MU). Macro arm treatment +4.3616% vs control +7.5597% (**-3.1981pp**). MU $953.19 is **16.24% above** its $820.00 invalidation. **XLB $49.72 vs $51.00: 24th close below**, not enforced. **XLI $168.67: fifth straight close below its $170.00 veto level.** No new decisions (`llm_overlay_log` 14 rows, `sector_overlay_log` 27 rows, both latest 2026-09-01).
+>
+> **Critical outstanding:** (1) **The October monthly rebalance is still undone (BLOCKED-ON-EVAN).** `verify_run` FAILs only the cadence check (76/76 sleeves OK); today is the **tenth** October session on September's picks. (2) 10-13 is pending; the 07:45 heal is the next chance to mark it. (3) No 10-13 close for **APGE, CRNX, WBD** (stubs) and **UYSC, FMBM, DMAA**. (4) **LQDA's 09-30 -57% bar now has a documented cause** (the court's 09-30 '327 patent ruling, cited in Liquidia's 8-K), which closes the open check from the 10-01 monthly note. (5) CPI 08:30 ET today; PPI and TSM earnings Thursday.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Wed Oct 14 07:01:51 CDT 2026` at start (`date -u`: `Wed Oct 14 12:01:51 UTC 2026`); offset -0500, so **CDT**. Local date **2026-10-14**, weekday **Wednesday**. A later read gave 07:07:28 CDT when writing began. Times are CDT unless marked ET/UTC/GMT.
+
+**0b. Market status.** Wednesday 2026-10-14 is a normal NYSE/Nasdaq session: index futures are trading (section 2), and Bank of America, Morgan Stanley, BlackRock, Progressive, Fastenal and State Street report before or around the open ([MarketScreener, 02:07 EDT](https://www.marketscreener.com/news/latest/Earnings-for-starters-inflation-for-the-main-course-54482801/), fetched). Not a holiday.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-14 \(Wednesday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. Not a re-fire.
+
+**0d. Cron echo** (`list_scheduled_tasks`, read this run):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-15T12:01:23Z | **2026-10-14T12:01:41Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-15T00:04:22Z | 2026-10-14T00:04:34Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | 2026-11-02T00:01:03Z | 2026-10-05T23:01:24Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-15T12:09:01Z | 2026-10-13T12:09:26Z | 541s |
+
+**This task's cron is `0 7 * * 1-5`** (about 07:01 CDT with jitter); `lastRunAt 12:01:41Z` is this run. The stored prompt still says the task "fires at 07:07"; it fires at about 07:01. Either way it runs before the 07:45 heal. `daily-audit` shows `lastRunAt` 2026-10-13 and `nextRunAt` 2026-10-15T12:09:01Z although today's 07:09 fire has not happened yet (read at about 07:02 CDT). That pair is unusual: on 10-13 at the same hour, `nextRunAt` read 2026-10-14. **Possible reading (not verified): the scheduler has already rolled `nextRunAt` past today's fire.** If no 2026-10-14 daily-audit run appears, this is where it went missing. `monthy-llm-rebalance` is still `0 18 1-5 * *`, so nothing retries October automatically.
+
+**0e. DB opened read-only** as `file:var/trades.db?mode=ro`, `uri=True`, for every query behind this entry.
+
+**0f. Morning heal has not run.** `var/last_daily_run.log` was last written 2026-10-13 17:28 and ends with `[OPS 2026-10-13] coverage=PENDING verify=FAIL`. `TradingMorningMTM` is scheduled for 07:45; this entry was compiled before then. Not the first trading day of the month.
+
+**0g. 2026-10-13 is UNMARKED; all 10-13 NAVs are INDICATIVE.**
+
+`price_cache` close counts (`kind='close'`, non-null): 10-05 **5,106** | 10-06 **5,102** | 10-07 **5,100** | 10-08 **5,098** | 10-09 **5,096** | 10-12 **5,095** | 10-13 **4,196** (unchanged since the 17:28 gate). Method:
+
+```
+indicative NAV = paper_portfolio.cash
+               + SUM over open paper_positions of qty x (last close <= 2026-10-13)
+day            = indicative 10-13 / paper_nav.total_nav(2026-10-12) - 1
+WTD            = indicative 10-13 / paper_nav.total_nav(2026-10-09) - 1
+MTD            = indicative 10-13 / paper_nav.total_nav(2026-09-30) - 1
+ITD            = indicative 10-13 / paper_portfolio.starting_cash - 1
+```
+
+**Method check, rerun this morning:** applying the same formula with `<= 2026-10-12` reproduces all 76 marked 10-12 rows (0 differences above half a cent). The 76-row 10-13 table matches last night's section 2 on every column compared (sleeve, nav 10-13, day, ITD, MTD, WTD, cash, n; `diff` printed nothing). That is expected: no new closes and no trades since last night.
+
+**0h. Ladder, 2026-10-13 20:30.** `var/last_ladder_run.log`: `weekly: last=2026-10-12 period>=2026-10-12 due=False | biweekly: last=2026-10-12 ... due=False` and "Both cadences already rebalanced inside their current period; nothing due today." `max(entry_date)` and `max(exit_date)` in `paper_positions` are both still **2026-10-12**.
+
+**0i. Held names without a 10-13 close: 6 of 228** (same six as last night):
+
+| ticker | last close | sleeves / shares | note |
+|---|---|---|---|
+| APGE | 2026-09-03, $135.07 | 6 / 60.0609 | deal-closed stub |
+| CRNX | 2026-09-02, $84.95 | 2 / 21.206 | deal-closed stub |
+| WBD | 2026-10-06, $30.95 | 6 / 383.7402 | sell skipped 10-12 |
+| UYSC | 2026-10-12, $10.91 | 20 / 3,750 | sell skipped 10-12 |
+| FMBM | 2026-10-12, $40.92 | 1 / 62.4063 | |
+| DMAA | 2026-10-12, $10.86 | 18 / 3,246 | `Financial Services` |
+
+What kind of security UYSC, DMAA and KCHV are was again not checked.
+
+**0j. Price anomalies.** No new bars since last night. **One open item closed:** LQDA's 09-30 bar ($70.69 -> $30.26, -57%), flagged for checking before the October monthly (project `important.md` entry 9), now has a primary-source cause: Liquidia's 2026-10-13 8-K refers to "the Court's September 30, 2026 ruling on the '327 patent" and says Liquidia agreed not to appeal it ([8-K exhibit 99.1](https://www.sec.gov/Archives/edgar/data/0001819576/000110465926115672/tm2627557d1_ex99-1.htm), fetched). A [Foley summary](https://www.foley.com/es/news/2026/10/united-therapeutics-prevails-in-patent-litigation-against-liquidia/) (search summary, not fetched) says the court found Liquidia infringed by marketing Yutrepia for PH-ILD. **The bar is real news, not a data error.** Two Yahoo quote widgets were also checked and rejected as pre-market data: INTC 102.81 (+1.44%) equals the DB's 10-13 close, so it is Tuesday's close.
+
+**0k. `verify_run`: FAIL on the rebalance cadence only.** All 76 sleeves pass continuity, ledger and drift at 17:28 and 20:30. `var/ops_status.log` again has two lines for 10-13 (`coverage=n/a verify=FAIL`, `coverage=PENDING verify=FAIL`).
+
+---
+
+### 1. Portfolio standings (INDICATIVE 2026-10-13)
+
+The full 76-row table is last night's section 2 (identical; 0g). Selected rows; `nav 10-12` is **marked**, the rest **indicative**:
+
+| rank | sleeve | nav 10-12 (marked) | nav 10-13 (ind.) | day % | ITD % | MTD % | WTD % |
+|---|---|---|---|---|---|---|---|
+| 1 | qqq_benchmark_paper | 110,663.79 | 110,297.41 | -0.3311 | +10.2974 | +0.5137 | -1.0249 |
+| 2 | sector_top4_full_paper | 109,059.22 | 109,125.53 | +0.0608 | +9.1255 | +2.7623 | +0.2332 |
+| 3 | spy_benchmark_paper | 107,971.96 | 107,959.48 | -0.0116 | +7.9595 | +2.0167 | -0.0719 |
+| 4 | residual_w5545_paper | 107,826.94 | 107,642.69 | -0.1709 | +7.6427 | +0.0701 | -1.1338 |
+| 5 | sector_top4_paper | 107,442.97 | 107,559.72 | +0.1087 | +7.5597 | +2.9982 | +0.3513 |
+| 6 | residual_w6040_paper | 107,384.97 | 107,068.06 | -0.2951 | +7.0681 | -0.2192 | -1.2716 |
+| 15 | llm_overlay_sector_top4_paper | 104,227.46 | 104,361.58 | +0.1287 | +4.3616 | +2.6122 | +0.3547 |
+| 22 | spy_benchmark_0701_paper | 103,569.90 | 103,557.93 | -0.0116 | +3.5579 | +2.0167 | -0.0719 |
+| 27 | qqq_benchmark_0706_paper | 103,212.41 | 102,870.70 | -0.3311 | +2.8707 | +0.5137 | -1.0249 |
+| 31 | residual_roa_6535_paper | 102,666.11 | 102,711.13 | +0.0439 | +2.7111 | +0.5884 | -0.3631 |
+| 35 | llm_cascade_sector4_paper | 102,049.68 | 102,307.99 | +0.2531 | +2.3080 | +3.1300 | +0.4933 |
+| 39 | llm_overlay_mom_roa_top1_paper | 105,897.60 | 102,062.73 | -3.6213 | +2.0627 | -10.4986 | -7.3607 |
+| 56 | llm_cascade_top1_paper | 103,782.48 | 100,024.21 | -3.6213 | +0.0242 | -10.4986 | -7.3607 |
+| 65 | residual_roa_6535_0701_paper | 96,083.54 | 96,194.64 | +0.1156 | -3.8054 | +0.7112 | -0.2768 |
+| 67 | mom_roa_top1_paper | 98,530.23 | 94,961.78 | -3.6217 | -5.0382 | -10.4996 | -7.3614 |
+| 71 | mom_v1_0701_paper | 88,600.22 | 86,784.99 | -2.0488 | -13.2150 | -7.4129 | -5.0446 |
+| 72 | mom_roa_6535_0701_paper | 87,954.78 | 86,582.77 | -1.5599 | -13.4172 | -7.6167 | -5.0271 |
+| 73 | mom_v2_0701_paper | 88,261.39 | 86,141.44 | -2.4019 | -13.8586 | -8.5989 | -6.0287 |
+| 74 | mom_roa_6535_paper | 84,499.35 | 83,089.53 | -1.6684 | -16.9105 | -7.8256 | -5.0142 |
+| 75 | mom_v2_paper | 82,781.30 | 80,782.45 | -2.4146 | -19.2176 | -8.8223 | -5.9034 |
+| 76 | mom_v1_paper | 81,763.37 | 80,040.34 | -2.1073 | -19.9597 | -7.6111 | -4.9969 |
+
+**Book: start $7,600,000.00 | marked 09-30 $7,659,687.43 | marked 10-09 $7,726,080.96 | marked 10-12 $7,682,794.40 | indicative 10-13 $7,649,305.10 | day -0.4359% (-$33,489.30) | WTD -0.9937% | MTD -0.1355% | ITD +0.6488%.** Priced position value **$7,614,820.83**, 228 names, 3,278 open positions. **0 of 57 residual rungs are above the SPY sleeve** (best `residual_w5545_paper`, 0.3168pp behind).
+
+**Largest lines (priced value, indicative 10-13):**
+
+| name | sleeves | value | weight | unrealized |
+|---|---|---|---|---|
+| MU | 62 | $492,039.50 | **6.4616%** | +21.36% |
+| QQQ | 2 | $213,168.11 | 2.7994% | +6.58% |
+| SPY | 2 | $211,517.40 | 2.7777% | +5.76% |
+| INSW | 44 | $147,214.22 | 1.9333% | +45.19% |
+| STX | 65 | $136,112.99 | 1.7875% | +2.15% |
+| LRCX | 52 | $123,989.32 | 1.6283% | +16.06% |
+| AAPL | 49 | $120,371.13 | 1.5807% | +17.61% |
+| XLE | 4 | $116,199.04 | 1.5260% | +16.76% |
+| WDC | 65 | $113,897.37 | 1.4957% | -17.24% |
+| SEZL | 35 | $112,009.39 | 1.4709% | +49.91% |
+
+**Sector weights (`paper_positions.sector`, priced value):** Technology **24.4232%**, Healthcare **21.3770%** (+1.3586% `Health Care` = 22.7356%), Energy 15.9829%, Financial Services 9.9896%, Industrials 7.0051%, Index 5.5771%, Communication Services 4.8404%, Consumer Defensive 3.0290%, Consumer Cyclical 2.8208%, Basic Materials 2.7089% (+0.2787% `Materials`), Real Estate 0.5654%, None 0.0432%. **Technology and Healthcare exceed 20%.**
+
+**Memory / chip-equipment / storage block:** MU 6.4616% + LRCX 1.6283% + AMAT 1.4447% + KLAC 1.0217% + STX 1.7875% + WDC 1.4957% = **13.8395% of priced value**. This is the block today's ASML news reads through to.
+
+---
+
+### 2. Overnight and pre-market moves
+
+**Index futures.**
+
+| time (ET) | Dow | S&P 500 | Nasdaq-100 | Russell 2000 | source |
+|---|---|---|---|---|---|
+| 04:00 | +0.3% | +0.1% | flat | +0.3% | [Stocktwits](https://stocktwits.com/news-articles/markets/equity/dow-futures-rise-nasdaq-subdued-premarket-ahead-of-inflation-data-asml-mu-skhy-tsla-bac-lqda-gme-iren-stocks-in-focus/cZxfS2RRBpN) (fetched) |
+| about 08:02 (page read "U.S. markets open in 1h 28m") | 52,085 (+150, +0.29%) | 7,867.00 (+11.25, +0.14%) | 30,746.25 (-45.25, -0.15%) | 2,804.20 (+4.10, +0.15%) | [Yahoo/Stocktwits ASML article page](https://finance.yahoo.com/markets/stocks/articles/asml-raises-sales-forecast-third-061145434.html) (fetched; widget) |
+| untimed | 52,081 (+146, +0.28%) | +0.14% | 30,752.75 (-38.75, -0.13%) | +0.16% | [Yahoo live blog](https://finance.yahoo.com/markets/live/stock-market-today-wednesday-october-14-dow-sp-500-nasdaq-081136597.html) (fetched; widget) |
+
+The "about 08:02 ET" time is derived from the page's countdown, not stated. Futures levels are not cash-index levels.
+
+**Held names with a pre-market reading** (impact = qty x 10-13 close x stated %; indicative):
+
+| ticker | sleeves / weight | pre-market | approx. book impact | reason given | source |
+|---|---|---|---|---|---|
+| **MU** | 62 / **6.4616%** | **"down marginally"** (no figure) | about $4,920 per 1% | chip spillover from ASML's Q3 sales miss; Elon Musk praised Micron's "reasonable" memory pricing | Stocktwits 04:00 ET (fetched) |
+| **FAST** | 23 / 0.7028% | **"about 3%" down** | **-$1,605.62 (-0.0210% of book)** | in-line Q3; "elevated spending plans" (IT, Atlanta hub, trucking) | [Investing.com, 06:59](https://www.investing.com/news/earnings/fastenal-dips-on-heavier-spending-expectations-inline-q3-results-4948771) (fetched) |
+| **LQDA** | 6 / 0.0462% | **+45%** | **+$1,584.31 (+0.0207%)** | global settlement with United Therapeutics | Stocktwits 04:00 ET (fetched) |
+| WDC | 65 / 1.4957% | no figure | - | named among chip names hit by the ASML spillover | Stocktwits (fetched) |
+| INTC | 6 / 0.1219% | no per-name figure | - | MU, SNDK, INTC "fell 1% to 2.6% in tandem" overnight | [Stocktwits via Yahoo, 01:11 CDT](https://finance.yahoo.com/markets/stocks/articles/asml-raises-sales-forecast-third-061145434.html) (fetched) |
+
+**MU readings:** the 01:11 CDT piece puts MU inside a "1% to 2.6%" overnight range with SNDK and INTC; the 04:00 ET piece says "down marginally". Neither gives a MU-specific figure, so no MU impact is published; the per-1% figure is the sizing. **LQDA:** a search summary gives +46.03% (not fetched); the fetched +45% is published. The Yahoo live page's LQDA "-3.11%" is a trending widget, not a pre-market move (Yahoo page itself says so), and is rejected.
+
+**Not found pre-market:** JNJ, AMAT, LRCX, KLAC, STX, INSW, AAPL, SEZL, EDRY, refiners.
+
+**ASML (not held; read-through for 13.8395% of the book): direction disputed.** Stocktwits at 01:11 CDT: U.S.-listed shares "declined 3% in overnight trading". Stocktwits at 04:00 ET: shares "rose over 1%" pre-market. A search summary of Benzinga gives +1.52% pre-market (not fetched). The later readings are up, the earlier one down; both are published with times, and **no single direction is asserted.**
+
+**Asia.** [MarketScreener, 02:07 EDT](https://www.marketscreener.com/news/latest/Earnings-for-starters-inflation-for-the-main-course-54482801/) (fetched): MSCI AC Asia Pacific +0.4%, **Taiwan +1.3%**, Nikkei +0.6%, Australia -0.7%, mainland China -0.3%; CSI 300 16% below its June highs. **Korea (search summaries only, not fetched; unverified):** KOSPI 6,008.81 (-0.44%) on an Alphasquare page, SK hynix 1,426,000 won (-1.18%) on a Daum quote page, and a Daum headline at 15:15 KST saying the KOSPI fell back below 6,000 "on ASML disappointment". Both percentages reconcile to Tuesday's Korea Times closes (6,008.81 / 6,035.35 - 1 = -0.44%; 1,426,000 / 1,443,000 - 1 = -1.18%), but whether they are closes or snapshots is not stated. After Tuesday's -5.46% / -10.09%, that would be a small further decline.
+
+**Oil.** Reuters via Business Recorder, cited by [financefeeds, 09:55 +03:00](https://financefeeds.com/brent-crude-oil-price-106-aramco-dhahran-strike-cpi-day-bull-114-bear-97/) (fetched): **Brent $106.32 (+$0.63, +0.6%) and WTI $94.80 (+0.7%) at 03:45 GMT.** **Reconciled:** $105.69 + $0.63 = $106.32 and $94.14 x 1.007 = $94.80, against Tuesday's settles (last night's entry). Later, the Yahoo live page widget: **WTI (Nov) $95.89, +$1.75 (+1.86%)** ($94.14 + $1.75 = $95.89, reconciles), and Brent "above $106". MarketScreener quotes Brent $106.22. **Rejected:** a search summary's "Brent December settled at $105.92, up 0.2%; WTI December $93.39, up 0.2%". Its WTI does not reconcile with a $94.14 prior settle at +0.2%, and it is labelled a settlement before any session settled.
+
+**Gold** near $4,155/oz (Yahoo, 08:00 UTC). **10-year Treasury 5.22%, -0.02** (Yahoo widget, untimed); MarketScreener: "5.2%, down from 5.36% a week earlier".
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. ASML Q3 (read-through for AMAT 52 sleeves, LRCX 52, KLAC 35).** [ASML 6-K press release, 2026-10-14](https://www.sec.gov/Archives/edgar/data/0000937966/000162828026065813/pressreleasefinancialresul.htm) (fetched):
+
+| item | Q3 2026 | guide / prior |
+|---|---|---|
+| total net sales | **EUR 11,662M** | Q3 guide EUR 11.0-12.0B (search summary, not in the fetched 6-K; the 6-K says "towards the high end of our guidance") |
+| net income | EUR 4,960M | - |
+| EPS (basic) | EUR 12.95 | - |
+| gross margin | **57.5%** | Q3 guide 55-57% (search summary, not fetched) |
+| Q4 sales guide | **EUR 14.2-15.2B**, GM about 57% | - |
+| FY26 sales guide | **EUR 44-45B**, GM about 56% | EUR 43-45B, 54-56% (Stocktwits) |
+| net bookings | **not in the release** | - |
+
+CEO Christophe Fouquet: customers "continue to increase their short- and medium-term equipment demand forecasts", and "some customers are expressing an interest in placing orders with us for 2029 and even 2030". ASML says planned 2027-2028 supply will not fully meet demand; it plans a 30% increase in low-NA EUV and DUV immersion capacity in 2027 and is investigating a further 30% for 2028, plus ways to go beyond that. **Against consensus** (Stocktwits, Koyfin estimates): sales $13.07B vs $13.12B expected (miss); EPS $14.51 vs $12.05 (beat). **EPS flag:** Stocktwits gives EUR 12.93; the 6-K fetch gives EUR 12.95 basic. The difference may be basic vs diluted; not checked.
+
+**Read for the book:** yesterday AMAT fell -6.69% because it gave no wafer-fab-equipment spending forecast (last night, 3b). Today the largest litho supplier says customers are *raising* equipment demand forecasts. **Inference, not sourced:** that is a positive data point for the equipment names the book holds, and the overnight stock reaction is mixed, so the market is pricing something other than the guide (the sales miss, positioning, or the six-day chip slide named in a Stocktwits headline, not fetched). The memory names have no new company data today.
+
+**3b. FAST (23 sleeves, 0.7028%, +12.38% unrealized): in-line quarter, stock down on spending.** [Fastenal 8-K exhibit 99.1](https://www.sec.gov/Archives/edgar/data/0000815556/000081555626000046/ex_99109302026earningsrele.htm) (fetched):
+
+| item | Q3 2026 | Q3 2025 |
+|---|---|---|
+| net sales | **$2,463.3M, +15.5%** | $2,133.3M |
+| daily sales | $38.5M, +15.5% (64 days both) | $33.3M |
+| gross margin | 44.8% | 45.3% |
+| operating margin | 21.5% | 20.7% |
+| net income | $401.6M, +19.7% | $335.5M |
+| diluted EPS | **$0.35** | $0.29 |
+| operating cash flow | $421.6M (105.0% of net income) | 115.3% of net income |
+| 2026 capex | $310.0-330.0M ("continue to expect") | 2025: $230.6M |
+
+Drivers named: share gains with larger customers, pricing (about 240bp of growth), and "a modest improvement in industrial production"; contract customer daily sales +18.8%; tariff refunds helped gross margin. Consensus: EPS $0.34 and revenue $2.44B (Investing.com); **outlier flagged:** the AP via [WTOP](https://wtop.com/national/2026/10/fastenal-q3-earnings-snapshot) (search summary, not fetched) calls revenue short of a $2.49B Zacks estimate. Investing.com's stated cause of the -3%: elevated IT spending, an Atlanta hub replacement and higher trucking costs.
+
+**3c. LQDA (6 sleeves: `mom_v1_paper`, `mom_v2_paper`, `mom_v1_0701_paper`, `mom_v2_0701_paper`, `residual_w9010_paper`, `residual_w9505_paper`).** [Liquidia 8-K exhibit 99.1, 2026-10-13](https://www.sec.gov/Archives/edgar/data/0001819576/000110465926115672/tm2627557d1_ex99-1.htm) (fetched): settles all six lawsuits with United Therapeutics, including the Treprostinil Injection antitrust case; **net payment $380.7M**: $175M within 30 business days, $145.4M in two $72.7M installments due by 2027-01-31 and 2027-04-30, and $60.3M paid in October 2026 to other parties in the antitrust case. Liquidia has filed to remove PH-ILD from the Yutrepia label and stopped PH-ILD promotion. Preliminary Q3 Yutrepia net sales **$222.7M**; cash **$396.1M** at 09-30. The CFO expects to fund the payments without new financing. **Position:** 131.32 shares, $3,520.69 at the 10-13 close ($26.81), entry value $10,717.56, **-67.15% unrealized**; entries 2026-07-01 to 2026-08-03.
+
+**3d. Oil and the Gulf (Energy 15.9829%; INSW 1.9333% is the largest energy line).** A Houthi missile hit an Aramco administrative building in Dhahran late Tuesday, causing "a limited fire" and no casualties (Saudi Press Agency via [The National](https://www.thenationalnews.com/business/energy/2026/10/14/houthi-attack-hits-aramcos-historic-nerve-centre-in-saudi-arabia/), fetched). Bloomberg, citing people familiar, says it was the executive headquarters; Aramco and Saudi authorities have not confirmed which building (financefeeds, fetched). **No production or export disruption is reported** (The National). The strike followed Saudi-led coalition strikes on Houthi fuel sites in Sanaa, Hodeidah and Dhamar. **Hormuz:** UKMTO reported two vessels, a container ship and a tanker, struck by an "unknown projectile" north of the Musandam Peninsula (reported 10-13, via Gulf News, cited by financefeeds); no names or damage given. **No refiner or tanker pre-market figure was found.** Tuesday's refiner move was diesel-driven (last night, 3d); today's oil move is a risk premium with no barrels lost, per the analysts financefeeds cites.
+
+**3e. Macro.**
+- **September CPI, 08:30 ET (07:30 CDT; not out at compile time).** Consensus headline **0.6% m/m, 3.6% y/y** (prior 0.4%, 3.4%); core **0.2% m/m, 2.5% y/y** (prior 0.3%, 2.4%) (Yahoo live page, fetched; MarketScreener and financefeeds give the same 3.6% / 2.5% y/y). **Outlier flagged:** a search summary gives headline 0.5% m/m and core 2.4% y/y (source not identified, not fetched).
+- **Fed:** Governor Bowman, Richmond's Barkin and Chicago's Goolsbee speak; Beige Book today (Stocktwits, fetched). Tuesday's Williams remarks (one more hike may be appropriate this year, none in 2027) are in last night's entry.
+- **Banks (none held):** Bank of America Q3 net income $6.93B, EPS $0.91 vs $1.10 expected, profit -17%, including a $1.2B regulatory penalty; $1.08 excluding it (Yahoo live page). Its pre-market direction conflicts within the same page; not used.
+- **Thursday:** September PPI (Stocktwits); TSM earnings (Stocktwits).
+
+**3f. Memory items that could not be verified.**
+- **SK hynix HBM4 delay:** Stocktwits says SK hynix "reportedly delayed some HBM4 back-end equipment orders until next year". A search found only a November 2025 report with that description ([rutab.net](https://rutab.net/b/hardware/2025/11/13/sk-hynix-otlozhila-zakaz-oborudovaniya-dlya-hbm4-do-nachala-sleduyuschego-goda.html), search summary). **Whether today's item is new or recycled is unverified.**
+- **Musk on Micron pricing:** today's Stocktwits item gives no date or quote for the remark; a search found only July-August 2026 coverage of similar comments. Not treated as new information.
+
+---
+
+### 4. LLM overlay status (indicative 10-13)
+
+| arm | treatment ITD | control ITD | spread |
+|---|---|---|---|
+| Stock top-1 | **+2.0627%** | **-5.0382%** | **+7.1009pp** |
+| Stock cascade | +0.0242% | -5.0382% | +5.0624pp |
+| Macro sector-4 | +4.3616% | +7.5597% | **-3.1981pp** |
+| Macro cascade | +2.3080% | +7.5597% | -5.2517pp |
+
+Identical to last night (no new closes, no trades).
+
+- **Stock arm:** all three sleeves hold only MU (control 99.5385, treatment 106.97, cascade 104.8335 shares). **MU $953.19 vs the $820.00 invalidation (log id 17, 2026-09-01 BUY): 16.24% above.** No MU pre-market figure was found, so no pre-market distance is computed. MU goes ex-dividend today ($0.15 per share; 516.2030 held shares = $77.43); `price_cache` is dividend-unadjusted, so the close will show it as a price drop. Still a blind test: the same ticker in both arms.
+- **Macro arm:** treatment holds XLV/XLE/XLK plus $23,087.99 cash since the XLI veto; the control holds XLI. **XLI $168.67: fifth straight close below $170.00 (log id 25); 17 closes below since 2026-09-01.** **XLB $49.72 vs $51.00 (log id 27): 24th close below since 2026-09-10**, held only by the macro cascade (426.8589 shares), not enforced.
+- Logs: `llm_overlay_log` **14 rows** (`count(*)`), `sector_overlay_log` **27 rows**; both latest `decision_date` 2026-09-01. No October decisions, because the October monthly has not run.
+
+---
+
+### 5. Risk flags and upcoming events
+
+1. **October monthly still undone (BLOCKED-ON-EVAN).** Tenth October session on September's picks. Nothing here works around it; the monthly is manual for Evan.
+2. **Memory / equipment / storage block, 13.8395% of priced value.** MU is down 12.39% in four sessions ($1,088.00 -> $953.19). Today's catalyst (ASML) is a supplier's guide raise; the market's first reaction is split.
+3. **CPI today, 08:30 ET.** With the 10-year at about 5.22% and Williams's hike remark on Tuesday, a hot print matters most for the long-duration names. That is an inference; no source ties CPI to these holdings.
+4. **Gulf escalation:** an Aramco building struck and two Hormuz vessel strikes reported, with no supply loss yet. Energy is 15.9829% of the book and was the offset in four of the last five sessions (last night, 7b).
+5. **Coverage gate:** 10-13 pending. Every evening gate since 10-05 has been PENDING (7 of 7); 10-05 to 10-12 were each healed later. Not predicted for 10-13.
+6. **Stub/thin names:** APGE, CRNX, WBD (stubs); UYSC, FMBM, DMAA missing 10-13; UYSC/WBD/KCHV sells deferred from the 10-12 ladder.
+7. **`daily-audit` scheduling oddity** (0d): `nextRunAt` already reads 10-15 before today's 07:09 fire.
+8. **Calendar:** **Wed 10-14: CPI 08:30 ET; MU ex-dividend; FAST, BAC, MS, BLK, PGR, STT results; Beige Book; Bowman/Barkin/Goolsbee.** Thu 10-15: PPI, TSM. From prior entries, not re-verified today: retail sales Thursday, Taipei rally 10-19 and Taichung mediation 10-22 (Micron Taiwan labor), TGTX ENHANCE data 10-21 to 10-23 (45 sleeves, 1.3457%), UMich final 10-23, FOMC 10-27/28. Aramco Q3 results 2026-11-03 (The National).
+
+---
+
+### 6. Strategic insights
+
+**6a. Verdict first: today's book move again comes down to the chip block (13.8395%) against energy (15.9829%), and both have a fresh catalyst.** ASML's guide raise is positive for the equipment names on its face, but the stock's own pre-market direction is disputed, and MU is "down marginally". The Aramco strike lifts oil, but no barrels have been lost. **What this does not show:** which side wins the day. Last night's scoring (7d) had this entry's predecessor right on 5 of 5 named-mover directions and wrong on the book-level offset, so no book-level call is made here.
+
+**6b. The LQDA case shows what an undone monthly costs.** LQDA fell 57% on a court ruling on 09-30; four `mom_*` sleeves and two residual rungs still hold it at -67.15% unrealized two weeks later, because the monthly that would have re-ranked them has not run. **Inference, not tested:** a monthly-rebalanced momentum screen would likely have dropped a name after a -57% day; the cost here is small ($3,520.69 of value) but the mechanism generalizes. Each extra session without the monthly leaves every legal or earnings shock since 09-30 in the books by default.
+
+**6c. ASML's commentary is the first supplier-side data point against the AMAT-led reading of the last week.** Yesterday's equipment drop came from a *missing* WFE forecast; today a peer says customers are raising forecasts and asking for 2029-2030 slots. **Not established:** that this helps the memory makers (MU, STX, WDC), whose stated risks this week were CXMT, Korean buybacks ending and HDD capacity, none of which ASML addresses.
+
+**6d. Research ideas carried forward (seventh day), not recommendations:** the per-name cap and liquidity floor (10-12 post-market 7b) and the sector-vs-selection decomposition with refiners as their own bucket (10-13 post-market 7f). Today adds one input: **an event-shock exit rule** (exit or re-rank after a single-day move beyond a threshold) could be tested on the cached history; LQDA (09-30) is a live example. It would need to be preregistered and compared with the monthly re-rank, because the risk-overlay family already failed (records BU and earlier).
+
+**6e. Not supported by today's data:**
+- That ASML's results lift AMAT/LRCX/KLAC today; the stock reaction is split.
+- That the Aramco strike changes oil supply; none is reported.
+- That FAST's spending plan is a negative beyond today; one pre-market reading.
+- That the SK hynix HBM4 delay is new news (3f).
+- That any systematic multi-name stock sleeve beats its benchmark (0 of 57 rungs above SPY).
+- **A new sleeve concept.** No recommendation.
+
+**Sources (fetched unless marked):** Stocktwits pre-market 2026-10-14 04:00 ET; Stocktwits/Yahoo ASML 2026-10-14 01:11 CDT; Yahoo live blog 2026-10-14; MarketScreener 2026-10-14 02:07 EDT; ASML 6-K 2026-10-14; Fastenal 8-K exhibit 99.1 2026-10-14; Investing.com FAST 2026-10-14 06:59; Liquidia 8-K exhibit 99.1 2026-10-13; The National 2026-10-14; financefeeds 2026-10-14 09:55 +03:00; FX Leaders 2026-10-14 (no figures used). Search summaries only (not fetched): Benzinga ASML +1.52% and AMAT; LQDA +46.03%; Foley LQDA ruling; WTOP/AP FAST; Alphasquare and Daum (KOSPI, SK hynix); rutab.net HBM4; Musk/Micron July-August coverage; the rejected Brent/WTI "settle" figures; the 0.5% / 2.4% CPI consensus outlier. 403 on fetch: Qz, Benzinga.
+
+---
