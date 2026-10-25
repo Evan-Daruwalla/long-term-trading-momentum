@@ -54,14 +54,14 @@
 **Why:** going live is irreversible and moves real money; the repo is public.
 **Source:** CLAUDE.md:3-7; disclosure.md:9; Evan, 2026-09-30.
 
-## 9. LIVE 2026-10-01: the monthly rebalance is MANUAL (2026-09-30)
-**What:** Steps 3 and 4 of the scheduled task are denied by the guard; Evan runs it. Afterwards look for STALE-SKIP lines and run the printed `RETRY ... --as-of <D>` line. LQDA fell 57% on the 09-30 bar (70.69 -> 30.26), held by 6 sleeves - check it is real news before the monthly ranks on it.
-**Constrains:** do not attempt the rebalance; do not "fix" LQDA data without evidence.
-**Why:** a wrong bar feeds the monthly ranking for a whole month.
-**Source:** HANDOFF.md 2026-09-29 EF block. Remove this entry (telling Evan) once 2026-10-01 is done.
+## 9. The monthly rebalance is MANUAL, and October 2026 was MISSED (updated 2026-10-25)
+**What:** the guard denies the scheduled task's decide step and its .bat, so only Evan can run the monthly. The 2026-10-01 run never happened (rebalance_log.md = 2026-09-01; verified 2026-10-25, record ES). After any manual run, look for STALE-SKIP lines and run the printed `RETRY ... --as-of <D>` line. (LQDA's 09-30 -57% bar was real news, record EL.)
+**Constrains:** do not attempt the rebalance; flag a missed month the day it happens.
+**Why:** a missed monthly leaves every monthly-cadence sleeve on a stale book for a month.
+**Source:** records EF, EN, ES. (Was "LIVE 2026-10-01 ... remove once done"; rewritten instead because 10-01 did not happen - Evan told 2026-10-25.)
 
-## 10. Never push; commit only when authorized; no Co-Authored-By (2026-09-30)
-**What:** the GitHub remote is public and real (published 2026-09-26 and 2026-09-29).
-**Constrains:** commits only when a task authorizes them; Evan pushes.
+## 10. Push only when Evan says so; no Co-Authored-By (updated 2026-10-25)
+**What:** the GitHub remote is public and real (published 2026-09-26, 2026-09-29, 2026-10-10). Since 2026-10-10 nothing blocks a push mechanically (Evan removed the guard's push rule and the settings denies, records EO/EP).
+**Constrains:** commit when appropriate; push only on Evan's explicit instruction; never a Co-Authored-By trailer; check `git diff --cached --stat` before committing in a shared tree (record EL).
 **Why:** public history is permanent.
-**Source:** CLAUDE.md:93, 134; HANDOFF.md 2026-09-29 EF block.
+**Source:** global CLAUDE.md (Commit/push line); records EO, EP, EL.

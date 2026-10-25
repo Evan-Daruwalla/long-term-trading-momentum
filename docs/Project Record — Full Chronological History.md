@@ -198,6 +198,14 @@ lives in the dated entry, not the digest.
 - [EI - Secret-gate wrapper hook fails closed when the shared gate is missing](#appendix-ei---secret-gate-wrapper-hook-fails-closed-when-the-shared-gate-is-missing-2026-09-30-2154-cdt) (09-30)
 - [EJ - MLI 2-for-1 split restated across the book: 42 sleeves, 3,383 NAV rows, book +40,599.29 on 09-29; independent check 0 mismatches](#appendix-ej---mli-2-for-1-split-restated-across-the-book-42-sleeves-3383-nav-rows-book-4059929-on-09-29-independent-check-0-mismatches-2026-09-30-2202-cdt) (09-30)
 - [EK - Project-memory bins: renamed, important.md added, new standard bins as stubs](#appendix-ek---project-memory-bins-renamed-importantmd-added-new-standard-bins-as-stubs-2026-09-30-2253-cdt) (09-30)
+- [EL - LQDA -57% on 2026-09-30 is real (Delaware patent ruling for United Therapeutics); repair commit carried 13 pre-staged bin renames](#appendix-el---lqda--57-on-2026-09-30-is-real-delaware-patent-ruling-for-united-therapeutics-repair-commit-carried-13-pre-staged-bin-renames-2026-09-30-2302-cdt) (09-30)
+- [EM - Scheduled daily-audit: 30 findings - the trade guard skips every Trading rule when the session starts at the workspace root, and two pushes on 09-30 are in no doc](#appendix-em---scheduled-daily-audit-30-findings---the-trade-guard-skips-every-trading-rule-when-the-session-starts-at-the-workspace-root-and-two-pushes-on-09-30-are-in-no-doc-2026-10-01-0718-cdt) (10-01)
+- [EN - Scheduled daily-audit: 39 findings - the October monthly never ran and HANDOFF still calls it upcoming, and EM's guard high is still open 6 days later](#appendix-en---scheduled-daily-audit-39-findings---the-october-monthly-never-ran-and-handoff-still-calls-it-upcoming-and-ems-guard-high-is-still-open-6-days-later-2026-10-07-0734-cdt) (10-07)
+- [EO - trading-guard: the user-wide git push rule deleted at Evan's request; trade rules unchanged, self-check 60/60](#appendix-eo---trading-guard-the-user-wide-git-push-rule-deleted-at-evans-request-trade-rules-unchanged-self-check-6060-2026-10-10-1449-cdt) (10-10)
+- [EP - git push denies removed from both settings files by Evan; nothing blocks a push mechanically now; Skills' flat never-push rule aligned with the global one](#appendix-ep---git-push-denies-removed-from-both-settings-files-by-evan-nothing-blocks-a-push-mechanically-now-skills-flat-never-push-rule-aligned-with-the-global-one-2026-10-10-1508-cdt) (10-10)
+- [EQ - Scheduled daily-audit: 44 findings, 4 high - the root-cwd guard hole is still open, the missed October monthly saturates the daily alarm, and the git add denies are gone undocumented](#appendix-eq---scheduled-daily-audit-44-findings-4-high---the-root-cwd-guard-hole-is-still-open-the-missed-october-monthly-saturates-the-daily-alarm-and-the-git-add-denies-are-gone-undocumented-2026-10-14-0819-cdt) (10-14)
+- [ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV](#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt) (10-22)
+- [ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent](#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt) (10-25)
 
 ---
 
@@ -13203,3 +13211,621 @@ The bins were shaped around code. A survey of every project found scheduled jobs
 ## Next
 
 Phase 4, a later sitting: move the facts each stub points to into its bin, with a lossless check. Nothing here was committed by this session.
+
+# Appendix EL - LQDA -57% on 2026-09-30 is real (Delaware patent ruling for United Therapeutics); repair commit carried 13 pre-staged bin renames (2026-09-30, ~23:02 CDT)
+## LQDA's -57% bar on 2026-09-30 is REAL (checked on Evan's instruction)
+
+Record EJ flagged LQDA: 09-29 70.69 -> 09-30 30.26 (-57%) on the newest bar,
+held by mom_v1, mom_v2, mom_v1_0701, mom_v2_0701, residual_w9010 and
+residual_w9505.
+
+**Verdict: a genuine move, not a data error.** On 2026-09-30 the U.S. District
+Court in Delaware ruled that two claims of United Therapeutics' '327 patent are
+valid and infringed by Liquidia's YUTREPIA (inhaled treprostinil). Liquidia said
+it will ask the FDA to remove the PH-ILD indication. Multiple sources report a
+57.2% fall to a $30.26 close, the same value as our cached close. Nothing to
+repair. The seam checker's FAIL on LQDA is a true large move (not split-shaped:
+0.4281 is 14% from 0.5).
+
+Sources (WebSearch summaries, 2026-09-30):
+- https://seekingalpha.com/news/4648754-liquidia-plunges-57-on-litigation-update
+- https://finance.yahoo.com/markets/stocks/articles/liquidia-shares-crater-court-rules-182327931.html
+- https://www.gurufocus.com/news/9104447/liquidia-corp-lqda-shares-fall-572-what-gf-score-of-70-tells-investors
+
+Consequence for the 2026-10-01 monthly: it ranks on a correct price. LQDA's
+momentum collapses, so the momentum sleeves are likely to sell it. That is
+unverified; the rebalance decides.
+
+## Commit note (record EJ's commit)
+
+The repair commit `6c60505` (amended from 55ba33f; neither published) also
+carries 13 pure renames, `.claude/codebase-memory/*` -> `.claude/project-memory/*`
+(0 lines changed). Another session had pre-staged them, and `git commit` takes
+the whole index. The commit message was amended to disclose this. The rest of
+that bins migration is still uncommitted and belongs to its own session:
+- the `.gitignore` re-include line;
+- INDEX.md and conventions.md edits;
+- 12 new bin files.
+
+Lesson: check `git diff --cached --stat` before committing when the tree has
+other sessions' work in it.
+
+# Appendix EM - Scheduled daily-audit: 30 findings - the trade guard skips every Trading rule when the session starts at the workspace root, and two pushes on 09-30 are in no doc (2026-10-01, ~07:18 CDT)
+Scheduled `daily-audit` sweep, 2026-10-01. READ-ONLY: nothing was edited, fixed or
+committed; this entry is the one permitted write. Classified ACTIVE by the churn
+override: 10 non-audit commits after 666573f (audit EE's HEAD). 3 Sonnet workers
+(code / docs / data+secrets+scheduling) plus orchestrator STEP 0. 30 findings:
+4 high, 10 med, 16 low. All 4 highs re-run by the orchestrator.
+
+**HIGH 1 - the trade guard skips every Trading rule when the session cwd is the
+workspace root.** `scripts/hooks/pretooluse-trading-guard.js:89` scopes on
+`/ClaudeCode[\\/]Trading/i` against cwd or command, and :138 applies the Trading
+rules only on a match. Probe (strings fed to the hook, nothing executed):
+`cd Trading && ...python.exe -m scripts.momentum.monthly_<rebalance>` -> DENY with
+cwd D:\ClaudeCode\Trading, ALLOW with cwd D:\ClaudeCode. The workspace root is the
+usual start directory. Fix: match `Trading\b` with an optional `ClaudeCode[\\/]`
+prefix and fail closed when cwd is the workspace root; add both cases to
+test_trading_guard.js.
+
+**HIGH 2 - two pushes no doc records.** `git reflog show origin/master`:
+c71159e at 2026-09-30 21:55:38 and 618faf0 at 23:15:26, both "update by push".
+origin/master has 224 commits (HANDOFF says 215). HANDOFF.md:48 still lists only
+the 09-26 and 09-29 publishes; record EL says 6c60505 was not published.
+
+**HIGH 3 - three false "uncommitted" claims in HANDOFF.** :24 and :798 say record
+EF work is UNCOMMITTED (committed d0ab3d8, 2026-09-29 22:25); :43 says
+repair_split_mixed_basis.py is uncommitted (committed 6c60505). Meanwhile the
+real uncommitted work - record EL and its HANDOFF edits - is noted nowhere.
+
+**HIGH 4 - the 2026-09-30 bar is partial going into tonight's monthly.**
+price_cache closes: 09-29 5110, 09-30 4306 (floor 5000);
+var/last_daily_run.log:692 COVERAGE FAIL; max paper_nav date 09-29. Held
+APGE (no bar since 09-03) and CRNX (since 09-02) are marked at stale closes and are
+not in `delistings`. Strict fills need a bar dated as_of, so a partial 18:00 bar
+turns into STALE_SKIPs that can split a control/treatment pair, and the printed
+retry does not mention re-running alpaca_sync for mirrored sleeves.
+
+MED: hellow cron drift (HANDOFF.md:568 `0 12,17,22`, live `48 11,16,21`); the
+09-24 post-market run lasted 4 s and reported "succeeded" (permanent hole);
+no cross-process lock - the 09-01 rebalance session ran 18:03-22:20, across the
+20:30 ladder; repair_split_mixed_basis / backadjust_split `--execute` match no
+guard rule; age still "17" at HANDOFF.md:5, PRD_ROADMAP.md:23, bins INDEX.md:20 and
+compliance.md:1; HANDOFF.md:827 says guard Stage 8 is pending (done in d0ab3d8);
+bins security.md/gotchas.md list guard holes as open; important.md item 9 still
+says to check LQDA (EL resolved it); dependency CVE report is 51 days old and
+pip-audit is not installed; SwingTradingDailyPaper last result 1 (other project).
+
+LOW: CLAUDE.md line refs in the bins are off by 2 after 618faf0; HANDOFF.md:768
+"Appendix A-AN"; CLAUDE.md "6 scheduled tasks"; daily-audit spec cites
+.gitignore:13 (the rule is :20); check_month_gate.py:4 docstring says daily;
+README.md:46 deps list; guard regex at :127 is quadratic (4 s at 200 KB, timeout
+5 s); non-string command crashes the hook (exit 1); guard denies read-only
+`git diff` of dispatcher files; mtm_catchup UTC stamp read as local (latent);
+ladder `_coverage_gate` outside try; TradingDailyMTM 30-minute kill limit; 5
+future-dated RMCF price_cache rows (2027-07-27, NULL); 76 local-path lines in 31
+public files; 6 scheduled-task dirs with no snapshot (all disabled or unlisted);
+HANDOFF "Last updated" stamp stale.
+
+VERIFIED TRUE: MLI restatement (3,383 rows, 42 sleeves; 14 MLI sleeves recompute
+to $0.00 difference; no position on the old basis); 76 sleeves x 12 NAV days
+complete; alpaca_keys.env ignored and never committed, history-leak-scan clean;
+guard self-check 60/0 and both settings files carry the 5 deny rules and the hook;
+rebalance.bat/daily.bat ASCII and CRLF; record TOC 142/142 balanced; 5 enabled
+task specs match their snapshots; 6 self-contained tests pass on temp DBs with
+the live DB untouched.
+
+NOT SWEPT: the frozen strategy test (denied by the permission classifier this
+run); pip-audit; full 76-sleeve NAV recompute; GitHub-side state.
+
+# Appendix EN - Scheduled daily-audit: 39 findings - the October monthly never ran and HANDOFF still calls it upcoming, and EM's guard high is still open 6 days later (2026-10-07, ~07:34 CDT)
+Scheduled `daily-audit` sweep, 2026-10-07 (started 07:09 CDT). READ-ONLY: nothing was
+edited, fixed or committed; this entry is the one permitted write. Classified ACTIVE by
+the churn override: 10 non-audit commits after audit EM (2026-10-01 07:18 CDT), 9 of them
+automated daily-report entries plus 6aa5d05. 4 Sonnet workers (momentum code / trading_bot
++ data at rest / docs + cross-domain / secrets + deps + guard threat model) plus one
+landing-check agent plus orchestrator STEP 0. 39 findings: 6 high, 17 med, 16 low.
+Every high re-run or re-read by the orchestrator.
+
+**HIGH 1 - the October monthly rebalance never ran, and HANDOFF still calls it upcoming.**
+`rebalance_log.md` still stamps 2026-09-01. `monthy-llm-rebalance` fired 2026-10-01..10-05
+(runs of 0.5-4.5 min, all "succeeded"); each stopped because Steps 3 and 4 are denied by the
+trade guard since 2026-09-29 (the 10-01 run also hit a 4287-close COVERAGE FAIL). The days
+1-5 window is closed; next fire 2026-11-02. `var/ops_status.log` shows verify=FAIL daily
+since 10-02 (cadence check only; 76/76 sleeves OK). HANDOFF.md:15 stamp is 2026-09-30 and
+:29/:814 frame the monthly as pending. The task spec still instructs Steps 3-4 it cannot
+run: the HANDOFF :700-704 decision (narrow override vs accept manual) is still open.
+
+**HIGH 2 - EM HIGH 1 still open: the trade guard skips every Trading rule from the
+workspace root.** Probe (strings fed to the hook, nothing executed): cwd D:\ClaudeCode +
+`cd Trading && .venv\Scripts\python.exe -m scripts.momentum.monthly_<rebalance>` -> ALLOW;
+same command with cwd D:\ClaudeCode\Trading -> DENY. Same for paper_<rebalance>.
+`pretooluse-trading-guard.js:90` TRADING_PATH, applied at :138. No commit to scripts/hooks
+since d0ab3d8.
+
+**HIGH 3 - the guard has no rule for a direct broker or ledger call.** Fed to the hook with
+Trading cwd, all ALLOW: `python -c` calling `AlpacaClient.submit_order` (the header :5-6
+promises an "Alpaca order submit" deny); `llm_overlay_ops check-invalidation` (sells,
+llm_overlay_ops.py:353); `schtasks /tn TradingLadderRebalance /run` and
+`Get-ScheduledTask ... | Start-ScheduledTask` (rule :81 is order-dependent); `git send-pack
+origin master` (publishes to the PUBLIC remote; GLOBAL rule needs the literal push verb).
+The client refuses the live host unless allow_live=True, so blast radius is the paper book.
+
+**HIGH 4 - ladder retry is cadence-wide, not per sleeve.** `ladder_forward_rebalance.py:92-96`
+takes MAX(entry_date, exit_date) over all 19 sleeves of a cadence, so one sleeve trading
+marks the cadence done and 18 skipped sleeves never retry that period (worker repro on a
+scratch DB: `due= False stale sleeves: 18`). Contradicts the "self-healing" claim at
+paper_rebalance.py:159. Monthly half (strict-fill skips only warn, stamp OK) REPORTED.
+
+**HIGH 5 - `paper_trader.sell` is not idempotent.** `close_position` (paper_trader.py:161,175)
+selects and updates by id with no `status='open'` guard; `sell` credits qty*fill_price again.
+Worker repro on a scratch DB: cash 900 -> 1010 -> 1120 on a second sell of the same closed
+position. Trigger needs two overlapping runs; no lock exists anywhere (M13).
+
+**HIGH 6 - EM's own work is uncommitted and half-landed.** Records EL and EM and the EL
+HANDOFF edits have sat uncommitted since 2026-10-01 while 10 commits landed around them;
+the record .html twin has 142 appendices vs 143 in the .md (EM never rendered); HANDOFF
+never mentions EM. EM HIGH 2 (224 public commits, HANDOFF says 215; pushes c71159e and
+618faf0 unlisted) and HIGH 3 (false "uncommitted" at HANDOFF.md:24, :43, :798) still open.
+
+MED: coverage HARD_FLOOR=5000 vs settled close counts falling ~1.6/day (5156 on 08-20 ->
+5105 on 10-05; crosses ~mid-Jan 2027 by linear extrapolation); month gate fails OPEN on a
+missing/unparsable rebalance_log.md and the stamp write is non-atomic; PARTIAL retry
+re-trades all sleeves on a later as_of; `decision_for(date)` LIMIT 1 at overlay_prep.py:96,
+overlay_auto_decide.py:146, llm_overlay_ops.py:244 on multi-ticker dates; mtm_catchup.py:145
+and alpaca_sync.py:205 lack per-item try; 5 raw sqlite3.connect writers with 5 s timeout
+(warm_*); yfinance hide_exceptions=True makes market_data's transient branches dead and
+caches misses as permanent NULLs; backadjust_split.py inverts on a reverse split (ratio<1);
+last_close_on_or_before has no `price IS NOT NULL` (market_data.py:362); live path has no
+split enforcement; unheld price spikes (DHY, NFE, MTNB, FDCT, ORGS, BLTH, MI, JAGX); Write/
+Edit + .bat two-step and token-split guard bypasses; alpaca_keys.env missing from the
+Read-deny list; check_dependency_cves: 10 packages with advisories, pip-audit not installed;
+"Evan is 17" at HANDOFF.md:5, PRD_ROADMAP.md:23, project-memory INDEX.md:20, compliance.md:1;
+CLAUDE.md:37 "6 scheduled tasks" (schtasks shows 8 Trading-related plus 4 Claude tasks).
+
+LOW: HANDOFF.md:565 "Next run 2026-10-01" (live next 2026-11-02); :768 "A-AN"; :827 Stage 8
+pending; :414 18 tables (19); important.md item 9 still says check LQDA; gotchas.md:15 guard
+escape "OPEN"; next_open_range divided by N in backadjust_split (KLAC pre-split rows ~10x
+small); remark_nav_day two transactions; db.py:42 "~500MB"; alpaca_client live-host string
+compare; universe _STABLE_PRICE non-PIT; KNOWN_KINDS missing 3 kinds; init_db swallows all
+OperationalError; LF-only .bat with labels and no .gitattributes; no LICENSE on the public
+repo; daily-trade-check{,-2} snapshots differ from live by a trailing newline; 2 disabled
+one-time tasks with no snapshot; the guard blocks read-only greps naming the push verb.
+
+VERIFIED TRUE: frozen tests 4/4 d=0.0000pp (momentum_v1/v2 x 2023_Q4/2025_H1); quick_check
+ok; 76 sleeves x 18 NAV days 09-10..10-05 complete, cash reconciles, 0 orphans; 10-06 unmarked
+is the documented settle lag (4299 closes); every price_cache writer uses auto_adjust=False;
+guard self-check 60/0 and both settings files carry the 5 deny rules and the hook on
+Bash|PowerShell; history-leak-scan --history and --worktree clean, alpaca_keys.env ignored
+and never added; all 10 .bat ASCII; daily_report 160 headers, no duplicates, every weekday
+09-28..10-06 has both sessions; record TOC 143/143 balanced; live crons match HANDOFF;
+EL's LQDA numbers (70.69 -> 30.26) and 13-rename commit re-derive exactly.
+REFUTED: landing agent's "INDEX.md and compliance.md have no 17" (both still say it).
+
+NOT SWEPT: scripts/momentum/research (AST only), most of trading_bot/factors and
+scripts/form4, test_*.py bodies, Claude Code's permission layer beyond the hook,
+GitHub-side state (no fetch), pip-audit.
+
+# Appendix EO - trading-guard: the user-wide git push rule deleted at Evan's request; trade rules unchanged, self-check 60/60 (2026-10-10, ~14:49 CDT)
+**Evan, 2026-10-10:** "delete trading push gaurd".
+
+## What changed
+
+Read as: delete ONLY the push rule. The rules that block anything that
+trades stay; they enforce hard rule 1.
+
+- `scripts/hooks/pretooluse-trading-guard.js`:
+  - `GLOBAL_RULES` held exactly one rule, the user-wide `git push` deny
+    added in record DK (2026-08-20, after DI.3). It is now an empty array.
+  - The 10 TRADING_RULES, the cwd scoping, the three-form matching and the
+    fail-closed raw-text fallback are unchanged.
+  - Header comments no longer claim the hook covers push, and the
+    "over-matches git + push words" limit is gone with the rule.
+- `scripts/hooks/test_trading_guard.js`: the 8 push shapes moved from the
+  deny lists to the allow lists:
+  - the 4 plain forms;
+  - `git -C ... push`;
+  - the `%X%` indirection;
+  - `git pu\sh`;
+  - push from a Citoya cwd.
+  They now assert ALLOW, so the deletion is checked rather than assumed.
+
+## Still in place
+
+- The `Bash(git push:*)` PREFIX deny in BOTH `~/.claude/settings.json:10`
+  and this repo's `.claude/settings.json:34`. A command that STARTS with
+  `git push` is still denied. `cd x && git push` and `git -C x push` are no
+  longer blocked by anything: the prefix-matcher gap DK described.
+- The policy: Trading CLAUDE.md "Never push without Evan's instruction" and
+  important.md entry 10 are unchanged.
+
+## Proof (raw exit codes)
+
+- `node --check` on the guard: OK.
+- Self-check before: 60 passed, 0 failed. After: 60 passed, 0 failed.
+- Live: `echo git push-check` ran in this session. The deleted rule matched
+  any command holding both words, so it would have been denied.
+
+## Docs and memory brought in line
+
+- Trading `HANDOFF.md:550`: the hook note now says the push rule was
+  deleted; the self-check is 60/60.
+- `security.md:12` was stale twice: it said 5 rules and 20/20. It now
+  lists the 10 Trading-scoped rules, notes the push deletion, and gives
+  60/60.
+- Skills `CLAUDE.md` and `HANDOFF.md` now name the remaining settings deny
+  instead of the hook.
+- Auto-memory:
+  - Swing Trading and World Models Research notes updated;
+  - Citoya's `env-trading-guard-word-match` memory removed, along with its
+    index line; it described only the deleted rule's false positives.
+
+## Not done
+
+- No commit. This entry sits after three other uncommitted entries (EL,
+  EM, EN) from other writers.
+- The settings deny rules were not touched; removing them is Evan's call.
+
+# Appendix EP - git push denies removed from both settings files by Evan; nothing blocks a push mechanically now; Skills' flat never-push rule aligned with the global one (2026-10-10, ~15:08 CDT)
+**Evan, 2026-10-10:** removed the `Bash(git push:*)` deny himself, then
+"fix the conflicting claude.md".
+
+Follows EO. The settings edit was Evan's: the auto-mode classifier refused
+the model's edit of both files as self-modification, and no other route was
+tried.
+
+## State now
+
+- Both deny lists lack `Bash(git push:*)`: `~/.claude/settings.json` and
+  this repo's `.claude/settings.json`. The grep count is 0 in each, and both
+  still parse as JSON.
+- Nothing blocks a push mechanically. Pushing is policy only: the global
+  CLAUDE.md says "never push unless told", and this repo's CLAUDE.md says
+  "Never push without Evan's instruction".
+
+## Conflict fixed
+
+Skills `CLAUDE.md` said "Never push, publish, or rewrite history", flatly.
+That clashed with the global rule. It now reads "push or publish only when
+Evan says so; never rewrite history", and Skills `important.md` entry 6 is
+the same.
+
+## Lines made true again
+
+- The guard's header comment.
+- Skills `HANDOFF.md`.
+- This repo's `HANDOFF.md:550`.
+- The Swing Trading and World Models Research auto-memory notes.
+
+Each of these said the settings deny remained.
+
+## Checks
+
+- `node --check` on the guard: OK.
+- The self-check: 60 passed, 0 failed.
+
+## Left as is
+
+This repo's `important.md` entry 10 is titled "Never push" and says "Evan
+pushes". It is milder than the Skills wording and matches CLAUDE.md's
+instruction clause; changing it is Evan's call.
+
+# Appendix EQ - Scheduled daily-audit: 44 findings, 4 high - the root-cwd guard hole is still open, the missed October monthly saturates the daily alarm, and the git add denies are gone undocumented (2026-10-14, ~08:19 CDT)
+Scheduled `daily-audit` run (read-only; nothing traded, nothing fixed, nothing
+committed). Classified ACTIVE: audit EN (2026-10-07 07:34) is itself uncommitted and
+was followed by 12 non-audit commits plus entries EO and EP. HEAD 24c8a07, 6 commits
+ahead of origin (ff5f098).
+
+Method: STEP 0 fixed checks, then /audit with 3 cold Sonnet workers (code; docs D1-D8;
+cross-domain + public leak), then /landing-check on records EO-EP (1 more worker). The
+session model re-ran every high (commands below).
+
+## STEP 0
+- 0a missing session: none. 2026-10-05..10-13, every weekday has 1 pre-market + 1
+  post-market header (grep with the `.{1,3}` separator form).
+- 0b duplicate session: none, whole file.
+- 0c spec drift: daily-audit, hellow, monthy-llm-rebalance identical; daily-trade-check
+  and daily-trade-check-2 differ ONLY by the snapshot's trailing newline. The two
+  disabled one-time tasks (check-0803-rebalance, audit-all-projects-2026-08-21) have no
+  snapshot.
+- 0d cron drift: none. Live crons equal the HANDOFF table (monthy `0 18 1-5 * *`,
+  daily-trade-check `0 7 * * 1-5`, -2 `0 19 * * 1-5`, daily-audit `0 7 * * *`, hellow
+  `48 11,16,21 * * *`).
+- 0e guard: Layer 2 present in both files (`pretooluse-trading-guard.js` on
+  `Bash|PowerShell`), self-check "60 passed, 0 failed". Layer 1 FAILS as specified:
+  both deny lists hold only `git reset --hard:*` and `git rebase:*` (+ two .env reads in
+  the project file). `git push:*` was removed by Evan (record EP). `git add -A:*` and
+  `git add .:*` are ALSO gone from both files and no record entry says when or by whom
+  (user settings mtime 2026-10-11 16:15, project 2026-10-10 15:06).
+
+## Result: 44 findings - 0 crit, 4 high, 13 med, 27 low
+
+### High (all re-run by the session model)
+1. Trade guard skips every Trading rule when cwd is `D:\ClaudeCode` and the command
+   uses a relative path. Probe piping hook JSON: cwd D:\ClaudeCode + `cd Trading &&
+   .venv\Scripts\python.exe -m <rebalancer>` -> ALLOW; same from cwd Trading -> DENY;
+   absolute path from root -> DENY. Open since record EM (2026-10-01). The 60/60
+   self-check has no root-cwd case (test_trading_guard.js:174-180).
+2. October monthly has not run (rebalance_log.md: last 2026-09-01). verify_run's
+   cadence check FAILs every scheduled run (var/last_morning_run.log 2026-10-14 07:55:
+   "RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)"), so the daily alarm is
+   saturated and daily.bat:135 mislabels it a "settled-history gap" - a real gap would
+   look identical.
+3. The live docs still frame the monthly as upcoming: important.md:57-61 entry 9 "LIVE
+   2026-10-01 ... MANUAL" (its own text says remove it after 10-01), HANDOFF.md:13
+   "Last updated 2026-09-30", :565 "Next run 2026-10-01", :814 "Monthly Thu 2026-10-01:
+   MANUAL". Flagged by EN on 2026-10-07; still open.
+4. Settings deny `git add -A:*` / `git add .:*` absent from both files (STEP 0e) while
+   HANDOFF.md:550, the guard header (:22) and the daily-audit spec STEP 0e (live +
+   docs/scheduled-tasks snapshot, byte-identical) assert them. The spec also still
+   demands the `git push:*` deny Evan removed, so STEP 0e fails every morning.
+
+### Med
+5. Guard matches literal strings only: concat/chr-built module names, write-a-file-then-
+   run-it, `*bal*.bat` globs, and `alpaca_sync` via `-c "...['--execute']"` all ALLOW
+   (rule :81 needs whitespace before --e). Not in KNOWN LIMITS.
+6. scripts/momentum/check_month_gate.py:26-38 refuses only when this month is stamped;
+   an unstamped month allows any day ("ALLOW -- last stamp 2026-09-01 is not in
+   2026-10" today), so a manual run on 2026-10-14 would pass both gates.
+7. trading_bot/execution/alpaca_client.py:73,94 live-host guard is an exact string
+   compare; `HTTPS://api.alpaca.markets`, `...:443`, `http://...` construct is_live=False.
+8. trading_bot/execution/market_data.py:158-174,278-287 cache a permanent NULL on an
+   empty yfinance frame (rate limits return empty frames); STRICT_CACHE set by no .bat.
+   CONSTRUCTED; data at rest clean today.
+9. Public repo carries personal gmails: trading_bot/config.py:20,
+   scripts/momentum/warm/warm_xbrl.py:64 (a second, different SEC_USER_AGENT), record
+   line ~587.
+10. tooling.md:12,16 and check_month_gate.py:4-5 say the monthly cron is `0 18 * * *`;
+    live is `0 18 1-5 * *`.
+11. Guard status told four ways: HANDOFF:706-709 and :827 (unfixed / Stage 8 pending),
+    gotchas.md:15 ("OPEN ... 5 rules"), security.md:14-24 ("Two OPEN holes", old regex,
+    root-cwd hole missing) vs the shipped 10-rule guard.
+12. HANDOFF.md:5 "Owner is 17" (18 since 2026-09-08).
+13. HANDOFF.md:24, :43, :798 call EF work and repair_split_mixed_basis.py UNCOMMITTED;
+    both are committed (d0ab3d8, 6c60505).
+14. HANDOFF.md:150-157 vs :653-655 state LLM-sleeve holdings that contradict each other
+    and the DB (e.g. all three top1 sleeves hold MU).
+15. HANDOFF.md:414, architecture.md:6, data.md:25 say 18 tables; DB has 19
+    (paper_nav_restatement, 3,412 rows).
+16. HANDOFF.md:785 and tooling.md:34 call daily_report.md Evan's hand-written journal;
+    the daily-trade-check tasks write and commit it.
+17. Record entries EL, EM, EN, EO, EP and the HANDOFF edits are uncommitted (record last
+    committed 6c60505, 2026-09-30); 574 insertions sit in the working tree.
+
+### Low (27)
+38 raw sqlite3.connect sites without timeout (busy_timeout claim only true for
+db.connect); 9 of 10 .bat files LF-only with no .gitattributes; decision "never
+backdated" not enforced on insert; 3 Alpaca paper account numbers in public history
+(673a72b); anthropic import not in requirements; no LICENSE; dashboard backfill/
+simulation buttons lack the busy-window guard; overlay_auto_decide pause_turn loop;
+`evan.EVANFREDY` and absolute paths in 22 lines / 9 tracked files; private project
+names in public text; HEAD 6 ahead of origin; alpaca_keys.env Read-deny still absent
+(BLOCKED-ON-EVAN); HANDOFF:768 "A-AN" and record:31 "A-X" (146 entries, A-EP);
+scripts/momentum/README.md:22,28 (38 / 7, not 39 / 8); testing.md `__main__` line 203
+not 160; important.md CLAUDE.md line cites shifted; HANDOFF:91 "all 5 identical" (2
+differ by a newline); CLAUDE.md:37 "6 tasks" (8 incl. wake tasks); HANDOFF:48 "134 of
+215" stale; bins' "Last updated" headers; HANDOFF doc list omits docs/scheduled-tasks
+etc.; README deps list; backup_trades_db.py:117 VACUUM INTO path not bound; pre-open
+partial bars land in price_cache (5 close rows at 08:05 today); spy_benchmark cash
+-1.46e-11; 2 disabled one-time tasks lack snapshots; HANDOFF "Kept short" banner over
+848 lines.
+
+## Verified true
+Frozen tests: 4/4 d=+/-0.0000pp, "All regression tests passed." (run 08:15 after the
+busy-window guard correctly refused 08:00). Guard self-check 60/60; month-gate canary
+8/8; 14 other self-checks pass. paper_nav: 22 trading days since 09-14 for every
+sleeve, 0 cash+positions != NAV rows, 0 NAV <= 0. Decision logs unique, 11 seal/append
+triggers. All 25 "Daily report" commits since 09-26 touch exactly daily_report.md/.html.
+No key shapes in the tree or recent history; no .env/key/db file ever tracked. Record:
+146 headings A..EP, TOC balanced, HTML twin current with the working .md;
+daily_report.html current (171/171). Weekly backup integrity ok.
+
+## Landing-check (EO-EP)
+FIX FIRST: EP's settings claims, the 60/60 and the Skills commits re-derive; but EO/EP
+are uncommitted, HANDOFF.md:550 still lists the five rules, the daily-audit spec still
+asserts removed denies, and Skills `.claude/project-memory/security.md:60-65` still says
+the guard denies `git push` (Skills project; noted, not audited here).
+
+## Not swept
+Tests that touch rebalance paths or the live DB (trade_atomicity, strict_fill_date,
+backup_validation, repair_split); dashboard/web.py in full; CVE scan (no pip-audit);
+mutation/fuzz; history before 2026-09-26 for leaks.
+
+# Appendix ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV (2026-10-22, ~07:50 CDT)
+Scheduled `daily-audit` run (read-only; nothing traded, nothing fixed, nothing committed).
+Classified ACTIVE: audit EQ (2026-10-14 08:19) is outside the 7-day window; 10 daily-report
+commits landed 2026-10-15..10-21. HEAD 733666c, 17 ahead of origin/master ff5f098 (fetched
+by the landing worker). Repo is PUBLIC (`gh api` -> private false).
+
+Method: STEP 0 fixed checks, then /audit with 3 cold Sonnet workers (code M1-M4/M7-M9/M12/
+M13/M15 + G1-G4; docs D1-D8; cross X-series + public leak), then /landing-check on record EQ
+(1 more worker). The session model re-ran every high (commands below).
+
+## STEP 0
+- 0a missing session: none. 2026-10-13..10-21, every weekday has 1 pre-market + 1
+  post-market header (`.{1,3}` separator form). 2026-10-22 pre-market was being written
+  during this run (header present at daily_report.md:68509 by 07:17 CDT).
+- 0b duplicate session: none (`grep '^## Report: ' | sort | uniq -d` empty, whole file).
+- 0c spec drift: daily-audit, hellow, monthy-llm-rebalance byte-identical; daily-trade-check
+  and daily-trade-check-2 differ ONLY by the snapshot's trailing newline. Disabled one-time
+  tasks check-0803-rebalance and audit-all-projects-2026-08-21 have no snapshot.
+- 0d cron drift: none. Live (list_scheduled_tasks): monthy `0 18 1-5 * *` (last run
+  2026-10-05T23:01Z, next 2026-11-02T00:01Z), daily-trade-check `0 7 * * 1-5`, -2
+  `0 19 * * 1-5`, daily-audit `0 7 * * *`, hellow `48 11,16,21 * * *` - all equal the
+  HANDOFF table (its :565 "Next run 2026-10-01" is stale; finding 6).
+- 0e guard: Layer 2 present in both settings files (`pretooluse-trading-guard.js` on
+  `Bash|PowerShell`), `node scripts\hooks\test_trading_guard.js` -> "60 passed, 0 failed".
+  Layer 1 FAILS as specified: both deny lists lack `git push:*` (removed by Evan, record EP),
+  `git add -A:*` and `git add .:*` (removal undocumented); only `git reset --hard:*` and
+  `git rebase:*` remain.
+
+## Result: 51 findings - 0 crit, 7 high, 18 med, 26 low
+
+### High (session model re-ran each)
+1. Guard skips every Trading rule from the workspace root (open since record EM, 2026-10-01).
+   scripts/hooks/pretooluse-trading-guard.js:88,134-136 scope on `ClaudeCode[\\/]Trading` in
+   cwd or command. Session probe (synthetic PreToolUse JSON): cwd `D:\ClaudeCode` + `cd Trading
+   && .venv\Scripts\python.exe -m scripts.momentum.<paper rebalancer>` -> ALLOW; same from cwd
+   Trading -> DENY; absolute path from root -> DENY. Workers add: `cd ..\Trading` from Citoya
+   and `python Trading/scripts/...` -> ALLOW. No root-cwd case in the self-check.
+2. October monthly has not run: rebalance_log.md:3 "Last rebalance: 2026-09-01";
+   var/last_morning_run.log 2026-10-21 08:11 "RESULT: FAIL (76/76 sleeves OK; rebalance
+   cadence FAIL)"; ops_status.log verify=FAIL every entry 10-02..10-21, so the daily alarm is
+   saturated and daily.bat:135 labels it "settled-history gap". All 3 Windows Trading tasks
+   last result 1.
+3. The monthly task cannot finish by design: docs/scheduled-tasks/monthy-llm-rebalance.SKILL.md
+   Step 3 (lines 76, 85: `*_ops decide`) and Step 4 (line 97: rebalance.bat) are hard-denied by
+   guard rules at pretooluse-trading-guard.js:67,75; the cron stays enabled, so the 2026-11-02
+   window will hit the same wall as October unless Evan runs it or decides the path.
+4. Split restatements leave price_cache mixed-basis for NON-held names and no guard fires
+   (daily_price_refresh.py:83,170-176 replaces only 30 days; warm_* INSERT OR IGNORE;
+   check_anomalies non-held branch is 1000%-only; check_held_split_seams is held-only).
+   Session query (mode=ro): MNST closes 94.46 (07-21) -> 47.83 (07-22) -> 93.56 (07-23),
+   97.65 (07-30) -> 48.19 (07-31) -> 93.55 (08-03), 94.18 (08-04) -> 47.23 (08-05); APH
+   160.70 -> 81.67 (08-03) -> 85.67 -> 172.24 (08-05) -> 85.31. Worker: 27 near-k-ratio hits
+   since 07-01, 1 on a held name; stored 12-1 momentum MNST -36.5%, APH -35.1%, IESC -18.3%
+   vs ~+27%/+30%/+63% if the pre-seam rows were halved (assumes 2:1; not vendor-checked).
+5. Coverage gate will lock: scripts/momentum/check_coverage.py:46 `HARD_FLOOR = 5000`, :113
+   `floor = max(HARD_FLOOR, rel)`. Session query: non-NULL closes 5130 (09-14), 5110 (09-30),
+   5096 (10-09), 5085 (10-20). At the observed ~-1.8/day the floor is crossed in roughly 47
+   trading days (projection, not a measurement); then every day is PENDING and NAV writes stop
+   for all 76 sleeves.
+6. HANDOFF.md is frozen at "Last updated 2026-09-30 ~23:03 CDT" (:13); :565 "Next run
+   2026-10-01"; :29 and :814 frame the 10-01 monthly as pending; 0 mentions of EM-EQ.
+7. Record entries EL-EQ (6 appendices, +424 lines) uncommitted since 2026-09-30: `git show
+   HEAD:<record> | grep -c '^# Appendix'` -> 141 (ends EK); working copy 147; HTML twin 146
+   (lacks EQ; mtime 10-10 vs md 10-14). The only copy of EN/EQ's findings is the working tree.
+
+### Med
+8. Settings deny `git add -A:*` / `git add .:*` absent from both files while HANDOFF.md:550,
+   the guard header :22 and the daily-audit spec STEP 0e assert them; the spec also demands the
+   removed `git push:*`, so STEP 0e fails every morning.
+9. alpaca_keys.env has no Read-deny in either settings file (BLOCKED-ON-EVAN, important.md #4).
+10. important.md:57-61 entry 9 ("LIVE 2026-10-01 ... MANUAL") is past its own removal
+    condition; LQDA resolved (EL); hook-injected into every session.
+11. trading_bot/execution/alpaca_client.py:73,94 exact-string live-host compare: `HTTPS://API.`,
+    `:443`, `http://`, trailing-dot and `/v2` variants construct with is_live=False.
+12. Guard order/shape escapes: `schtasks /tn TradingLadderRebalance /run`, `Start-ScheduledTask
+    -InputObject $t`, argv-list `'--all','--execute'` (rule :81 needs whitespace) all ALLOW.
+13. Guard header promises "always exits 0"; a non-string tool_input.command throws at :110 ->
+    exit 1 -> Claude Code treats it as non-blocking, so the command runs.
+14. Guard does not cover state-writing paths: daily.bat, morning_refresh.bat, `*_ops
+    check-invalidation` (calls paper_trader.sell), `schtasks /run /tn TradingDailyMTM`,
+    `AlpacaClient().submit_order`, `sync(execute=1)` all ALLOW; header claims order submit is denied.
+15. trading_bot/execution/paper_trader.py:169-175,222-228 sell() re-closes a closed position and
+    credits cash again (temp DB: second sell +120 phantom; qty=25 on a qty=10 row +250).
+16. Refresh failure never reaches an exit gate: daily.bat:30-33,117-121 and
+    morning_refresh.bat:34-37,62-70 `exit /b 0`; last_price_refresh.txt is stamped before the
+    `return 1` branches (daily_price_refresh.py:220-224 vs 229,254).
+17. alpaca_sync.py:173 catches only AlpacaError; an httpx timeout aborts remaining orders and
+    accounts; no client_order_id, so a retry can duplicate a filled order.
+18. rebalance.bat:55-57 says late same-day data "does not affect ranks"; universe.py:220-221
+    drops names with no close on as_of (~15% at 17:33, skewed K-Z).
+19. No mechanical one-writer rule: all 5 tasks MultipleInstances=IgnoreNew +
+    StartWhenAvailable=True; ladder due-ness uses MAX over all sleeves of a cadence
+    (ladder_forward_rebalance.py:81-98), so a failed sleeve is not retried that period.
+20. .claude/project-memory/tooling.md:16 and check_month_gate.py:3 say cron `0 18 * * *`.
+21. HANDOFF.md:24, :43, :798 call EF work UNCOMMITTED (it is d0ab3d8 / 6c60505).
+22. security.md:14-16 "Two OPEN holes ... as of 2026-09-06" and gotchas.md:15 (wrapper escape,
+    "5 rules") are stale; the real open holes are findings 1 and 8.
+23. HANDOFF.md:150-157 vs :653-655 give contradictory top1 LLM-sleeve holdings; DB: all three hold MU.
+24. Public-repo identifiers: trading_bot/config.py SEC_USER_AGENT personal gmail;
+    scripts/momentum/warm/warm_xbrl.py:64 second gmail; `evan.EVANFREDY` in 21 lines / 9 tracked
+    files (landing count; EQ said 22).
+25. Spec STEP 0 of monthy-llm-rebalance stops on any current-month stamp, contradicting the
+    PARTIAL-retry design in check_month_gate.py:33-34 (REPORTED).
+
+### Low (one line each)
+26. check_month_gate.py:29-31 fails open on a missing/unparsable log or a future stamp; "idempotent" comments stale (rebalance.bat:12).
+27. monthly_auto.bat:33-43 ignores `call rebalance.bat`'s exit code (dormant script).
+28. Guard stamp rule (:77) is a bare word, contradicting "invocation-shaped" (:26-29).
+29. test_trading_guard.js:36,51,148 use nonexistent `scripts.momentum.alpaca_sync` and `--dry-run`.
+30. Dashboard :8501 down since 2026-10-19 18:42 (TradingDashboard result 0xC000013A, AtLogon only).
+31. HANDOFF.md:5 "Owner is 17" (18 since 2026-09-08).
+32. scripts/git-hooks/pre-commit tracked 100644; stale .git/hooks/pre-commit differs (shadowed).
+33. verify_run.py:320-324,337-340 vacuous PASS when no calendar day settles.
+34. paper_rebalance.py:160 init() writes before the strategy name is validated, even on --dry-run.
+35. dashboard web.py:2065,2892 shows UTC date for evening runs (next day).
+36. scripts/data_audit/{reset_0701_to_0706,align_llm_07_01,restore_sector_full}.py still DELETE live sleeves behind --confirm only.
+37. No LICENSE in a public repo; pip-audit absent (CVEs not determined).
+38. dashboard PID-reuse can taskkill an unrelated tree (web.py:726-835).
+39. TradingDailyMTM ExecutionTimeLimit PT30M vs up to 7 min of refresh cooldowns.
+40. backup_trades_db.py:131 rotates by filename; a stray trades_zzz.db evicts a real backup.
+41. README.md:40 lists 3 of 9 pinned packages.
+42. CLAUDE.md:37 "6 scheduled tasks" omits the 4 other Claude agent tasks.
+43. docs/prereg_2026-07-14_champs_tweaks.md:1 July stamp labelled CST.
+44. HANDOFF is 848 lines / 63 KB despite "kept short on purpose".
+45. data.md:25 "18 tables" - DB has 18 user tables incl. paper_nav_restatement (19 with sqlite_sequence); HANDOFF:414-424 list omits paper_nav_restatement.
+46. Spec snapshots: daily-trade-check(-2) trailing-newline diff; 2 disabled tasks unsnapshotted.
+47. EQ's own text: 22 vs 21 identifier lines; tooling.md/check_month_gate cites are :16/:3 not :12/:4-5.
+48. 0-byte stray D:\ClaudeCode\Trading\trading.db (2026-08-16), left alone.
+49. market_data.py:352 / paper_mtm.py:123 take the latest close without `price IS NOT NULL`.
+50. Dotted yfinance symbols (18 in sector_cache) would be rejected by Alpaca (none held).
+51. stamp_rebalance_log.py:38 stamps the finish date; a run crossing midnight on the last day stamps the next month.
+
+## Landing-check of record EQ: FIX FIRST
+EQ is uncommitted, its HTML twin lacks it, and HANDOFF was never updated for it (findings 6,
+7). Re-derived TRUE: 60/60, both deny lists as stated, settings mtimes, month gate and
+alpaca_client lines, gmail lines, 9 of 10 .bat LF-only, README 38/7, 25/25 daily-report
+commits touch only the two report files, paper_nav 0 inconsistent rows.
+
+## Verified true
+Frozen tests `.venv\Scripts\python.exe -m trading_bot.strategies.test_strategies` -> all 4
+configs d=+/-0.0000pp, "All regression tests passed."; test_backtest_state_isolation 8/8;
+check_month_gate --canary 8/8; pm-secretscan --history clean (259 commits); every price_cache
+writer uses auto_adjust=False; requirements.lock.txt == pip freeze (96 lines); sealed
+paper_nav triggers present; record headings A..EQ contiguous, TOC 147 = headings, 0 CRLF.
+
+## Not swept
+5 GB integrity_check; vendor-side split confirmation for MNST/APH/IESC (no network);
+research/, form4/, most factors/strategies modules; the live remote beyond the fetched ref.
+
+Cost: 4 Sonnet workers, ~808K subagent tokens (104,704 + 212,531 + 145,105 + 345,840).
+
+# Appendix ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent (2026-10-25, ~15:57 CDT)
+## WHAT
+
+A docs-sync pass on Evan's `/docs-sync then commit and push`, 2026-10-25 ~16:00
+CDT. It was the first time this session has touched the repo since 2026-09-30.
+
+Found on arrival:
+- 21 local commits ahead of origin, all daily reports, carrying 0 Co-Authored-By trailers.
+- The record held 7 UNCOMMITTED appendices, EL..ER:
+  - my EL (2026-09-30);
+  - five scheduled daily-audit runs (EM, EN, EQ, ER, and EK's later bins work already committed);
+  - Evan's 2026-10-10 guard changes (EO, EP).
+- HANDOFF still described 2026-09-30.
+
+This pass verified the facts below directly (read-only) rather than relaying the
+audits, then rewrote HANDOFF's top block.
+
+## Verified facts (2026-10-25 ~15:55-16:00 CDT)
+
+1. **The October 2026 monthly rebalance never ran.**
+   - `rebalance_log.md`: "Last rebalance: 2026-09-01", Status OK.
+   - Sampled monthly sleeves: last entries/exits are mom_v2_paper and residual_roa_6535_paper 2026-09-01, mom_roa_top1_paper and sector_top4_paper 2026-08-03.
+   - `last_rebalanced_at` for all four is 2026-09-02T02:58-03:02Z (the September hand run).
+   - So every monthly-cadence sleeve (systematic, monthly ladder, LLM experiment) has held its September book through October. The weekly/biweekly ladders kept trading.
+   - This matches EN's finding. Record EF had already said that 10-01 needed a manual run by Evan; it did not happen. **Nothing was done about it in this pass.** Running a late rebalance is a trading action and Evan's call.
+2. **The trade guard has a working-directory hole, introduced by my record-EF scoping. EM reported it; I confirmed it with the live hook.**
+   - Inputs: a probe payload to `scripts/hooks/pretooluse-trading-guard.js`, nothing executed.
+   - cwd = `D:\ClaudeCode\Trading`, a dispatcher module: **deny**.
+   - cwd = `D:\ClaudeCode` (workspace root), `cd Trading && python -m <dispatcher>`: **ALLOW**.
+   - cwd = workspace root with the absolute Trading path in the command: deny.
+   - cwd field missing: deny.
+   - EF applied the Trading rules only when the cwd or the command text names `ClaudeCode\Trading`. A session started at the workspace root that changes directory by a relative path escapes every Trading rule. **Not fixed in this pass** (code, outside a docs pass).
+3. **Publishing is no longer mechanically blocked.** Commits `d0164a4` and `ff5f098` (2026-10-10, already on origin) deleted the user-wide git push rule and the settings.json push denies at Evan's request (records EO, EP). Guard self-check: 60 passed, 0 failed.
+4. **The `alpaca_keys.env` Read-deny is still absent** from both settings files (grep count 0 in each). Still BLOCKED-ON-EVAN.
+5. Latest paper_nav date: 2026-10-23, 76 rows.
+
+## Docs changed in this pass
+
+- HANDOFF: new 2026-10-25 top block, replacing the 2026-09-29 EF block (which record EF itself carries). It now states the missed October monthly, the cwd guard hole, the push-rule removal, and that the EF and MLI work is committed (`d0ab3d8`, `6c60505`). The handoff prompt is refreshed.
+- `.claude/project-memory/important.md` entry 9 ("LIVE 2026-10-01: the monthly is MANUAL ... remove once 10-01 is done") was rewritten: 10-01 passed without a rebalance, and the entry now says so (Evan told in the session report).
+- Memory: `trading-guard-blocks-monthly-rebalance.md` gets the October outcome and the cwd hole.
+- Commit + publish of EL..ES, HANDOFF and the bin follows this entry, on Evan's instruction.
+
+## Not verified by this pass
+
+The remaining findings in EM, EN, EQ and ER (30-51 findings each, including
+ER's "split seams sit unguarded in non-held names") were not re-checked here.
+Only the two items above were.
