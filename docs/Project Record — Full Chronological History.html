@@ -244,7 +244,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-ep---git-push-denies-removed-from-both-settings-files-by-evan-nothing-blocks-a-push-mechanically-now-skills-flat-never-push-rule-aligned-with-the-global-one-2026-10-10-1508-cdt">EP - git push denies removed from both settings files by Evan; nothing blocks a push mechanically now; Skills' flat never-push rule aligned with the global one</a> (10-10)<br />
 - <a href="#appendix-eq---scheduled-daily-audit-44-findings-4-high---the-root-cwd-guard-hole-is-still-open-the-missed-october-monthly-saturates-the-daily-alarm-and-the-git-add-denies-are-gone-undocumented-2026-10-14-0819-cdt">EQ - Scheduled daily-audit: 44 findings, 4 high - the root-cwd guard hole is still open, the missed October monthly saturates the daily alarm, and the git add denies are gone undocumented</a> (10-14)<br />
 - <a href="#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt">ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV</a> (10-22)<br />
-- <a href="#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt">ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent</a> (10-25)</p>
+- <a href="#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt">ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent</a> (10-25)<br />
+- <a href="#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt">ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02</a> (10-25)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -14989,6 +14990,51 @@ audits, then rewrote HANDOFF's top block.</p>
 <p>The remaining findings in EM, EN, EQ and ER (30-51 findings each, including<br />
 ER's "split seams sit unguarded in non-held names") were not re-checked here.<br />
 Only the two items above were.</p>
+<h1 id="appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt">Appendix ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02 (2026-10-25, ~21:01 CDT)</h1>
+<h2 id="what_9">WHAT</h2>
+<p>Two items on Evan's instruction ("1, wait for november"), 2026-10-25.</p>
+<ol>
+<li><strong>The trade guard's workspace-root cwd hole is closed.</strong> It was introduced<br />
+   by my record-EF scoping; daily audit EM reported it, and record ES<br />
+   probe-confirmed it.</li>
+<li><strong>Decision (Evan, 2026-10-25): no late October rebalance.</strong> The monthly<br />
+   sleeves stay on their September book until the first trading day of<br />
+   November, Mon 2026-11-02. That run is MANUAL for Evan: the guard denies the<br />
+   scheduled task's decide step and its .bat.</li>
+</ol>
+<p>Correction to record ES: ES says "five scheduled daily-audit runs" and lists<br />
+four (EM, EN, EQ, ER). The count is four; EK was a bins entry, committed<br />
+earlier.</p>
+<h2 id="why-the-hole">WHY (the hole)</h2>
+<p><code>scripts/hooks/pretooluse-trading-guard.js</code> applied its Trading rules only when<br />
+the payload cwd or the command text matched the literal <code>ClaudeCode[\\/]Trading</code>.<br />
+A session whose cwd is the workspace root (<code>D:\ClaudeCode</code>) could run<br />
+<code>cd Trading &amp;&amp; python -m &lt;dispatcher&gt;</code> and every Trading rule was skipped. A<br />
+sibling project could do the same with <code>cd ..\Trading</code>.</p>
+<h2 id="how">HOW</h2>
+<p>Trading rules now apply when any of these holds:<br />
+- the cwd is the repo, inside it, or ANY FOLDER ABOVE IT. The repo location is taken from the hook file's own path (<code>__dirname</code>), so a clone outside <code>ClaudeCode\Trading</code> is covered too; that closes the old "clone elsewhere" known limit.<br />
+- the command names <code>ClaudeCode\Trading</code> or a <code>Trading</code> path segment.<br />
+- the cwd is missing (fail closed, unchanged).</p>
+<p><code>canonPath()</code> folds <code>D:\a\b</code>, <code>d:/a/b/</code> and Git Bash <code>/d/a/b</code> to one form. The<br />
+header's DESIGN and KNOWN LIMITS sections are updated. The remaining limit is a<br />
+variable-indirected directory (<code>cd $DIR</code>) from a sibling project.</p>
+<p>Accepted false positive: from the workspace root, a dispatcher-shaped command<br />
+aimed at ANOTHER project is now denied too. Only the Trading repo has those<br />
+modules, so the cost is nil.</p>
+<h2 id="verification-real-output">Verification (real output)</h2>
+<ul>
+<li><strong>Test-first.</strong> 7 new cases in <code>scripts/hooks/test_trading_guard.js</code>: the<br />
+  workspace root, the drive root and the Git Bash root each doing a cd into<br />
+  Trading; a sibling doing <code>cd ..\Trading</code> and <code>cd ../Trading</code>; a subfolder of<br />
+  Trading; and a sibling with no Trading hop (must still ALLOW).</li>
+<li>Before the fix: <code>63 passed, 4 failed</code>.</li>
+<li>After: <code>67 passed, 0 failed</code>.</li>
+<li><strong>Live probe</strong> (<code>probe_cwd.js</code>, nothing executed). Workspace root plus<br />
+<code>cd Trading &amp;&amp; python -m &lt;dispatcher&gt;</code>: allow before, <strong>deny</strong> after. The<br />
+  Trading cwd, an absolute path and a missing cwd still deny.</li>
+<li>JS only, no Python changed, so the frozen tests were not required.</li>
+</ul>
 </div>
 </body>
 </html>

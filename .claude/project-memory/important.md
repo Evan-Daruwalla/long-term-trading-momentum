@@ -55,7 +55,7 @@
 **Source:** CLAUDE.md:3-7; disclosure.md:9; Evan, 2026-09-30.
 
 ## 9. The monthly rebalance is MANUAL, and October 2026 was MISSED (updated 2026-10-25)
-**What:** the guard denies the scheduled task's decide step and its .bat, so only Evan can run the monthly. The 2026-10-01 run never happened (rebalance_log.md = 2026-09-01; verified 2026-10-25, record ES). After any manual run, look for STALE-SKIP lines and run the printed `RETRY ... --as-of <D>` line. (LQDA's 09-30 -57% bar was real news, record EL.)
+**What:** the guard denies the scheduled task's decide step and its .bat, so only Evan can run the monthly. The 2026-10-01 run never happened (rebalance_log.md = 2026-09-01; verified 2026-10-25, record ES). Evan decided 2026-10-25 (record ET) NOT to run a late October rebalance: the next monthly is Mon 2026-11-02, by hand. After any manual run, confirm rebalance_log.md moved, look for STALE-SKIP lines and run the printed `RETRY ... --as-of <D>` line. (LQDA's 09-30 -57% bar was real news, record EL.)
 **Constrains:** do not attempt the rebalance; flag a missed month the day it happens.
 **Why:** a missed monthly leaves every monthly-cadence sleeve on a stale book for a month.
 **Source:** records EF, EN, ES. (Was "LIVE 2026-10-01 ... remove once done"; rewritten instead because 10-01 did not happen - Evan told 2026-10-25.)

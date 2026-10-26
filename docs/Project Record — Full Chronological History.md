@@ -206,6 +206,7 @@ lives in the dated entry, not the digest.
 - [EQ - Scheduled daily-audit: 44 findings, 4 high - the root-cwd guard hole is still open, the missed October monthly saturates the daily alarm, and the git add denies are gone undocumented](#appendix-eq---scheduled-daily-audit-44-findings-4-high---the-root-cwd-guard-hole-is-still-open-the-missed-october-monthly-saturates-the-daily-alarm-and-the-git-add-denies-are-gone-undocumented-2026-10-14-0819-cdt) (10-14)
 - [ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV](#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt) (10-22)
 - [ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent](#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt) (10-25)
+- [ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02](#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt) (10-25)
 
 ---
 
@@ -13829,3 +13830,56 @@ audits, then rewrote HANDOFF's top block.
 The remaining findings in EM, EN, EQ and ER (30-51 findings each, including
 ER's "split seams sit unguarded in non-held names") were not re-checked here.
 Only the two items above were.
+
+# Appendix ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02 (2026-10-25, ~21:01 CDT)
+## WHAT
+
+Two items on Evan's instruction ("1, wait for november"), 2026-10-25.
+
+1. **The trade guard's workspace-root cwd hole is closed.** It was introduced
+   by my record-EF scoping; daily audit EM reported it, and record ES
+   probe-confirmed it.
+2. **Decision (Evan, 2026-10-25): no late October rebalance.** The monthly
+   sleeves stay on their September book until the first trading day of
+   November, Mon 2026-11-02. That run is MANUAL for Evan: the guard denies the
+   scheduled task's decide step and its .bat.
+
+Correction to record ES: ES says "five scheduled daily-audit runs" and lists
+four (EM, EN, EQ, ER). The count is four; EK was a bins entry, committed
+earlier.
+
+## WHY (the hole)
+
+`scripts/hooks/pretooluse-trading-guard.js` applied its Trading rules only when
+the payload cwd or the command text matched the literal `ClaudeCode[\\/]Trading`.
+A session whose cwd is the workspace root (`D:\ClaudeCode`) could run
+`cd Trading && python -m <dispatcher>` and every Trading rule was skipped. A
+sibling project could do the same with `cd ..\Trading`.
+
+## HOW
+
+Trading rules now apply when any of these holds:
+- the cwd is the repo, inside it, or ANY FOLDER ABOVE IT. The repo location is taken from the hook file's own path (`__dirname`), so a clone outside `ClaudeCode\Trading` is covered too; that closes the old "clone elsewhere" known limit.
+- the command names `ClaudeCode\Trading` or a `Trading` path segment.
+- the cwd is missing (fail closed, unchanged).
+
+`canonPath()` folds `D:\a\b`, `d:/a/b/` and Git Bash `/d/a/b` to one form. The
+header's DESIGN and KNOWN LIMITS sections are updated. The remaining limit is a
+variable-indirected directory (`cd $DIR`) from a sibling project.
+
+Accepted false positive: from the workspace root, a dispatcher-shaped command
+aimed at ANOTHER project is now denied too. Only the Trading repo has those
+modules, so the cost is nil.
+
+## Verification (real output)
+
+- **Test-first.** 7 new cases in `scripts/hooks/test_trading_guard.js`: the
+  workspace root, the drive root and the Git Bash root each doing a cd into
+  Trading; a sibling doing `cd ..\Trading` and `cd ../Trading`; a subfolder of
+  Trading; and a sibling with no Trading hop (must still ALLOW).
+  - Before the fix: `63 passed, 4 failed`.
+  - After: `67 passed, 0 failed`.
+- **Live probe** (`probe_cwd.js`, nothing executed). Workspace root plus
+  `cd Trading && python -m <dispatcher>`: allow before, **deny** after. The
+  Trading cwd, an absolute path and a missing cwd still deny.
+- JS only, no Python changed, so the frozen tests were not required.

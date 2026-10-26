@@ -190,6 +190,31 @@ for (const c of ALLOW_TRADING) {
   else { fail++; console.log("FAIL (Citoya cwd but command names the Trading path, should DENY):", named); }
 }
 
+// cwd ABOVE or INSIDE Trading, or a relative hop into it (record ET, 2026-10-25).
+// Before ET the scope test only matched the literal "ClaudeCode\Trading", so a
+// session started at the workspace root could `cd Trading && python -m <dispatcher>`
+// and every Trading rule was skipped (daily audit EM; probe-confirmed in ES).
+{
+  const disp = `.venv\\Scripts\\python.exe -m scripts.momentum.paper_${RB}`;
+  const cases = [
+    ["workspace root cwd, cd Trading", "D:\\ClaudeCode", `cd Trading && ${disp}`],
+    ["drive root cwd, cd ClaudeCode\\Trading", "D:\\", `cd ClaudeCode\\Trading && ${disp}`],
+    ["Git Bash style root cwd", "/d/ClaudeCode", `cd Trading && ${disp}`],
+    ["sibling project cwd, cd ..\\Trading", CITOYA_CWD, `cd ..\\Trading && ${disp}`],
+    ["sibling project cwd, cd ../Trading", CITOYA_CWD, `cd ../Trading && ${disp}`],
+    ["subfolder of Trading", "D:\\ClaudeCode\\Trading\\scripts\\momentum", disp],
+  ];
+  for (const [label, cwd, c] of cases) {
+    const r = run(bashIn(c, cwd));
+    if (r.decision === "deny") { pass++; }
+    else { fail++; console.log(`FAIL (${label}, should DENY):`, c); }
+  }
+  // still scoped out: a sibling project that never touches Trading
+  const r = run(bashIn(`cd sub && ${disp}`, CITOYA_CWD));
+  if (r.decision === "allow") { pass++; }
+  else { fail++; console.log("FAIL (Citoya cwd, no Trading hop, should ALLOW):", r.raw); }
+}
+
 // Unparseable payload: the same three-way matching applies to the raw text.
 assert.strictEqual(run("not json but mentions cmd /c monthly_auto.bat").decision, "deny",
   "unparsed payload: a Trading-only token must deny (cwd unknown -> fail closed)");

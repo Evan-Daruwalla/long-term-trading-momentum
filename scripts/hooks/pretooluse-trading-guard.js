@@ -29,9 +29,13 @@
  *    rule names a module, a .bat wrapper, an *_ops subcommand, or a flag.
  *  - SCOPING. This hook is registered user-wide, so the Trading-only rules must
  *    not fire in other projects. RULES split into GLOBAL (every repo; empty
- *    since the push rule was deleted 2026-10-10) and TRADING. TRADING applies when payload.cwd or the command
- *    matches ClaudeCode[\\/]Trading, and ALSO when payload.cwd is missing
- *    (fail closed: an unknown location is treated as Trading).
+ *    since the push rule was deleted 2026-10-10) and TRADING. TRADING applies
+ *    when payload.cwd is this repo, inside it, or ANY FOLDER ABOVE IT (the repo
+ *    location is taken from this file's own path); when the command names
+ *    ClaudeCode[\\/]Trading or a `Trading` path segment (`cd ..\Trading`); and
+ *    when payload.cwd is missing (fail closed). Record ET, 2026-10-25: the
+ *    earlier literal-path test let a workspace-root session `cd Trading` and
+ *    skip every rule.
  *  - THREE STRINGS per command are tested, and any hit denies: the raw command;
  *    `norm` (^ ' " removed, whitespace runs collapsed) which defeats
  *    paper_reb^alance / paper_reb''alance and multi-space splits; and `norm`
@@ -44,9 +48,9 @@
  *
  * KNOWN LIMITS (not closed, by design): an env-var or variable-indirected module
  * name (`X=paper_; python -m ...${X}rebalance`) cannot be seen by a string
- * matcher; a clone of this repo outside a path matching ClaudeCode/Trading
- * scopes to the GLOBAL rules only unless its cwd is missing; and hooks cover
- * only Bash/PowerShell, not the Read/Edit tools.
+ * matcher; a variable-indirected directory (`cd $DIR`) from a sibling project
+ * is out of scope; and hooks cover only Bash/PowerShell, not the Read/Edit
+ * tools.
  *
  * Always exits 0 — the block is expressed via permissionDecision:"deny", never
  * via a crash. On an internal error it fails OPEN but NOISY, except that a
@@ -86,6 +90,34 @@ const TRADING_RULES = [
 
 // Trading-only rules apply inside this project, or whenever the location is unknown.
 const TRADING_PATH = /ClaudeCode[\\/]Trading/i;
+
+// Record ET (2026-10-25): matching only the literal path let a session started at
+// the workspace root `cd Trading && python -m <dispatcher>` with every Trading rule
+// skipped. The repo's real location comes from this file's own path, and a cwd
+// ABOVE the repo counts as in scope too (a relative cd can reach it from there),
+// as does any command that names a `Trading` path segment (`cd ..\Trading`).
+const REPO_DIR = require("path").resolve(__dirname, "..", "..");
+const TRADING_SEGMENT = /(?:^|[\s\\\/="'])Trading(?=[\s\\\/"';&|)]|$)/i;
+
+// "D:\\a\\b", "d:/a/b/" and Git Bash "/d/a/b" all become "d:/a/b".
+function canonPath(p) {
+  let s = String(p).replace(/\\/g, "/");
+  const drive = s.match(/^\/([a-zA-Z])(?=\/|$)/);
+  if (drive) s = drive[1] + ":" + s.slice(2);
+  return s.replace(/\/+$/, "").toLowerCase();
+}
+
+function cwdInScope(cwd) {
+  const c = canonPath(cwd);
+  const repo = canonPath(REPO_DIR);
+  return c === repo || c.startsWith(repo + "/") || repo.startsWith(c + "/");
+}
+
+function tradingInScope(cwd, command) {
+  if (cwd === "") return true;  // unknown location -> fail closed
+  if (cwdInScope(cwd) || TRADING_PATH.test(cwd)) return true;
+  return forms(command).some((s) => TRADING_PATH.test(s) || TRADING_SEGMENT.test(s));
+}
 
 function allow() { process.exit(0); }
 
@@ -132,8 +164,8 @@ process.stdin.on("end", () => {
     const payload = JSON.parse(raw);
     command = (payload.tool_input && payload.tool_input.command) || "";
     const cwd = typeof payload.cwd === "string" ? payload.cwd : "";
-    // Missing cwd -> fail closed (treated as Trading).
-    applyTrading = cwd === "" || TRADING_PATH.test(cwd) || TRADING_PATH.test(command);
+    // Missing cwd -> fail closed (treated as Trading); see tradingInScope.
+    applyTrading = tradingInScope(cwd, command);
   } catch (e) {
     // Could not parse the envelope. Do not wedge the session over it — but do
     // not wave a rebalance through either: scan the raw text as a fallback,

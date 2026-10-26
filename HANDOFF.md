@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-10-25 ~16:00 CDT (record ES)** — this file is the only live snapshot
+**Last updated: 2026-10-25 ~21:02 CDT (records ES, ET)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -25,14 +25,13 @@ Appendix AZ).
 > - **The OCTOBER 2026 MONTHLY NEVER RAN.** `rebalance_log.md` still reads
 >   2026-09-01; the monthly-cadence sleeves (systematic, monthly ladder, LLM
 >   experiment) have held their September book all of October. Weekly/biweekly
->   ladders kept trading. Running a late rebalance is Evan's call (it trades); the
->   next scheduled window is the first trading day of November (Mon 2026-11-02).
->   The scheduled task cannot finish under the guard (decide step and the .bat are
->   both denied), so the monthly is MANUAL for Evan.
-> - **Guard hole (mine, from record EF):** with the session cwd at the workspace
->   root `D:\ClaudeCode`, `cd Trading && python -m <dispatcher>` is ALLOWED (probe
->   confirmed 2026-10-25). The Trading rules apply only when cwd or the command
->   text names `ClaudeCode\Trading`. Fix pending (code).
+>   ladders kept trading. **Evan decided (2026-10-25, record ET): no late October
+>   run - the next monthly is Mon 2026-11-02, MANUAL for Evan** (the guard denies
+>   the scheduled task's decide step and its .bat).
+> - **Guard workspace-root cwd hole: FIXED 2026-10-25 (record ET).** Trading
+>   rules now apply when the cwd is the repo,
+>   inside it, or any folder above it, or the command names a `Trading` path
+>   segment. Self-check 67/0.
 > - Publishing: the git push rule and the settings push denies were removed by
 >   Evan on 2026-10-10 (records EO, EP; `d0164a4`, `ff5f098`). Guard self-check
 >   60/0.
@@ -791,12 +790,11 @@ TOC -> PRD_ROADMAP.md. The append-only record is ground truth; HANDOFF is the
 only live snapshot.
 
 STATE (verified 2026-10-25 ~16:00 CDT, record ES):
-- THE OCTOBER 2026 MONTHLY NEVER RAN (rebalance_log.md = 2026-09-01). Monthly
-  sleeves held their September book all month. Next window: Mon 2026-11-02.
-  The monthly is MANUAL for Evan - the guard denies the scheduled task's decide
-  step and its .bat. Do not route around it.
-- GUARD HOLE (from record EF's cwd scoping): cwd = D:\ClaudeCode (workspace
-  root) + `cd Trading && python -m <dispatcher>` is ALLOWED. Fix first.
+- THE OCTOBER 2026 MONTHLY NEVER RAN (rebalance_log.md = 2026-09-01). Evan
+  decided (2026-10-25, ET) to wait: the next monthly is Mon 2026-11-02, MANUAL
+  for Evan - the guard denies the scheduled task's decide step and its .bat.
+  Do not route around it. After that run, confirm rebalance_log.md moved.
+- Guard workspace-root cwd hole fixed 2026-10-25 (ET); self-check 67/0.
 - 76 sleeves; paper_nav through 2026-10-23 (76 rows). paper_nav is SEALED:
   restate history only via remark_nav_day --execute --reason (or, for a split
   on a mixed-basis cache, scripts/data_audit/repair_split_mixed_basis.py, EJ).
@@ -804,8 +802,8 @@ STATE (verified 2026-10-25 ~16:00 CDT, record ES):
   No Co-Authored-By trailer, ever.
 
 THEN:
-- BLOCKED-ON-EVAN: decide on a late October rebalance vs waiting for 11-02;
-  alpaca_keys.env Read-deny (both settings files, see EF).
+- BLOCKED-ON-EVAN: run the 2026-11-02 monthly by hand; alpaca_keys.env
+  Read-deny (both settings files, see EF).
 - Re-verify the open highs in daily audits EM, EN, EQ, ER (not re-checked by
   the 10-25 docs-sync).
 - Stage 5 leftovers: stamp_rebalance_log atomicity (os.replace), alpaca_sync
