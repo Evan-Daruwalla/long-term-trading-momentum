@@ -70535,3 +70535,255 @@ The three parts add to the day slope (biweekly to within rounding). **Energy is 
 - **A new sleeve concept.** No recommendation.
 
 **Sources (fetched unless marked):** [AP via La Nacion, "How major US stock indexes fared Monday 10/26/2026"](https://www.lanacion.com.ar/usa/how-major-us-stock-indexes-fared-monday-10262026-nid26102026/) (published 17:21); [Investrade market review 2026-10-26](https://investrade.com/market-review-october-26-2026/) (no time); [Strategitz global close 2026-10-26](https://strategitz.substack.com/p/global-markets-close-october-26-2026) (no time); stockanalysis.com quote pages for [MU](https://stockanalysis.com/stocks/mu/), [STX](https://stockanalysis.com/stocks/stx/), [FICO](https://stockanalysis.com/stocks/fico/), [DAVE](https://stockanalysis.com/stocks/dave/), [VICR](https://stockanalysis.com/stocks/vicr/), [NHC](https://stockanalysis.com/stocks/nhc/), [SEZL](https://stockanalysis.com/stocks/sezl/), [MRK](https://stockanalysis.com/stocks/mrk/), [PARR](https://stockanalysis.com/stocks/parr/), [ATEX](https://stockanalysis.com/stocks/atex/), [NDLS](https://stockanalysis.com/stocks/ndls/), [UYSC](https://stockanalysis.com/stocks/uysc/), [KFII](https://stockanalysis.com/stocks/kfii/), [XLV](https://stockanalysis.com/etf/xlv/) (all "At close: Oct 26, 2026, 4:00 PM EDT" or the 10-26 closing timestamp; after-hours prints 19:45-19:58 EDT; headlines with relative times only). Headlines only (not fetched): TheFly (FICO, DAVE, VICR, STX, PARR items), Barron's, TipRanks, WSJ, Invezz, Reuters, Bloomberg, Business Wire, GlobeNewswire. Search summaries only (not fetched): Taipei Times 2026-10-22 and Focus Taiwan 2026-10-21 (Micron union). Carried from this morning's entry, not re-fetched: the pre-market prints scored in 7c, KO's 10-27 report date, the Taoyuan talks date, the US midterms date. Carried from prior entries: Thursday's and Friday's Energy-vs-XLE readings (7b), earnings dates marked "prior entries". Not found: any 10-26 report on the Taoyuan talks; any same-day item for DAVE (beyond the initiation), SEZL, NHC, ATEX, PARR, VICR, NDLS; a SOX close. DB: `var/trades.db` read-only. Logs: `var/last_daily_run.log` (2026-10-26 17:27), `var/last_morning_run.log` (2026-10-26 07:54), `var/last_ladder_run.log` (2026-10-25 20:30), `var/ops_status.log`.
+
+
+---
+
+## Report: 2026-10-27 (Tuesday) - Pre-Market Overnight Research
+
+> **DAILY SUMMARY**
+>
+> **2026-10-26 is still UNMARKED; every 10-26 NAV below is INDICATIVE.** `max(nav_date)` in `paper_nav` is **2026-10-23** (76 rows; 0 rows for 10-26). `price_cache` holds **4,267** 10-26 closes against the 5,000 floor, unchanged since the 17:27 gate. Today's 07:45 `TradingMorningMTM` heal had not run when this was compiled (07:02-07:14 CDT); its outcome is not predicted here. Method: `paper_portfolio.cash + sum(qty x last close <= 2026-10-26)`, the same formula last night's entry used.
+>
+> **The 20:30 ladder TRADED on the unmarked day.** Both ladders were due (weekly last 10-19, biweekly last 10-12); the script logged `coverage 4267 < floor 5000 on 2026-10-26: rebalancing, but NAV is left to mtm_catchup` and rebalanced **38 of 38 rungs: 228 buys and 183 sells in 36 sleeves, 49 sells skipped** on stale bars (only UYSC, LCCC, KFII and WBD). Open positions went from 3,272 to 3,317; **13 rungs now hold 47-52 names** against a target of 50. Energy fell from 15.3701% to **13.2112%** of priced value (PARR, APA, NGL, SUN, PAA, TEN, DK, TRGP and XOM sold). Much smaller than 2026-09-21's 300 skipped sells, but the same mechanism (0g).
+>
+> **Book (indicative 10-26, after the ladder): $7,426,901.09; day +0.8144% vs marked 10-23 $7,366,903.41; MTD -3.0391%; ITD -2.2776%** on $7,600,000.00. Last night's pre-ladder figure was $7,427,244.43; the only position changes since are the ladder's trades (the -$343.34 gap was not attributed sleeve by sleeve). Leaders ITD: `sector_top4_full_paper` **+9.8511%**, `sector_top4_paper` +8.5366%, `spy_benchmark_paper` +6.2055%, `qqq_benchmark_paper` +5.6441%, `llm_overlay_sector_top4_paper` +5.4699%. Laggards: `mom_v1_paper` **-26.0313%**, `mom_roa_6535_paper` -25.9109%, `mom_v2_paper` -25.6585%.
+>
+> **Pre-market (stockanalysis.com, 07:32-08:07 EDT): memory and chip equipment up again; tankers and refiners down.** **MU $922.92, +2.13%** (62 sleeves, **+$9,921.41**), STX +1.74% (reports after today's close), AMAT +1.37% (raising its BE Semiconductor stake to about 20%), LRCX +1.28%, KLAC +1.11%, WDC +0.67%. **KO +0.63% after beating and raising** (Q3 comparable EPS $0.91, +11%; full-year comparable EPS growth now at least 11%, from 9-10%; SEC 8-K). INSW -1.40%, VLO -0.97%, FICO -1.49%, AAPL -0.41%. **27 held names checked (38.9369% of priced value) sum to +$17,261.00 = +0.2324% of the book; the six memory/chip-equipment names are +$15,805.60 of it.** SPY +0.27%, QQQ +0.34%.
+>
+> **Macro:** Oil firm after Monday's fall: **Brent $116.26, +0.39%; WTI $102.16, +0.39%** at 06:18 ET (Globe and Mail), as talks in Tehran (Saudi Arabia, Turkey, Pakistan) ran into renewed Houthi attacks; Hormuz flows about 60% of normal (ANZ, cited there). 10-year **4.986%** (Investrade). **FOMC day 1; the decision is Wed 10-28 at 14:00 ET.** Today (ET): durable goods 08:30, Case-Shiller 09:00, consumer confidence and new home sales 10:00, **$70B 5-year auction 13:00**, API inventories 16:30. Israel votes today (Globe and Mail). Index futures: Investrade prints Dow 89.00 (0.17%), S&P 7.25 (0.10%), Nasdaq 50.50 (0.17%) **without signs**; SPY and QQQ pre-market are up, so the direction is likely up but not confirmed by a signed futures quote.
+>
+> **LLM overlay (indicative 10-26):** stock arm treatment **-3.2312%** vs control **-9.9644%**, **+6.7332pp** (all three hold only MU). **MU's $922.92 print is 12.55% above the $820.00 invalidation**; an 11.15% fall from the print would breach it. Macro arm +5.4699% vs +8.5366%, **-3.0667pp**. XLI $166.96 is 1.79% below its $170.00 veto level (26 of 38 closes since 09-01 below it). XLB $51.38 is 0.75% above its $51.00 invalidation, not enforced. `llm_overlay_log` **14 rows** (`count(*)`), `sector_overlay_log` 27, both latest 2026-09-01.
+>
+> **Critical outstanding items:** (1) **The ladder traded on a sub-floor day** (above); whether the 07:45 heal marks 10-26 decides whether these rungs get a 10-26 NAV row at all. (2) **No October monthly: Evan decided 2026-10-25 (record ET) not to run a late one; the next monthly is Mon 2026-11-02, by hand.** `verify_run` FAILs only the cadence check (76/76 sleeves OK). (3) **After today's close: STX (65 sleeves, 1.5853%), V (18, 0.4592%), TER (8, 0.1618%), UCTT (6, 0.0696%).** Wed: FOMC, KLAC (35, 0.8493%), GOOGL/GOOG (38 each, 1.7740% together), SK Hynix (not held). Thu: EXEL (44, 1.6079%), MA (35, 1.1182%), ILMN (20, 0.4018%). (4) MU is **6.3103%** of priced value; the memory/chip-equipment cluster **12.6537%**. (5) Micron's Taoyuan union talks were set for today; **no outcome found**.
+
+---
+
+### 0. Data integrity and operational status
+
+**0a. Clock.** `date` returned `Tue Oct 27 07:02:25 CDT 2026` at start; `date +%z` gave `-0500` -> **CDT**. Later reads: 07:05:10, 07:06:18, 07:09:32 and 07:10:23 CDT while querying. Local date **2026-10-27**, weekday **Tuesday**. Times are CDT unless marked ET/EDT/UTC.
+
+**0b. Market status.** Tuesday 2026-10-27 is a normal NYSE/Nasdaq session: stockanalysis.com pages show pre-market prints dated "Oct 27, 2026", Coca-Cola's Q3 release dated today was already filed when fetched before the open (SEC 8-K exhibit, 3c), and the [Investrade early look](https://investrade.com/morning-preview-october-27-2026/) (fetched) lists today's 08:30-16:30 ET releases. Not a holiday.
+
+**0c. Duplicate check.** `grep -cE '^## Report: 2026-10-27 \(Tuesday\) .{1,3} Pre-Market Overnight Research' daily_report.md` returned **0** before this append. Not a re-fire.
+
+**0d. Cron echo** (`list_scheduled_tasks`, read this run at about 07:03 CDT):
+
+| task | cron | nextRunAt (UTC) | lastRunAt (UTC) | jitter |
+|---|---|---|---|---|
+| `daily-trade-check` (this one) | `0 7 * * 1-5` | 2026-10-28T12:01:23Z | **2026-10-27T12:02:12Z** | 83s |
+| `daily-trade-check-2` | `0 19 * * 1-5` | 2026-10-28T00:04:22Z | 2026-10-27T00:05:04Z | 262s |
+| `monthy-llm-rebalance` | `0 18 1-5 * *` | 2026-11-02T00:01:03Z | 2026-10-05T23:01:24Z | 63s |
+| `daily-audit` | `0 7 * * *` | 2026-10-28T12:09:01Z | 2026-10-26T12:09:37Z | 541s |
+
+**This task's cron is `0 7 * * 1-5`.** `lastRunAt 12:02:12Z` (07:02:12 CDT) is this run; the list labels it "At 07:01 AM". The task prompt says it "fires at 07:07"; the live cron plus jitter puts it about five minutes earlier, still before the 07:45 heal. `nextRunAt` is Wednesday 2026-10-28, correct. `daily-trade-check-2` last ran Monday evening (19:05:04 CDT), correct. **`daily-audit` shows `lastRunAt` 2026-10-26 and `nextRunAt` 2026-10-28** with today's slot (about 12:09Z) not yet passed when read; the same display shape noted in prior morning entries, which resolved each time. `monthy-llm-rebalance` is still `0 18 1-5 * *`; its next fire is the evening of Sunday 2026-11-01 local (a non-trading day, and the guard denies the run regardless).
+
+**0e. DB opened read-only** as `file:var/trades.db?mode=ro`, `uri=True`, for every query behind this entry. No query returned `database is locked`.
+
+**0f. Heal schedule.** Compiled from 07:02 CDT, before the 07:45 `TradingMorningMTM`. **2026-10-26 is pending**: last night's 17:27 `mtm_catchup` read `marked=0 ... latest=2026-10-26 coverage_ok=False pending=2026-10-26` (last night's entry, 0g). The 07:45 run has not happened; whether it lifts 10-26 over the floor is not predicted.
+
+**0g. 2026-10-26 IS UNMARKED, and the ladder traded on it.**
+
+`paper_nav`: 76 rows each for 10-22 and 10-23, **0 for 10-26** and 0 for 10-27. `price_cache` close counts (`kind='close'`, non-null `price`): 10-20 **5,085** | 10-21 **5,085** | 10-22 **5,090** | 10-23 **5,084** | **10-26 4,267** | 10-27 0.
+
+```
+(abridged from var/last_ladder_run.log, written 2026-10-26 20:33; milliseconds cut)
+20:30:01 INFO    ladder_forward_rebalance: today=2026-10-26 (+26w from anchor) | weekly: last=2026-10-19 period>=2026-10-26 due=True | biweekly: last=2026-10-12 period>=2026-10-26 due=True
+20:30:05 WARNING ladder_forward_rebalance: coverage 4267 < floor 5000 on 2026-10-26: rebalancing, but NAV is left to mtm_catchup
+20:32:40 WARNING paper_rebalance:   Skip sell UYSC: stale bar 2026-10-23 for as_of 2026-10-26; retries on the next rebalance in this period
+20:32:47 WARNING paper_rebalance:   Skip sell WBD: stale bar 2026-10-06 for as_of 2026-10-26; retries on the next rebalance in this period
+20:32:49 INFO    ladder_forward_rebalance: === weekly: rebalanced 19/19 sleeves (0 failed) ===
+20:33:10 INFO    ladder_forward_rebalance: === biweekly: rebalanced 19/19 sleeves (0 failed) ===
+20:33:33 ERROR   verify_run: RESULT: FAIL (76/76 sleeves OK; rebalance cadence FAIL)
+```
+
+From the DB (read-only): **228 positions entered and 183 exited dated 2026-10-26, in 36 sleeves**, all exits `exit_reason='rebalance'`, realized P&L on the exits **-$46.41** in total. Two of the 38 rungs had no changes. `max(paper_portfolio.last_rebalanced_at)` = `2026-10-27T01:33:10Z`. The log has **49 `Skip sell` lines**, all for four names whose last bar predates 10-26: UYSC, LCCC, KFII (10-23 bars) and WBD (10-06). Each rung's NAV line reads `NAV@2026-10-26 NOT written (coverage below floor) -- left to mtm_catchup`.
+
+**Open counts on the 38 ladder rungs now:** 47 (2 rungs), 49 (3), **50 (25)**, 51 (6), 52 (2). Above target: `residual_w5545_wk_paper` and `residual_w6535_wk_paper` (52); `residual_w5050_2wk`, `residual_w5050_wk`, `residual_w5545_2wk`, `residual_w6040_wk`, `residual_w6535_2wk`, `residual_w7030_wk` (51). Below: `residual_w9505_2wk` and `residual_w9505_wk` (47); `residual_w8515_2wk`, `residual_w8515_wk`, `residual_w9010_2wk` (49). Each of the 8 rungs that ended above 50 has at least one `Skip sell` line in its log block; not every rung with a skip ended above 50. Why 5 rungs ended below 50 was not traced.
+
+**Read against the known failure of 2026-09-21 (prior entries):** that day a sub-floor refresh skipped about 300 sells and pushed all 19 weekly rungs to 60-68 names. Last night's skips were confined to four names that lack a current bar for their own reasons (three thin shells and WBD, which has had no close since 10-06), so the damage is 1-2 names per rung, not 10-18. **The mechanism that allows it is unchanged: the ladder's trade decision has no coverage gate, only its NAV write does.** Reported, not fixed; that is Evan's call.
+
+**Indicative book after the ladder: $7,426,901.09** (sum of per-sleeve values rounded to the cent) vs last night's pre-ladder $7,427,244.43, **-$343.34**. The only position changes since last night are the 20:30 ladder's trades; the gap was not attributed sleeve by sleeve. Non-ladder rows checked against last night's table match to the cent (e.g. `sector_top4_full_paper` $109,851.08, `spy_benchmark_paper` $106,205.50). Recomputing 10-23 from today's positions no longer reproduces the marked rows (max difference $469.28) because the ladder changed the positions; this is expected, not a data fault.
+
+**0h. Held-name price coverage: 228 of 235.** Seven held names have no 10-26 close and are carried at their last close (1.6308% of priced value; the same seven as last night): **UYSC** (10-23, $10.94; 20 sleeves, 0.5550%), **KFII** (10-23, $10.71; 19, 0.4761%), **LCCC** (10-23, $10.56; 9, 0.2704%), **WBD** (10-06, $30.95; 6, 0.1607%), **APGE** (09-03, $135.07; deal-closed stub, 6, 0.1097%), **FMBM** (10-23, $40.92; 1, 0.0345%), **CRNX** (09-02, $84.95; deal-closed stub, 2, 0.0244%). Held-name count rose from 234 to 235 with the ladder's new buys. The APGE/CRNX/WBD reconciliation item for Evan is unchanged.
+
+**0i. Price checks.** Every stockanalysis.com page fetched this morning shows the same "At close: Oct 26, 2026, 4:00 PM EDT" price as `price_cache` to the cent at two decimals (e.g. MU $903.70, STX $644.21, AMAT $387.59, KO $92.70, FICO $708.07, UCTT $46.71). **Several pages' "Previous Close" field still shows the 10-23 close** (MU $877.55, AMAT $377.24, KO $92.71); their pre-market change is computed from the 10-26 close (e.g. $922.92 - $19.22 = $903.70), so the 10-26 close is used throughout. No new move beyond +/-10% to check; last night's three (NDLS, FICO, VICR) were matched to outside closes then.
+
+**0j. `verify_run`: FAIL, on the rebalance cadence only** (20:33: 76/76 sleeves pass continuity, ledger and drift). `var/ops_status.log` last lines: `[OPS 2026-10-26] coverage=n/a verify=FAIL`, `[OPS 2026-10-26] coverage=PENDING verify=FAIL`. **A PASS on 76/76 does not show the open-count drift in 0g;** `verify_run` does not check rung size.
+
+---
+
+### 1. Portfolio standings (INDICATIVE 2026-10-26, after the 20:30 ladder)
+
+**Book: start $7,600,000.00 | marked 09-30 base for MTD | marked 10-16 $7,409,441.40 | marked 10-23 $7,366,903.41 | indicative 10-26 $7,426,901.09 | day +0.8144% (+$59,997.68) | MTD -3.0391% | ITD -2.2776%.** Monday was the week's first session, so the day is the week to date. Priced position value **$7,392,555.41** across 235 names, 3,317 open positions. Last night's pre-ladder figures (day +0.8191%, MTD -3.0346%, ITD -2.2731%) remain the clean read of Monday's market move; today's figures include the ladder's trades.
+
+| # | sleeve | nav 10-23 (marked) | nav 10-26 (ind.) | day % | MTD % | ITD % |
+|---|---|---|---|---|---|---|
+| 1 | `sector_top4_full_paper` | $108,905.34 | $109,851.08 | +0.8684 | +3.4455 | **+9.8511** |
+| 2 | `sector_top4_paper` | $107,641.11 | $108,536.62 | +0.8319 | +3.9336 | +8.5366 |
+| 3 | `spy_benchmark_paper` | $105,456.18 | $106,205.50 | +0.7106 | +0.3593 | +6.2055 |
+| 4 | `qqq_benchmark_paper` | $104,487.13 | $105,644.14 | +1.1073 | -3.7268 | +5.6441 |
+| 5 | `llm_overlay_sector_top4_paper` | $104,911.25 | $105,469.95 | +0.5325 | +3.7020 | +5.4699 |
+| 6 | `llm_cascade_sector4_paper` | $103,553.23 | $104,138.36 | +0.5651 | +4.9751 | +4.1384 |
+| 7 | `residual_w6040_paper` | $102,577.29 | $103,336.86 | +0.7405 | -3.6965 | +3.3369 |
+| 8 | `residual_w5545_paper` | $101,946.82 | $102,690.84 | +0.7298 | -4.5334 | +2.6908 |
+| 9 | `residual_w0595_2wk_paper` | $102,738.18 | $102,564.12 | -0.1694 | -1.0519 | +2.5641 |
+| 10 | `residual_w6040_wk_paper` | $101,011.71 | $101,946.18 | +0.9251 | -0.4288 | +1.9462 |
+| 11 | `residual_w0595_paper` | $102,402.57 | $101,893.76 | -0.4969 | -0.9549 | +1.8938 |
+| 12 | `spy_benchmark_0701_paper` | $101,156.68 | $101,875.46 | +0.7106 | +0.3593 | +1.8755 |
+| ... | (ranks 13-64 elided) | | | | | |
+| 65 | `residual_roa_6535_0701_paper` | $92,836.41 | $93,586.27 | +0.8077 | -2.0197 | -6.4137 |
+| 66 | `residual_w9505_2wk_paper` | $91,534.74 | $93,221.05 | +1.8423 | -1.3297 | -6.7790 |
+| 67 | `residual_w9010_2wk_paper` | $91,576.35 | $93,102.48 | +1.6665 | -0.6985 | -6.8975 |
+| 68 | `residual_w8020_2wk_paper` | $91,717.95 | $93,053.83 | +1.4565 | -0.1369 | -6.9462 |
+| 69 | `residual_w8515_2wk_paper` | $91,519.05 | $92,970.83 | +1.5863 | +0.1597 | -7.0292 |
+| 70 | `mom_roa_top1_paper` | $87,432.68 | $90,035.62 | +2.9771 | -15.1425 | -9.9644 |
+| 71 | `mom_v1_0701_paper` | $78,726.64 | $80,059.71 | +1.6933 | -14.5878 | -19.9403 |
+| 72 | `mom_v2_0701_paper` | $77,129.82 | $78,835.42 | +2.2113 | -16.3510 | -21.1646 |
+| 73 | `mom_roa_6535_0701_paper` | $75,167.56 | $76,903.11 | +2.3089 | -17.9448 | -23.0969 |
+| 74 | `mom_v2_paper` | $72,757.93 | $74,341.48 | +2.1765 | -16.0921 | -25.6585 |
+| 75 | `mom_roa_6535_paper` | $72,404.50 | $74,089.10 | +2.3266 | -17.8102 | -25.9109 |
+| 76 | `mom_v1_paper` | $72,736.65 | $73,968.67 | +1.6938 | -14.6195 | **-26.0313** |
+
+Ranks are by ITD across all 76 sleeves. Last night's entry carries the full 76-row pre-ladder table. 66 sleeves are up on the day and 10 down by this computation, the same split as last night.
+
+**Sector mix of priced value after the ladder (DB sector labels):** Healthcare **23.6782%** (+ "Health Care" 1.4788% = XLV; **25.1570%** together), Technology **22.7802%**, Energy **13.2112%** (15.3701% last night, pre-ladder), Financial Services 10.7596%, Industrials 6.6984%, Index (SPY/QQQ) 5.5766%, Communication Services 4.6797%, Consumer Cyclical 3.7517%, Consumer Defensive 3.5065%, Basic Materials 2.5577%, Real Estate 0.9898%, Materials 0.2967%, unlabeled 0.0348%. Healthcare and Technology are above 20% (3d).
+
+**What the ladder bought and sold (10-26, by number of rungs):** bought **ILMN (20 rungs, $29,718.25)**, KRT (15), VICR (14), COKE (12), ROST (10), QNBC (9), CLDT (8), NMP (8), CBL (7); sold **PARR (15 rungs, $32,362.25)**, FDSB (12), APA (10), NGL (8), PACS (8), SUN (8), NHC (6), PAA (6), TEN (6). Energy names dominate the sell list; the buys are spread across Healthcare, Consumer Cyclical, Technology, Financials and Real Estate. The rotation follows the ranking; nothing in the logs says why the energy names fell out of the top 50.
+
+**Largest held names (% of priced value, sleeves):** MU 6.3103% (62), SPY 2.8147% (2), QQQ 2.7619% (2), INSW 1.8116% (44), XLE 1.6289% (4), EXEL 1.6079% (44), AAPL 1.5878% (47), STX 1.5853% (65), JNJ 1.5064% (47), SEZL 1.4848% (35), XLV 1.4788% (4), XLK 1.4349% (4), TGTX 1.3976% (45), WDC 1.3957% (63), ATEX 1.3824% (57).
+
+---
+
+### 2. Overnight and pre-market moves (held names)
+
+All from stockanalysis.com quote pages, fetched this morning; each line gives the pre-market print and its EDT timestamp against the Oct 26 4:00 PM EDT close. **These are pre-market prints, not opens; the market has not opened.** Dollar effect = held shares (after the ladder) x (print - close).
+
+| ticker | sleeves | weight | close 10-26 | pre-market (EDT) | % | $ effect |
+|---|---|---|---|---|---|---|
+| **MU** | 62 | 6.3103% | $903.70 | $922.92 (08:06) | **+2.13%** | **+$9,921.41** |
+| SPY | 2 | 2.8147% | $765.37 | $767.47 (08:04) | +0.27% | +$570.93 |
+| QQQ | 2 | 2.7619% | $712.20 | $714.64 (08:06) | +0.34% | +$699.50 |
+| **INSW** | 44 | 1.8116% | $113.75 | $112.16 (07:45) | **-1.40%** | **-$1,871.97** |
+| XLE | 4 | 1.6289% | $69.64 | $69.36 (08:04) | -0.40% | -$484.16 |
+| EXEL | 44 | 1.6079% | $65.11 | $65.20 (08:07) | +0.14% | +$164.30 |
+| AAPL | 47 | 1.5878% | $343.91 | $342.49 (08:01) | -0.41% | -$484.66 |
+| **STX** | 65 | 1.5853% | $644.21 | $655.44 (08:03) | **+1.74%** | +$2,042.90 |
+| JNJ | 47 | 1.5064% | $266.30 | $266.32 (08:00) | +0.01% | +$8.37 |
+| SEZL | 35 | 1.4848% | $127.44 | $129.00 (07:55) | +1.22% | +$1,343.59 |
+| XLV | 4 | 1.4788% | $179.28 | $179.29 (07:49) | +0.01% | +$6.10 |
+| XLK | 4 | 1.4349% | $186.32 | $187.21 (07:51) | +0.48% | +$506.69 |
+| TGTX | 45 | 1.3976% | $54.79 | $55.00 (07:32) | +0.38% | +$396.00 |
+| WDC | 63 | 1.3957% | $356.13 | $358.53 (08:06) | +0.67% | +$695.34 |
+| LRCX | 52 | 1.3100% | $237.50 | $240.53 (08:02) | +1.28% | +$1,235.51 |
+| AMAT | 50 | 1.2030% | $387.59 | $392.89 (07:51) | +1.37% | +$1,216.13 |
+| MA | 35 | 1.1182% | $613.50 | $612.07 (07:48) | -0.23% | -$192.69 |
+| DAVE | 43 | 1.1166% | $323.01 | $326.89 (08:02) | +1.20% | +$991.54 |
+| VLO | 31 | 1.0538% | $426.76 | $422.62 (08:04) | -0.97% | -$755.76 |
+| **KO** | 35 | 0.9601% | $92.70 | $93.28 (08:06) | **+0.63%** | +$444.09 |
+| GOOGL | 38 | 0.8878% | $316.80 | $317.87 (08:07) | +0.34% | +$221.67 |
+| KLAC | 35 | 0.8493% | $149.21 | $150.86 (08:03) | +1.11% | +$694.30 |
+| FICO | 28 | 0.5391% | $708.07 | $697.50 (08:03) | -1.49% | -$594.88 |
+| V | 18 | 0.4592% | $404.16 | $404.11 (07:51) | -0.01% | -$4.20 |
+| ILMN | 20 | 0.4018% | $271.04 | $272.00 (07:45) | +0.35% | +$105.21 |
+| TER | 8 | 0.1618% | $309.00 | $313.90 (08:02) | +1.59% | +$189.64 |
+| UCTT | 6 | 0.0696% | $46.71 | $48.49 (07:57) | +3.81% | +$196.10 |
+
+**Total: 27 names, 38.9369% of priced value, +$17,261.00 = +0.2324% of the indicative $7,426,901.09 book.** The six memory/chip-equipment names (MU, STX, WDC, LRCX, AMAT, KLAC; 12.6537% of priced value) **+$15,805.60**; three oil-linked names checked (XLE, VLO, INSW) **-$3,111.89**; the other 18 **+$4,567.29**. **ATEX (57 sleeves, 1.3824%) and NRC (39, 1.3673%) showed no pre-market print** on their pages; not included. Names not checked: the other 208 (61.06% of priced value). FICO's 28 sleeves are after the ladder (30 last night).
+
+**MU print reconciliation.** stockanalysis.com: $922.92, +2.13% at 08:06 EDT. TipRanks (published 2026-10-27 09:43:58Z = 05:43 EDT): $919.20, +1.72%. The 08:06 print is used; the gap is time of day, not a conflict.
+
+---
+
+### 3. Catalyst and macro review
+
+**3a. Memory: four reasons given, none of them new information about Micron's own business.** TipRanks (fetched; 2026-10-27 09:43:58Z) attributes the pre-market rise in MU (+1.72% at its time), SanDisk (+1.05%) and SK Hynix (+2.67%) to: (1) **Anthropic's US IPO filing**, which it says reported $16.29 billion of first-half 2026 revenue against $1.16 billion a year earlier, reviving interest in AI chip suppliers (the article notes the filing does not confirm chip orders); (2) **Bank of America's Vivek Arya keeping a Buy and a $1,550 target on MU**, on supply tight through 2027-2028 and longer supply agreements; (3) a **report that SK Hynix is considering a special dividend of about 16 trillion won ($12 billion)**, unconfirmed and needing board approval; (4) **SK Hynix reports Q3 on Wed 10-28 and SanDisk on Thu 10-29** ([TipRanks](https://www.tipranks.com/news/why-are-micron-sandisk-and-sk-hynix-stocks-rising-in-premarket-today-october-27)). **Update to yesterday's morning entry:** the BofA Buy and $1,550 target, published then as "unverified, a search summary", now appear in a fetched TipRanks article; still not seen in a BofA document. The Anthropic revenue figures are TipRanks' reading of the filing; the filing itself was not fetched.
+
+**3b. Storage and equipment: STX reports tonight; AMAT raises its BESI stake.** STX +1.74% pre-market into its after-close report; page headlines (not fetched) include BofA raising its target to $1,200 from $1,150 (TheFly, 6 days ago) and Morgan Stanley reinstating it as a Top Pick (TheFly, 7 days ago) ([stockanalysis STX](https://stockanalysis.com/stocks/stx/)). **Applied Materials will raise its stake in BE Semiconductor to about 20%**; Investrade: no plans to go higher or seek a board seat; Reuters headline: BESI shares up more than 9% ([Investrade](https://investrade.com/morning-preview-october-27-2026/); [stockanalysis AMAT](https://stockanalysis.com/stocks/amat/), headlines). AMAT +1.37%. **TER (+1.59%) and UCTT (+3.81%) also report after today's close** (stockanalysis earnings fields; both in Investrade's after-close list). WDC raised its dividend 16.7% (TipRanks headline, 21 hours before fetch) and Argus cut its target to $500 from $600 (TheFly headline).
+
+**3c. KO: beat and raise, released before the open** ([SEC 8-K exhibit 99](https://www.sec.gov/Archives/edgar/data/0000021344/000162828026067403/a2026q3earningsreleaseex-9.htm), fetched). Q3: unit case volume **+5%**; net revenues **+7% to $13.4 billion** (organic +7%); operating income +12% (comparable currency-neutral +8%); operating margin **33.4%** vs 32.0%; EPS **$0.93, +8%**; comparable EPS **$0.91, +11%**. Full-year 2026 outlook raised: organic revenue growth **at least 5%** (was about 5%); comparable EPS growth **at least 11%** (was 9-10%); free cash flow **at least $13.0 billion** (was about $12.4 billion). CEO Henrique Braun: "Our results this quarter demonstrate our system's sustained momentum." A CNBC headline on the page says it sees "lackluster demand in North America" (headline only, not fetched). KO is 35 sleeves, 0.9601%; +0.63% pre-market. A consensus figure (about $0.88, from a search summary of a preview site) was not fetched and is not used to call the size of the beat.
+
+**3d. Sector searches (Healthcare 25.1570%, Technology 22.7802%).**
+- *Technology:* memory and equipment up (3a, 3b). **AAPL -0.41%:** headlines on the page (not fetched) are Reuters citing Counterpoint that initial iPhone 18 Pro sales beat the 17 series (3 hours before fetch) and several items on cracked screens on the iPhone Duo, which Apple says it will replace (Reuters, CNBC, New York Post, 14-17 hours) ([stockanalysis AAPL](https://stockanalysis.com/stocks/aapl/)). **FICO -1.49%** after Monday's -13.15%; Pulte says "more action this week" on credit-score competition (TheFly headline, 20 hours); BMO cut its target to $897 from $1,150 and Mizuho to $986 from $1,063 (TheFly headlines) ([stockanalysis FICO](https://stockanalysis.com/stocks/fico/)). Investrade: AVGO upgraded to Buy at DA Davidson (not held); Meta's equity raise is $97.5B in total, Nvidia investing $3B in it (META held by no sleeve; NVDA not held).
+- *Healthcare:* XLV +0.01% pre-market. JNJ flat (+0.01%); headlines are about Oric Pharmaceuticals falling after J&J presented prostate cancer data (TheFly). ILMN, the ladder's largest new buy (20 rungs), +0.35%; Stephens downgraded it to Equal Weight 3 days ago (TheFly headline); reports 10-29 (stockanalysis). TGTX +0.38%, EXEL +0.14% (reports Thursday). Investrade: Centene beat and raised; Moderna downgraded at William Blair (neither held). No item found for NRC beyond a product launch (Business Wire, 17 hours).
+
+**3e. Oil: firm after Monday's fall.** Globe and Mail (fetched; "published 3 hours ago, updated 1 hour ago" at fetch): at **06:18 ET Brent $116.26, +$0.45 (+0.39%); WTI $102.16, +$0.40 (+0.39%)**, after trading 1% lower earlier; investors awaited the outcome of talks in Tehran among Saudi, Turkish, Pakistani and Iranian officials while Yemen's Houthis renewed attacks on Saudi Arabia; Gulf crude exports fell a fourth straight week; Hormuz flows about 60% of normal and global distillate stocks nearly 5% below the five-year average (ANZ research, cited) ([Globe and Mail](https://www.theglobeandmail.com/investing/article-oil-rises-slightly-as-diplomacy-hopes-counter-renewed-houthi-attacks/)). Check against Monday's settles (last night's entry): $115.81 + $0.45 = $116.26; $101.76 + $0.40 = $102.16 (both match). Investrade's later prints (Brent 116.07, change 0.26; WTI 102.30, change 0.54) also reconcile with those settles. **A search summary giving Brent $114.85 and WTI $100.87 (NewsBytes) was not fetched and matches an earlier, lower point in the session; not used.**
+
+Portfolio read: the book's held oil names are lower pre-market (INSW -1.40%, VLO -0.97%, XLE -0.40%) on a flat-to-up crude tape. **The ladder cut Energy from 15.3701% to 13.2112% of priced value last night** (section 1), so oil moves count for less from today.
+
+**3f. Rates and the Fed.** 10-year **4.986%, -0.002** (Investrade). **FOMC meets 10-27 and 10-28; decision 14:00 ET Wednesday** (Investrade). The latest sourced characterization stays "widely expected to hold" (Investrade, Monday). **No current FedWatch reading was found or fetched;** none is published. Treasury sells **$70B of 5-year notes at 13:00 ET** after Monday's soft 2-year auction (last night's entry). Data today (ET, Investrade): durable goods 08:30 (est. +1.7%), Case-Shiller 20-city 09:00 (est. +0.3%), consumer confidence 10:00 (est. 81.0), new home sales 10:00 (est. 650K), Richmond Fed 10:00, API inventories 16:30.
+
+**3g. Analyst actions on held names (headlines on stockanalysis.com, TheFly unless noted; not fetched):** BofA keeps Buy / $1,550 on MU (TipRanks, fetched, 3a); FICO target cuts at BMO and Mizuho (23 hours); Visa target raises at Susquehanna ($480 from $427) and Clear Street ($466 from $406) (1 day); ILMN downgraded at Stephens (3 days); WDC target cut at Argus (23 hours); MA target $729 at Clear Street (1 day, noted yesterday). Investrade's list (MRNA downgrade, AVGO upgrade) names no held ticker.
+
+**3h. Other overnight items (Investrade):** US and Canada reportedly negotiating relief on steel and auto tariffs (Reuters, via Investrade); South Korea Q3 GDP +1.0% q/q (est. 0.8%); Intel to acquire Classiq (INTC: 6 sleeves, DB); Ares Capital to buy MidCap Financial (not held). Overseas: Nikkei 63,268, +1,078 (+1.73%); Hang Seng 23,041, -170; Shanghai 3,648, -49; DAX 25,393, -17; FTSE 100 10,668, -99; Kospi +3.47% (Investrade gives a level of 881, which does not match a Kospi level; flagged). Gold 4,006.80, -31.60.
+
+---
+
+### 4. LLM overlay status (indicative 10-26)
+
+| arm | sleeve | holds | ITD % | day % |
+|---|---|---|---|---|
+| stock control | `mom_roa_top1_paper` | MU 99.5385 sh, cash $82.69 | -9.9644 | +2.9771 |
+| stock treatment | `llm_overlay_mom_roa_top1_paper` | MU 106.97 sh, cash $100.00 | **-3.2312** | +2.9767 |
+| stock cascade | `llm_cascade_top1_paper` | MU 104.8335 sh, cash $98.00 | -5.1640 | +2.9767 |
+| macro control | `sector_top4_paper` | XLE/XLK/XLI/XLV | **+8.5366** | +0.8319 |
+| macro treatment | `llm_overlay_sector_top4_paper` | XLV/XLE/XLK + $23,087.99 cash | +5.4699 | +0.5325 |
+| macro cascade | `llm_cascade_sector4_paper` | XLV/XLE/XLK/XLB | +4.1384 | +0.5651 |
+
+All six rows recomputed this morning; they match last night's table to the cent (none of the six is a ladder rung, so none traded at 20:30).
+
+**4a. Stock arm: +6.7332pp for the treatment, still a blind test** (all three hold only MU). **MU's $922.92 print is 12.55% above the $820.00 invalidation (log id 17, 2026-09-01 BUY); an 11.15% fall from the print would breach it.** At Monday's close it was 10.21% above.
+
+**4b. Macro arm: treatment -3.0667pp behind the control.** The 09-01 XLI veto holds that slot in cash; **XLI $166.96 is 1.79% below its $170.00 veto level (log id 25)**, and 26 of the 38 XLI closes after 2026-09-01 are below it (`price_cache`). XLB $51.38 is 0.75% above its $51.00 invalidation (log id 27, HOLD); only the macro cascade holds it (426.8589 sh); nothing enforces the level. XLE -0.40% and XLK +0.48% pre-market touch all three macro sleeves.
+
+**4c. Logs:** `llm_overlay_log` **14 rows** (`count(*)`, not `max(id)`; latest id 17), `sector_overlay_log` **27 rows**, both latest `decision_date` 2026-09-01. No October decisions exist because no October monthly ran; per record ET the next ones come with the 2026-11-02 manual monthly.
+
+---
+
+### 5. Risk flags and upcoming events
+
+**5a. The ladder's trade decision is not coverage-gated (0g).** Last night it rebalanced 38 rungs on a day with 4,267 closes against a 10-day median of 5,091 (last night's gate line). Two consequences, both measured: 13 rungs are off their 50-name target (47-52), and the 10-26 NAV rows for those rungs exist only if the heal marks 10-26. A third is possible but not measured: names ranked without a 10-26 bar may have been ranked on a stale price. This was raised before (research list, "a coverage gate on the ladder's trade decision"); last night is a fresh instance.
+
+**5b. Concentration.** MU 6.3103% of priced value (62 sleeves); the six-name memory/chip-equipment cluster 12.6537%, **+$15,805.60 of the +$17,261.00 checked pre-market move.** STX reports tonight with 65 sleeves holding it: the single most widely held name in the book reports after today's close.
+
+**5c. Earnings this week on held names, weighted:** tonight STX 1.5853%, V 0.4592%, TER 0.1618%, UCTT 0.0696% (together 2.2759%); Wed KLAC 0.8493%, GOOGL+GOOG 1.7740%; Thu EXEL 1.6079%, MA 1.1182%, ILMN 0.4018%. Outside the book but tied to the cluster: SK Hynix Wed, SanDisk Thu (TipRanks, 3a).
+
+**5d. The monthly book is stale by design until 11-02** (record ET). Not new; it limits reading the `mom_*`, LLM and sector sleeves' October returns as strategy evidence.
+
+**5e. Calendar (stockanalysis.com earnings fields and Investrade unless noted):**
+
+| date | event |
+|---|---|
+| Tue 10-27 | KO (released, 3c); durable goods 08:30 ET; Case-Shiller 09:00; consumer confidence, new home sales, Richmond Fed 10:00; **$70B 5-year 13:00**; API 16:30; **after close: STX, V, TER, UCTT**; FOMC day 1; Israel election; Micron Taoyuan union talks (5f) |
+| Wed 10-28 | **FOMC decision 14:00 ET**; **KLAC**; **GOOGL/GOOG**; SK Hynix (TipRanks) |
+| Thu 10-29 | **EXEL**, **MA**, **ILMN**; SanDisk (TipRanks; not held) |
+| Late week | GDP, core PCE (Investrade Monday, no dates) |
+| Sun 11-01 | US DST ends: report times switch from CDT (UTC-5) to CST (UTC-6); `monthy-llm-rebalance` fires that evening (the guard denies its decide step) |
+| Mon 11-02 | **Manual monthly rebalance (Evan, record ET)**; AAPL earnings (prior entries) |
+| Tue 11-03 | US elections (Investrade: possible US-Canada tariff deal before them) |
+| Wed 11-04 | DAVE (call 16:30 ET), SEZL (prior entries) |
+| Thu 11-05 | INSW (Business Wire headline) |
+| 11-11 | ATEX (call 09:00 ET, GlobeNewswire headline) |
+| 11-12 | AMAT |
+
+**GOOGL date:** stockanalysis gives 10-28; the 10-27 and 10-29 dates other calendars gave (yesterday's entry) were not re-checked.
+
+**5f. Micron Taiwan labor.** Talks with the Taoyuan union were rescheduled to **today, 10-27**, after a typhoon closed offices (search summaries of FinanceFeeds and other outlets; the Manila Times article of 2026-10-24 was fetched yesterday). Micron reached a separate agreement with its Taichung union on 10-21 (The Star, by search, not fetched). **No outcome of today's talks was found**; one search result's headline gives "Nov. 27", which its own body and the other sources contradict (flagged, not used). No production impact has been reported in anything found.
+
+---
+
+### 6. Strategic insights
+
+**6a. Verdict first: last night's ladder run is the more important fact this morning than any pre-market move.** The ladder is the one part of the book that trades without Evan, weekly and biweekly, and it traded on a day the MTM refused to mark. The protection that exists (skip a sell when the bar is stale) worked as designed and is also what pushed 8 rungs above 50 names. **The 09-21 incident and last night differ only in how many held names lacked a bar** (about 300 sells skipped then, 49 now); the structure that lets the next sub-floor evening repeat 09-21 is unchanged. A coverage gate on the trade decision (skip or defer the rebalance when coverage is below the floor) is the obvious test; whether deferring costs more than trading on partial data is an empirical question, and the ladder's own history of sub-floor evenings is the data for it. Research item, not a fix.
+
+**6b. Energy rotation: the ladder sold oil after oil fell.** 15 rungs sold PARR, 10 sold APA, and Energy dropped 2.16pp of priced value overnight, after a week in which Brent rose 6% and then fell 0.78% on Monday. Momentum ladders are built to sell what stopped ranking; this is the signal doing its job, not a discretionary call. Whether the weekly ladder's turnover in a single sector after a commodity reversal is a cost (selling into a dip) or a feature is testable on the ladder's own fills; one night is not evidence.
+
+**6c. The memory cluster again carries the morning.** Six names, 12.6537% of priced value, are 91.57% of the checked pre-market gain (+$15,805.60 of +$17,261.00). Today's stated reasons (3a) are sector-wide (an IPO filing outside the book, a Korean dividend report, earnings anticipation), not Micron-specific. The per-name cap and cross-sleeve concentration limit remain first on the research list; STX's report tonight is a single event with 65 sleeves exposed (the widest-held name; WDC 63, MU 62, ATEX 57, LRCX 52).
+
+**6d. Pre-market sign accuracy, for scoring tonight.** Last night's entry scored Monday's 27 prints (its 7c). Today's 27 prints are on record in section 2 for the post-market run to score.
+
+**6e. Research ideas carried forward, not recommendations:** a coverage gate on the ladder's trade decision (6a, sharpened by last night); per-name cap and cross-sleeve concentration limit (6c); sector turnover cost in the weekly ladder (6b, new framing of the refiner-vs-producer split); sector-neutral ladder gradient; RSP-minus-SPY and SOX loadings; the event-shock exit rule; the SPAC/shell exclusion (UYSC, KFII and LCCC are again the names that blocked sells); the `mom_*` market-cap-bucket decomposition. Any test needs preregistration; the risk-overlay family already failed (record BU).
+
+**6f. Not supported by today's data:** any claim that KO's beat changes the book (0.9601%); any claim about tonight's STX result; any read of the FOMC beyond "expected to hold"; a new sleeve concept. No recommendation.
+
+**Sources (fetched unless marked):** [Investrade morning preview 2026-10-27](https://investrade.com/morning-preview-october-27-2026/) (no publish time shown; futures shown without signs); [Coca-Cola Q3 2026 release, SEC 8-K exhibit](https://www.sec.gov/Archives/edgar/data/0000021344/000162828026067403/a2026q3earningsreleaseex-9.htm) (2026-10-27); [TipRanks, memory stocks pre-market 2026-10-27 09:43:58Z](https://www.tipranks.com/news/why-are-micron-sandisk-and-sk-hynix-stocks-rising-in-premarket-today-october-27); [Globe and Mail, oil 2026-10-27, prices at 06:18 ET](https://www.theglobeandmail.com/investing/article-oil-rises-slightly-as-diplomacy-hopes-counter-renewed-houthi-attacks/); stockanalysis.com quote pages for [MU](https://stockanalysis.com/stocks/mu/), [SPY](https://stockanalysis.com/etf/spy/), [QQQ](https://stockanalysis.com/etf/qqq/), [INSW](https://stockanalysis.com/stocks/insw/), [XLE](https://stockanalysis.com/etf/xle/), [EXEL](https://stockanalysis.com/stocks/exel/), [AAPL](https://stockanalysis.com/stocks/aapl/), [STX](https://stockanalysis.com/stocks/stx/), [JNJ](https://stockanalysis.com/stocks/jnj/), [SEZL](https://stockanalysis.com/stocks/sezl/), [XLV](https://stockanalysis.com/etf/xlv/), [XLK](https://stockanalysis.com/etf/xlk/), [TGTX](https://stockanalysis.com/stocks/tgtx/), [WDC](https://stockanalysis.com/stocks/wdc/), [ATEX](https://stockanalysis.com/stocks/atex/), [NRC](https://stockanalysis.com/stocks/nrc/), [LRCX](https://stockanalysis.com/stocks/lrcx/), [AMAT](https://stockanalysis.com/stocks/amat/), [MA](https://stockanalysis.com/stocks/ma/), [DAVE](https://stockanalysis.com/stocks/dave/), [VLO](https://stockanalysis.com/stocks/vlo/), [KO](https://stockanalysis.com/stocks/ko/), [GOOGL](https://stockanalysis.com/stocks/googl/), [KLAC](https://stockanalysis.com/stocks/klac/), [FICO](https://stockanalysis.com/stocks/fico/), [V](https://stockanalysis.com/stocks/v/), [ILMN](https://stockanalysis.com/stocks/ilmn/), [TER](https://stockanalysis.com/stocks/ter/), [UCTT](https://stockanalysis.com/stocks/uctt/) (pre-market prints 07:32-08:07 EDT Oct 27; closes "Oct 26, 2026, 4:00 PM EDT"; headlines with relative ages only). Headlines only (not fetched): TheFly, Reuters, CNBC, WSJ, Barron's, Business Wire, GlobeNewswire, New York Post, Schwab Network. Search summaries only (not fetched): FinanceFeeds, TradingKey and ad-hoc-news on the Taoyuan talks; The Star on the Taichung agreement; NewsBytes oil prices; a KO consensus figure. Carried from last night's entry, not re-fetched: Monday's index closes, oil settles, the 2-year auction, the 10-26 NAV table. Not found: an outcome of today's Taoyuan talks; a current FedWatch reading; a signed index-futures quote; pre-market prints for ATEX and NRC. DB: `var/trades.db` read-only. Logs: `var/last_ladder_run.log` (2026-10-26 20:33), `var/last_daily_run.log` (2026-10-26 17:27), `var/ops_status.log`.
