@@ -2,15 +2,15 @@
 
 ## Goal
 
-Build a paper-trading systematic-equity strategy on US stocks. Owner is 17,
-can't open a real brokerage until 18 — so the immediate goal is **build
-rigor + a track record**, not "make money now." Every strategy gets a proper
+Build a paper-trading systematic-equity strategy on US stocks. Owner turned 18
+on 2026-09-08; going live is his explicit decision and has not started, so the
+goal is **build rigor + a track record**, not "make money now." Every strategy gets a proper
 in-sample / held-out evaluation before it's trusted; the workflow itself is
 the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-10-27 ~23:50 CDT (records ES-EU)** — this file is the only live snapshot
+**Last updated: 2026-10-28 ~16:30 CDT (records ES-EV)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -20,6 +20,20 @@ Appendix AZ).
 > carried were replaced by the pointer table below (every appendix letter
 > verified to exist before deletion). **History goes in the record. If you find
 > yourself pasting a narrative block here, write an appendix and link it.**
+
+> **2026-10-28 ~16:25 CDT (record EV) - 10-agent root-cause audit, findings only. Read EV.1/EV.2.**
+> - **TIME-CRITICAL, Evan's call:** every Trading* Windows task has a fixed
+>   `-05:00` StartBoundary, so from **2026-11-01 (DST ends)** they fire one hour
+>   early by the clock (schtasks already shows the Sun backup at 8:00 AM, not 9:00).
+>   TradingMorningMTM + TradingLadderRebalance still carry both battery flags.
+> - **Root causes R1-R9 (EV.1):** monthly is agent-only behind a guard that stops
+>   agents; FAILs reach no human and verify has exited 1 every run since 10-02;
+>   skipped strict-fill legs are not retried and the overfill check is monthly-only;
+>   no dividends / auto splits / delisting exit; checks compare the system to
+>   itself; all 3 LLM stock arms hold MU since 09-01 and the kill switch counts rows.
+> - **Before the 11-02 manual run, read EV.2** (stale-bar skips drop legs for the
+>   month; runbook "carries its decision" vs exact-date lookup).
+> - Nothing was fixed; no code, task or DB changed.
 
 > **2026-10-25 ~16:00 CDT (record ES) - read this block first.**
 > - **The OCTOBER 2026 MONTHLY NEVER RAN.** `rebalance_log.md` still reads
@@ -509,9 +523,10 @@ Convention: `price_cache` closes are **split-adjusted, dividend-UNadjusted**
   (both cadences due). Note an aggregate coverage gate would NOT have caught this:
   08-24 settled at 5,144 closes over a 5,000 floor while five held names were
   missing, and 08-26 is BLOCKED at 4,267 while 211/216 held names have a close —
-  the guard has to be per-ticker. **`monthly_rebalance.py` is deliberately NOT
-  wired** (identical exposure, runs 6:03pm so MORE exposed; one-line change,
-  Evan's call — open item).
+  the guard has to be per-ticker. ~~**`monthly_rebalance.py` is deliberately NOT
+  wired**~~ **[CORRECTED 2026-10-28, record EV: it IS wired -
+  `monthly_rebalance.py:150` passes `strict_fill_date=True`. A skipped monthly
+  leg is NOT retried: the month gate refuses a re-run.]**
 - **`\llm rebal`** — Monthly, day 1, 5:59 PM. **Despite the name it is NOT a
   rebalance**: its action is a `mouse_event` wake-nudge, i.e. a wake fired 4
   minutes before the 6:03 PM `monthy-llm-rebalance` Claude task below.
@@ -801,7 +816,13 @@ STATE (verified 2026-10-25 ~16:00 CDT, record ES):
 - Publishing is allowed (git push rule removed by Evan 2026-10-10, EO/EP).
   No Co-Authored-By trailer, ever.
 
+AUDIT 2026-10-28 (record EV): 9 ranked root causes, none fixed. Time-critical:
+Windows task triggers have a fixed -05:00 offset -> one hour early from
+2026-11-01 (DST); fixing them changes tasks = Evan's call. Read EV.2 before
+the 11-02 run.
+
 THEN:
+- BLOCKED-ON-EVAN: DST trigger re-registration + battery flags (EV R3).
 - BLOCKED-ON-EVAN: run the 2026-11-02 monthly by hand; alpaca_keys.env
   Read-deny (both settings files, see EF).
 - Re-verify the open highs in daily audits EM, EN, EQ, ER (not re-checked by

@@ -208,6 +208,7 @@ lives in the dated entry, not the digest.
 - [ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent](#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt) (10-25)
 - [ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02](#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt) (10-25)
 - [EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02](#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt) (10-27)
+- [EV - 10-agent root-cause audit: the monthly is agent-only behind a guard that stops agents, FAILs reach no human, DST shifts every task on 11-01 (findings only)](#appendix-ev---10-agent-root-cause-audit-the-monthly-is-agent-only-behind-a-guard-that-stops-agents-fails-reach-no-human-dst-shifts-every-task-on-11-01-findings-only-2026-10-28-1625-cdt) (10-28)
 
 ---
 
@@ -13906,3 +13907,75 @@ All 5 were checked for a Co-Authored-By trailer before the push: 0 found.
 
 HANDOFF's top block now says the guard fix is published. No code changed, so
 the frozen tests and the guard self-check were not re-run.
+
+# Appendix EV - 10-agent root-cause audit: the monthly is agent-only behind a guard that stops agents, FAILs reach no human, DST shifts every task on 11-01 (findings only) (2026-10-28, ~16:25 CDT)
+**WHAT.** A 10-agent, read-only root-cause audit (code + docs), asked by Evan:
+"find the most fundamental issues plaguing this experiment from being a truly
+self-running yet very accurate test". Findings only - NO code, task, config or
+DB change was made. Started 16:12 CDT; all agents reported by ~16:20 CDT.
+
+**WHY.** The daily audits (DS/DT/DU, EM/EN/EQ/ER) produce 22-51 findings each
+and the structural items recur unfixed; the October monthly then silently never
+ran (ES). This pass asks for ROOT causes only: where the design guarantees a
+human must step in (AUTONOMY) or a wrong number can be recorded without any
+check failing (ACCURACY).
+
+**HOW.** Ten lenses, one Opus agent each: (1) monthly path autonomy, (2) daily
+and ladder silent failure, (3) price-data integrity, (4) simulation fidelity,
+(5) experiment validity, (6) verification blind spots, (7) docs truth vs disk,
+(8) scheduled-task layer, (9) why the audit loop does not lead to fixes,
+(10) a cold first-principles reviewer with no briefing beyond CLAUDE.md +
+HANDOFF's goal. Every finding below was RE-CHECKED ON DISK by the orchestrating
+session (grep -n, schtasks /query, or a mode=ro query) - agent reports are not
+evidence (2026-09-25 precedent). Items marked (agent-only) were not re-checked.
+
+## EV.1 Root causes, ranked
+
+| # | Root cause | Class | Re-verified evidence |
+|---|---|---|---|
+| R1 | The monthly book can only be run by an LLM agent, and the trade guard is built to stop agents. The ~70 systematic + monthly-ladder sleeves need no judgment but share that one pipeline. The headless path is switched off. | AUTONOMY | guard.js:70 reason text "belongs to the scheduled tasks and to Evan, never to an agent"; guard.js:77 denies `_ops ... decide`; monthly_auto.bat:2 "DORMANT by design -- referenced by NO"; :4 "BLOCKED-ON-EVAN until an Anthropic API credential" |
+| R2 | A FAIL has no channel to a human, and the one alarm is saturated. verify has exited 1 every run since 2026-10-02 for the known cadence miss, using the same exit code a real fault would use. | AUTONOMY | verify_run.py:391 `return 1 if (n_fail or cadence_fails) else 0`; var/ops_status.log: 60 `verify=FAIL`; var/verify_report.log: 79 `rebalance cadence FAIL` lines; agents found no smtp/toast/notify/webhook code |
+| R3 | The schedule itself is not a reliable base. (a) Trading* triggers carry a fixed -05:00 offset, so from 2026-11-01 (DST ends) they fire one hour early by the clock. (b) Morning + Ladder still carry the battery flags that killed the weekly backup for 19 days. (c) All tasks are InteractiveToken. (d) DailyMTM has a 30 min limit. (e) No lock between writers - only the clock. | AUTONOMY (+ACCURACY via collisions) | schtasks XML: StartBoundary `...T09:00:00-05:00` (backup) and Next Run Time `11/1/2026 8:00:00 AM`; Daily `17:15:00-05:00`, Morning `07:45:00-05:00`, Ladder `20:30:00-05:00`; Morning + Ladder `DisallowStartIfOnBatteries=true`, `StopIfGoingOnBatteries=true`; all `LogonType InteractiveToken`; Daily `ExecutionTimeLimit PT30M` |
+| R4 | A skipped trade leg is not retried, and the check that would see the result only runs in monthly mode. With strict_fill_date, a name without a same-day bar is skipped. The buy budget is fixed BEFORE the skip, so a skipped buy stays cash; a skipped sell leaves an extra name. The monthly gate refuses a re-run; ladder due-ness is group-wide. | ACCURACY | monthly_rebalance.py:150 `strict_fill_date=True` (HANDOFF :512 still says monthly is "deliberately NOT" wired - false); paper_rebalance.py:270 `dollar_per = avail / len(buys)` before the skip at :279; paper_rebalance.py:159 "retries" docstring; verify_run.py:284 `if monthly and tgt is not None and n_open > tgt`; verify_report.log: 1,274 `[PASS]` lines with 51-59 positions vs target 50 |
+| R5 | Corporate actions have no automatic handling. No dividends are credited on the paper path (sim vs the Alpaca mirror, which receives them, are on different bases). Split ratios are supplied by hand. Delisted / cash-merged names have no exit (strict fills never get a bar). A held name with no close is marked at entry price with only a warning. | ACCURACY (+AUTONOMY: each repair manual) | paper_trader.py: 0 matches for "dividend"; broker.py:179 (legacy backtest only) credits them; daily_price_refresh.py:83 `INSERT OR REPLACE` with no compare against the stored bar; paper_mtm.py:125 "using entry_price" |
+| R6 | Verification compares the system to itself. The ledger check replays the trader's own rows; the calendar comes from price_cache; the frozen tests pin a backtest path no live sleeve uses, at a 5 bp tolerance; 17 test_*.py are wired into no scheduled run; NAV rows store no input-quality fields while their prices are rewritten for 30 days. | ACCURACY | test_strategies.py:79 `TOL_PCT = 0.05`; rest (agent-only, consistent with HANDOFF CK.4 / CW) |
+| R7 | The LLM experiments cannot reach their stated conclusions. All three stock arms hold the same name, so nothing has been measured since 2026-09-01. The kill switch counts log ROWS (14 rows over 7 dates, re-judgements + cascade walk-downs + 3 pre-reset rows) against 30 "picks". The computed statistic is not the pre-registered one. Decisions are logged after the close they fill at. No model / prompt version is stored. | ACCURACY | mode=ro query 16:19 CDT: open positions mom_roa_top1 MU (2026-08-03), llm_overlay_mom_roa_top1 MU (2026-09-01), llm_cascade_top1 MU (2026-09-01); llm_overlay_log count(*)=14, distinct decision_date=7; experiment_report.py:86 `n_dec = len(rows)`, :39 `KILL_PICKS = 30`; llm_overlay_log columns: id, decision_date, ticker, score, verdict, invalidation_level, rationale, created_at |
+| R8 | The fill can't be executed: books are filled at the close of the day the run starts after, and the live universe depends on how much of that day's data has landed (~4,400 of ~5,200 closes at 18:00). Measured implementation shortfall ~+100 bps vs a modelled 5 bp. | ACCURACY | (agent-only for the ranking effect); shortfall numbers are HANDOFF / record CY |
+| R9 | Finding a problem does not lead to fixing it. daily-audit is read-only, has no severity floor, no findings ledger; decisions (ET "monthly is manual") do not reach the task spec; deep HANDOFF sections are never re-verified. | AUTONOMY | daily-audit.SKILL.md:80 "No severity floor"; :83 "READ-ONLY: no code edits, no fixes applied, no commits, no HANDOFF"; CLAUDE.md:37 still "6 total" (agent 9: flagged by DS, DU, EM, EN, EQ, ER) |
+
+## EV.2 Time-critical (before Mon 2026-11-02)
+
+- **2026-11-01 DST**: Trading* tasks move one hour earlier by the clock
+  (DailyMTM 16:15, Morning 06:45, Ladder 19:30, Backup Sun 08:00) unless the
+  triggers are re-registered without the fixed offset. Evan's call (task change).
+- **The 11-02 manual monthly**: a stale-bar skip on any name without an 18:00
+  close drops that leg for the whole month (R4). The runbook's "unchanged #1
+  carries its decision" disagrees with the exact-date lookup in
+  llm_overlay_ops (agent 7/5; agent-only) and leads to a refusal. Per agent 7,
+  `alpaca_sync --execute` runs before a PARTIAL stamp, so a retry re-runs the
+  sync (agent-only - read rebalance.bat before the run).
+- `monthy-llm-rebalance` (cron `0 18 1-5 * *`) will fire again 11-02..11-05 and be
+  denied, the same evening as the manual run.
+
+## EV.3 Smaller findings worth keeping (agent-only unless noted)
+
+- Ladder log is overwritten nightly and the ladder never calls ops_stamp, so a
+  ladder failure leaves no lasting trace (agent 2).
+- check_anomalies always exits 0; split seam scan is report-only and blind to a
+  2:1-4:1 split on a name bought <30 days before (agent 3).
+- Universe frozen and seeded from Form 4 filers; no new listings ever enter (agent 3).
+- PRD_ROADMAP's only open item is BLOCKED-ON-EVAN, so CLAUDE.md's "work the next
+  PRD task" pointer is dead; the real queue lives only in HANDOFF (agent 7).
+- Monthly cron stated as daily in three places (check_month_gate.py:3,
+  rebalance.bat:28, tooling.md:16) (agent 7).
+- Tooling: the `claim-check` Stop hook flags correct `file:line` citations whose
+  Grep output printed Windows backslash paths (it fired 5 times this session
+  on verified lines). False positives train the reader to ignore it.
+
+## EV.4 Open / not done
+
+- Nothing was fixed. Every R-item is open.
+- Not checked: how many 09-01 legs were skipped by strict fills; how many
+  live positions are marked at entry price or fossil prices; dividend drag in
+  dollars; whether the PC runs on battery.
+- Frozen tests were NOT run: no Python changed this session.

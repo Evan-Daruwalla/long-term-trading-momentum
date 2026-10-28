@@ -246,7 +246,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt">ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV</a> (10-22)<br />
 - <a href="#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt">ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent</a> (10-25)<br />
 - <a href="#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt">ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02</a> (10-25)<br />
-- <a href="#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt">EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02</a> (10-27)</p>
+- <a href="#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt">EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02</a> (10-27)<br />
+- <a href="#appendix-ev---10-agent-root-cause-audit-the-monthly-is-agent-only-behind-a-guard-that-stops-agents-fails-reach-no-human-dst-shifts-every-task-on-11-01-findings-only-2026-10-28-1625-cdt">EV - 10-agent root-cause audit: the monthly is agent-only behind a guard that stops agents, FAILs reach no human, DST shifts every task on 11-01 (findings only)</a> (10-28)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -15053,6 +15054,128 @@ modules, so the cost is nil.</p>
 <h2 id="docs_1">Docs</h2>
 <p>HANDOFF's top block now says the guard fix is published. No code changed, so<br />
 the frozen tests and the guard self-check were not re-run.</p>
+<h1 id="appendix-ev---10-agent-root-cause-audit-the-monthly-is-agent-only-behind-a-guard-that-stops-agents-fails-reach-no-human-dst-shifts-every-task-on-11-01-findings-only-2026-10-28-1625-cdt">Appendix EV - 10-agent root-cause audit: the monthly is agent-only behind a guard that stops agents, FAILs reach no human, DST shifts every task on 11-01 (findings only) (2026-10-28, ~16:25 CDT)</h1>
+<p><strong>WHAT.</strong> A 10-agent, read-only root-cause audit (code + docs), asked by Evan:<br />
+"find the most fundamental issues plaguing this experiment from being a truly<br />
+self-running yet very accurate test". Findings only - NO code, task, config or<br />
+DB change was made. Started 16:12 CDT; all agents reported by ~16:20 CDT.</p>
+<p><strong>WHY.</strong> The daily audits (DS/DT/DU, EM/EN/EQ/ER) produce 22-51 findings each<br />
+and the structural items recur unfixed; the October monthly then silently never<br />
+ran (ES). This pass asks for ROOT causes only: where the design guarantees a<br />
+human must step in (AUTONOMY) or a wrong number can be recorded without any<br />
+check failing (ACCURACY).</p>
+<p><strong>HOW.</strong> Ten lenses, one Opus agent each: (1) monthly path autonomy, (2) daily<br />
+and ladder silent failure, (3) price-data integrity, (4) simulation fidelity,<br />
+(5) experiment validity, (6) verification blind spots, (7) docs truth vs disk,<br />
+(8) scheduled-task layer, (9) why the audit loop does not lead to fixes,<br />
+(10) a cold first-principles reviewer with no briefing beyond CLAUDE.md +<br />
+HANDOFF's goal. Every finding below was RE-CHECKED ON DISK by the orchestrating<br />
+session (grep -n, schtasks /query, or a mode=ro query) - agent reports are not<br />
+evidence (2026-09-25 precedent). Items marked (agent-only) were not re-checked.</p>
+<h2 id="ev1-root-causes-ranked">EV.1 Root causes, ranked</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Root cause</th>
+<th>Class</th>
+<th>Re-verified evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>The monthly book can only be run by an LLM agent, and the trade guard is built to stop agents. The ~70 systematic + monthly-ladder sleeves need no judgment but share that one pipeline. The headless path is switched off.</td>
+<td>AUTONOMY</td>
+<td>guard.js:70 reason text "belongs to the scheduled tasks and to Evan, never to an agent"; guard.js:77 denies <code>_ops ... decide</code>; monthly_auto.bat:2 "DORMANT by design -- referenced by NO"; :4 "BLOCKED-ON-EVAN until an Anthropic API credential"</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>A FAIL has no channel to a human, and the one alarm is saturated. verify has exited 1 every run since 2026-10-02 for the known cadence miss, using the same exit code a real fault would use.</td>
+<td>AUTONOMY</td>
+<td>verify_run.py:391 <code>return 1 if (n_fail or cadence_fails) else 0</code>; var/ops_status.log: 60 <code>verify=FAIL</code>; var/verify_report.log: 79 <code>rebalance cadence FAIL</code> lines; agents found no smtp/toast/notify/webhook code</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>The schedule itself is not a reliable base. (a) Trading* triggers carry a fixed -05:00 offset, so from 2026-11-01 (DST ends) they fire one hour early by the clock. (b) Morning + Ladder still carry the battery flags that killed the weekly backup for 19 days. (c) All tasks are InteractiveToken. (d) DailyMTM has a 30 min limit. (e) No lock between writers - only the clock.</td>
+<td>AUTONOMY (+ACCURACY via collisions)</td>
+<td>schtasks XML: StartBoundary <code>...T09:00:00-05:00</code> (backup) and Next Run Time <code>11/1/2026 8:00:00 AM</code>; Daily <code>17:15:00-05:00</code>, Morning <code>07:45:00-05:00</code>, Ladder <code>20:30:00-05:00</code>; Morning + Ladder <code>DisallowStartIfOnBatteries=true</code>, <code>StopIfGoingOnBatteries=true</code>; all <code>LogonType InteractiveToken</code>; Daily <code>ExecutionTimeLimit PT30M</code></td>
+</tr>
+<tr>
+<td>R4</td>
+<td>A skipped trade leg is not retried, and the check that would see the result only runs in monthly mode. With strict_fill_date, a name without a same-day bar is skipped. The buy budget is fixed BEFORE the skip, so a skipped buy stays cash; a skipped sell leaves an extra name. The monthly gate refuses a re-run; ladder due-ness is group-wide.</td>
+<td>ACCURACY</td>
+<td>monthly_rebalance.py:150 <code>strict_fill_date=True</code> (HANDOFF :512 still says monthly is "deliberately NOT" wired - false); paper_rebalance.py:270 <code>dollar_per = avail / len(buys)</code> before the skip at :279; paper_rebalance.py:159 "retries" docstring; verify_run.py:284 <code>if monthly and tgt is not None and n_open &gt; tgt</code>; verify_report.log: 1,274 <code>[PASS]</code> lines with 51-59 positions vs target 50</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Corporate actions have no automatic handling. No dividends are credited on the paper path (sim vs the Alpaca mirror, which receives them, are on different bases). Split ratios are supplied by hand. Delisted / cash-merged names have no exit (strict fills never get a bar). A held name with no close is marked at entry price with only a warning.</td>
+<td>ACCURACY (+AUTONOMY: each repair manual)</td>
+<td>paper_trader.py: 0 matches for "dividend"; broker.py:179 (legacy backtest only) credits them; daily_price_refresh.py:83 <code>INSERT OR REPLACE</code> with no compare against the stored bar; paper_mtm.py:125 "using entry_price"</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Verification compares the system to itself. The ledger check replays the trader's own rows; the calendar comes from price_cache; the frozen tests pin a backtest path no live sleeve uses, at a 5 bp tolerance; 17 test_*.py are wired into no scheduled run; NAV rows store no input-quality fields while their prices are rewritten for 30 days.</td>
+<td>ACCURACY</td>
+<td>test_strategies.py:79 <code>TOL_PCT = 0.05</code>; rest (agent-only, consistent with HANDOFF CK.4 / CW)</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>The LLM experiments cannot reach their stated conclusions. All three stock arms hold the same name, so nothing has been measured since 2026-09-01. The kill switch counts log ROWS (14 rows over 7 dates, re-judgements + cascade walk-downs + 3 pre-reset rows) against 30 "picks". The computed statistic is not the pre-registered one. Decisions are logged after the close they fill at. No model / prompt version is stored.</td>
+<td>ACCURACY</td>
+<td>mode=ro query 16:19 CDT: open positions mom_roa_top1 MU (2026-08-03), llm_overlay_mom_roa_top1 MU (2026-09-01), llm_cascade_top1 MU (2026-09-01); llm_overlay_log count(*)=14, distinct decision_date=7; experiment_report.py:86 <code>n_dec = len(rows)</code>, :39 <code>KILL_PICKS = 30</code>; llm_overlay_log columns: id, decision_date, ticker, score, verdict, invalidation_level, rationale, created_at</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>The fill can't be executed: books are filled at the close of the day the run starts after, and the live universe depends on how much of that day's data has landed (~4,400 of ~5,200 closes at 18:00). Measured implementation shortfall ~+100 bps vs a modelled 5 bp.</td>
+<td>ACCURACY</td>
+<td>(agent-only for the ranking effect); shortfall numbers are HANDOFF / record CY</td>
+</tr>
+<tr>
+<td>R9</td>
+<td>Finding a problem does not lead to fixing it. daily-audit is read-only, has no severity floor, no findings ledger; decisions (ET "monthly is manual") do not reach the task spec; deep HANDOFF sections are never re-verified.</td>
+<td>AUTONOMY</td>
+<td>daily-audit.SKILL.md:80 "No severity floor"; :83 "READ-ONLY: no code edits, no fixes applied, no commits, no HANDOFF"; CLAUDE.md:37 still "6 total" (agent 9: flagged by DS, DU, EM, EN, EQ, ER)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ev2-time-critical-before-mon-2026-11-02">EV.2 Time-critical (before Mon 2026-11-02)</h2>
+<ul>
+<li><strong>2026-11-01 DST</strong>: Trading* tasks move one hour earlier by the clock<br />
+  (DailyMTM 16:15, Morning 06:45, Ladder 19:30, Backup Sun 08:00) unless the<br />
+  triggers are re-registered without the fixed offset. Evan's call (task change).</li>
+<li><strong>The 11-02 manual monthly</strong>: a stale-bar skip on any name without an 18:00<br />
+  close drops that leg for the whole month (R4). The runbook's "unchanged #1<br />
+  carries its decision" disagrees with the exact-date lookup in<br />
+  llm_overlay_ops (agent 7/5; agent-only) and leads to a refusal. Per agent 7,<br />
+<code>alpaca_sync --execute</code> runs before a PARTIAL stamp, so a retry re-runs the<br />
+  sync (agent-only - read rebalance.bat before the run).</li>
+<li><code>monthy-llm-rebalance</code> (cron <code>0 18 1-5 * *</code>) will fire again 11-02..11-05 and be<br />
+  denied, the same evening as the manual run.</li>
+</ul>
+<h2 id="ev3-smaller-findings-worth-keeping-agent-only-unless-noted">EV.3 Smaller findings worth keeping (agent-only unless noted)</h2>
+<ul>
+<li>Ladder log is overwritten nightly and the ladder never calls ops_stamp, so a<br />
+  ladder failure leaves no lasting trace (agent 2).</li>
+<li>check_anomalies always exits 0; split seam scan is report-only and blind to a<br />
+  2:1-4:1 split on a name bought &lt;30 days before (agent 3).</li>
+<li>Universe frozen and seeded from Form 4 filers; no new listings ever enter (agent 3).</li>
+<li>PRD_ROADMAP's only open item is BLOCKED-ON-EVAN, so CLAUDE.md's "work the next<br />
+  PRD task" pointer is dead; the real queue lives only in HANDOFF (agent 7).</li>
+<li>Monthly cron stated as daily in three places (check_month_gate.py:3,<br />
+  rebalance.bat:28, tooling.md:16) (agent 7).</li>
+<li>Tooling: the <code>claim-check</code> Stop hook flags correct <code>file:line</code> citations whose<br />
+  Grep output printed Windows backslash paths (it fired 5 times this session<br />
+  on verified lines). False positives train the reader to ignore it.</li>
+</ul>
+<h2 id="ev4-open--not-done">EV.4 Open / not done</h2>
+<ul>
+<li>Nothing was fixed. Every R-item is open.</li>
+<li>Not checked: how many 09-01 legs were skipped by strict fills; how many<br />
+  live positions are marked at entry price or fossil prices; dividend drag in<br />
+  dollars; whether the PC runs on battery.</li>
+<li>Frozen tests were NOT run: no Python changed this session.</li>
+</ul>
 </div>
 </body>
 </html>
