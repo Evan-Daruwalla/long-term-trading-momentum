@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-10-25 ~21:02 CDT (records ES, ET)** — this file is the only live snapshot
+**Last updated: 2026-10-27 ~23:50 CDT (records ES-EU)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -28,7 +28,7 @@ Appendix AZ).
 >   ladders kept trading. **Evan decided (2026-10-25, record ET): no late October
 >   run - the next monthly is Mon 2026-11-02, MANUAL for Evan** (the guard denies
 >   the scheduled task's decide step and its .bat).
-> - **Guard workspace-root cwd hole: FIXED 2026-10-25 (record ET).** Trading
+> - **Guard workspace-root cwd hole: FIXED 2026-10-25 (record ET), published 2026-10-27 (EU).** Trading
 >   rules now apply when the cwd is the repo,
 >   inside it, or any folder above it, or the command names a `Trading` path
 >   segment. Self-check 67/0.

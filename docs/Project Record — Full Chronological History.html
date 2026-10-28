@@ -245,7 +245,8 @@ lives in the dated entry, not the digest.</p>
 - <a href="#appendix-eq---scheduled-daily-audit-44-findings-4-high---the-root-cwd-guard-hole-is-still-open-the-missed-october-monthly-saturates-the-daily-alarm-and-the-git-add-denies-are-gone-undocumented-2026-10-14-0819-cdt">EQ - Scheduled daily-audit: 44 findings, 4 high - the root-cwd guard hole is still open, the missed October monthly saturates the daily alarm, and the git add denies are gone undocumented</a> (10-14)<br />
 - <a href="#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt">ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV</a> (10-22)<br />
 - <a href="#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt">ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent</a> (10-25)<br />
-- <a href="#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt">ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02</a> (10-25)</p>
+- <a href="#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt">ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02</a> (10-25)<br />
+- <a href="#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt">EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02</a> (10-27)</p>
 <hr />
 <h1 id="thematic-digest">Thematic digest</h1>
 <blockquote>
@@ -15035,6 +15036,23 @@ modules, so the cost is nil.</p>
   Trading cwd, an absolute path and a missing cwd still deny.</li>
 <li>JS only, no Python changed, so the frozen tests were not required.</li>
 </ul>
+<h1 id="appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt">Appendix EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02 (2026-10-27, ~23:46 CDT)</h1>
+<h2 id="what_10">WHAT</h2>
+<p>On Evan's instruction, 2026-10-27, the branch was published:<br />
+<code>git push origin master</code> moved origin <code>5b0bc72..27c815a</code>. That is 5 commits:<br />
+- <code>f1ad6d0</code>, the trade-guard workspace-root cwd fix (record ET);<br />
+- 4 daily reports (2026-10-26 and 2026-10-27, pre- and post-market).</p>
+<p>All 5 were checked for a Co-Authored-By trailer before the push: 0 found.</p>
+<h2 id="state-check-read-only">State check (read-only)</h2>
+<ul>
+<li><code>rebalance_log.md</code> still reads "Last rebalance: 2026-09-01", as expected.<br />
+  Per Evan's decision in record ET, the next monthly is Mon 2026-11-02, run by<br />
+  hand.</li>
+<li>No record appendices were added by other sessions since ET.</li>
+</ul>
+<h2 id="docs_1">Docs</h2>
+<p>HANDOFF's top block now says the guard fix is published. No code changed, so<br />
+the frozen tests and the guard self-check were not re-run.</p>
 </div>
 </body>
 </html>

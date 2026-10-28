@@ -207,6 +207,7 @@ lives in the dated entry, not the digest.
 - [ER - Scheduled daily-audit: 51 findings, 7 high - the monthly task cannot finish under the guard, split seams sit unguarded in non-held prices, and the coverage floor is 85 closes from locking every NAV](#appendix-er---scheduled-daily-audit-51-findings-7-high---the-monthly-task-cannot-finish-under-the-guard-split-seams-sit-unguarded-in-non-held-prices-and-the-coverage-floor-is-85-closes-from-locking-every-nav-2026-10-22-0750-cdt) (10-22)
 - [ES - docs-sync 2026-10-25: the October monthly never ran (verified), the guard's workspace-root cwd hole confirmed, keys Read-deny still absent](#appendix-es---docs-sync-2026-10-25-the-october-monthly-never-ran-verified-the-guards-workspace-root-cwd-hole-confirmed-keys-read-deny-still-absent-2026-10-25-1557-cdt) (10-25)
 - [ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02](#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt) (10-25)
+- [EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02](#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt) (10-27)
 
 ---
 
@@ -13883,3 +13884,25 @@ modules, so the cost is nil.
   `cd Trading && python -m <dispatcher>`: allow before, **deny** after. The
   Trading cwd, an absolute path and a missing cwd still deny.
 - JS only, no Python changed, so the frozen tests were not required.
+
+# Appendix EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02 (2026-10-27, ~23:46 CDT)
+## WHAT
+
+On Evan's instruction, 2026-10-27, the branch was published:
+`git push origin master` moved origin `5b0bc72..27c815a`. That is 5 commits:
+- `f1ad6d0`, the trade-guard workspace-root cwd fix (record ET);
+- 4 daily reports (2026-10-26 and 2026-10-27, pre- and post-market).
+
+All 5 were checked for a Co-Authored-By trailer before the push: 0 found.
+
+## State check (read-only)
+
+- `rebalance_log.md` still reads "Last rebalance: 2026-09-01", as expected.
+  Per Evan's decision in record ET, the next monthly is Mon 2026-11-02, run by
+  hand.
+- No record appendices were added by other sessions since ET.
+
+## Docs
+
+HANDOFF's top block now says the guard fix is published. No code changed, so
+the frozen tests and the guard self-check were not re-run.
