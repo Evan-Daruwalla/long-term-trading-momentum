@@ -209,6 +209,7 @@ lives in the dated entry, not the digest.
 - [ET - Trade guard: workspace-root cwd hole closed (self-check 67/0); Evan: no late October rebalance, monthly waits for 2026-11-02](#appendix-et---trade-guard-workspace-root-cwd-hole-closed-self-check-670-evan-no-late-october-rebalance-monthly-waits-for-2026-11-02-2026-10-25-2101-cdt) (10-25)
 - [EU - Published f1ad6d0 (guard cwd fix) and 4 daily reports; next monthly still Mon 2026-11-02](#appendix-eu---published-f1ad6d0-guard-cwd-fix-and-4-daily-reports-next-monthly-still-mon-2026-11-02-2026-10-27-2346-cdt) (10-27)
 - [EV - 10-agent root-cause audit: the monthly is agent-only behind a guard that stops agents, FAILs reach no human, DST shifts every task on 11-01 (findings only)](#appendix-ev---10-agent-root-cause-audit-the-monthly-is-agent-only-behind-a-guard-that-stops-agents-fails-reach-no-human-dst-shifts-every-task-on-11-01-findings-only-2026-10-28-1625-cdt) (10-28)
+- [EW - Windows task triggers DST-proofed and battery flags cleared (EV R3a+R3b closed) (2026-10-28, ~19:55 CDT)](#appendix-ew---windows-task-triggers-dst-proofed-and-battery-flags-cleared-ev-r3ar3b-closed-2026-10-28-1955-cdt-2026-10-28) (10-28)
 
 ---
 
@@ -13979,3 +13980,57 @@ evidence (2026-09-25 precedent). Items marked (agent-only) were not re-checked.
   live positions are marked at entry price or fossil prices; dividend drag in
   dollars; whether the PC runs on battery.
 - Frozen tests were NOT run: no Python changed this session.
+
+# Appendix EW - Windows task triggers DST-proofed and battery flags cleared (EV R3a+R3b closed) (2026-10-28, ~19:55 CDT) (2026-10-28)
+**WHAT.** Closed record EV R3a (fixed UTC offset on the Trading* triggers) and
+R3b (battery flags on Morning/Ladder). Evan approved the plan; Evan ran the
+script himself at ~19:51 CDT, because the auto-mode classifier denied the agent's
+run (it had also denied a read-only PowerShell probe earlier). The agent wrote the
+script and ran the verify. No code, Python, DB or Claude scheduled task changed.
+
+**WHY.** Each of the four calendar triggers stored StartBoundary with `-05:00`.
+Task Scheduler reads an offset as "synchronize across time zones", which pins the
+trigger to UTC. When DST ends on Sun 2026-11-01, every task would fire one hour
+early by the clock (DailyMTM 16:15, Morning 06:45, Ladder 19:30, Backup 08:00).
+Before the fix, schtasks already showed the backup's Next Run as
+`11/1/2026 8:00:00 AM`. Morning and Ladder still had both battery flags, the same
+setting that silently skipped the weekly backup for 19 days.
+
+**HOW.** `var\fix_task_triggers_2026-10-28.ps1` (gitignored; the task XML holds
+the Windows user id). It (1) exports each task's XML to
+`var\task_xml_backup_2026-10-28\` before changing anything, (2) strips the
+trailing offset with `-replace '[+-]\d\d:\d\d$',''`, which keeps the same date
+and time read as LOCAL time, (3) sets DisallowStartIfOnBatteries and
+StopIfGoingOnBatteries to false on Morning and Ladder only, and (4) applies the
+changes with `Set-ScheduledTask -InputObject`. It throws if a task does not have
+exactly one trigger. Action, principal (InteractiveToken), StartWhenAvailable and
+DailyMTM's PT30M are untouched.
+
+## EW.1 Before / after (schtasks /query /xml, 17:35 and 19:51 CDT)
+
+| Task | StartBoundary before | after | Battery flags before -> after | Next Run after |
+|---|---|---|---|---|
+| TradingDailyMTM | 2026-05-30T17:15:00-05:00 | 2026-05-30T17:15:00 | false/false (unchanged) | 10/29/2026 5:15:00 PM |
+| TradingMorningMTM | 2026-07-15T07:45:00-05:00 | 2026-07-15T07:45:00 | true/true -> false/false | 10/29/2026 7:45:00 AM |
+| TradingLadderRebalance | 2026-07-17T20:30:00-05:00 | 2026-07-17T20:30:00 | true/true -> false/false | 10/28/2026 8:30:00 PM |
+| TradingWeeklyBackup (Sun) | 2026-07-09T09:00:00-05:00 | 2026-07-09T09:00:00 | false/false (unchanged) | **11/1/2026 9:00:00 AM** (was 8:00) |
+
+The backup's Next Run moving from 8:00 to 9:00 AM on 11-01 is the direct proof
+that the trigger now follows local time. The backup XML in
+`var\task_xml_backup_2026-10-28\` holds the old values (checked:
+TradingMorningMTM.xml still reads `07:45:00-05:00` and both flags `true`).
+Rollback is `Register-ScheduledTask -TaskName <n> -Xml (Get-Content <bak>\<n>.xml -Raw) -Force`.
+
+## EW.2 Open / not done
+
+- Not yet proven across the DST change. Check on 2026-11-02: Last Run Time
+  07:45 (Morning) and 17:15 (Daily), and the 11-01 backup at 09:00.
+- Timing slip: the script ran at ~19:51 CDT, 6 minutes into the 19:45-21:00
+  protected window. It edits task definitions only and takes seconds, and the
+  Ladder (20:30) was idle (Status Ready), so no collision. Noted, not hidden.
+- Still open from R3: (c) every task is InteractiveToken (runs only while Evan is
+  logged in), (d) DailyMTM's 30 min ExecutionTimeLimit, (e) no lock between
+  writers. R1, R2 and R4-R9 are all still open.
+- DailyMTM Last Result was 1 at 17:15 on 2026-10-28. This fits the known R2
+  cadence-FAIL exit code, but it was not investigated this session.
+- No Python changed, so the frozen tests were not run.

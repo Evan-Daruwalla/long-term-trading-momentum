@@ -10,7 +10,7 @@ the asset.
 
 ## Current state — Phase 2d, 76 sleeves live (07-06 cohort + residual 3-cadence ladder)
 
-**Last updated: 2026-10-28 ~16:30 CDT (records ES-EV)** — this file is the only live snapshot
+**Last updated: 2026-10-28 ~19:55 CDT (records ES-EW)** — this file is the only live snapshot
 (state-doc tier retired 2026-07-08; historical snapshots archived in record
 Appendix AZ).
 
@@ -21,8 +21,13 @@ Appendix AZ).
 > verified to exist before deletion). **History goes in the record. If you find
 > yourself pasting a narrative block here, write an appendix and link it.**
 
+> **2026-10-28 ~19:55 CDT (record EW) - EV R3a+R3b CLOSED.** All 4 Trading* triggers
+> now read local time (offset stripped) and Morning/Ladder battery flags are false;
+> backup Next Run = 11/1/2026 9:00 AM. Pre-change XML in `var\task_xml_backup_2026-10-28\`.
+> **Check on 2026-11-02:** Morning Last Run 07:45, Daily 17:15. R3c-e still open.
+
 > **2026-10-28 ~16:25 CDT (record EV) - 10-agent root-cause audit, findings only. Read EV.1/EV.2.**
-> - **TIME-CRITICAL, Evan's call:** every Trading* Windows task has a fixed
+> - ~~**TIME-CRITICAL, Evan's call:**~~ (FIXED 2026-10-28, record EW) every Trading* Windows task has a fixed
 >   `-05:00` StartBoundary, so from **2026-11-01 (DST ends)** they fire one hour
 >   early by the clock (schtasks already shows the Sun backup at 8:00 AM, not 9:00).
 >   TradingMorningMTM + TradingLadderRebalance still carry both battery flags.
@@ -816,13 +821,13 @@ STATE (verified 2026-10-25 ~16:00 CDT, record ES):
 - Publishing is allowed (git push rule removed by Evan 2026-10-10, EO/EP).
   No Co-Authored-By trailer, ever.
 
-AUDIT 2026-10-28 (record EV): 9 ranked root causes, none fixed. Time-critical:
-Windows task triggers have a fixed -05:00 offset -> one hour early from
-2026-11-01 (DST); fixing them changes tasks = Evan's call. Read EV.2 before
-the 11-02 run.
+AUDIT 2026-10-28 (record EV): 9 ranked root causes. R3a+R3b (fixed -05:00
+trigger offset, Morning/Ladder battery flags) were FIXED the same evening
+(record EW); everything else is open. Read EV.2 before the 11-02 run.
 
 THEN:
-- BLOCKED-ON-EVAN: DST trigger re-registration + battery flags (EV R3).
+- On 2026-11-02 confirm the DST fix held: Morning Last Run 07:45, Daily 17:15,
+  11-01 backup at 09:00 (record EW.2).
 - BLOCKED-ON-EVAN: run the 2026-11-02 monthly by hand; alpaca_keys.env
   Read-deny (both settings files, see EF).
 - Re-verify the open highs in daily audits EM, EN, EQ, ER (not re-checked by
